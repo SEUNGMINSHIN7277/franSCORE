@@ -1,0 +1,507 @@
+# -*- coding: utf-8 -*-
+"""FranSCORE 안전성(sanity) 테스트 — 계약 docs/INTERFACES.md §7 (pytest 불요, 표준 assert).
+
+실행: 프로젝트 루트에서  python -m tests.test_sanity
+
+검증 항목:
+  1. 라벨 규칙  : 수제 미니 패널 → 사건 발동(2개 이상)·극단 규칙(1개 극단)·
+                  |Δ점포| 노이즈 게이트·최소점포 게이트·healthy 게이트의 기대 라벨 일치
+  2. 시점 누출  : features의 (brand, t) 행이 t+1 이후 패널값 교란에 완전 불변
+  3. 시간 분할  : train/valid/test 연도 교집합 없음, test = 최대 연도, valid = test-1
+  4. 예측 스키마: predictions.parquet 계약 컬럼·확률 [0,1] 범위 (합성 임시 실행으로 생성)
+  5. 포트폴리오 : EL ≤ exposure, LGD 단조성(LGD↑ → EL↑), 스트레스 EL ≥ 기본 EL
+
+설계 원칙 (정직성·격리):
+- 실데이터(data/processed)·제출 산출물(outputs)은 절대 쓰지 않는다. 모든 실행은
+  tempfile 임시 디렉터리로 cfg['paths'] "사본"을 교체해 격리한다 (원본 cfg 불변).
+- 종료 시 data/processed 디렉터리가 불변(파일명·크기·mtime)임을 가드로 재확인한다.
+  (outputs/pipeline.log 는 모듈 로거가 append 하므로 가드 대상에서 제외.)
+- 미니 패널의 기대 라벨은 pandas 분위수(linear interpolation)·엄격 부등호·게이트
+  규칙(labels.py 문서화된 해석)을 손으로 계산해 고정했다. config.yaml 의 라벨
+  파라미터가 전제이므로, 전제가 깨지면 명확한 메시지로 실패하도록 사전검사를 둔다.
+"""
+from __future__ import annotations
+
+import copy
+import json
+import sys
+import tempfile
+import traceback
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from src.common import get_logger, load_config, make_synthetic_panel, set_seed
+from src.features import build_features
+from src.labels import build_labels
+from src import model as model_mod
+from src import portfolio as portfolio_mod
+
+log = get_logger("test_sanity")
+
+ROOT = Path(__file__).resolve().parent.parent
+
+# 계약 §3 predictions.parquet 컬럼 (순서 포함)
+PREDICTION_COLUMNS = [
+    "brand_id", "year", "split", "y_true",
+    "p_lgbm", "p_persistence", "p_single", "p_logistic", "is_new_brand",
+]
+# 계약 §2 build_labels 반환 컬럼 (순서 포함)
+LABEL_COLUMNS = [
+    "brand_id", "year", "label", "healthy_at_t",
+    "ev_store", "ev_sales", "ev_contract", "n_events", "extreme_fired",
+]
+
+
+# ---------------------------------------------------------------------------
+# 격리 유틸
+# ---------------------------------------------------------------------------
+
+def _make_test_cfg(base_cfg: dict, tmp: Path) -> dict:
+    """cfg 딥카피 후 paths 를 임시 디렉터리로 교체 (실데이터·제출 산출물 격리)."""
+    tcfg = copy.deepcopy(base_cfg)
+    tcfg["paths"] = {
+        "raw": tmp / "raw",
+        "processed": tmp / "processed",
+        "outputs": tmp / "outputs",
+        "demo_outputs": tmp / "outputs" / "_smoke",
+    }
+    for p in tcfg["paths"].values():
+        Path(p).mkdir(parents=True, exist_ok=True)
+    return tcfg
+
+
+def _fingerprint_dir(d: Path) -> list[tuple[str, int, int]]:
+    """디렉터리 내 모든 파일의 (상대경로, 크기, mtime_ns) 스냅샷 — 불변 가드용."""
+    if not d.exists():
+        return []
+    out = []
+    for p in sorted(d.rglob("*")):
+        if p.is_file():
+            st = p.stat()
+            out.append((str(p.relative_to(d)), st.st_size, st.st_mtime_ns))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# 테스트 1 — 라벨 규칙 (수제 미니 패널)
+# ---------------------------------------------------------------------------
+# 설계: 20개 브랜드 × 3개년(2019~2021), 단일 업종셀(외식/치킨 — 그룹크기 20 < 30
+# 이므로 업종그룹 = major). t=2020 행의 라벨은 2021년 사건으로 결정된다.
+#
+# 2021년 사건 지표 풀(20개 값)을 정확히 "low 4개 + high 16개"로 설계:
+#   pandas quantile(0.20) = sorted[3] + 0.8*(sorted[4]-sorted[3]) 는 low/high 사이
+#   → 엄격 부등호 기준 low 4개만 발동. extreme quantile(0.05) 는 sorted[0]과
+#   sorted[1] 사이 → 유일 최솟값만 극단 (최솟값을 중복시키면 극단 없음).
+#
+# 브랜드 역할:
+#   N01..N08          중립 (사건 없음 → label 0)
+#   B_storeext        점포 -60% (극단, |Δ|=63) → 사건 1개지만 극단 → label 1
+#   B_2ev             점포 -27.6% + 매출 -50%  → 사건 2개(극단 아님) → label 1
+#   B_smallgate       점포 -20% 이지만 |Δ|=2 < 3 → 게이트 차단 → label 0
+#   B_gate            t 점포수 8 < min_stores_at_t=10 → 표본 자체에서 제외
+#   B_unh             2020년에 점포 -30%(극단) → t=2019 label 1,
+#                     t=2020 은 healthy 게이트로 표본 제외
+#   B_salesonly       매출 -50% (중복 최솟값 → 극단 아님) 사건 1개 → label 0
+#   B_saleslow2/3     매출 -10% / -8% 사건 1개 → label 0
+#   B_contractonly    계약종료율 0.40 (중복 최댓값 → 극단 아님) 사건 1개 → label 0
+#   B_contracthigh2~4 계약종료율 0.40/0.30/0.28 사건 1개 → label 0
+# ---------------------------------------------------------------------------
+
+_NEUTRAL_STORES = (100.0, 105.0, 111.0)  # 성장 +5%, +5.71% (중립 high)
+
+
+def _brand_specs() -> dict[str, dict]:
+    sp: dict[str, dict] = {f"N{i:02d}": {} for i in range(1, 9)}
+    sp["B_storeext"] = {"stores": (100.0, 105.0, 42.0)}
+    sp["B_2ev"] = {"stores": (100.0, 105.0, 76.0), "sales_g21": -0.50}
+    sp["B_smallgate"] = {"stores": (10.0, 10.0, 8.0)}
+    sp["B_gate"] = {"stores": (8.0, 8.0, 6.0)}
+    sp["B_unh"] = {"stores": (100.0, 70.0, 74.0)}
+    sp["B_salesonly"] = {"sales_g21": -0.50}
+    sp["B_saleslow2"] = {"sales_g21": -0.10}
+    sp["B_saleslow3"] = {"sales_g21": -0.08}
+    sp["B_contractonly"] = {"c21": 0.40}
+    sp["B_contracthigh2"] = {"c21": 0.40}
+    sp["B_contracthigh3"] = {"c21": 0.30}
+    sp["B_contracthigh4"] = {"c21": 0.28}
+    return sp
+
+
+def _mini_panel() -> pd.DataFrame:
+    """계약 §1 스키마의 수제 미니 패널 (위 설계 주석 참조)."""
+    rows = []
+    for name, spec in _brand_specs().items():
+        stores = spec.get("stores", _NEUTRAL_STORES)
+        g21_sales = spec.get("sales_g21", 0.04)   # 중립 매출성장 +4%
+        c21 = spec.get("c21", 0.05)               # 중립 계약종료율 5%
+        st = dict(zip((2019, 2020, 2021), stores))
+        sales = {2019: 300_000.0}
+        sales[2020] = sales[2019] * 1.03          # 전 브랜드 동일 +3% → 사건 없음
+        sales[2021] = sales[2020] * (1.0 + g21_sales)
+        crate = {2020: 0.05, 2021: c21}           # 2020 전 브랜드 동일 → 사건 없음
+        for yr in (2019, 2020, 2021):
+            prev = st.get(yr - 1)
+            if yr in crate and prev:
+                total_end = crate[yr] * prev      # (종료+해지)/전년점포 = 정확히 crate
+            else:
+                total_end = 1.0                   # 2019: 전년 없음 → rate NaN (미사용)
+            n_end = total_end * 0.6
+            n_cancel = total_end - n_end
+            n_new = max(0.0, st[yr] - (prev or st[yr]) + total_end)
+            rows.append({
+                "brand_id": name,
+                "brand_name": name,
+                "company_name": f"HQ_{name}",
+                "industry_major": "외식",
+                "industry_mid": "치킨",
+                "year": yr,
+                "n_stores": st[yr],
+                "n_direct": 2.0,
+                "n_new": n_new,
+                "n_contract_end": n_end,
+                "n_contract_cancel": n_cancel,
+                "n_name_change": 1.0,
+                "avg_sales": sales[yr],
+                "avg_sales_per_area": sales[yr] / 10.0,
+            })
+    return pd.DataFrame(rows)
+
+
+def _expected_labels() -> dict[tuple[str, int], int]:
+    exp: dict[tuple[str, int], int] = {}
+    for nm in _brand_specs():
+        if nm == "B_gate":
+            continue                      # 최소점포 게이트: 전 행 표본 제외
+        exp[(nm, 2019)] = 1 if nm == "B_unh" else 0   # 2019: 첫 관측연도 → 전원 healthy
+        if nm == "B_unh":
+            continue                      # healthy 게이트: t=2020 행 표본 제외
+        exp[(nm, 2020)] = 1 if nm in ("B_storeext", "B_2ev") else 0
+    return exp
+
+
+def _check_label_preconditions(cfg: dict) -> None:
+    """미니 패널 기대값이 전제하는 config 라벨 파라미터 검사 (변경 시 명확히 실패)."""
+    lab = cfg["label"]
+    pre = {
+        "min_events": (int(lab["min_events"]), 2),
+        "extreme_quantile": (float(lab["extreme_quantile"]), 0.05),
+        "min_abs_store_change": (float(lab["min_abs_store_change"]), 3.0),
+        "min_stores_at_t": (float(lab["min_stores_at_t"]), 10.0),
+        "healthy_gate_at_t": (bool(lab["healthy_gate_at_t"]), True),
+    }
+    for k, (got, want) in pre.items():
+        assert got == want, (
+            f"config label.{k}={got} 가 테스트 설계 전제({want})와 다릅니다 — "
+            "미니 패널 기대 라벨을 재도출해야 합니다.")
+    ev = lab["events"]
+    assert float(ev["store_net_decline"]["quantile"]) == 0.20 and \
+        ev["store_net_decline"]["side"] == "lower", "store 사건 분위수/방향 전제 변경됨"
+    assert float(ev["sales_decline"]["quantile"]) == 0.20 and \
+        ev["sales_decline"]["side"] == "lower", "sales 사건 분위수/방향 전제 변경됨"
+    assert float(ev["contract_end_spike"]["quantile"]) == 0.80 and \
+        ev["contract_end_spike"]["side"] == "upper", "contract 사건 분위수/방향 전제 변경됨"
+
+
+def test_label_rules(ctx: dict) -> None:
+    tcfg = _make_test_cfg(ctx["cfg"], ctx["tmp"] / "t1_labels")
+    _check_label_preconditions(tcfg)
+    panel = _mini_panel()
+    out = build_labels(panel, tcfg)
+
+    assert list(out.columns) == LABEL_COLUMNS, \
+        f"라벨 반환 컬럼이 계약과 다름: {list(out.columns)}"
+
+    got = {(str(r.brand_id), int(r.year)): int(r.label) for r in out.itertuples()}
+    exp = _expected_labels()
+    missing = sorted(set(exp) - set(got))
+    extra = sorted(set(got) - set(exp))
+    assert not missing and not extra, (
+        f"표본 행 불일치 — 게이트 동작 오류 의심. missing={missing} extra={extra}")
+    diff = {k: (got[k], exp[k]) for k in exp if got[k] != exp[k]}
+    assert not diff, f"라벨 불일치 (got, expected): {diff}"
+
+    # 게이트 케이스 명시 확인
+    assert all(k[0] != "B_gate" for k in got), "min_stores_at_t 게이트 미작동 (B_gate 포함됨)"
+    assert ("B_unh", 2020) not in got, "healthy 게이트 미작동 (B_unh t=2020 포함됨)"
+
+    idx = out.set_index(["brand_id", "year"])
+    r = idx.loc[("B_storeext", 2020)]
+    assert bool(r["ev_store"]) and int(r["n_events"]) == 1 and bool(r["extreme_fired"]), \
+        "극단 규칙: B_storeext 는 사건 1개 + 극단이어야 함"
+    r = idx.loc[("B_2ev", 2020)]
+    assert bool(r["ev_store"]) and bool(r["ev_sales"]) and int(r["n_events"]) == 2 \
+        and not bool(r["extreme_fired"]), "B_2ev 는 사건 2개(극단 아님)이어야 함"
+    r = idx.loc[("B_smallgate", 2020)]
+    assert not bool(r["ev_store"]) and int(r["label"]) == 0, \
+        "|Δ점포| 게이트: B_smallgate 의 점포 사건은 차단돼야 함"
+    r = idx.loc[("B_salesonly", 2020)]
+    assert bool(r["ev_sales"]) and int(r["n_events"]) == 1 and int(r["label"]) == 0, \
+        "단일 사건(비극단)은 label=0 이어야 함 (B_salesonly)"
+    r = idx.loc[("B_contractonly", 2020)]
+    assert bool(r["ev_contract"]) and int(r["label"]) == 0, \
+        "단일 계약종료 사건(비극단)은 label=0 이어야 함 (B_contractonly)"
+    r = idx.loc[("B_unh", 2019)]
+    assert bool(r["ev_store"]) and bool(r["extreme_fired"]) and int(r["label"]) == 1, \
+        "B_unh 의 2020년 극단 점포감소가 t=2019 라벨 1 이어야 함"
+
+    # healthy 게이트 OFF 변형: B_unh t=2020 행이 healthy_at_t=False 로 포함돼야 함
+    tcfg_off = copy.deepcopy(tcfg)
+    tcfg_off["label"]["healthy_gate_at_t"] = False
+    out_off = build_labels(panel, tcfg_off)
+    idx_off = out_off.set_index(["brand_id", "year"])
+    assert ("B_unh", 2020) in idx_off.index, "게이트 OFF 시 B_unh t=2020 행이 있어야 함"
+    r = idx_off.loc[("B_unh", 2020)]
+    assert not bool(r["healthy_at_t"]) and int(r["label"]) == 0, \
+        "B_unh t=2020: healthy_at_t=False, 2021년은 중립이므로 label=0 이어야 함"
+    assert len(out_off) == len(out) + 1, "게이트 OFF 는 정확히 1행(B_unh,2020)만 추가해야 함"
+
+    print(f"    labels: {len(out)} sample rows, positives="
+          f"{int(out['label'].sum())} (expected 3), gate cases OK")
+
+
+# ---------------------------------------------------------------------------
+# 테스트 2 — 시점 누출 (t+1 교란 불변성)
+# ---------------------------------------------------------------------------
+
+def test_time_leakage(ctx: dict) -> None:
+    cfg = ctx["cfg"]
+    tcfg = _make_test_cfg(cfg, ctx["tmp"] / "t2_leak")
+    panel = make_synthetic_panel(cfg)
+    t0 = 2022  # 합성 패널 연도 2019~2024 의 중간 기준연도
+
+    base = build_features(panel, tcfg)
+
+    pert = panel.copy()
+    fut = pert["year"] > t0
+    assert fut.any() and (~fut).any(), "교란 대상/비대상 연도가 모두 있어야 함"
+    # t0 이후 연도의 수치를 전면 교란 (행 추가/삭제·업종 변경은 없음)
+    pert.loc[fut, "n_stores"] = pert.loc[fut, "n_stores"] * 2.0 + 37.0
+    pert.loc[fut, "avg_sales"] = pert.loc[fut, "avg_sales"] * 0.3 + 999.0
+    pert.loc[fut, "avg_sales_per_area"] = pert.loc[fut, "avg_sales_per_area"] * 1.7
+    pert.loc[fut, "n_contract_end"] = pert.loc[fut, "n_contract_end"] + 41.0
+    pert.loc[fut, "n_contract_cancel"] = pert.loc[fut, "n_contract_cancel"] + 13.0
+    pert.loc[fut, "n_new"] = pert.loc[fut, "n_new"] + 29.0
+    pert.loc[fut, "n_direct"] = pert.loc[fut, "n_direct"] + 7.0
+    pert.loc[fut, "n_name_change"] = pert.loc[fut, "n_name_change"] + 11.0
+
+    after = build_features(pert, tcfg)
+
+    b = base[base["year"] <= t0].reset_index(drop=True)
+    a = after[after["year"] <= t0].reset_index(drop=True)
+    assert list(b.columns) == list(a.columns), "교란 전후 피처 컬럼 불일치"
+    assert len(b) == len(a) and len(b) > 0, "교란 전후 행 수 불일치"
+    try:
+        pd.testing.assert_frame_equal(b, a, check_exact=True)
+    except AssertionError as e:
+        # 어떤 피처가 미래값에 의존하는지 진단 정보 첨부
+        bad = [c for c in b.columns
+               if not (b[c].isna() == a[c].isna()).all()
+               or not (b[c].dropna().to_numpy() == a[c].dropna().to_numpy()).all()]
+        raise AssertionError(
+            f"시점 누출: year<={t0} 피처가 t+1 이후 교란에 변함. 변한 컬럼={bad}") from e
+    print(f"    leakage: {len(b)} rows (year<={t0}) x {len(b.columns)} cols "
+          f"bit-identical after perturbing years>{t0}")
+
+
+# ---------------------------------------------------------------------------
+# 테스트 3~5 공용 — 합성 소규모 파이프라인 (임시 디렉터리 격리)
+# ---------------------------------------------------------------------------
+
+def _pipeline(ctx: dict) -> dict:
+    """합성 패널로 features→labels→model→portfolio 를 임시 경로에서 1회 실행·캐시."""
+    if "pipe_error" in ctx:
+        raise ctx["pipe_error"]
+    if "pipe" not in ctx:
+        try:
+            cfg = ctx["cfg"]
+            tcfg = _make_test_cfg(cfg, ctx["tmp"] / "t345_pipe")
+            set_seed(cfg["seed"])
+            panel = make_synthetic_panel(cfg)
+            feats = build_features(panel, tcfg)
+            labs = build_labels(panel, tcfg)
+            res = model_mod.train_all(feats, labs, tcfg)
+            panel.to_parquet(Path(tcfg["paths"]["processed"]) / "panel.parquet",
+                             index=False)
+            portfolio_mod.build_portfolio(tcfg)
+            ctx["pipe"] = {"tcfg": tcfg, "model": res}
+        except Exception as e:  # 이후 테스트가 같은 원인을 즉시 보고하도록 캐시
+            ctx["pipe_error"] = e
+            raise
+    return ctx["pipe"]
+
+
+def test_time_split(ctx: dict) -> None:
+    pipe = _pipeline(ctx)
+    preds = pipe["model"]["predictions"]
+    years = {s: set(preds.loc[preds["split"] == s, "year"].astype(int))
+             for s in ("train", "valid", "test")}
+    for s in ("train", "valid", "test"):
+        assert years[s], f"{s} split 이 비어 있음"
+    assert not (years["train"] & years["valid"]), \
+        f"train/valid 연도 겹침: {years['train'] & years['valid']}"
+    assert not (years["train"] & years["test"]), \
+        f"train/test 연도 겹침: {years['train'] & years['test']}"
+    assert not (years["valid"] & years["test"]), \
+        f"valid/test 연도 겹침: {years['valid'] & years['test']}"
+    all_years = years["train"] | years["valid"] | years["test"]
+    t_max = max(all_years)
+    assert years["test"] == {t_max}, f"test 연도 {years['test']} 는 최대 {t_max} 단일이어야 함"
+    assert years["valid"] == {t_max - 1}, f"valid 연도는 test-1({t_max - 1})이어야 함"
+    assert max(years["train"]) <= t_max - 2, "train 연도는 test-2 이하여야 함"
+
+    # split_years.json 기록과 일치 확인
+    sy_path = Path(pipe["tcfg"]["paths"]["outputs"]) / "split_years.json"
+    assert sy_path.exists(), f"split_years.json 미기록: {sy_path}"
+    with open(sy_path, encoding="utf-8") as f:
+        sy = json.load(f)
+    assert int(sy["test_year"]) == t_max and int(sy["valid_year"]) == t_max - 1, \
+        f"split_years.json({sy['test_year']},{sy['valid_year']}) 과 실제 분할 불일치"
+    print(f"    split: train={sorted(years['train'])} valid={t_max - 1} test={t_max}")
+
+
+def test_predictions_schema(ctx: dict) -> None:
+    pipe = _pipeline(ctx)
+    pred_path = Path(pipe["tcfg"]["paths"]["processed"]) / "predictions.parquet"
+    assert pred_path.exists(), f"predictions.parquet 미생성: {pred_path}"
+    df = pd.read_parquet(pred_path)
+
+    assert list(df.columns) == PREDICTION_COLUMNS, (
+        f"predictions 컬럼이 계약 §3 과 다름:\n got={list(df.columns)}\n"
+        f" want={PREDICTION_COLUMNS}")
+    assert len(df) > 0, "predictions 가 비어 있음"
+    assert not df.duplicated(subset=["brand_id", "year"]).any(), \
+        "(brand_id, year) 중복 존재"
+    assert set(df["split"].unique()) <= {"train", "valid", "test"}, \
+        f"split 값 이상: {set(df['split'].unique())}"
+    assert set(df["y_true"].unique()) <= {0, 1}, f"y_true 이상: {set(df['y_true'].unique())}"
+    assert df["is_new_brand"].dtype == bool, "is_new_brand 는 bool 이어야 함"
+    for col in ("p_lgbm", "p_persistence", "p_single", "p_logistic"):
+        v = df[col].to_numpy(dtype=float)
+        assert np.isfinite(v).all(), f"{col} 에 NaN/inf 존재"
+        assert (v >= 0.0).all() and (v <= 1.0).all(), (
+            f"{col} 확률 범위 위반: min={v.min():.6f} max={v.max():.6f}")
+    print(f"    predictions: {len(df)} rows, columns OK, all 4 prob cols in [0,1]")
+
+
+def test_portfolio(ctx: dict) -> None:
+    pipe = _pipeline(ctx)
+    tcfg = pipe["tcfg"]
+    out_dir = Path(tcfg["paths"]["outputs"])
+    csv_path = out_dir / "portfolio.csv"
+    json_path = out_dir / "portfolio_summary.json"
+    assert csv_path.exists(), f"portfolio.csv 미생성: {csv_path}"
+    assert json_path.exists(), f"portfolio_summary.json 미생성: {json_path}"
+
+    port = pd.read_csv(csv_path, encoding="utf-8")
+    assert len(port) > 0, "portfolio.csv 가 비어 있음"
+    assert (port["exposure_mkrw"] > 0).all(), "exposure 는 양수여야 함"
+
+    lgds = sorted(float(x) for x in tcfg["portfolio"]["lgd_scenarios"])
+    assert all(0.0 < l <= 1.0 for l in lgds), f"LGD 시나리오가 (0,1] 밖: {lgds}"
+    el_cols = [f"el_lgd{round(l * 100):02d}_mkrw" for l in lgds]
+    sel_cols = [f"stress_el_lgd{round(l * 100):02d}_mkrw" for l in lgds]
+    for c in el_cols + sel_cols:
+        assert c in port.columns, f"portfolio.csv 에 {c} 컬럼 없음"
+
+    tol = 1e-6
+    exp_v = port["exposure_mkrw"].to_numpy(dtype=float)
+    for c in el_cols + sel_cols:
+        v = port[c].to_numpy(dtype=float)
+        assert (v >= -tol).all(), f"{c} 에 음수 EL 존재"
+        assert (v <= exp_v + tol).all(), (
+            f"EL > exposure 위반 ({c}): max EL={v.max():.3f}, "
+            f"해당 exposure={exp_v[v.argmax()]:.3f}")
+
+    # LGD 단조성 (브랜드별): LGD ↑ → EL ↑ (기본·스트레스 모두)
+    for cols in (el_cols, sel_cols):
+        for lo, hi in zip(cols[:-1], cols[1:]):
+            bad = (port[hi].to_numpy(dtype=float)
+                   < port[lo].to_numpy(dtype=float) - tol).sum()
+            assert bad == 0, f"LGD 단조성 위반: {hi} < {lo} 인 브랜드 {bad}개"
+
+    # 스트레스 EL ≥ 기본 EL (multiplier ≥ 1 전제 — config 확인)
+    mult = float(tcfg["portfolio"]["stress_pd_multiplier"])
+    assert mult >= 1.0, f"stress_pd_multiplier={mult} < 1 (테스트 전제 위반)"
+    for base_c, st_c in zip(el_cols, sel_cols):
+        bad = (port[st_c].to_numpy(dtype=float)
+               < port[base_c].to_numpy(dtype=float) - tol).sum()
+        assert bad == 0, f"스트레스 EL < 기본 EL 인 브랜드 {bad}개 ({st_c})"
+
+    with open(json_path, encoding="utf-8") as f:
+        summary = json.load(f)
+    assert summary.get("synthetic") is True, "합성 exposure 명시(synthetic=true) 누락"
+    total_exp = float(summary["total_exposure_mkrw"])
+    scen = summary["expected_loss_scenarios"]
+    assert [float(s["lgd"]) for s in scen] == lgds, "요약 시나리오 LGD 순서/값 불일치"
+    prev_el = -1.0
+    for s in scen:
+        el, sel = float(s["el_mkrw"]), float(s["stress_el_mkrw"])
+        assert el <= total_exp + tol and sel <= total_exp + tol, \
+            f"요약 EL이 총 exposure 초과 (lgd={s['lgd']})"
+        assert el >= prev_el - tol, "요약 EL이 LGD 증가에 대해 비단조"
+        assert sel >= el - tol, f"요약 스트레스 EL < 기본 EL (lgd={s['lgd']})"
+        prev_el = el
+    print(f"    portfolio: {len(port)} brands, total exposure={total_exp:,.0f} MKRW, "
+          f"EL<=exposure & LGD-monotone & stress>=base OK")
+
+
+# ---------------------------------------------------------------------------
+# 러너
+# ---------------------------------------------------------------------------
+
+TESTS = [
+    ("label_rules", test_label_rules),
+    ("time_leakage", test_time_leakage),
+    ("time_split", test_time_split),
+    ("predictions_schema", test_predictions_schema),
+    ("portfolio_sanity", test_portfolio),
+]
+
+
+def main() -> int:
+    cfg = load_config()
+    set_seed(cfg["seed"])
+    processed_dir = ROOT / "data" / "processed"
+    fp_before = _fingerprint_dir(processed_dir)
+
+    print("=== FranSCORE sanity suite (python -m tests.test_sanity) ===")
+    print(f"    isolation: all runs write to a temp dir; real data/processed and "
+          f"outputs/ are never written")
+    results: list[tuple[str, bool, str]] = []
+
+    with tempfile.TemporaryDirectory(prefix="franscore_sanity_") as td:
+        ctx = {"cfg": cfg, "tmp": Path(td)}
+        for i, (name, fn) in enumerate(TESTS, 1):
+            print(f"[{i}/{len(TESTS)}] {name} ...")
+            try:
+                fn(ctx)
+                results.append((name, True, ""))
+                print(f"[{i}/{len(TESTS)}] {name} ... PASS")
+            except Exception as e:
+                results.append((name, False, f"{type(e).__name__}: {e}"))
+                traceback.print_exc()
+                print(f"[{i}/{len(TESTS)}] {name} ... FAIL")
+
+    # 실데이터 불변 가드 (테스트 실패와 별개로 항상 확인)
+    fp_after = _fingerprint_dir(processed_dir)
+    guard_ok = fp_before == fp_after
+    if not guard_ok:
+        print("GUARD FAIL: data/processed changed during tests!")
+        before, after = dict((f[0], f) for f in fp_before), dict((f[0], f) for f in fp_after)
+        changed = sorted(set(before) ^ set(after)
+                         | {k for k in set(before) & set(after) if before[k] != after[k]})
+        print(f"  changed entries: {changed}")
+    else:
+        print("guard: data/processed unchanged (files/sizes/mtimes identical)")
+
+    n_pass = sum(ok for _, ok, _ in results)
+    print(f"=== SUMMARY: {n_pass}/{len(TESTS)} passed ===")
+    for name, ok, msg in results:
+        print(f"  {'PASS' if ok else 'FAIL'}  {name}" + (f"  ({msg})" if msg else ""))
+    return 0 if (n_pass == len(TESTS) and guard_ok) else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

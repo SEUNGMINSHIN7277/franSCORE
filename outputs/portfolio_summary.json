@@ -1,0 +1,84 @@
+{
+  "generated_at": "2026-07-30T04:36:59",
+  "synthetic": true,
+  "test_year": 2023,
+  "n_brands": 60,
+  "pd_column_used": "p_calibrated",
+  "total_exposure_mkrw": 361531.26244304504,
+  "total_exposure_ekw": 3615.3126244304503,
+  "concentration": {
+    "hhi": 0.17681098999858322,
+    "top10_share": 0.7045530141745752,
+    "top1_share": 0.3981408308345531
+  },
+  "risk_grades": {
+    "high_quantile": 0.9,
+    "medium_quantile": 0.7,
+    "high_pd_cut": 0.22568093385214008,
+    "medium_pd_cut": 0.18181818181818182,
+    "counts": {
+      "Low": 32,
+      "High": 18,
+      "Medium": 10
+    },
+    "exposure_mkrw": {
+      "High": 43549.712155893336,
+      "Low": 293158.0062799286,
+      "Medium": 24823.54400722307
+    }
+  },
+  "expected_loss_scenarios": [
+    {
+      "lgd": 0.3,
+      "el_mkrw": 10852.054276532095,
+      "el_ekw": 108.52054276532095,
+      "el_pct_of_exposure": 0.030016918047970215,
+      "stress_el_mkrw": 11645.04828280918,
+      "stress_el_ekw": 116.45048282809181,
+      "stress_el_pct_of_exposure": 0.032210349401370846
+    },
+    {
+      "lgd": 0.45,
+      "el_mkrw": 16278.081414798145,
+      "el_ekw": 162.78081414798146,
+      "el_pct_of_exposure": 0.04502537707195533,
+      "stress_el_mkrw": 17467.572424213773,
+      "stress_el_ekw": 174.67572424213773,
+      "stress_el_pct_of_exposure": 0.04831552410205627
+    },
+    {
+      "lgd": 0.6,
+      "el_mkrw": 21704.10855306419,
+      "el_ekw": 217.0410855306419,
+      "el_pct_of_exposure": 0.06003383609594043,
+      "stress_el_mkrw": 23290.09656561836,
+      "stress_el_ekw": 232.90096565618362,
+      "stress_el_pct_of_exposure": 0.06442069880274169
+    }
+  ],
+  "stress": {
+    "top_pct": 0.1,
+    "pd_multiplier": 1.5,
+    "pd_cap": 1.0,
+    "n_stressed_brands": 6
+  },
+  "headline": "[합성 예시 여신] 2023년 test 브랜드 60개로 구성한 포트폴리오의 총 여신은 3,615억원이며, 중간 시나리오(LGD 45%) 기준 1년 예상손실은 162.8억원(여신의 4.50%), 위험 상위 10% 브랜드 동시 악화 스트레스 시 174.7억원으로 확대됩니다. 상위 10개 브랜드 여신 집중도는 70.5%, HHI는 0.177입니다.",
+  "assumptions": {
+    "synthetic_exposure": true,
+    "statement_ko": "본 포트폴리오의 여신 exposure는 실제 여신 데이터가 아니라 seed 고정 난수로 합성한 예시값입니다(방법론 실증용 — 자동 여신결정 아님). exposure_i = n_stores_i × 점포당 평균여신(백만원) × LogNormal(0, sigma).",
+    "exposure_scale_per_store_mkrw": 50.0,
+    "exposure_lognorm_sigma": 0.5,
+    "seed": 42,
+    "units": {
+      "exposure": "백만원(MKRW)",
+      "display": "억원 = 백만원 / 100"
+    },
+    "pd_definition": "PD는 모델이 예측한 '1년 내 구조악화 전환 확률'을 부도확률의 대용 지표로 사용한 것으로, 실제 부도율과 다를 수 있습니다.",
+    "el_formula": "EL_i = exposure_i × PD_i × LGD (LGD 시나리오 3종)",
+    "stress_rule": "PD 상위 10% 브랜드(6개)의 PD × 1.5 (상한 1.0) 동시 악화 가정",
+    "risk_grade_basis": "test 전체 브랜드 예측확률 분포의 분위수 컷 (High ≥ q0.90, Medium ≥ q0.70)",
+    "store_count_source": "panel.parquet",
+    "store_count_fallback_rows": 0,
+    "brands_dropped_no_stores": 0
+  }
+}

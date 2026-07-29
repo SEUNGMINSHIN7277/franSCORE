@@ -1,0 +1,48 @@
+{
+  "mode": "auto_last_two",
+  "train_years": [
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021
+  ],
+  "valid_year": 2022,
+  "test_year": 2023,
+  "n_train": 3920,
+  "n_valid": 882,
+  "n_test": 932,
+  "base_rate": {
+    "train": 0.1520408163265306,
+    "valid": 0.15306122448979592,
+    "test": 0.10622317596566523
+  },
+  "n_features": 22,
+  "eval_metric": "auc",
+  "best_iteration": 3,
+  "feature_name_map": {
+    "f_lvl_n_stores": "f_lvl_n_stores",
+    "f_lvl_avg_sales_log": "f_lvl_avg_sales_log",
+    "f_lvl_direct_ratio": "f_lvl_direct_ratio",
+    "f_lvl_brand_age": "f_lvl_brand_age",
+    "f_chg_store_growth": "f_chg_store_growth",
+    "f_chg_sales_growth": "f_chg_sales_growth",
+    "f_chg_contract_end_rate": "f_chg_contract_end_rate",
+    "f_chg_new_open_rate": "f_chg_new_open_rate",
+    "f_chg_name_change_rate": "f_chg_name_change_rate",
+    "f_trd_store_growth_mean": "f_trd_store_growth_mean",
+    "f_trd_store_growth_std": "f_trd_store_growth_std",
+    "f_trd_store_growth_slope": "f_trd_store_growth_slope",
+    "f_trd_sales_growth_mean": "f_trd_sales_growth_mean",
+    "f_trd_sales_growth_std": "f_trd_sales_growth_std",
+    "f_trd_sales_growth_slope": "f_trd_sales_growth_slope",
+    "f_ind_store_growth_pct": "f_ind_store_growth_pct",
+    "f_ind_real_sales_growth_pct": "f_ind_real_sales_growth_pct",
+    "f_ind_contract_end_pct": "f_ind_contract_end_pct",
+    "f_ind_major_uC678uC2DD": "f_ind_major_외식",
+    "f_struct_direct_ratio_chg": "f_struct_direct_ratio_chg",
+    "f_struct_direct_growth": "f_struct_direct_growth",
+    "f_struct_open_close_gap": "f_struct_open_close_gap"
+  }
+}

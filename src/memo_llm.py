@@ -1,0 +1,235 @@
+"""M4 심사메모 생성 — LLM 메모 + 결정적 한국어 템플릿 폴백.
+
+INTERFACES.md §4 (memo_llm.generate_memo) 구현.
+
+원칙:
+- LLM 프롬프트는 입력(context) 근거만 인용, 입력 밖 주장 금지.
+- 뉴스 인용 시 출처 URL·발행일 표기, '점수 미반영·사실관계 별도확인' 명시.
+- 모든 메모에 '2선 리스크 참고용, 자동 여신결정 아님' 문구 포함.
+- API 키가 없거나 호출 실패 시: 결정적 템플릿 폴백 (동일 입력 → 동일 출력,
+  'LLM 미사용 폴백' 각주). 타임스탬프·난수 등 비결정 요소를 넣지 않는다.
+
+실행: 프로젝트 루트에서 `python -m src.memo_llm` (샘플 context 데모 출력)
+"""
+from __future__ import annotations
+
+import json
+import os
+
+from src.common import get_logger, load_config
+
+log = get_logger("memo_llm")
+
+# 계약 필수 문구 (그대로 포함)
+DISCLAIMER = "2선 리스크 참고용, 자동 여신결정 아님"
+
+_MEMO_SYSTEM = (
+    "당신은 은행 2선(리스크관리) 심사메모 작성 보조자입니다.\n"
+    "규칙 (반드시 준수):\n"
+    "1. 사용자 메시지에 제공된 입력 JSON에 포함된 사실·수치만 인용한다. "
+    "입력 밖 지식, 추정, 외부 사실 주장을 절대 하지 않는다. "
+    "입력에 없는 항목은 '정보 없음'으로 둔다.\n"
+    "2. 뉴스 항목을 인용할 때는 출처 URL과 발행일을 함께 표기하고, "
+    "'점수 미반영, 사실관계 별도 확인 필요'를 명시한다.\n"
+    "3. 메모 상단에 '" + DISCLAIMER + "' 문구를 반드시 포함한다.\n"
+    "4. 포트폴리오 수치는 합성(예시) 여신임을 명시한다.\n"
+    "5. 한국어 마크다운으로 간결하게 작성한다. 과장·단정 금지."
+)
+
+# 등급별 결정적 권고 문구 (폴백 템플릿용)
+_GRADE_RECO = {
+    "High": (
+        "수시 모니터링 전환을 권고합니다. 계약종료율·점포 순증감·매출 추이를 월 단위로 "
+        "점검하고, 신규 여신 심사 시 최근 공시지표와 뉴스 신호의 사실관계를 별도 확인하십시오."
+    ),
+    "Medium": (
+        "분기 모니터링을 권고합니다. 계약종료율과 실질 매출 증가율의 추세 변화 여부를 "
+        "정기적으로 확인하십시오."
+    ),
+    "Low": "정기(연 1~2회) 모니터링 유지를 권고합니다.",
+}
+
+
+def _fmt(v) -> str:
+    """결정적 숫자/값 포맷터 (동일 입력 → 동일 출력)."""
+    if isinstance(v, bool):
+        return "예" if v else "아니오"
+    if isinstance(v, int):
+        return f"{v:,}"
+    if isinstance(v, float):
+        a = abs(v)
+        if a >= 1000:
+            return f"{v:,.1f}"
+        if a >= 1:
+            return f"{v:.2f}"
+        return f"{v:.4f}"
+    if v is None:
+        return "정보 없음"
+    return str(v)
+
+
+def _fallback_memo(context: dict) -> str:
+    """결정적 한국어 템플릿 메모 — LLM 미사용 폴백. 동일 context → 동일 문자열."""
+    brand = context.get("brand_name", "(브랜드 미상)")
+    grade = context.get("grade", "정보 없음")
+    prob = context.get("prob")
+    shap_top = context.get("shap_top") or []
+    panel_metrics = context.get("panel_metrics") or {}
+    news = context.get("news") or []
+    portfolio = context.get("portfolio") or {}
+
+    L: list[str] = []
+    L.append(f"# 심사메모 — {brand}")
+    L.append("")
+    L.append(f"> ⚠️ **{DISCLAIMER}.** 본 메모는 심사역 참고 자료이며, "
+             "여신 승인·거절을 자동으로 결정하지 않습니다.")
+    L.append("")
+
+    L.append("## 1. 위험 평가 요약")
+    L.append(f"- 위험등급: **{grade}**")
+    if prob is not None:
+        try:
+            L.append(f"- 구조악화 전환 예측확률: {float(prob) * 100:.1f}%")
+        except (TypeError, ValueError):
+            L.append(f"- 구조악화 전환 예측확률: {_fmt(prob)}")
+    else:
+        L.append("- 구조악화 전환 예측확률: 정보 없음")
+    L.append("")
+
+    L.append("## 2. 주요 위험요인 (SHAP 상위)")
+    if shap_top:
+        for item in shap_top:
+            if isinstance(item, dict):
+                feat = item.get("feature", "?")
+                sv = item.get("shap_value")
+                fv = item.get("feature_value")
+                direction = ""
+                if isinstance(sv, (int, float)):
+                    direction = " (위험 상승 기여)" if sv > 0 else " (위험 하락 기여)"
+                L.append(
+                    f"- `{feat}`: SHAP={_fmt(sv)}{direction}, 피처값={_fmt(fv)}"
+                )
+            else:
+                L.append(f"- {item}")
+    else:
+        L.append("- 정보 없음")
+    L.append("")
+
+    L.append("## 3. 공시 핵심지표")
+    if panel_metrics:
+        for k, v in panel_metrics.items():
+            L.append(f"- {k}: {_fmt(v)}")
+    else:
+        L.append("- 정보 없음")
+    L.append("")
+
+    L.append("## 4. 뉴스 신호 (모델 점수 미반영)")
+    if news:
+        for n in news:
+            if not isinstance(n, dict):
+                L.append(f"- {n}")
+                continue
+            etype = n.get("event_type", "기타")
+            ev = n.get("evidence_sentence") or n.get("title") or ""
+            url = n.get("source_url") or n.get("link") or "출처 미상"
+            pub = n.get("published") or n.get("date") or "발행일 미상"
+            L.append(f"- [{etype}] {ev}")
+            L.append(f"  - 출처: {url} · 발행일: {pub}")
+        L.append("")
+        L.append("※ 뉴스 신호는 점수에 미반영되며, 사실관계는 별도 확인이 필요합니다.")
+    else:
+        L.append("- 수집된 뉴스 신호 없음")
+    L.append("")
+
+    L.append("## 5. 포트폴리오 관점 (합성 예시 여신)")
+    if portfolio:
+        for k, v in portfolio.items():
+            L.append(f"- {k}: {_fmt(v)}")
+        L.append("")
+        L.append("※ 위 exposure·손실 수치는 방법론 실증용 **합성(예시) 여신** 기준입니다.")
+    else:
+        L.append("- 정보 없음")
+    L.append("")
+
+    L.append("## 6. 리스크관리 권고")
+    L.append(
+        f"- {_GRADE_RECO.get(str(grade), '등급 정보가 없어 일반 모니터링 원칙을 적용하십시오.')}"
+    )
+    L.append(f"- 본 메모는 {DISCLAIMER}이며, 최종 판단은 심사역·심의기구가 수행합니다.")
+    L.append("")
+    L.append("---")
+    L.append("각주: LLM 미사용 폴백 (결정적 템플릿, llm_used=false)")
+    return "\n".join(L)
+
+
+def generate_memo(context: dict, cfg: dict, force_fallback: bool = False) -> str:
+    """context → 마크다운 심사메모 문자열.
+
+    context = {brand_name, grade, prob, shap_top(list), panel_metrics(dict),
+               news(list), portfolio(dict)}
+    - API 키(env `llm.api_key_env`)가 있으면 Claude 호출 (입력 근거만 인용하도록
+      시스템 프롬프트로 제한). 없거나 실패/거절 시 결정적 템플릿 폴백.
+    - force_fallback=True 이면 키가 있어도 폴백 경로 강제(테스트용).
+    """
+    key_env = cfg["llm"].get("api_key_env", "ANTHROPIC_API_KEY")
+    if force_fallback or not os.environ.get(key_env):
+        log.info(
+            "메모 생성: LLM 미사용 (%s) — 결정적 템플릿 폴백",
+            "force_fallback" if force_fallback else f"env {key_env} 없음",
+        )
+        return _fallback_memo(context)
+
+    try:
+        import anthropic
+
+        client = anthropic.Anthropic()
+        user_prompt = (
+            "다음 입력 JSON만을 근거로 프랜차이즈 브랜드 심사메모를 작성하세요. "
+            "입력에 없는 사실은 쓰지 마세요.\n\n"
+            "입력 JSON:\n"
+            + json.dumps(context, ensure_ascii=False, indent=2, default=str)
+        )
+        resp = client.messages.create(
+            model=cfg["llm"]["model"],
+            max_tokens=int(cfg["llm"].get("max_tokens", 4000)),
+            system=_MEMO_SYSTEM,
+            messages=[{"role": "user", "content": user_prompt}],
+        )
+        if resp.stop_reason == "refusal":
+            raise RuntimeError("LLM 응답 거절(stop_reason=refusal)")
+        text = "\n".join(b.text for b in resp.content if b.type == "text").strip()
+        if not text:
+            raise RuntimeError("LLM 응답에 텍스트 블록 없음")
+        # 필수 문구 안전장치: 누락 시 강제 부착
+        if DISCLAIMER not in text:
+            text += f"\n\n> ⚠️ **{DISCLAIMER}.**"
+        text += "\n\n---\n각주: LLM 생성 (모델: " + str(cfg["llm"]["model"]) + ", 입력 근거 한정)"
+        log.info("메모 생성: LLM 사용 (model=%s, %d자)", cfg["llm"]["model"], len(text))
+        return text
+    except Exception as exc:
+        log.warning("LLM 메모 생성 실패 → 결정적 템플릿 폴백: %s", exc)
+        return _fallback_memo(context)
+
+
+if __name__ == "__main__":
+    _cfg = load_config()
+    _sample_context = {
+        "brand_name": "샘플브랜드",
+        "grade": "Medium",
+        "prob": 0.137,
+        "shap_top": [
+            {"feature": "f_chg_contract_end_rate", "shap_value": 0.42, "feature_value": 0.18},
+            {"feature": "f_trd_store_growth_mean", "shap_value": -0.11, "feature_value": 0.05},
+        ],
+        "panel_metrics": {"n_stores": 2400, "store_growth_rate": 0.12, "avg_sales": 350000.0},
+        "news": [
+            {
+                "event_type": "본부분쟁",
+                "evidence_sentence": "가맹점주 단체, 본사 상대 소송 제기",
+                "source_url": "https://example.com/news/1",
+                "published": "Mon, 01 Jun 2026 09:00:00 GMT",
+            }
+        ],
+        "portfolio": {"exposure_mkrw": 1200.0, "el_mid_mkrw": 8.1},
+    }
+    print(generate_memo(_sample_context, _cfg))
