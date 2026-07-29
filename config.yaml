@@ -1,0 +1,166 @@
+# =============================================================================
+# FranSCORE — 전체 파라미터 설정 (단일 진실 원천)
+# KB 제8회 AI Challenge 프로토타입
+#
+# ⚠️ 정직성 원칙: 라벨 규칙·임계값은 모델 학습 *전*에 이 파일에 고정한다.
+#    고정 시각: 2026-07-30 04:00 KST (git 최초 커밋으로 증빙)
+#    학습 후 라벨 임계값을 바꾸는 행위(체리피킹)를 금지한다.
+# =============================================================================
+
+seed: 42
+
+paths:
+  raw: data/raw            # API/파일 원본 스냅샷 (재현성 — 절대 수정 금지)
+  processed: data/processed
+  outputs: outputs
+  demo_outputs: outputs/_smoke   # 합성 스모크테스트 전용 (제출 지표 아님)
+
+# -----------------------------------------------------------------------------
+# M1 데이터 수집
+# -----------------------------------------------------------------------------
+collect:
+  # data.go.kr 오픈API (serviceKey 필요 — env DATA_GO_KR_KEY)
+  # endpoint 상세는 조사 후 확정하여 아래에 기록 (collect.py가 이 표를 읽음)
+  api_base: "https://apis.data.go.kr/1130000"
+  service_key_env: DATA_GO_KR_KEY
+  page_size: 1000
+  max_retries: 5
+  retry_backoff_sec: 2.0
+  timeout_sec: 30
+  apis:
+    brand_sales:        # 15143710 브랜드별 평균매출액·가맹점수
+      dataset_id: "15143710"
+      path: null        # 조사 결과로 채움
+    franchise_status:   # 15110241 가맹점 현황 (신규개점·계약종료·계약해지·명의변경)
+      dataset_id: "15110241"
+      path: null
+    brand_overview:     # 15109828 브랜드 개요
+      dataset_id: "15109828"
+      path: null
+    disclosure_list:    # 15125569 정보공개서 목록
+      dataset_id: "15125569"
+      path: null
+    industry_openclose: # 15110402/15157660 업종 개폐점률 (업종 기준선 전용)
+      dataset_id: "15110402"
+      path: null
+  # 키 없이 내려받는 파일데이터 대안 (조사 결과로 채움)
+  file_fallback:
+    enabled: true
+    files: []
+
+# -----------------------------------------------------------------------------
+# M1 표본 필터 (생존성 진단 후 완화 규칙 적용 가능 — 완화 사용 시 로그에 명시)
+# -----------------------------------------------------------------------------
+sample:
+  industry_major: ["외식"]        # 업종 대분류
+  min_stores: 30                  # 가맹점 수 하한 (t 시점)
+  min_consecutive_years: 3        # 최소 연속 관측 연수
+  winsorize_pct: 0.01             # 상하위 1% winsorize (매출 등 연속형)
+  drop_zero_sales: true           # 평균매출 0/미기재 제외
+  # 플랜B (표본 부족 시 — 사용하면 outputs/sample_relaxed.flag 생성)
+  relaxed:
+    min_stores: 20
+    industry_major: ["외식", "도소매"]
+
+# -----------------------------------------------------------------------------
+# M2 라벨: "현재 양호 브랜드의 미래 악화 *전환*" (persistence 함정 회피)
+# -----------------------------------------------------------------------------
+label:
+  # '현재 양호(t)' 게이트: t년에 아래 악화사건이 하나도 발동하지 않은 브랜드만 표본
+  healthy_gate_at_t: true
+  # 악화 사건 3종 (t+1년 기준, 업종 내 분위수)
+  events:
+    store_net_decline:            # ① 가맹점 순감률(신규-종료 반영 순증감률) 업종 하위 20%
+      metric: store_growth_rate
+      quantile: 0.20
+      side: lower
+    sales_decline:                # ② 실질 평균매출 증가율 업종 하위 20%
+      metric: real_sales_growth
+      quantile: 0.20
+      side: lower
+    contract_end_spike:           # ③ 계약종료율(종료+해지/전년점포) 업종 상위 20%
+      metric: contract_end_rate
+      quantile: 0.80
+      side: upper
+  # 발동 규칙: 2개 이상 or 1개 극단(하위/상위 5%)
+  min_events: 2
+  extreme_quantile: 0.05
+  # 노이즈 게이트
+  min_abs_store_change: 3         # 순감 최소 절대 점포수
+  min_stores_at_t: 10             # t 시점 최소 점포수 (분모 안정성)
+  # 실질화: 평균매출 증가율에서 차감할 연도별 물가/업종평균 (업종 중앙값 사용)
+  deflate_by: industry_median
+
+# -----------------------------------------------------------------------------
+# M3 모델 & 검증
+# -----------------------------------------------------------------------------
+split:
+  # 완전 시간분할. 실데이터 연도 범위 확인 후 아래 auto 규칙으로 결정:
+  # test = 마지막 라벨연도, valid = 그 전 해, train = 나머지 전부
+  mode: auto_last_two
+  # 데이터 연도가 확정되면 명시값으로 고정 (auto와 일치해야 함)
+  train_end: null
+  valid_year: null
+  test_year: null
+
+model:
+  lightgbm:
+    n_estimators: 500
+    num_leaves: 31
+    max_depth: -1
+    learning_rate: 0.03
+    min_child_samples: 20
+    subsample: 0.9
+    subsample_freq: 1
+    colsample_bytree: 0.9
+    reg_lambda: 1.0
+    is_unbalance: true
+    random_state: 42
+    verbosity: -1
+  early_stopping_rounds: 50
+  logistic:                       # 기준모형 ③
+    C: 1.0
+    max_iter: 2000
+    class_weight: balanced
+
+baselines:                        # 기준모형 3종 (명세 4.1)
+  - persistence                   # ① 전년 상태 유지
+  - single_var_contract_end       # ② 전년 계약종료율 단일변수
+  - logistic                      # ③ 로지스틱 회귀
+
+evaluate:
+  k_pct: 0.10                     # Lift@10%, Precision@10%
+  calibration_method: isotonic    # 표본 작으면 sigmoid(Platt)로 자동 전환
+  calibration_min_samples: 300
+  n_bins_calibration: 10
+  bootstrap_n: 200                # COULD: 신뢰구간
+
+# -----------------------------------------------------------------------------
+# M4 포트폴리오 (예시 여신 — 합성 exposure임을 화면·문서에 명시)
+# -----------------------------------------------------------------------------
+portfolio:
+  synthetic: true                 # ⚠️ 실여신 아님 — 방법론 실증용 예시
+  n_brands_sampled: 60            # 예측 대상 브랜드 중 예시 포트폴리오 편입 수
+  exposure_scale_per_store_mkrw: 50   # 점포당 평균 여신 5천만원 가정 (백만원 단위)
+  exposure_lognorm_sigma: 0.5
+  lgd_scenarios: [0.3, 0.45, 0.6] # 손실률(LGD) 시나리오 저/중/고
+  stress_top_pct: 0.10            # 스트레스: 위험 상위 10% 동시 악화
+  stress_pd_multiplier: 1.5
+  risk_grades:                    # 점수 → 등급 컷 (보정확률 분위수 기준)
+    high: 0.90                    # 상위 10%
+    medium: 0.70                  # 상위 30%
+
+# -----------------------------------------------------------------------------
+# M4 LLM (뉴스 신호·심사메모) — 점수 미투입 (누출·재현성 원칙)
+# -----------------------------------------------------------------------------
+llm:
+  provider: anthropic
+  api_key_env: ANTHROPIC_API_KEY
+  model: claude-opus-5            # 뉴스 구조화·메모 생성 (⚠️ Opus 5는 temperature 파라미터 미지원)
+  max_tokens: 4000
+  news:
+    source: google_news_rss       # 키 불필요
+    max_articles_per_brand: 8
+    query_suffixes: ["가맹점", "본사 분쟁", "폐점", "가맹 갈등"]
+    cache_dir: data/raw/news      # 스냅샷 보존
+  score_injection: false          # ⚠️ 뉴스 신호는 모델 점수에 미반영 (화면 표시 전용)
