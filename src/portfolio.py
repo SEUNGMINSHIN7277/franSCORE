@@ -284,8 +284,15 @@ def build_portfolio(cfg: dict) -> None:
                 f"PD 상위 {stress_top_pct:.0%} 브랜드({n_stress}개)의 PD × {stress_mult} "
                 "(상한 1.0) 동시 악화 가정"),
             "risk_grade_basis": (
-                "test 전체 브랜드 예측확률 분포의 분위수 컷 "
-                f"(High ≥ q{float(grades_cfg['high']):.2f}, Medium ≥ q{float(grades_cfg['medium']):.2f})"),
+                "test 전체 브랜드 예측확률 분포 내 **순위(pct rank)** 기준 — "
+                f"High = 상위 {1 - float(grades_cfg['high']):.0%}, "
+                f"Medium = 상위 {1 - float(grades_cfg['medium']):.0%} 이내. "
+                "값 임계 컷은 보정확률 동률 블록이 경계에 걸리면 등급 비율이 설계값을 크게 "
+                "초과하므로(실측 High 29%) 순위 기준으로 부여한다."),
+            "risk_grade_cut_values_reference": {
+                "high_pd_cut": round(hi_cut, 6), "medium_pd_cut": round(med_cut, 6),
+                "note": "참고용 값 — 등급 판정에는 순위를 사용한다",
+            },
             "store_count_source": store_src,
             "store_count_fallback_rows": int(n_store_fallback),
             "brands_dropped_no_stores": int(n_drop),
