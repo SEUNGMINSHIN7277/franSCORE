@@ -38,6 +38,7 @@ import pandas as pd
 from lightgbm import LGBMClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -172,6 +173,48 @@ def _baseline_scores(df: pd.DataFrame, feat_cols: list[str], cfg: dict):
     return p_persistence.to_numpy(), p_single.to_numpy()
 
 
+def fit_lgbm_valid_selected(X: pd.DataFrame, y: np.ndarray, tr, va, cfg: dict, logger):
+    """LightGBM 학습 — 사전 선언된 복잡도 후보 중 **valid AUC로만** 선택.
+
+    명세 §4.1 "과튜닝 금지" 준수 방식:
+      · 후보는 config.model.complexity_candidates 에 사전 고정(3개). 그리드서치 아님.
+      · 선택 기준은 valid 분할의 AUC. **test 분할은 선택에 일절 사용하지 않는다.**
+      · 조기종료도 valid로만, first_metric_only=True (auc 기준).
+    반환: (선택된 모델, best_iteration, 선택 로그 문자열)
+    """
+    base = dict((cfg.get("model") or {}).get("lightgbm") or {})
+    base.setdefault("random_state", int(cfg["seed"]))
+    esr = int((cfg.get("model") or {}).get("early_stopping_rounds", 50))
+    cands = (cfg.get("model") or {}).get("complexity_candidates") or [{}]
+    eval_metric = "auc" if len(np.unique(y[va])) > 1 else "binary_logloss"
+    if eval_metric != "auc":
+        logger.warning("valid 단일 클래스 - early stopping 지표를 binary_logloss로 전환")
+
+    results = []
+    for cand in cands:
+        params = {**base, **(cand or {})}
+        m = LGBMClassifier(**params)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # lightgbm 4.7 eval_set deprecation (동작 동일)
+            m.fit(X.loc[tr], y[tr], eval_set=[(X.loc[va], y[va])], eval_metric=eval_metric,
+                  callbacks=[lgb.early_stopping(esr, first_metric_only=True, verbose=False),
+                             lgb.log_evaluation(period=0)])
+        bi = int(m.best_iteration_ or params.get("n_estimators", 0))
+        if len(np.unique(y[va])) > 1:
+            score = float(roc_auc_score(y[va], m.predict_proba(X.loc[va])[:, 1]))
+        else:
+            score = float("-inf")
+        results.append({"cand": cand or {}, "model": m, "best_iter": bi, "valid_auc": score})
+
+    best = max(results, key=lambda r: r["valid_auc"])
+    note = " | ".join(f"{r['cand']}→valid_auc={r['valid_auc']:.4f}(it={r['best_iter']})"
+                      for r in results)
+    logger.info("LightGBM 복잡도 선택(valid AUC 기준, test 미사용): %s", note)
+    logger.info("LightGBM 선택: %s, best_iteration=%d, valid_auc=%.4f",
+                best["cand"], best["best_iter"], best["valid_auc"])
+    return best["model"], best["best_iter"], note
+
+
 def train_all(features: pd.DataFrame, labels: pd.DataFrame, cfg: dict) -> dict:
     """기준모형 3종 + LightGBM 학습, 예측·아티팩트 저장. 계약 §3 참조."""
     set_seed(cfg["seed"])
@@ -247,27 +290,9 @@ def train_all(features: pd.DataFrame, labels: pd.DataFrame, cfg: dict) -> dict:
     logistic_pipe.fit(X.loc[tr], y[tr])
     p_logit = logistic_pipe.predict_proba(X)[:, 1]
 
-    # --- 주모형 LightGBM (config 하이퍼파라미터, valid early stopping) --------
-    lgb_params = dict((cfg.get("model") or {}).get("lightgbm") or {})
-    lgb_params.setdefault("random_state", int(cfg["seed"]))
-    esr = int((cfg.get("model") or {}).get("early_stopping_rounds", 50))
-    eval_metric = "auc" if len(np.unique(y[va])) > 1 else "binary_logloss"
-    if eval_metric != "auc":
-        log.warning("valid 단일 클래스 - early stopping 지표를 binary_logloss로 전환")
-    clf = LGBMClassifier(**lgb_params)
-    with warnings.catch_warnings():
-        # 설치된 lightgbm 4.7의 eval_set deprecation 경고만 국소 억제 (동작 동일)
-        warnings.simplefilter("ignore")
-        clf.fit(
-            X.loc[tr], y[tr],
-            eval_set=[(X.loc[va], y[va])],
-            eval_metric=eval_metric,
-            callbacks=[lgb.early_stopping(esr, verbose=False), lgb.log_evaluation(period=0)],
-        )
-    best_iter = int(clf.best_iteration_ or lgb_params.get("n_estimators", 0))
+    # --- 주모형 LightGBM (valid 기반 복잡도 선택 + valid early stopping) -----
+    clf, best_iter, sel_note = fit_lgbm_valid_selected(X, y, tr, va, cfg, log)
     p_lgbm = clf.predict_proba(X)[:, 1]
-    log.info("LightGBM 학습 완료: best_iteration=%d, eval_metric=%s (그리드서치 없음)",
-             best_iter, eval_metric)
 
     # --- is_new_brand: train 연도에 등장하지 않은 brand_id --------------------
     train_brands = set(df.loc[tr, "brand_id"])
@@ -322,8 +347,9 @@ def train_all(features: pd.DataFrame, labels: pd.DataFrame, cfg: dict) -> dict:
             "test": float(y[te].mean()) if te.sum() else None,
         },
         "n_features": len(safe_names),
-        "eval_metric": eval_metric,
+        "eval_metric": "auc",                      # 조기종료·복잡도 선택 모두 valid AUC 기준
         "best_iteration": best_iter,
+        "complexity_selection": sel_note,          # valid AUC 기반 후보 비교 로그 (test 미사용)
         "feature_name_map": name_map,  # safe -> 원본 피처명
     }
     sy_path = out_dir / "split_years.json"

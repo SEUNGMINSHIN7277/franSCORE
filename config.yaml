@@ -53,14 +53,17 @@ collect:
 # -----------------------------------------------------------------------------
 sample:
   industry_major: ["외식"]        # 업종 대분류
-  min_stores: 30                  # 가맹점 수 하한 (t 시점)
-  min_consecutive_years: 3        # 최소 연속 관측 연수
+  min_stores: 30                  # 가맹점 수 하한 — t까지의 누적 최대 기준 (실시간·과거 정보만)
+  min_consecutive_years: 3        # t에서 끝나는 연속 관측 연수 하한 (실시간·과거 정보만)
   winsorize_pct: 0.01             # 상하위 1% winsorize (매출 등 연속형)
   drop_zero_sales: true           # 평균매출 0/미기재 제외
-  # 플랜B (표본 부족 시 — 사용하면 outputs/sample_relaxed.flag 생성)
+  # 플랜B / 확장 표본 (명세 §11 "표본 조건 완화(점포20+/도소매 포함)")
+  # ⚠️ 체리피킹 방지: 확장 트랙은 **사전 선언된 별도 트랙**이며, 두 결과를 모두 공개한다.
+  #    기본(primary) = 명세 표본(외식·점포30+), 확장(extended) = 전 업종·점포20+.
+  #    둘 중 좋은 쪽만 골라 보고하지 않는다.
   relaxed:
     min_stores: 20
-    industry_major: ["외식", "도소매"]
+    industry_major: ["외식", "도소매", "서비스"]
 
 # -----------------------------------------------------------------------------
 # M2 라벨: "현재 양호 브랜드의 미래 악화 *전환*" (persistence 함정 회피)
@@ -118,6 +121,13 @@ model:
     random_state: 42
     verbosity: -1
   early_stopping_rounds: 50
+  # 복잡도 후보 (사전 선언). **valid 분할의 AUC로만 선택하고 test는 절대 쓰지 않는다.**
+  # 소표본(n≈2~6천, 양성 ~10%)에서 num_leaves=31은 과도하게 복잡하므로 후보에 단순 모형을 포함.
+  # 그리드서치가 아니라 3개 사전 후보 중 검증 기반 선택 — 명세 "과튜닝 금지" 준수.
+  complexity_candidates:
+    - {num_leaves: 7,  min_child_samples: 40}
+    - {num_leaves: 15, min_child_samples: 30}
+    - {num_leaves: 31, min_child_samples: 20}
   logistic:                       # 기준모형 ③
     C: 1.0
     max_iter: 2000

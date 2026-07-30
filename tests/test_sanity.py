@@ -170,13 +170,14 @@ def _mini_panel() -> pd.DataFrame:
 
 
 def _expected_labels() -> dict[tuple[str, int], int]:
+    """리뷰 수정 반영: 2019(첫 관측연도)는 t지표 전부 결측 → '양호 판정 불가'로 표본 제외.
+    (구버전은 판정 불가를 양호로 간주 — 적대적 리뷰 확정 결함이었음)"""
     exp: dict[tuple[str, int], int] = {}
     for nm in _brand_specs():
         if nm == "B_gate":
             continue                      # 최소점포 게이트: 전 행 표본 제외
-        exp[(nm, 2019)] = 1 if nm == "B_unh" else 0   # 2019: 첫 관측연도 → 전원 healthy
         if nm == "B_unh":
-            continue                      # healthy 게이트: t=2020 행 표본 제외
+            continue                      # healthy 게이트: t=2020 행 표본 제외 (t=2019는 판정불가 제외)
         exp[(nm, 2020)] = 1 if nm in ("B_storeext", "B_2ev") else 0
     return exp
 
@@ -225,6 +226,8 @@ def test_label_rules(ctx: dict) -> None:
     # 게이트 케이스 명시 확인
     assert all(k[0] != "B_gate" for k in got), "min_stores_at_t 게이트 미작동 (B_gate 포함됨)"
     assert ("B_unh", 2020) not in got, "healthy 게이트 미작동 (B_unh t=2020 포함됨)"
+    assert all(k[1] != 2019 for k in got), \
+        "판정불가 게이트 미작동 — 첫 관측연도(t지표 전부 결측) 행은 표본에서 제외돼야 함"
 
     idx = out.set_index(["brand_id", "year"])
     r = idx.loc[("B_storeext", 2020)]
@@ -242,11 +245,8 @@ def test_label_rules(ctx: dict) -> None:
     r = idx.loc[("B_contractonly", 2020)]
     assert bool(r["ev_contract"]) and int(r["label"]) == 0, \
         "단일 계약종료 사건(비극단)은 label=0 이어야 함 (B_contractonly)"
-    r = idx.loc[("B_unh", 2019)]
-    assert bool(r["ev_store"]) and bool(r["extreme_fired"]) and int(r["label"]) == 1, \
-        "B_unh 의 2020년 극단 점포감소가 t=2019 라벨 1 이어야 함"
 
-    # healthy 게이트 OFF 변형: B_unh t=2020 행이 healthy_at_t=False 로 포함돼야 함
+    # healthy 게이트 OFF 변형: 판정불가(2019) 행 19개 + B_unh t=2020 행이 추가되어야 함
     tcfg_off = copy.deepcopy(tcfg)
     tcfg_off["label"]["healthy_gate_at_t"] = False
     out_off = build_labels(panel, tcfg_off)
@@ -255,7 +255,15 @@ def test_label_rules(ctx: dict) -> None:
     r = idx_off.loc[("B_unh", 2020)]
     assert not bool(r["healthy_at_t"]) and int(r["label"]) == 0, \
         "B_unh t=2020: healthy_at_t=False, 2021년은 중립이므로 label=0 이어야 함"
-    assert len(out_off) == len(out) + 1, "게이트 OFF 는 정확히 1행(B_unh,2020)만 추가해야 함"
+    # 극단 규칙은 게이트 OFF 변형의 t=2019 행에서 계속 검증 (2020년 극단 점포감소)
+    r = idx_off.loc[("B_unh", 2019)]
+    assert bool(r["ev_store"]) and bool(r["extreme_fired"]) and int(r["label"]) == 1, \
+        "B_unh 의 2020년 극단 점포감소가 t=2019 라벨 1 이어야 함 (게이트 OFF)"
+    assert not bool(r["healthy_at_t"]), \
+        "t=2019(첫 관측연도)는 판정불가 → healthy_at_t=False 여야 함"
+    # 추가 행 = B_unh 2020 1행 + 2019 행 19개 (B_gate 제외 전 브랜드)
+    assert len(out_off) == len(out) + 20, \
+        f"게이트 OFF 는 정확히 20행 추가여야 함 (got {len(out_off) - len(out)})"
 
     print(f"    labels: {len(out)} sample rows, positives="
           f"{int(out['label'].sum())} (expected 3), gate cases OK")

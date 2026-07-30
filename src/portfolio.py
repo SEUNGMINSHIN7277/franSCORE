@@ -138,8 +138,13 @@ def build_portfolio(cfg: dict) -> None:
     if test.empty:
         raise ValueError("점포수가 유효한 test 브랜드가 없어 포트폴리오를 구성할 수 없습니다.")
 
-    # ---------------- 3) 위험등급 컷 (test 전체 분포의 분위수) ----------------
+    # ---------------- 3) 위험등급 (test 전체 분포 내 순위 기반) ----------------
+    # 값 임계 컷(p >= q0.90)은 보정확률 동률 블록이 경계에 걸리면 High가 설계 비율
+    # (상위 10%)을 크게 초과한다(리뷰 확정 결함). 순위(pct rank, method='first') 기반으로
+    # 부여해 등급 비율이 항상 설계값과 일치하게 한다. 컷 값은 참고용으로만 기록.
     grades_cfg = pcfg["risk_grades"]
+    test = test.copy()
+    test["pd_rank_pct"] = test["pd_1y"].rank(pct=True, method="first")
     hi_cut = float(np.quantile(test["pd_1y"], float(grades_cfg["high"])))
     med_cut = float(np.quantile(test["pd_1y"], float(grades_cfg["medium"])))
 
@@ -160,7 +165,8 @@ def build_portfolio(cfg: dict) -> None:
     port["exposure_share"] = port["exposure_mkrw"] / total_exposure
 
     port["risk_grade"] = np.select(
-        [port["pd_1y"] >= hi_cut, port["pd_1y"] >= med_cut],
+        [port["pd_rank_pct"] > float(grades_cfg["high"]),
+         port["pd_rank_pct"] > float(grades_cfg["medium"])],
         ["High", "Medium"], default="Low")
 
     # ---------------- 5) 집중도 ----------------

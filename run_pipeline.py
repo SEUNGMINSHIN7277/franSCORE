@@ -25,6 +25,23 @@ log = get_logger("pipeline")
 STEPS = ["collect", "panel", "features", "labels", "model", "evaluate", "portfolio", "news"]
 
 
+def _extended_cfg(cfg: dict) -> dict:
+    """확장 표본 트랙(명세 §11 플랜B): 전 업종·점포20+. 산출물은 outputs/extended/ 로 격리.
+
+    ⚠️ 체리피킹 방지 — 기본 트랙과 **둘 다** 공개하는 것을 전제로 한 사전 선언 트랙이다.
+    """
+    ext = copy.deepcopy(cfg)
+    rel = cfg["sample"]["relaxed"]
+    ext["sample"]["industry_major"] = list(rel["industry_major"])
+    ext["sample"]["min_stores"] = int(rel["min_stores"])
+    base_out = cfg["_root"] / "outputs" / "extended"
+    ext["paths"]["outputs"] = base_out
+    ext["paths"]["processed"] = base_out / "processed"
+    for p in (ext["paths"]["outputs"], ext["paths"]["processed"]):
+        p.mkdir(parents=True, exist_ok=True)
+    return ext
+
+
 def _demo_cfg(cfg: dict) -> dict:
     """--demo: 산출물 경로를 스모크 디렉토리로 격리한 cfg 사본."""
     demo = copy.deepcopy(cfg)
@@ -79,7 +96,15 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
     elif step == "labels":
         from src import labels
         panel = _load_panel(cfg, demo)
+        # 분위수 풀은 업종 범위 전체 패널로 계산하고,
+        # 학습/평가 표본은 실시간 자격(eligible_t) 행만 남긴다 (룩어헤드 선별 방지).
         lab = labels.build_labels(panel, cfg)
+        if "eligible_t" in panel.columns:
+            elig = panel[["brand_id", "year", "eligible_t"]]
+            n0 = len(lab)
+            lab = (lab.merge(elig, on=["brand_id", "year"], how="left"))
+            lab = lab[lab["eligible_t"].fillna(False)].drop(columns=["eligible_t"])
+            log.info("labels: 실시간 자격 필터 %d → %d행", n0, len(lab))
         lab.to_parquet(cfg["paths"]["processed"] / "labels.parquet", index=False)
         log.info("labels: %s rows, 양성률 %.1f%%", len(lab), 100 * lab["label"].mean())
 
@@ -123,10 +148,17 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="FranSCORE pipeline")
     ap.add_argument("--step", default="all", choices=STEPS + ["all"])
     ap.add_argument("--demo", action="store_true", help="합성 패널 스모크 (outputs/_smoke 격리)")
+    ap.add_argument("--scope", default="primary", choices=["primary", "extended"],
+                    help="primary=명세 표본(외식·점포30+) / extended=플랜B 확장(전업종·점포20+)")
     args = ap.parse_args()
 
     cfg = load_config()
     set_seed(cfg["seed"])
+    if args.scope == "extended":
+        cfg = _extended_cfg(cfg)
+        log.info("확장 표본 트랙(플랜B): 업종=%s, 점포하한=%s → 산출물 %s",
+                 cfg["sample"]["industry_major"], cfg["sample"]["min_stores"],
+                 cfg["paths"]["outputs"])
     if args.demo:
         cfg = _demo_cfg(cfg)
 

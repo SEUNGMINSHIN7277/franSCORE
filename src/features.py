@@ -60,6 +60,14 @@ def build_features(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     feat["f_lvl_avg_sales_log"] = np.log1p(df["avg_sales"])
     feat["f_lvl_direct_ratio"] = df["direct_ratio"]
     feat["f_lvl_brand_age"] = (gb.cumcount() + 1).astype(float)  # 관측연차
+    # 명세 3.1 "면적당매출" 수준 (3.3㎡당 평균매출액)
+    feat["f_lvl_sales_per_area_log"] = np.log1p(df["avg_sales_per_area"])
+    # 명세 3.1 업력 — 가맹사업개시연도 기준 실제 업력 (관측연차와 별개 신호)
+    if "biz_start_year" in df.columns:
+        feat["f_lvl_biz_age"] = (df["year"] - df["biz_start_year"]).astype(float)
+    # 본부 규모 (라벨 차원 밖)
+    if "emp_cnt" in df.columns:
+        feat["f_lvl_emp_cnt_log"] = np.log1p(pd.to_numeric(df["emp_cnt"], errors="coerce"))
 
     # --- f_chg_ 변화율 -----------------------------------------------------
     feat["f_chg_store_growth"] = df["store_growth_rate"]
@@ -67,9 +75,13 @@ def build_features(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     feat["f_chg_contract_end_rate"] = df["contract_end_rate"]
     feat["f_chg_new_open_rate"] = df["n_new"] / df["_prev_stores"]
     feat["f_chg_name_change_rate"] = df["n_name_change"] / df["_prev_stores"]
+    # 명세 3.1 면적당매출 전년比 변화율
+    feat["f_chg_sales_per_area_growth"] = df["sales_per_area_growth"]
 
     # --- f_trd_ 추세 (브랜드 자기 이력, 과거 방향 rolling만) ---------------
-    for metric, tag in [("store_growth_rate", "store_growth"), ("sales_growth", "sales_growth")]:
+    for metric, tag in [("store_growth_rate", "store_growth"),
+                        ("sales_growth", "sales_growth"),
+                        ("sales_per_area_growth", "sales_per_area")]:
         s = gb[metric]
         feat[f"f_trd_{tag}_mean"] = s.transform(
             lambda x: x.rolling(_TRD_WINDOW, min_periods=_TRD_MIN_OBS).mean())
@@ -87,10 +99,27 @@ def build_features(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     feat = pd.concat([feat, dummies], axis=1)
 
     # --- f_struct_ 라벨 차원 밖 구조 신호 ----------------------------------
+    # 명세 3.1 핵심: "GBM이 persistence를 이길 근거" — 라벨(점포/매출/계약종료)과
+    # 다른 차원의 정보. 직영/가맹 비중, 지역 분산, 개폐점 격차.
     feat["f_struct_direct_ratio_chg"] = df["direct_ratio"] - df["_prev_direct_ratio"]
     feat["f_struct_direct_growth"] = (df["n_direct"] - df["_prev_direct"]) / (df["_prev_direct"] + 1.0)
     feat["f_struct_open_close_gap"] = (
         df["n_new"] - df["n_contract_end"] - df["n_contract_cancel"]) / df["_prev_stores"]
+
+    # 명세 3.1 "지역 분산(집중도)" — 브랜드가 몇 개 시도에 퍼져 있고 얼마나 몰려 있는가.
+    # (지역 집중이 심한 브랜드는 지역 경기·상권 충격에 취약 → 라벨 차원 밖 구조 위험)
+    g2 = df.groupby("brand_id", sort=False)
+    for src, tag in [("n_regions", "n_regions"), ("region_hhi", "region_hhi"),
+                     ("top_region_share", "top_region_share")]:
+        if src in df.columns:
+            feat[f"f_struct_{tag}"] = pd.to_numeric(df[src], errors="coerce")
+            prev = g2[src].shift(1).where(df["_consec"]) if "_consec" in df.columns \
+                else g2[src].shift(1)
+            feat[f"f_struct_{tag}_chg"] = feat[f"f_struct_{tag}"] - pd.to_numeric(prev, errors="coerce")
+    # 지역당 평균 점포수 (밀도) — 같은 점포수라도 소수 지역 집중 여부를 구분
+    if "n_regions" in df.columns:
+        nreg = pd.to_numeric(df["n_regions"], errors="coerce")
+        feat["f_struct_stores_per_region"] = df["n_stores"] / nreg.where(nreg > 0)
 
     # --- 윈저라이즈: 연도별 횡단면 분위수 클립 (t+1 미사용 — 누출 방지) ----
     fcols = [c for c in feat.columns if c.startswith("f_")]

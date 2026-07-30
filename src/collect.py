@@ -13,6 +13,7 @@
 """
 from __future__ import annotations
 
+import gzip
 import json
 import os
 import time
@@ -29,14 +30,39 @@ SERVICES: dict[str, dict] = {
     "brand_frcs_stats": {
         "url": "https://apis.data.go.kr/1130000/FftcBrandFrcsStatsService/getBrandFrcsStats",
         "year_param": "yr",
+        "page_size": 3000,
     },
     "brand_overview": {
         "url": "https://apis.data.go.kr/1130000/FftcBrandBrandStatsService/getBrandBrandStats",
         "year_param": "yr",
+        "page_size": 3000,
     },
     "industry_openclose": {
         "url": "https://apis.data.go.kr/1130000/FftcIndutyFrcsCntOpclStatsService/getIndutyFrcsCntOpclStats",
         "year_param": "jngBizCrtrYr",
+        "page_size": 1000,
+    },
+    # 15125467 브랜드 등록 정보 — 브랜드관리번호(brandMnno)·가맹본부관리번호·사업자등록번호.
+    # 명세 §2.2 "연결 키 = 브랜드 관리번호(우선)" 를 충족하는 정합 마스터.
+    "brand_master": {
+        "url": "https://apis.data.go.kr/1130000/FftcBrandRlsInfo2_Service/getBrandinfo",
+        "year_param": "jngBizCrtraYr",
+        "page_size": 5000,
+    },
+    # 15125490 브랜드 가맹점·직영점 정보 — 브랜드×연도×지역 그레인.
+    # areaNm=='전체' 행 = 브랜드-연도 합계(직영비중 산출), 17개 시도 행 = 지역분산 산출.
+    # ⚠️ 전체(18행/브랜드)를 단순 합산하면 정확히 2배 중복이므로 '전체'와 지역 행을 구분해 사용.
+    "brand_region_direct": {
+        "url": "https://apis.data.go.kr/1130000/FftcBrandFrcsDropInfo3_Service/getbrandFrcsDmsstus2",
+        "year_param": "jngBizCrtraYr",
+        "page_size": 10000,
+        "gzip": True,          # 연 18~21만행 → 원본 스냅샷 gzip 보존
+    },
+    # 15125518 브랜드 등록취소 목록 — 자진/직권 취소(하드 실패 신호). 관리번호 없음(명칭 조인).
+    "brand_cancel": {
+        "url": "https://apis.data.go.kr/1130000/FftcBrandRtrcnInfo2_Service/getbrandRtrcnListinfo",
+        "year_param": "jngBizCrtraYr",
+        "page_size": 3000,
     },
 }
 
@@ -90,7 +116,13 @@ def _fetch_page(url: str, params: dict, cfg: dict) -> dict:
         except Exception as e:  # noqa: BLE001
             last_err = e
             wait = c["retry_backoff_sec"] * (2 ** (attempt - 1))
-            log.warning("호출 실패 (%d/%d): %s → %.1fs 후 재시도", attempt, c["max_retries"], e, wait)
+            # 예외 문자열에 요청 URL(serviceKey 포함)이 들어갈 수 있어 키를 마스킹 후 로깅
+            msg = str(e)
+            sk = str(params.get("serviceKey", ""))
+            if sk:
+                import urllib.parse
+                msg = msg.replace(sk, "***KEY***").replace(urllib.parse.quote(sk, safe=""), "***KEY***")
+            log.warning("호출 실패 (%d/%d): %s → %.1fs 후 재시도", attempt, c["max_retries"], msg, wait)
             time.sleep(wait)
     raise RuntimeError(f"API 호출 최종 실패: {url} params(연도)={params.get('yr') or params.get('jngBizCrtrYr')}") from last_err
 
@@ -107,7 +139,7 @@ def _extract_items(body: dict) -> list[dict]:
 def fetch_service_year(service: str, year: int, key: str, cfg: dict) -> dict:
     """서비스×연도 전체 페이지 수집 → {"totalCount", "items"} 반환."""
     spec = SERVICES[service]
-    page_size = 3000
+    page_size = int(spec.get("page_size", 3000))
     all_items: list[dict] = []
     page = 1
     total = None
@@ -138,8 +170,10 @@ def collect_all(cfg: dict, services: list[str] | None = None, years: list[int] |
     out: dict[str, list[Path]] = {}
     for service in services or list(SERVICES):
         paths: list[Path] = []
+        use_gzip = bool(SERVICES[service].get("gzip"))
         for year in years or YEARS:
-            snap = raw_dir / f"{service}_{year}.json"
+            snap = raw_dir / (f"{service}_{year}.json.gz" if use_gzip
+                              else f"{service}_{year}.json")
             if snap.exists():
                 log.info("스냅샷 존재 → 생략: %s", snap.name)
                 paths.append(snap)
@@ -158,22 +192,41 @@ def collect_all(cfg: dict, services: list[str] | None = None, years: list[int] |
                 "totalCount": data["totalCount"],
                 "items": data["items"],
             }
-            snap.write_text(json.dumps(snapshot, ensure_ascii=False), encoding="utf-8")
-            log.info("저장: %s (%d건)", snap.name, len(data["items"]))
+            payload = json.dumps(snapshot, ensure_ascii=False)
+            if use_gzip:
+                with gzip.open(snap, "wt", encoding="utf-8") as fh:
+                    fh.write(payload)
+            else:
+                snap.write_text(payload, encoding="utf-8")
+            log.info("저장: %s (%d건, %.1fMB)", snap.name, len(data["items"]),
+                     snap.stat().st_size / 1e6)
             paths.append(snap)
         out[service] = paths
     return out
 
 
-def load_snapshots(cfg: dict, service: str) -> list[dict]:
-    """저장된 스냅샷 로드 → item dict 리스트 (연도 오름차순, 각 item에 _yr 부여)."""
+def load_snapshots(cfg: dict, service: str, keep: "callable | None" = None) -> list[dict]:
+    """저장된 스냅샷 로드 → item dict 리스트 (연도 오름차순, 각 item에 _yr 부여).
+
+    keep: 선택적 행 필터 (대용량 서비스에서 메모리 절약용). keep(item) -> bool.
+    .json / .json.gz 모두 지원.
+    """
     raw_dir: Path = cfg["paths"]["raw"]
     rows: list[dict] = []
-    for snap in sorted(raw_dir.glob(f"{service}_*.json")):
-        data = json.loads(snap.read_text(encoding="utf-8"))
+    snaps = sorted(list(raw_dir.glob(f"{service}_*.json"))
+                   + list(raw_dir.glob(f"{service}_*.json.gz")),
+                   key=lambda p: p.name)
+    for snap in snaps:
+        if snap.suffix == ".gz":
+            with gzip.open(snap, "rt", encoding="utf-8") as fh:
+                data = json.load(fh)
+        else:
+            data = json.loads(snap.read_text(encoding="utf-8"))
         for it in data["items"]:
+            if keep is not None and not keep(it):
+                continue
             it["_yr"] = data["year"]
-        rows.extend(data["items"])
+            rows.append(it)
     return rows
 
 

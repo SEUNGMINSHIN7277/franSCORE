@@ -74,13 +74,18 @@ def compute_derived_metrics(panel: pd.DataFrame) -> pd.DataFrame:
     prev_sales = g["avg_sales"].shift(1).where(consec)
     prev_sales = prev_sales.where(prev_sales > 0)
     prev_direct = g["n_direct"].shift(1).where(consec)
+    prev_spa = g["avg_sales_per_area"].shift(1).where(consec)
+    prev_spa = prev_spa.where(prev_spa > 0)
 
+    df["_consec"] = consec
     df["_prev_stores"] = prev_stores
     df["_prev_direct"] = prev_direct
     df["delta_stores"] = df["n_stores"] - prev_stores
     df["store_growth_rate"] = (df["n_stores"] - prev_stores) / prev_stores
     df["contract_end_rate"] = (df["n_contract_end"] + df["n_contract_cancel"]) / prev_stores
     df["sales_growth"] = df["avg_sales"] / prev_sales - 1.0
+    # 면적당매출 성장률 (명세 3.1 필수 시계열 — 점포 규모 효과를 통제한 매출 신호)
+    df["sales_per_area_growth"] = df["avg_sales_per_area"] / prev_spa - 1.0
 
     denom = df["n_direct"] + df["n_stores"]
     df["direct_ratio"] = np.where(denom > 0, df["n_direct"] / denom, np.nan)
@@ -101,18 +106,23 @@ def compute_derived_metrics(panel: pd.DataFrame) -> pd.DataFrame:
 def _event_flags(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     """각 행(=그 연도 지표)에 대해 사건/극단 발동 플래그를 계산한다.
 
-    분위수 임계값은 업종그룹×연도 셀 내 실측 분포로 계산 (패널 전 행 사용 —
-    표본 게이트와 무관하게 임계값 풀에는 모든 브랜드가 들어간다).
+    분위수 임계값 풀 = 업종그룹×연도 셀 내 **비교 가능한 규모의 동료군**
+    (전년 점포수 ≥ min_stores_at_t — 해당 지표 시점에 이미 알 수 있는 정보라 실시간 안전).
+    1~9개 점포 영세 브랜드의 초변동성(±100% 성장 등)이 임계값을 극단화해
+    '업종 내 상대 악화'라는 라벨의 업무 의미를 왜곡하는 것을 방지한다.
+    임계값은 풀에서 계산하되 셀 내 모든 행에 적용된다.
     """
     lab = cfg["label"]
     xq = float(lab["extreme_quantile"])
+    pool = (df["_prev_stores"] >= float(lab["min_stores_at_t"])).fillna(False)
     out = pd.DataFrame(index=df.index)
     for name, spec in lab["events"].items():
         metric = spec["metric"]
         short = _METRIC_SHORT[metric]
         q = float(spec["quantile"])
         side = spec["side"]
-        grp = df.groupby(["industry_group", "year"])[metric]
+        pooled = df[metric].where(pool)  # 풀 밖 행은 임계값 계산에서 제외(적용은 전 행)
+        grp = pooled.groupby([df["industry_group"], df["year"]])
         thr = grp.transform(lambda s, q=q: s.quantile(q))
         if side == "lower":
             xthr = grp.transform(lambda s, xq=xq: s.quantile(xq))
@@ -153,7 +163,13 @@ def build_labels(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     df["n_events"] = df[_EV_COLS].sum(axis=1).astype(int)
     df["extreme_fired"] = df[ex_cols].any(axis=1)
     df["deteriorated"] = (df["n_events"] >= int(lab["min_events"])) | df["extreme_fired"]
-    df["healthy"] = df["n_events"] == 0
+    # '양호' 판정에는 검증 가능성 요건을 둔다 (적대적 리뷰 확정 결함 수정):
+    # t년 사건 지표 3종이 전부 결측이면 "사건 미발동"이 아니라 "판정 불가"다.
+    # (구버전은 관측 첫해·공백 복귀 행이 무조건 양호로 간주되어, 전환 표본의 27%가
+    #  검증 불가 상태였고 그 구간의 양성률이 2배였다 → 전환 예측 주장 왜곡)
+    obs_cols = ["store_growth_rate", "real_sales_growth", "contract_end_rate"]
+    df["n_obs_metrics"] = df[obs_cols].notna().sum(axis=1)
+    df["healthy"] = (df["n_events"] == 0) & (df["n_obs_metrics"] >= 1)
 
     # t 행에 t+1년 사건을 붙인다 (t+1 미관측 → inner merge에서 자동 제외)
     nxt = df[["brand_id", "year", *_EV_COLS, "n_events", "extreme_fired", "deteriorated"]].copy()
@@ -185,7 +201,8 @@ def build_labels(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
         )
     log.info(
         "labels: rule interpretation — strict quantile inequality; extreme subset of event "
-        "(store gate applies); NaN metric never fires; |delta stores| gate is absolute value."
+        "(store gate applies); NaN metric never fires; |delta stores| gate is absolute value; "
+        "healthy_at_t requires >=1 observable t-metric (판정 불가 행은 표본 제외)."
     )
     _write_composition(out, cfg)
     return out

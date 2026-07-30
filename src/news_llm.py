@@ -313,9 +313,13 @@ def extract_signals(articles_by_brand: dict[str, list], cfg: dict,
     out_path = Path(cfg["paths"]["outputs"]) / "news_signals.json"
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(signals, f, ensure_ascii=False, indent=2)
+    # ⚠️ 로그는 '의도(use_llm)'가 아니라 **실제 결과**를 보고해야 한다.
+    #    (키가 있어도 refusal·예외·파싱실패로 전량 폴백될 수 있음 — 실측 확인된 결함 수정)
+    n_llm = sum(1 for s in signals if s.get("llm_used"))
     log.info(
-        "뉴스 신호 저장: %s (신호 %d건, llm_used=%s) — 점수 미반영·화면 표시 전용",
-        out_path, len(signals), use_llm,
+        "뉴스 신호 저장: %s (신호 %d건 중 LLM 추출 %d건 / 규칙 폴백 %d건, LLM 시도=%s) "
+        "— 점수 미반영·화면 표시 전용",
+        out_path, len(signals), n_llm, len(signals) - n_llm, use_llm,
     )
     return signals
 

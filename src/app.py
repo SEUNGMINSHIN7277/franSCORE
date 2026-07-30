@@ -118,13 +118,23 @@ _PREFIX_KR = [
 
 # 긴 토큰 우선 (부분문자열 우선순위)
 _TOKEN_KR = [
+    # 긴 토큰 먼저 (부분문자열 우선순위) — 지역분산·면적당매출 피처 추가
+    ("sales_per_area_growth", "면적당매출 증가율"),
+    ("stores_per_region", "지역당 평균 점포수"),
+    ("top_region_share", "최다 지역 비중"),
     ("real_sales_growth", "실질 매출 증가율"),
     ("store_growth_rate", "점포 증가율"),
     ("contract_end_rate", "계약종료율"),
+    ("sales_per_area", "면적당매출"),
+    ("direct_growth", "직영점 증감율"),
+    ("region_hhi", "지역 집중도(HHI)"),
+    ("n_regions", "진출 지역 수"),
     ("store_growth", "점포 증가율"),
     ("sales_growth", "매출 증가율"),
     ("contract_end", "계약종료"),
     ("direct_ratio", "직영점 비중"),
+    ("emp_cnt", "본부 직원수"),
+    ("biz_age", "가맹사업 업력"),
     ("brand_age", "브랜드 연차"),
     ("name_change", "명의변경"),
     ("new_open", "신규개점"),
@@ -145,6 +155,7 @@ _QUAL_KR = [
     ("rank", "업종 내 백분위"),
     ("pct", "백분위"),
     ("diff", "변화"),
+    ("chg", "전년비 변화"),
     ("2y", "최근 2년"),
     ("3y", "최근 3년"),
     ("log1p", ""),
@@ -211,15 +222,17 @@ def pick_prob_column(df: pd.DataFrame) -> tuple[str, bool]:
 
 
 def assign_grade(probs: pd.Series, cuts: dict) -> pd.Series:
-    """확률 분위수 컷(config portfolio.risk_grades)으로 High/Medium/Low 부여."""
+    """분포 내 순위(pct rank) 기반 High/Medium/Low 부여.
+
+    값 임계 컷은 보정확률 동률 블록이 경계에 걸리면 High 비율이 설계값(상위 10%)을
+    초과하므로(리뷰 확정 결함), 순위 기반으로 부여한다 — portfolio.py와 동일 규칙.
+    """
     high_q = float(cuts.get("high", 0.90))
     med_q = float(cuts.get("medium", 0.70))
-    p = probs.astype(float)
-    hi_cut = p.quantile(high_q)
-    md_cut = p.quantile(med_q)
-    out = pd.Series("Low", index=p.index, dtype=object)
-    out[p >= md_cut] = "Medium"
-    out[p >= hi_cut] = "High"
+    r = probs.astype(float).rank(pct=True, method="first")
+    out = pd.Series("Low", index=probs.index, dtype=object)
+    out[r > med_q] = "Medium"
+    out[r > high_q] = "High"
     return out
 
 
@@ -777,17 +790,23 @@ def render_portfolio_view(cfg: dict) -> None:
     st.subheader("스트레스 시나리오 비교")
     base_total = None
     stress_total = None
+    # 기본·스트레스 모두 '중간 LGD' 시나리오로 짝을 맞춘다 (리뷰 확정 결함 수정:
+    # 구버전은 기본=LGD45 vs 스트레스=LGD30을 비교해 스트레스가 손실을 줄이는 것처럼 표시됨)
     if el_cols:
         mid_idx = len(el_cols) // 2
-        base_total = float(dfp[el_cols[mid_idx]].astype(float).sum()) / 100.0
-    if stress_cols:
-        stress_total = float(dfp[stress_cols[0]].astype(float).sum()) / 100.0
+        base_col = el_cols[mid_idx]
+        base_total = float(dfp[base_col].astype(float).sum()) / 100.0
+        stress_col = base_col.replace("el_", "stress_el_", 1)
+        if stress_col in dfp.columns:
+            stress_total = float(dfp[stress_col].astype(float).sum()) / 100.0
+    if stress_total is None and stress_cols:
+        stress_total = float(dfp[stress_cols[len(stress_cols) // 2]].astype(float).sum()) / 100.0
     if base_total is None:
-        v = find_num(flat, ("el",), ("stress",))
-        base_total = to_eok(v) if v is not None else None
-    if stress_total is None:
-        v = find_num(flat, ("stress",))
-        stress_total = to_eok(v) if v is not None else None
+        scen = (summary or {}).get("expected_loss_scenarios") if isinstance(summary, dict) else None
+        if isinstance(scen, list) and scen:
+            mid = scen[len(scen) // 2]
+            base_total = mid.get("el_ekw")
+            stress_total = mid.get("stress_el_ekw")
     if base_total is not None and stress_total is not None:
         cmp_chart = pd.DataFrame(
             {"EL (억원)": [base_total, stress_total]},

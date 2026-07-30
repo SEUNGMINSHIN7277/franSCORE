@@ -83,6 +83,88 @@ def _metric_row(y, p, k_pct: float) -> dict:
     return out
 
 
+def _bootstrap_ci(y, p, k_pct: float, n_boot: int, seed: int,
+                  alpha: float = 0.05) -> dict:
+    """지표별 bootstrap 백분위 신뢰구간 (COULD 항목).
+
+    test 표본을 복원추출로 n_boot회 재표집해 각 지표의 분포를 얻는다.
+    기준모형 대비 우위가 표본 변동 범위 안에서도 유지되는지 판단하는 근거.
+    """
+    y = np.asarray(y, dtype=float)
+    p = np.asarray(p, dtype=float)
+    ok = ~np.isnan(p)
+    y, p = y[ok], p[ok]
+    keys = ["lift_at_10", "precision_at_10", "pr_auc", "roc_auc", "brier"]
+    if len(y) == 0:
+        return {f"{k}_{s}": np.nan for k in keys for s in ("lo", "hi")}
+    rng = np.random.default_rng(seed)
+    n = len(y)
+    draws: dict[str, list[float]] = {k: [] for k in keys}
+    for _ in range(int(n_boot)):
+        idx = rng.integers(0, n, size=n)
+        row = _metric_row(y[idx], p[idx], k_pct)
+        for k in keys:
+            v = row[k]
+            if v is not None and not (isinstance(v, float) and math.isnan(v)):
+                draws[k].append(float(v))
+    out: dict[str, float] = {}
+    for k in keys:
+        arr = np.asarray(draws[k], dtype=float)
+        if arr.size == 0:
+            out[f"{k}_lo"] = out[f"{k}_hi"] = np.nan
+        else:
+            out[f"{k}_lo"] = float(np.quantile(arr, alpha / 2))
+            out[f"{k}_hi"] = float(np.quantile(arr, 1 - alpha / 2))
+    out["n_boot"] = int(n_boot)
+    return out
+
+
+def _paired_bootstrap(te: pd.DataFrame, k_pct: float, n_boot: int, seed: int,
+                      out_dir: Path) -> None:
+    """페어드 부트스트랩: 같은 재표집 표본에서 LightGBM과 각 기준모형의 Lift@10% 차이 분포.
+
+    "LightGBM이 기준모형을 이긴다"는 주장이 표본 변동을 넘어서는지 직접 검정한다
+    (동일 표본에서 두 모형을 비교하므로 표본 변동이 상쇄되어 검정력이 높다).
+    산출: outputs/lift_delta_bootstrap.csv — 차이의 95% CI와 승률 P(delta>0).
+    """
+    y = te["y_true"].to_numpy(dtype=float)
+    if len(y) == 0:
+        return
+    baselines = [c for c in ("persistence", "single", "logistic") if MODEL_COLS.get(c) in te.columns]
+    p_main = te[MODEL_COLS["lgbm"]].to_numpy(dtype=float)
+    rng = np.random.default_rng(seed)
+    n = len(y)
+    deltas: dict[str, list[float]] = {b: [] for b in baselines}
+    for _ in range(int(n_boot)):
+        idx = rng.integers(0, n, size=n)
+        yb = y[idx]
+        main = _metric_row(yb, p_main[idx], k_pct)["lift_at_10"]
+        if main is None or (isinstance(main, float) and math.isnan(main)):
+            continue
+        for b in baselines:
+            pb = te[MODEL_COLS[b]].to_numpy(dtype=float)[idx]
+            base_lift = _metric_row(yb, pb, k_pct)["lift_at_10"]
+            if base_lift is not None and not (isinstance(base_lift, float) and math.isnan(base_lift)):
+                deltas[b].append(float(main - base_lift))
+    rows = []
+    for b in baselines:
+        arr = np.asarray(deltas[b], dtype=float)
+        if arr.size == 0:
+            continue
+        rows.append({
+            "comparison": f"lgbm - {b}",
+            "mean_delta_lift": float(arr.mean()),
+            "ci_lo": float(np.quantile(arr, 0.025)),
+            "ci_hi": float(np.quantile(arr, 0.975)),
+            "p_win": float((arr > 0).mean()),   # 재표집에서 LightGBM이 이긴 비율
+            "n_boot": int(arr.size),
+        })
+    if rows:
+        pd.DataFrame(rows).to_csv(out_dir / "lift_delta_bootstrap.csv",
+                                  index=False, encoding="utf-8-sig")
+        log.info("lift_delta_bootstrap.csv 저장 — 기준모형 대비 Lift 차이 CI·승률")
+
+
 # ---------------------------------------------------------------------------
 # 보정
 # ---------------------------------------------------------------------------
@@ -173,9 +255,29 @@ def evaluate_all(cfg: dict) -> None:
          "n_valid": int(len(va)), "input_col": "p_lgbm"},
         out_dir / "calibrator.joblib",
     )
-    preds["p_calibrated"] = np.clip(p_cal_all, 0.0, 1.0)
+    # 동률 붕괴 방지 (적대적 리뷰 확정 결함 수정): isotonic 계단으로 보정확률이 소수의
+    # 유일값으로 붕괴하면 상위 10% 경계·등급 컷이 대규모 동률 블록에 걸려 하류 순위가
+    # 임의화된다. 원점수(p_lgbm) 순위 기반 미세 오프셋(≤1e-5)을 더해 순위 정보를 보존한다.
+    # (isotonic은 p_lgbm에 단조이므로 보정 일관성 유지, 표시 확률에는 사실상 무영향)
+    tie_break = preds["p_lgbm"].rank(method="first").to_numpy(dtype=float)
+    tie_break = tie_break / max(len(tie_break), 1) * 1e-5
+    preds["p_calibrated"] = np.clip(np.clip(p_cal_all, 0.0, 1.0) + tie_break, 0.0, 1.0)
     preds.to_parquet(pred_path, index=False)  # p_calibrated 추가 저장 (계약 §3)
-    log.info("calibration: method=%s - valid(n=%d)로 학습, 전체에 적용·test로 곡선", method, len(va))
+    log.info("calibration: method=%s - valid(n=%d)로 학습, 전체에 적용·test로 곡선 (원점수 순위 tie-break 적용)",
+             method, len(va))
+
+    # 보정 점수 기준 지표도 metrics.csv에 추가 — 하류(포트폴리오·대시보드)가 실제로 쓰는
+    # 점수의 성능을 보고 지표와 일치시킨다 (리뷰 결함 수정: 보고 Lift가 배포 점수로 달성 가능해야 함)
+    cal_rows = []
+    for split in ("train", "valid", "test"):
+        sub = preds[preds["split"] == split]
+        if sub.empty:
+            continue
+        cal_rows.append({"model": "lgbm_calibrated", "split": split,
+                         **_metric_row(sub["y_true"], sub["p_calibrated"], k_pct)})
+    metrics = pd.concat([metrics, pd.DataFrame(cal_rows)[["model", "split"] + METRIC_ORDER]],
+                        ignore_index=True)
+    metrics.to_csv(out_dir / "metrics.csv", index=False, encoding="utf-8-sig")
 
     te = preds[preds["split"] == "test"]
     n_bins = int(ev_cfg.get("n_bins_calibration", 10))
@@ -340,7 +442,8 @@ def evaluate_all(cfg: dict) -> None:
                 mm.loc[tr_m, cols], y_all[tr_m],
                 eval_set=[(mm.loc[va_m, cols], y_all[va_m])],
                 eval_metric=ab_metric,
-                callbacks=[lgb.early_stopping(esr, verbose=False), lgb.log_evaluation(period=0)],
+                # first_metric_only=True: 본모델과 동일하게 auc 기준 조기종료 (리뷰 확정 결함 수정)
+                callbacks=[lgb.early_stopping(esr, first_metric_only=True, verbose=False), lgb.log_evaluation(period=0)],
             )
         p_te = ab_clf.predict_proba(mm.loc[te_m, cols])[:, 1]
         mrow = _metric_row(y_all[te_m], p_te, k_pct)
@@ -352,6 +455,37 @@ def evaluate_all(cfg: dict) -> None:
                                    "precision_at_10", "pr_auc", "roc_auc"]) \
         .to_csv(out_dir / "ablation.csv", index=False, encoding="utf-8-sig")
     log.info("ablation.csv 저장 (%d단계)", len(ab_rows))
+
+    # --- 6b) bootstrap 신뢰구간 (COULD) -------------------------------------
+    n_boot = int(ev_cfg.get("bootstrap_n", 0) or 0)
+    if n_boot > 0:
+        te_b = preds[preds["split"] == "test"]
+        boot_rows = []
+        cols = dict(MODEL_COLS)
+        if "p_calibrated" in preds.columns:
+            cols["lgbm_calibrated"] = "p_calibrated"
+        for name, col in cols.items():
+            row = _metric_row(te_b["y_true"], te_b[col], k_pct)
+            ci = _bootstrap_ci(te_b["y_true"], te_b[col], k_pct, n_boot, int(cfg["seed"]))
+            boot_rows.append({"model": name, "split": "test",
+                              "lift_at_10": row["lift_at_10"],
+                              "lift_at_10_lo": ci["lift_at_10_lo"], "lift_at_10_hi": ci["lift_at_10_hi"],
+                              "precision_at_10": row["precision_at_10"],
+                              "precision_at_10_lo": ci["precision_at_10_lo"],
+                              "precision_at_10_hi": ci["precision_at_10_hi"],
+                              "pr_auc": row["pr_auc"],
+                              "pr_auc_lo": ci["pr_auc_lo"], "pr_auc_hi": ci["pr_auc_hi"],
+                              "roc_auc": row["roc_auc"],
+                              "roc_auc_lo": ci["roc_auc_lo"], "roc_auc_hi": ci["roc_auc_hi"],
+                              "brier": row["brier"],
+                              "brier_lo": ci["brier_lo"], "brier_hi": ci["brier_hi"],
+                              "n_boot": n_boot})
+        boot = pd.DataFrame(boot_rows)
+        boot.to_csv(out_dir / "metrics_bootstrap_ci.csv", index=False, encoding="utf-8-sig")
+        log.info("metrics_bootstrap_ci.csv 저장 (%d모형 × %d회 재표집, 95%% 백분위 CI)",
+                 len(boot_rows), n_boot)
+        # 페어드 부트스트랩: 동일 재표집에서 LightGBM − 최강 기준모형 Lift 차이 분포
+        _paired_bootstrap(te_b, k_pct, n_boot, int(cfg["seed"]), out_dir)
 
     # --- 7) 콘솔 비교표 ------------------------------------------------------
     tab = metrics[metrics["split"] == "test"].set_index("model") \
