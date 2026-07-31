@@ -24,8 +24,10 @@ log = get_logger("pipeline")
 
 # dart·ifrmp 는 panel 뒤·features 앞에 온다: 본부 재무를 붙이려면 패널의 법인명이 필요하고,
 # 그 결과(hq_financials.parquet)를 features 가 읽는다.
+# demand(검색수요)·news 는 diagnose 앞에 온다: 진단 규칙이 그 산출물을 읽어
+# 수요·평판 소견을 만든다. 둘 다 없어도 diagnose 는 공시·재무 소견만으로 동작한다.
 STEPS = ["collect", "panel", "dart", "ifrmp", "features", "labels", "model", "evaluate",
-         "portfolio", "score", "correlation", "news", "eval_llm"]
+         "portfolio", "score", "correlation", "demand", "news", "diagnose", "eval_llm"]
 
 
 def _extended_cfg(cfg: dict) -> dict:
@@ -177,6 +179,19 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
         names = news_llm.select_brands(cfg)
         news_llm.run_news(names, cfg)
 
+    elif step == "demand":
+        # 네이버 데이터랩 검색어트렌드 — 브랜드 수요 신호 (키 없으면 스스로 건너뛴다)
+        if demo:
+            log.info("demo 모드에서는 검색수요 수집 생략")
+            return
+        from src import naver
+        naver.collect_demand(cfg)
+
+    elif step == "diagnose":
+        # 브랜드 개별 진단 — 공시·본부재무·수요·보도를 규칙으로 훑어 소견을 만든다
+        from src import diagnosis
+        diagnosis.run(cfg)
+
     else:
         raise ValueError(f"unknown step: {step}")
 
@@ -203,13 +218,18 @@ def main() -> None:
 
     steps = STEPS if args.step == "all" else [args.step]
     if args.step == "all":
-        # news는 네트워크·LLM 의존이라 all에서는 마지막·실패 허용
-        for s in [s for s in steps if s != "news"]:
-            run_step(s, cfg, args.demo)
-        try:
-            run_step("news", cfg, args.demo)
-        except Exception as e:
-            log.warning("news 스텝 실패 (전체 파이프라인은 유효): %s", e)
+        # news·demand 는 외부 API 의존이라 실패를 허용한다. 다만 diagnose 는 그 뒤에
+        # 와야 하므로 순서를 유지한 채 두 스텝만 예외로 감싼다 (실패해도 diagnose 는
+        # 공시·재무 소견만으로 계속 진행 — 소견이 통째로 사라지지 않는다).
+        soft = {"news", "demand"}
+        for s in steps:
+            if s in soft:
+                try:
+                    run_step(s, cfg, args.demo)
+                except Exception as e:
+                    log.warning("%s 스텝 실패 (파이프라인은 계속): %s", s, e)
+            else:
+                run_step(s, cfg, args.demo)
     else:
         run_step(args.step, cfg, args.demo)
 

@@ -59,6 +59,48 @@ def _korean_only(s: str) -> str:
     return re.sub(r"[^가-힣]", "", str(s or ""))
 
 
+def suggest(names: list[str], query: str, limit: int = 8) -> list[str]:
+    """연관검색어 — **한 글자만 쳐도** 후보를 돌려준다.
+
+    왜 search() 와 따로인가
+        search() 는 '조회 결과'를 만드는 함수라 매칭이 없으면 빈 결과를 준다.
+        자동완성은 타이핑 도중에 계속 불리므로 '아직 다 안 친 상태'가 정상이고,
+        접두 일치를 최우선으로 정렬해 사람이 고를 수 있게 해야 한다.
+
+    정렬: 접두 일치 → 포함 위치가 앞선 것 → 이름이 짧은 것.
+    짧은 이름을 앞에 두는 이유는 '메가엠지씨커피(MEGA MGC COFFEE)' 같은 긴 등록명보다
+    통칭에 가까운 이름이 사용자가 찾던 것일 확률이 높기 때문이다.
+    """
+    q = normalize(query)
+    if not q:
+        return []
+    keys = {q}
+    for alias, token in ALIASES.items():
+        if q in alias or alias in q:
+            keys.add(normalize(token))
+
+    scored: list[tuple[int, int, int, str]] = []
+    seen: set[str] = set()
+    for name in names:
+        s = str(name)
+        if s in seen:
+            continue
+        n = normalize(s)
+        k_hit = _korean_only(s)
+        pos = -1
+        for k in keys:
+            for hay in (n, k_hit):
+                p = hay.find(k) if k else -1
+                if p >= 0 and (pos < 0 or p < pos):
+                    pos = p
+        if pos < 0:
+            continue
+        seen.add(s)
+        scored.append((0 if pos == 0 else 1, pos, len(s), s))
+    scored.sort()
+    return [s for *_, s in scored[:limit]]
+
+
 def search(df: pd.DataFrame, query: str, col: str = "brand_name",
            limit: int = 50) -> tuple[pd.DataFrame, list[str]]:
     """브랜드 검색.

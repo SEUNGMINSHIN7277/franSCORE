@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import random
 import sys
 from pathlib import Path
@@ -16,11 +17,69 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 
 _CFG_CACHE: dict | None = None
+_SECRETS_LOADED = False
+
+# 이 이름들만 시크릿으로 취급한다. 임의의 키를 환경변수로 밀어넣지 않기 위한 화이트리스트.
+SECRET_KEYS = (
+    "GEMINI_API_KEY", "DART_API_KEY", "DATA_GO_KR_KEY", "IFRMP_SERVICE_KEY",
+    "NAVER_CLIENT_ID", "NAVER_CLIENT_SECRET",
+)
+
+
+def load_secrets() -> list[str]:
+    """API 키를 환경변수로 올린다. 이미 설정된 값은 절대 덮어쓰지 않는다.
+
+    왜 필요한가
+      · 로컬: 키를 사용자 스코프에 setx 로 넣어도 **이미 떠 있는 프로세스와 그 자식**은
+        그 값을 상속받지 못한다. 그래서 대시보드만 키를 못 보는 상황이 생긴다(실측).
+      · 배포: 플랫폼마다 시크릿 전달 방식이 다르다. Streamlit Community Cloud 는
+        st.secrets 로 주고, 컨테이너 배포는 환경변수로 준다. 두 경로를 모두 받는다.
+
+    우선순위: 기존 환경변수 > .env 파일 > st.secrets.
+    Returns: 이번 호출로 새로 채워진 키 이름 목록 (값은 반환하지 않는다).
+    """
+    global _SECRETS_LOADED
+    filled: list[str] = []
+    if _SECRETS_LOADED:
+        return filled
+
+    env_file = ROOT / ".env"
+    if env_file.exists():
+        try:
+            # utf-8-sig: Windows PowerShell 의 Out-File 은 BOM 을 붙인다. 그냥 utf-8 로
+            # 읽으면 첫 줄 키가 '﻿GEMINI_API_KEY' 가 되어 조용히 무시된다(실측).
+            for line in env_file.read_text(encoding="utf-8-sig").splitlines():
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, v = line.split("=", 1)
+                k, v = k.strip(), v.strip().strip('"').strip("'")
+                if k in SECRET_KEYS and v and not os.environ.get(k):
+                    os.environ[k] = v
+                    filled.append(k)
+        except OSError:
+            pass
+
+    # Streamlit 아래에서 돌 때만 st.secrets 를 본다 (파이프라인 실행에 streamlit 을
+    # 끌어들이지 않기 위해 이미 임포트된 경우로 한정한다).
+    if "streamlit" in sys.modules:
+        try:
+            import streamlit as st
+            for k in SECRET_KEYS:
+                if not os.environ.get(k) and k in st.secrets:
+                    os.environ[k] = str(st.secrets[k])
+                    filled.append(k)
+        except Exception:
+            pass
+
+    _SECRETS_LOADED = True
+    return filled
 
 
 def load_config(path: str | Path | None = None) -> dict:
     """config.yaml 로드. cfg['_root']에 프로젝트 루트 Path를 담는다."""
     global _CFG_CACHE
+    load_secrets()
     if path is None and _CFG_CACHE is not None:
         return _CFG_CACHE
     cfg_path = Path(path) if path else ROOT / "config.yaml"

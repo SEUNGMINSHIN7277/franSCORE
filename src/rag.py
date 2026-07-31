@@ -50,6 +50,8 @@ CORPUS_FILE = "rag_corpus.parquet"
 INDEX_FILE = "rag_index.joblib"
 STATS_FILE = "rag_stats.json"
 
+CHAR_MAX_FEATURES = 40_000   # 문자 n-gram 피처 상한 (메모리 — RagIndex 주석 참조)
+
 _WS = re.compile(r"\s+")
 
 
@@ -296,9 +298,17 @@ class RagIndex:
         self.corpus = corpus.reset_index(drop=True)
         texts = self.corpus["text"].fillna("").tolist()
         # 한국어: 형태소 분석기 없이도 동작하도록 단어 + 문자 n-gram 결합
-        self.vec_word = TfidfVectorizer(ngram_range=(1, 2), min_df=1, sublinear_tf=True)
+        #
+        # 메모리 (배포 제약): 기본 설정으로 만들면 색인이 91MB 파일 / 263MB 상주였다.
+        # 무료 호스팅의 메모리 한도에 걸리므로 두 가지로 줄인다.
+        #   · dtype=float32  — TF-IDF 값에 float64 정밀도가 필요 없다. 정확히 절반.
+        #   · char 피처 상한 — char n-gram 이 nnz 의 85%를 차지한다. 상위 빈도만 남긴다.
+        # 두 조치 모두 검색 품질을 실측으로 확인한 뒤 적용했다 (tools/check_rag_quality.py).
+        self.vec_word = TfidfVectorizer(ngram_range=(1, 2), min_df=1, sublinear_tf=True,
+                                        dtype=np.float32)
         self.vec_char = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 4),
-                                        min_df=2, sublinear_tf=True)
+                                        min_df=3, sublinear_tf=True,
+                                        max_features=CHAR_MAX_FEATURES, dtype=np.float32)
         self.mat_word = self.vec_word.fit_transform(texts)
         self.mat_char = self.vec_char.fit_transform(texts)
 

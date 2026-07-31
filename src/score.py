@@ -33,6 +33,7 @@ import numpy as np
 import pandas as pd
 
 from src.common import get_logger, load_config, set_seed
+from src.diagnosis import smooth_calibrated
 from src.evaluate import _apply_calibrator
 from src.feature_names import feature_korean_name
 from src.model import _numeric_feature_frame, _sanitize_feature_names
@@ -100,10 +101,16 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
     X = X[trained]
 
     p_raw = np.clip(booster.predict(X), 0.0, 1.0)
-    p_cal = _apply_calibrator(cal.get("model"), p_raw, str(cal.get("method", "identity")), cfg)
-    # 보정 계단으로 생기는 동률을 원점수 순위로 미세 분리 (evaluate.py 와 동일 규칙)
-    tb = pd.Series(p_raw).rank(method="first").to_numpy(dtype=float)
-    p_cal = np.clip(p_cal + tb / max(len(tb), 1) * 1e-5, 0.0, 1.0)
+    p_cal_step = _apply_calibrator(
+        cal.get("model"), p_raw, str(cal.get("method", "identity")), cfg)
+    # isotonic 은 계단 함수라 같은 계단에 든 브랜드가 **화면에 같은 확률로** 표시된다
+    # (실측: 2,510개 중 216개가 42.86%). 계단 내부를 원점수로 선형 보간해 편다.
+    # 1e-5 짜리 미세 tie-break 는 소수점 첫째 자리에서 여전히 같은 값이라 소용이 없었다.
+    p_cal = smooth_calibrated(p_raw, p_cal_step)
+    n_before = int(pd.Series(p_cal_step).round(4).nunique())
+    n_after = int(pd.Series(p_cal).round(4).nunique())
+    log.info("보정확률 계단 보간: 서로 다른 값 %d → %d개 (소수점 4자리 기준, n=%d)",
+             n_before, n_after, len(p_cal))
 
     res = cohort[["brand_id", "year"]].copy()
     for c in ("brand_name", "industry_major", "industry_mid", "n_stores"):
