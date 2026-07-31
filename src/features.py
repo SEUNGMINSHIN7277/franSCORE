@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """M2 피처 생성 (INTERFACES.md §2).
 
 행 (brand_id, t)의 피처는 **t 이하 연도 값만** 사용한다 (⛔ t+1 절대 금지).
@@ -62,9 +61,11 @@ def build_features(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     feat["f_lvl_brand_age"] = (gb.cumcount() + 1).astype(float)  # 관측연차
     # 명세 3.1 "면적당매출" 수준 (3.3㎡당 평균매출액)
     feat["f_lvl_sales_per_area_log"] = np.log1p(df["avg_sales_per_area"])
-    # 명세 3.1 업력 — 가맹사업개시연도 기준 실제 업력 (관측연차와 별개 신호)
+    # 명세 3.1 업력 — 가맹사업개시연도 기준 실제 업력 (관측연차와 별개 신호).
+    # 하한 0 클립: 패널 연도(실적연도)가 공시연도−1이라, 공시 등록 연도에 개시한 브랜드는
+    # 산술상 -1이 되는데 이는 '업력 0년(개시 원년)'을 뜻한다 (리뷰 지적 반영).
     if "biz_start_year" in df.columns:
-        feat["f_lvl_biz_age"] = (df["year"] - df["biz_start_year"]).astype(float)
+        feat["f_lvl_biz_age"] = (df["year"] - df["biz_start_year"]).astype(float).clip(lower=0.0)
     # 본부 규모 (라벨 차원 밖)
     if "emp_cnt" in df.columns:
         feat["f_lvl_emp_cnt_log"] = np.log1p(pd.to_numeric(df["emp_cnt"], errors="coerce"))
@@ -79,10 +80,16 @@ def build_features(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     feat["f_chg_sales_per_area_growth"] = df["sales_per_area_growth"]
 
     # --- f_trd_ 추세 (브랜드 자기 이력, 과거 방향 rolling만) ---------------
+    # 연속 관측 구간 ID: 브랜드 경계 또는 연도 갭(비연속)에서 새 구간 시작.
+    # (df는 compute_derived_metrics에서 (brand_id, year) 정렬 보장)
+    _year_gap = gb["year"].diff()
+    _run_id = (_year_gap.ne(1) | _year_gap.isna()).cumsum()
     for metric, tag in [("store_growth_rate", "store_growth"),
                         ("sales_growth", "sales_growth"),
                         ("sales_per_area_growth", "sales_per_area")]:
-        s = gb[metric]
+        # 롤링 창은 **연속 관측 구간(run) 안에서만** 계산 (리뷰 지적 반영: 행 위치 기반
+        # 롤링은 관측 공백을 건너뛰어 4년+ 전 값을 '최근 추세'에 섞는다 — 실측 3.9% 행)
+        s = df.groupby(_run_id, sort=False)[metric]
         feat[f"f_trd_{tag}_mean"] = s.transform(
             lambda x: x.rolling(_TRD_WINDOW, min_periods=_TRD_MIN_OBS).mean())
         feat[f"f_trd_{tag}_std"] = s.transform(
@@ -95,8 +102,20 @@ def build_features(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     feat["f_ind_store_growth_pct"] = grp["store_growth_rate"].rank(pct=True)
     feat["f_ind_real_sales_growth_pct"] = grp["real_sales_growth"].rank(pct=True)
     feat["f_ind_contract_end_pct"] = grp["contract_end_rate"].rank(pct=True)
-    dummies = pd.get_dummies(df["industry_major"], prefix="f_ind_major", dtype=float)
-    feat = pd.concat([feat, dummies], axis=1)
+    # 업종 더미는 **범주가 2개 이상일 때만** 만든다. 단일 범주 트랙(기본=외식 전용)에서
+    # 더미는 전 행 1.0인 상수라 정보가 전혀 없고 '죽은 피처'로 오해된다(리뷰 지적).
+    # ⚠️ "분산 0이면 사후에 버린다"는 데이터 의존 필터로 처리하지 않는 이유:
+    #    그 방식은 피처 **스키마**가 t+1 이후 값에까지 의존하게 만들어, "과거 행은 미래
+    #    교란에 불변"이라는 시점누출 원칙을 스키마 차원에서 위반한다(테스트로 실제 검출됨).
+    #    반면 업종 범주 개수는 브랜드의 정적 속성이라 미래 값과 무관하다.
+    n_major = int(df["industry_major"].nunique(dropna=True))
+    if n_major >= 2:
+        dummies = pd.get_dummies(df["industry_major"], prefix="f_ind_major", dtype=float)
+        feat = pd.concat([feat, dummies], axis=1)
+    else:
+        only = df["industry_major"].dropna().unique()
+        log.info("업종 단일 범주(%s) — 상수가 될 업종 더미는 생성하지 않음",
+                 only[0] if len(only) else "미상")
 
     # --- f_struct_ 라벨 차원 밖 구조 신호 ----------------------------------
     # 명세 3.1 핵심: "GBM이 persistence를 이길 근거" — 라벨(점포/매출/계약종료)과
@@ -120,6 +139,17 @@ def build_features(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     if "n_regions" in df.columns:
         nreg = pd.to_numeric(df["n_regions"], errors="coerce")
         feat["f_struct_stores_per_region"] = df["n_stores"] / nreg.where(nreg > 0)
+
+    # --- 상수(제로분산) 피처 점검 — '제거'가 아니라 '보고' -------------------
+    # 상수 컬럼은 모형에 정보가 없다(LGBM은 분할 불가, 로지스틱은 절편에 흡수). 다만
+    # 값 분산을 보고 컬럼을 **버리면** 피처 집합이 전체 연도(=미래 포함) 값에 의존하게
+    # 되므로 버리지 않고 경고만 남긴다. 상수가 될 수 있는 구조적 원인(단일 업종 더미)은
+    # 위에서 생성 단계에 제거했으므로, 여기서 걸리는 것이 있다면 데이터 이상 신호다.
+    const_cols = [c for c in feat.columns if c.startswith("f_")
+                  and feat[c].nunique(dropna=True) <= 1]
+    if const_cols:
+        log.warning("상수(제로분산) 피처 %d개 감지 — 정보 없음, 데이터 점검 필요: %s",
+                    len(const_cols), const_cols)
 
     # --- 윈저라이즈: 연도별 횡단면 분위수 클립 (t+1 미사용 — 누출 방지) ----
     fcols = [c for c in feat.columns if c.startswith("f_")]

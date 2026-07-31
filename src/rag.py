@@ -9,8 +9,9 @@
 코퍼스 구성 (2종, 모두 실데이터):
     ① 뉴스 문서   — data/raw/news/*.json 스냅샷 (제목·출처·발행일·링크)
     ② 공시 문서   — 브랜드×연도 패널을 자연어 문장으로 렌더링
-                    ("2023년 A브랜드: 가맹점 57개(전년비 -42.1%), 평균매출 1.16억원,
-                      계약종료율 12.3%, 직영비중 1.2%, 진출 8개 시도")
+                    ("2023년 A브랜드 공시, 가맹점 57개, 직영점 1개, 가맹점 평균매출 1.16억원,
+                      계약종료·해지 7건, 신규개점 3개, 직영비중 1.7%, 진출 8개 시도,
+                      지역집중도(HHI) 0.210")
                     → 모형이 본 수치와 메모가 인용하는 근거가 **동일 원천**임을 보장
 
 검색 방식 (재현성 우선):
@@ -40,7 +41,7 @@ from src.common import get_logger, load_config
 
 try:  # 뉴스 개체 매칭 규칙 재사용 (단일 정의 원칙)
     from src.news_llm import _entity_match
-except Exception:  # noqa: BLE001
+except Exception:
     _entity_match = None  # type: ignore[assignment]
 
 log = get_logger("rag")
@@ -111,12 +112,16 @@ def _disclosure_documents(cfg: dict, max_rows: int | None = None) -> list[dict]:
         if pd.notna(getattr(r, "n_direct", np.nan)):
             parts.append(f"직영점 {int(r.n_direct)}개")
         if pd.notna(r.avg_sales):
-            parts.append(f"가맹점 평균매출 {r.avg_sales / 1e4:.2f}억원")
+            # avg_sales 단위는 천원(INTERFACES §0) → 억원 = /1e5 (리뷰 확정 결함 수정: /1e4는 10배 과장)
+            parts.append(f"가맹점 평균매출 {r.avg_sales / 1e5:.2f}억원")
         end = (0 if pd.isna(r.n_contract_end) else r.n_contract_end) + \
               (0 if pd.isna(r.n_contract_cancel) else r.n_contract_cancel)
         parts.append(f"계약종료·해지 {int(end)}건")
         if pd.notna(r.n_new):
             parts.append(f"신규개점 {int(r.n_new)}개")
+        n_d = getattr(r, "n_direct", np.nan)
+        if pd.notna(n_d) and pd.notna(r.n_stores) and (n_d + r.n_stores) > 0:
+            parts.append(f"직영비중 {100 * n_d / (n_d + r.n_stores):.1f}%")
         nreg = getattr(r, "n_regions", np.nan)
         if pd.notna(nreg):
             parts.append(f"진출 {int(nreg)}개 시도")
@@ -152,7 +157,7 @@ def build_corpus(cfg: dict, max_disclosure_rows: int | None = 20000) -> pd.DataF
     out = Path(cfg["paths"]["processed"]) / CORPUS_FILE
     corpus.to_parquet(out, index=False)
     stats = {
-        "n_documents": int(len(corpus)),
+        "n_documents": len(corpus),
         "by_source_type": corpus["source_type"].value_counts().to_dict(),
         "n_brands_covered": int(corpus["brand_name"].nunique()),
         "retrieval": "TF-IDF (word 1-2gram + char_wb 2-4gram) + cosine similarity",
@@ -169,8 +174,19 @@ def build_corpus(cfg: dict, max_disclosure_rows: int | None = 20000) -> pd.DataF
 # 색인 / 검색
 # ---------------------------------------------------------------------------
 
+INDEX_FORMAT = 1  # 저장 포맷 버전 (구조가 바뀌면 올린다)
+
+
 class RagIndex:
-    """TF-IDF 색인 + 브랜드 필터 검색."""
+    """TF-IDF 색인 + 브랜드 필터 검색.
+
+    ⚠️ 저장은 **객체 피클이 아니라 상태(state) 직렬화**로 한다.
+       이유(실측 결함): 인스턴스를 그대로 피클하면 클래스가 정의된 모듈 경로가 함께 박힌다.
+       색인을 `python -m src.rag` 로 만들면 그 경로가 `__main__.RagIndex` 가 되어,
+       다른 진입점(Streamlit 대시보드, `python -m src.memo_llm`)에서 로드할 때
+       `Can't get attribute 'RagIndex'` 로 **조용히 실패**한다 — 즉 실제 화면에서는
+       RAG 근거 인용이 죽어 있었다. 상태만 저장하면 진입점과 무관하게 로드된다.
+    """
 
     def __init__(self, corpus: pd.DataFrame):
         self.corpus = corpus.reset_index(drop=True)
@@ -181,6 +197,24 @@ class RagIndex:
                                         min_df=2, sublinear_tf=True)
         self.mat_word = self.vec_word.fit_transform(texts)
         self.mat_char = self.vec_char.fit_transform(texts)
+
+    def state(self) -> dict:
+        """직렬화 가능한 상태 (우리 클래스 참조를 포함하지 않는다)."""
+        return {"format": INDEX_FORMAT, "corpus": self.corpus,
+                "vec_word": self.vec_word, "vec_char": self.vec_char,
+                "mat_word": self.mat_word, "mat_char": self.mat_char}
+
+    @classmethod
+    def from_state(cls, state: dict) -> RagIndex:
+        """state() 결과로부터 재구성 (재적합 없음)."""
+        fmt = int(state.get("format", -1))
+        if fmt != INDEX_FORMAT:
+            raise ValueError(f"RAG 색인 포맷 불일치 (파일 {fmt} != 코드 {INDEX_FORMAT})")
+        obj = cls.__new__(cls)
+        obj.corpus = state["corpus"]
+        obj.vec_word, obj.vec_char = state["vec_word"], state["vec_char"]
+        obj.mat_word, obj.mat_char = state["mat_word"], state["mat_char"]
+        return obj
 
     def _score(self, query: str) -> np.ndarray:
         qw = self.vec_word.transform([query])
@@ -216,7 +250,8 @@ def build_index(cfg: dict, corpus: pd.DataFrame | None = None) -> RagIndex:
     if corpus is None or corpus.empty:
         raise ValueError("RAG 코퍼스가 비어 색인을 만들 수 없습니다.")
     index = RagIndex(corpus)
-    joblib.dump(index, Path(cfg["paths"]["outputs"]) / INDEX_FILE)
+    # 객체가 아니라 상태를 저장한다 (RagIndex 도크스트링의 진입점 의존 결함 참조)
+    joblib.dump(index.state(), Path(cfg["paths"]["outputs"]) / INDEX_FILE)
     log.info("RAG 색인 저장: %s (문서 %d, word차원 %d, char차원 %d)", INDEX_FILE,
              len(corpus), index.mat_word.shape[1], index.mat_char.shape[1])
     return index
@@ -227,9 +262,20 @@ def load_index(cfg: dict) -> RagIndex | None:
     if not fp.exists():
         return None
     try:
-        return joblib.load(fp)
-    except Exception as e:  # noqa: BLE001
-        log.warning("RAG 색인 로드 실패 (%s) — 재구축 필요", e)
+        obj = joblib.load(fp)
+    except Exception as e:  # 손상 파일·버전 불일치 등 — 폴백이 안전하다
+        log.warning("RAG 색인 로드 실패 (%s) — `python -m src.rag` 로 재구축하세요", e)
+        return None
+    if isinstance(obj, RagIndex):  # 구버전(객체 피클) 파일 — 그대로 쓰되 재구축을 권고
+        log.warning("RAG 색인이 구버전(객체 피클) 형식입니다 — `python -m src.rag` 로 재구축 권장")
+        return obj
+    if not isinstance(obj, dict):
+        log.warning("RAG 색인 형식을 알 수 없습니다 (%s) — 재구축 필요", type(obj).__name__)
+        return None
+    try:
+        return RagIndex.from_state(obj)
+    except (KeyError, ValueError) as e:
+        log.warning("RAG 색인 복원 실패 (%s) — `python -m src.rag` 로 재구축하세요", e)
         return None
 
 
@@ -237,7 +283,11 @@ def retrieve_evidence(cfg: dict, brand_name: str, risk_factors: list[str],
                       k_per_query: int = 3, index: RagIndex | None = None) -> list[dict]:
     """브랜드 + SHAP 위험요인을 질의로 근거 문서 검색 → 인용 가능한 리스트.
 
-    반환 각 항목: {doc_id, source_type, text, url, published, source_name, score, query}
+    반환 각 항목: {doc_id, source_type, text, url, published, source_name, score, query, scope}
+    scope: "brand"  = 해당 브랜드 문서에서 검색된 근거
+           "global" = 브랜드 문서가 없어 전체 코퍼스로 완화된 검색 결과 —
+                      **타 브랜드/업계 참고 자료**이므로 소비자(메모)는 반드시 구분 표기해야 한다
+                      (리뷰 지적 반영: 무표기 완화는 타 브랜드 문서를 해당 브랜드 근거처럼 보이게 함)
     """
     idx = index or load_index(cfg)
     if idx is None:
@@ -248,10 +298,12 @@ def retrieve_evidence(cfg: dict, brand_name: str, risk_factors: list[str],
     queries = [f"{brand_name} 가맹점 계약종료 폐점 위험"] + \
               [f"{brand_name} {rf}" for rf in (risk_factors or [])[:4]]
     for q in queries:
-        # 브랜드 한정 검색 → 결과 없으면 전체 코퍼스로 완화
+        # 브랜드 한정 검색 → 결과 없으면 전체 코퍼스로 완화 (scope로 출처 구분)
         hits = idx.retrieve(q, k=k_per_query, brand_name=brand_name)
+        scope = "brand"
         if hits.empty:
             hits = idx.retrieve(q, k=k_per_query)
+            scope = "global"
         for r in hits.itertuples():
             if r.doc_id in seen:
                 continue
@@ -259,7 +311,7 @@ def retrieve_evidence(cfg: dict, brand_name: str, risk_factors: list[str],
             out.append({"doc_id": r.doc_id, "source_type": r.source_type,
                         "text": r.text, "url": r.url, "published": r.published,
                         "source_name": r.source_name, "score": round(float(r.score), 4),
-                        "query": q})
+                        "query": q, "scope": scope})
     out.sort(key=lambda d: -d["score"])
     return out
 

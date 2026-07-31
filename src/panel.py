@@ -5,11 +5,13 @@
   직전 회계연도 실적이므로 실적연도 기준으로 정렬한다. (모든 변수 동일 규칙 → 내부 정합)
 - avg_sales(avrgSlsAmt)·avg_sales_per_area == 0 → 결측(NaN) 처리 (영세 브랜드 미기재 관행).
   행 자체는 유지한다 — 점포수 기반 신호는 살아있기 때문.
-- n_direct(직영점수)는 본 API에 없음 → NaN (한계 명시). 대신 brand_overview에서
-  업력(biz_start_year)·임직원수(emp_cnt, exec_cnt)를 보조 피처로 병합.
-- 표본 필터(제출 표본): industry_major ∈ config, 브랜드 연속 관측 ≥ min_consecutive_years,
-  브랜드 최대 가맹점수 ≥ min_stores. (관측 단위 하한은 labels의 min_stores_at_t가 담당)
-- 산출: data/processed/panel_full.parquet(전체), panel.parquet(필터 표본),
+- n_direct(직영점수)는 실적 API(15110241)에는 없고, 별도 지역·직영 API(15125490)의
+  areaNm=='전체' 행에서 병합한다(_merge_region_direct, 병합률 ~85%). brand_overview에서는
+  업력(biz_start_year)·임직원수(emp_cnt, exec_cnt)를 병합한다.
+- 표본 자격(eligible_t): industry_major ∈ config 범위에서, (brand,t) 행 단위로
+  [t까지 누적 최대 점포수 ≥ min_stores] AND [t에서 끝나는 연속 관측 ≥ min_consecutive_years]
+  — 과거 정보만 사용(룩어헤드 금지). 관측 단위 하한은 labels의 min_stores_at_t가 담당.
+- 산출: data/processed/panel_full.parquet(전체), panel.parquet(업종 범위 + eligible_t),
   industry_baseline.parquet(업종 기준선), outputs/survival_report.csv(진단표)
 """
 from __future__ import annotations
@@ -18,7 +20,7 @@ import pandas as pd
 
 from src.collect import load_snapshots
 from src.common import get_logger, load_config
-from src.entity import build_master, normalize_name  # noqa: F401  (normalize_name: _merge_cancel용)
+from src.entity import build_master, normalize_name
 
 log = get_logger("panel")
 
@@ -39,7 +41,7 @@ def build_panel(cfg: dict, master: pd.DataFrame | None = None) -> pd.DataFrame:
     df["n_name_change"] = pd.to_numeric(df["nmChgCnt"], errors="coerce")
     df["avg_sales"] = pd.to_numeric(df["avrgSlsAmt"], errors="coerce")
     df["avg_sales_per_area"] = pd.to_numeric(df["arUnitAvrgSlsAmt"], errors="coerce")
-    df["n_direct"] = float("nan")  # API 미제공 — 한계 명시
+    df["n_direct"] = float("nan")  # 플레이스홀더 — _merge_region_direct(15125490)가 채움
 
     if cfg["sample"].get("drop_zero_sales", True):
         for c in ("avg_sales", "avg_sales_per_area"):
@@ -72,9 +74,7 @@ def build_panel(cfg: dict, master: pd.DataFrame | None = None) -> pd.DataFrame:
 
     cols = ["brand_id", "id_source", "brand_mnno", "hq_mnno",
             "brand_name", "company_name", "industry_major", "industry_mid",
-            "year"] + ["n_stores", "n_direct"] + _NUM_COLS[1:] + \
-           ["biz_start_year", "emp_cnt", "exec_cnt"] + _REGION_COLS + \
-           ["cancel_flag", "cancel_type"]
+            "year", *PANEL_VALUE_COLS]
     cols = list(dict.fromkeys([c for c in cols if c in df.columns or c in
                                ("n_stores", "n_direct")]))
     panel_full = df[cols].sort_values(["brand_id", "year"]).reset_index(drop=True)
@@ -96,6 +96,14 @@ def build_panel(cfg: dict, master: pd.DataFrame | None = None) -> pd.DataFrame:
 
 _REGION_COLS = ["n_regions", "region_hhi", "top_region_share", "region_max_stores"]
 
+# 패널의 '값' 컬럼 (식별자·연도 제외) — 단일 정의.
+# ⚠️ 이 목록은 세 곳이 공유한다: ① build_panel 의 출력 컬럼 순서,
+#    ② common.make_synthetic_panel 이 생성해야 할 컬럼, ③ 시점누출 테스트의 커버리지 검사.
+#    여기에 컬럼을 추가하면 ②도 함께 추가해야 한다 (테스트가 자동으로 잡아낸다).
+PANEL_VALUE_COLS = ["n_stores", "n_direct", *_NUM_COLS[1:],
+                    "biz_start_year", "emp_cnt", "exec_cnt",
+                    *_REGION_COLS, "cancel_flag", "cancel_type"]
+
 
 def _merge_region_direct(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     """15125490 브랜드×연도×지역 → 직영점수(n_direct) + 지역분산 지표 병합.
@@ -113,7 +121,7 @@ def _merge_region_direct(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
         return df
     try:
         rows = load_snapshots(cfg, "brand_region_direct")
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         log.warning("brand_region_direct 스냅샷 로드 실패 (%s) — 병합 생략", e)
         return df
     if not rows:
@@ -154,20 +162,30 @@ def _merge_region_direct(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
                   .apply(_region_stats, include_groups=False).reset_index())
 
     side = tot_agg.merge(reg_agg, on=["brand_mnno", "hq_mnno", "_yr"], how="outer")
-    val_cols = ["n_direct", "region_total_frcs"] + _REGION_COLS
+    val_cols = ["n_direct", "region_total_frcs", *_REGION_COLS]
 
     # 1차: (brand_mnno, hq_mnno, 연도)
     # ⚠️ df에 이미 있는 n_direct(전부 NaN 플레이스홀더)를 함께 제거해야 suffix 충돌이 없다
-    drop_first = [c for c in (_REGION_COLS + ["n_direct"]) if c in df.columns]
+    drop_first = [c for c in ([*_REGION_COLS, "n_direct"]) if c in df.columns]
     merged = df.drop(columns=drop_first).merge(
         side, on=["brand_mnno", "hq_mnno", "_yr"], how="left")
     hit1 = merged["n_direct"].notna()
 
-    # 2차 폴백: (brand_mnno, 연도) — 해당 연도에 그 brandMnno가 유일할 때만
+    # 2차 폴백: (brand_mnno, 연도) — **양쪽 모두** 유일할 때만 (리뷰 확정 결함 수정).
+    # 지역데이터 쪽 유일성(_n_hq==1)만 보면, R3 충돌 분리로 서로 다른 엔티티가 된 패널 행들
+    # (같은 brandMnno·같은 연도·다른 본부)에 한 엔티티의 지역·직영 데이터가 복제 귀속된다.
+    # → 패널 쪽도 해당 (brand_mnno, 연도)에 brand_id가 정확히 1개일 때만 폴백을 적용한다.
     side_nb = side.groupby(["brand_mnno", "_yr"], as_index=False).agg(
         **{c: (c, "max") for c in val_cols},
         _n_hq=("hq_mnno", "nunique"))
     side_nb = side_nb[side_nb["_n_hq"] == 1].drop(columns=["_n_hq"])
+    panel_uniq = (merged.groupby(["brand_mnno", "_yr"])["brand_id"].nunique()
+                  .rename("_n_panel_ids").reset_index())
+    side_nb = side_nb.merge(panel_uniq, on=["brand_mnno", "_yr"], how="left")
+    n_amb = int((side_nb["_n_panel_ids"].fillna(0) > 1).sum())
+    if n_amb:
+        log.info("지역/직영 2차 폴백: 패널 쪽 모호 (brand_mnno,연도) %d그룹 제외 (오귀속 방지)", n_amb)
+    side_nb = side_nb[side_nb["_n_panel_ids"].fillna(0) == 1].drop(columns=["_n_panel_ids"])
     merged = merged.merge(side_nb, on=["brand_mnno", "_yr"], how="left", suffixes=("", "_nb"))
     for c in val_cols:
         merged[c] = merged[c].where(merged[c].notna(), merged[f"{c}_nb"])
@@ -190,7 +208,7 @@ def _merge_cancel(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     df["cancel_type"] = pd.Series(pd.NA, index=df.index, dtype=object)
     try:
         rows = load_snapshots(cfg, "brand_cancel")
-    except Exception:  # noqa: BLE001
+    except Exception:
         rows = []
     if not rows:
         log.warning("brand_cancel 스냅샷 없음 — 등록취소 신호 생략")
@@ -198,14 +216,21 @@ def _merge_cancel(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     cx = pd.DataFrame(rows)
     cx["norm_brand"] = cx["brandNm"].map(normalize_name)
     cx["norm_corp"] = cx.get("jnghdqrtrsConmNm").map(normalize_name)
-    cx = cx[cx["norm_brand"] != ""]
-    key = (cx.groupby(["norm_brand", "norm_corp", "_yr"], as_index=False)
+    cx = cx[cx["norm_brand"] != ""].copy()
+    # 취소 '사건 연도' = 접수일(rcptDate)의 달력 연도 (리뷰 지적 반영: 공시연도(_yr)로 붙이면
+    # 접수가 공시연도에 있는 ~8% 기록이 실제 발생 연도보다 한 해 앞 패널 행에 붙는다).
+    # 패널 year는 달력(회계) 연도이므로 rcpt 연도로 조인하는 것이 사건 시점과 정합.
+    rcpt_year = pd.to_numeric(cx.get("rcptDate", pd.Series(dtype=str)).astype(str).str[:4],
+                              errors="coerce")
+    cx["year"] = rcpt_year.fillna(pd.to_numeric(cx["_yr"], errors="coerce") - 1).astype("Int64")
+    key = (cx.groupby(["norm_brand", "norm_corp", "year"], as_index=False)
              .agg(cancel_type=("rgsRtrcnTyNm", "first")))
     key["cancel_flag"] = 1.0
+    key["year"] = key["year"].astype(int)
     out = df.drop(columns=["cancel_flag", "cancel_type"]).merge(
-        key, on=["norm_brand", "norm_corp", "_yr"], how="left")
+        key, on=["norm_brand", "norm_corp", "year"], how="left")
     out["cancel_flag"] = out["cancel_flag"].fillna(0.0)
-    log.info("등록취소 병합: %d행 매칭 (자진/직권 %s)", int(out["cancel_flag"].sum()),
+    log.info("등록취소 병합(접수연도 기준): %d행 매칭 (자진/직권 %s)", int(out["cancel_flag"].sum()),
              out["cancel_type"].dropna().value_counts().to_dict())
     return out
 
@@ -213,7 +238,7 @@ def _merge_cancel(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
 def _merge_overview(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     try:
         rows = load_snapshots(cfg, "brand_overview")
-    except Exception:  # noqa: BLE001
+    except Exception:
         rows = []
     if not rows:
         log.warning("brand_overview 스냅샷 없음 — 업력·임직원수 피처 생략")
@@ -223,23 +248,40 @@ def _merge_overview(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
         return df
     ov = pd.DataFrame(rows)
     ov["norm_brand"] = ov["brandNm"].map(normalize_name)
+    ov["norm_corp"] = ov.get("corpNm").map(normalize_name)
     ov["industry_major"] = ov["indutyLclasNm"].astype(str).str.strip()
     ov["biz_start_year"] = pd.to_numeric(
         ov.get("jngBizStrtDate", pd.Series(dtype=str)).astype(str).str[:4], errors="coerce")
     ov["emp_cnt"] = pd.to_numeric(ov.get("empCnt"), errors="coerce")
     ov["exec_cnt"] = pd.to_numeric(ov.get("allExctvCnt"), errors="coerce")
-    ov = (ov.groupby(["norm_brand", "industry_major", "_yr"], as_index=False)
-            [["biz_start_year", "emp_cnt", "exec_cnt"]].first())
-    merged = df.merge(ov, on=["norm_brand", "industry_major", "_yr"], how="left")
+    cols = ["biz_start_year", "emp_cnt", "exec_cnt"]
+
+    # 1차: 법인명까지 포함해 정확 조인 (리뷰 지적 반영: 동명 브랜드가 서로 다른 본부일 때
+    # 임의 법인의 임직원수·업력이 붙는 것을 방지 — 15109828은 corpNm을 제공한다)
+    ov1 = ov.groupby(["norm_brand", "norm_corp", "industry_major", "_yr"], as_index=False)[cols].first()
+    merged = df.merge(ov1, on=["norm_brand", "norm_corp", "industry_major", "_yr"], how="left")
+    hit1 = merged["biz_start_year"].notna() | merged["emp_cnt"].notna()
+
+    # 2차 폴백: (브랜드명, 업종, 연도)가 **법인 1개로 유일**할 때만
+    ov2 = (ov.groupby(["norm_brand", "industry_major", "_yr"])
+             .agg(**{c: (c, "first") for c in cols}, _n_corp=("norm_corp", "nunique"))
+             .reset_index())
+    ov2 = ov2[ov2["_n_corp"] == 1].drop(columns=["_n_corp"])
+    merged = merged.merge(ov2, on=["norm_brand", "industry_major", "_yr"],
+                          how="left", suffixes=("", "_nb"))
+    for c in cols:
+        merged[c] = merged[c].where(merged[c].notna(), merged[f"{c}_nb"])
+    merged = merged.drop(columns=[f"{c}_nb" for c in cols])
     rate = merged["biz_start_year"].notna().mean()
-    log.info("brand_overview 병합률: %.1f%%", 100 * rate)
+    log.info("brand_overview 병합률: %.1f%% (법인명 정확 조인 %.1f%%)",
+             100 * rate, 100 * hit1.mean())
     return merged
 
 
 def _save_industry_baseline(cfg: dict) -> None:
     try:
         rows = load_snapshots(cfg, "industry_openclose")
-    except Exception:  # noqa: BLE001
+    except Exception:
         return
     if not rows:
         return
@@ -311,7 +353,8 @@ def survival_report(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     scoped = apply_sample_filter(full, cfg)
     _add(f"② 업종 필터({','.join(cfg['sample']['industry_major'])})", scoped)
     eligible = scoped[scoped["eligible_t"]]
-    _add(f"③ +실시간 자격(점포{cfg['sample']['min_stores']}+ 누적 & {cfg['sample']['min_consecutive_years']}년연속 종료)", eligible)
+    _add(f"③ +실시간 자격(점포{cfg['sample']['min_stores']}+ 누적 & "
+         f"{cfg['sample']['min_consecutive_years']}년연속 종료)", eligible)
 
     report = pd.DataFrame(steps)
 
@@ -328,7 +371,7 @@ def survival_report(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
         label_info = f"라벨 표본 {len(lab)}행, 양성률 {overall:.1f}%"
         by_year.to_csv(cfg["paths"]["outputs"] / "label_rate_by_year.csv", encoding="utf-8-sig")
         log.info("연도별 라벨: \n%s", by_year[["count", "양성률"]].to_string())
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         label_info = f"라벨 미산출 (labels 모듈 대기): {e}"
     log.info("생존성 진단: %s", label_info)
 

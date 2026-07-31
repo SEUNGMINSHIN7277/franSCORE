@@ -17,23 +17,24 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
 import matplotlib
 
 matplotlib.use("Agg")  # 반드시 pyplot import 전에 (Windows/서버 환경)
-import matplotlib.pyplot as plt  # noqa: E402
-import pandas as pd  # noqa: E402
+import matplotlib.pyplot as plt
+import pandas as pd
 
 # 프로젝트 루트를 sys.path에 보장 (streamlit run src/app.py 대응)
 _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from src.common import get_logger, load_config, set_seed  # noqa: E402
+import streamlit as st
 
-import streamlit as st  # noqa: E402
+from src.common import get_logger, load_config, set_seed
 
 _LOG = get_logger("app")
 
@@ -291,6 +292,18 @@ def to_eok(mkrw) -> float:
         return float("nan")
 
 
+_LGD_RE = re.compile(r"lgd(\d{2})")
+
+
+def pretty_lgd_label(col: str) -> str:
+    """내부 컬럼명(el_lgd45_mkrw 등) → 사용자용 라벨('LGD 45%').
+
+    리뷰 지적 반영: 화면에 원시 컬럼명이 노출되지 않도록 전 지점에서 사용.
+    """
+    m = _LGD_RE.search(str(col).lower())
+    return f"LGD {int(m.group(1))}%" if m else str(col)
+
+
 def flatten_numeric(obj, prefix: str = "") -> dict[str, float]:
     """중첩 dict/list에서 숫자 리프만 {경로: 값}으로 평탄화 (요약 JSON 방어적 탐색)."""
     out: dict[str, float] = {}
@@ -341,7 +354,7 @@ def load_artifact(key: str):
         return None
     try:
         return _cached_load(_ARTIFACTS[key]["kind"], str(p), p.stat().st_mtime)
-    except Exception as e:  # noqa: BLE001 — 대시보드는 절대 크래시 금지
+    except Exception as e:
         _LOG.warning("artifact load failed: %s (%s)", p, e)
         return None
 
@@ -379,8 +392,8 @@ def brand_name_map(panel: pd.DataFrame | None) -> dict[str, str]:
         return {}
     try:
         latest = panel.sort_values("year").groupby("brand_id").tail(1)
-        return dict(zip(latest["brand_id"].astype(str), latest["brand_name"].astype(str)))
-    except Exception:  # noqa: BLE001
+        return dict(zip(latest["brand_id"].astype(str), latest["brand_name"].astype(str), strict=False))
+    except Exception:
         return {}
 
 
@@ -446,7 +459,7 @@ def render_brand_view(cfg: dict) -> None:
         gcol = find_col(pf, ("grade", "risk_grade"))
         idcol = find_col(pf, ("brand_id",))
         if gcol and idcol:
-            pf_grade = dict(zip(pf[idcol].astype(str), pf[gcol].astype(str)))
+            pf_grade = dict(zip(pf[idcol].astype(str), pf[gcol].astype(str), strict=False))
 
     def _fmt(bid: str) -> str:
         row = test[test["brand_id"].astype(str) == str(bid)].iloc[0]
@@ -533,7 +546,7 @@ def render_brand_view(cfg: dict) -> None:
                         "shap_value": float(r["shap_value"]),
                         "feature_value": (float(fv) if pd.notna(fv) else None),
                     })
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             st.info(f"SHAP 표시 중 문제가 발생했습니다: {e}")
 
     # --- 뉴스 경보 카드 ---
@@ -597,12 +610,12 @@ def render_brand_view(cfg: dict) -> None:
                 i += 1
             for c in el_cols:
                 v = to_eok(prow[c])
-                cols[i].metric(f"EL ({c})", f"{v:,.2f} 억원")
+                cols[i].metric(f"EL ({pretty_lgd_label(c)})", f"{v:,.2f} 억원")
                 pf_ctx[f"el_{c}_eokwon"] = v
                 i += 1
             for c in stress_cols:
                 v = to_eok(prow[c])
-                cols[i].metric(f"스트레스 ({c})", f"{v:,.2f} 억원")
+                cols[i].metric(f"스트레스 ({pretty_lgd_label(c)})", f"{v:,.2f} 억원")
                 pf_ctx[f"stress_{c}_eokwon"] = v
                 i += 1
             st.caption("⚠️ " + _SYNTH_WARN + " · EL = exposure × PD × LGD (LGD 시나리오 3종)")
@@ -634,9 +647,9 @@ def render_brand_view(cfg: dict) -> None:
                 with st.spinner("심사메모 생성 중..."):
                     memo = memo_llm.generate_memo(context, cfg)
                 st.session_state[memo_key] = memo
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 st.info(f"심사메모 생성에 실패했습니다: {e} — "
-                        "memo_llm 모듈/API 키(ANTHROPIC_API_KEY)를 확인하세요.")
+                        "memo_llm 모듈/API 키(GEMINI_API_KEY)를 확인하세요.")
         if memo_key in st.session_state:
             st.markdown(st.session_state[memo_key])
             st.caption(_DISCLAIMER)
@@ -704,7 +717,7 @@ def render_portfolio_view(cfg: dict) -> None:
             t = preds[preds["split"] == "test"].copy()
             pc, _ = pick_prob_column(t)
             if pc in t.columns:
-                m = dict(zip(t["brand_id"].astype(str), t[pc].astype(float)))
+                m = dict(zip(t["brand_id"].astype(str), t[pc].astype(float), strict=False))
                 dfp["_prob"] = dfp[idcol].astype(str).map(m)
                 pcol = "_prob"
     if pcol is None:
@@ -737,7 +750,7 @@ def render_portfolio_view(cfg: dict) -> None:
             ax.grid(alpha=0.25)
             st.pyplot(fig)
             plt.close(fig)
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             st.info(f"산점도 표시 중 문제가 발생했습니다: {e}")
 
     # --- 위험 상위 20 브랜드 테이블 ---
@@ -759,10 +772,11 @@ def render_portfolio_view(cfg: dict) -> None:
                 lambda v: f"{v:,.1f}").values
         el_cols, stress_cols = pick_el_columns(dfp)
         for c in el_cols + stress_cols:
-            disp[f"{c}(억원)"] = (top20[c].astype(float) / 100.0).map(
+            label = ("스트레스 EL " if c.startswith("stress") else "EL ") + pretty_lgd_label(c)
+            disp[f"{label}(억원)"] = (top20[c].astype(float) / 100.0).map(
                 lambda v: f"{v:,.2f}").values
         st.dataframe(disp, hide_index=True)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         st.info(f"랭킹 표 표시 중 문제가 발생했습니다: {e}")
 
     # --- LGD 시나리오별 총 EL 비교 ---
@@ -782,7 +796,7 @@ def render_portfolio_view(cfg: dict) -> None:
         if el_flat:
             st.bar_chart(pd.DataFrame(
                 {"총 EL (억원)": [to_eok(v) for v in el_flat.values()]},
-                index=list(el_flat.keys())))
+                index=[pretty_lgd_label(k) for k in el_flat]))
         else:
             st.info("EL 시나리오 컬럼을 찾지 못했습니다 (--step portfolio 확인).")
 

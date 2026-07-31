@@ -17,7 +17,7 @@ import gzip
 import json
 import os
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
@@ -113,7 +113,7 @@ def _fetch_page(url: str, params: dict, cfg: dict) -> dict:
             if str(code) not in ("00", "0"):
                 raise RuntimeError(f"API resultCode={code} msg={merged.get('resultMsg')}")
             return merged
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             last_err = e
             wait = c["retry_backoff_sec"] * (2 ** (attempt - 1))
             # 예외 문자열에 요청 URL(serviceKey 포함)이 들어갈 수 있어 키를 마스킹 후 로깅
@@ -124,7 +124,8 @@ def _fetch_page(url: str, params: dict, cfg: dict) -> dict:
                 msg = msg.replace(sk, "***KEY***").replace(urllib.parse.quote(sk, safe=""), "***KEY***")
             log.warning("호출 실패 (%d/%d): %s → %.1fs 후 재시도", attempt, c["max_retries"], msg, wait)
             time.sleep(wait)
-    raise RuntimeError(f"API 호출 최종 실패: {url} params(연도)={params.get('yr') or params.get('jngBizCrtrYr')}") from last_err
+    yr_param = params.get("yr") or params.get("jngBizCrtrYr")
+    raise RuntimeError(f"API 호출 최종 실패: {url} params(연도)={yr_param}") from last_err
 
 
 def _extract_items(body: dict) -> list[dict]:
@@ -188,7 +189,7 @@ def collect_all(cfg: dict, services: list[str] | None = None, years: list[int] |
                 "dataset_url": SERVICES[service]["url"],  # 키는 저장하지 않음
                 "year_param": SERVICES[service]["year_param"],
                 "year": year,
-                "fetched_at": datetime.now(timezone.utc).isoformat(),
+                "fetched_at": datetime.now(UTC).isoformat(),
                 "totalCount": data["totalCount"],
                 "items": data["items"],
             }
@@ -205,7 +206,7 @@ def collect_all(cfg: dict, services: list[str] | None = None, years: list[int] |
     return out
 
 
-def load_snapshots(cfg: dict, service: str, keep: "callable | None" = None) -> list[dict]:
+def load_snapshots(cfg: dict, service: str, keep: callable | None = None) -> list[dict]:
     """저장된 스냅샷 로드 → item dict 리스트 (연도 오름차순, 각 item에 _yr 부여).
 
     keep: 선택적 행 필터 (대용량 서비스에서 메모리 절약용). keep(item) -> bool.

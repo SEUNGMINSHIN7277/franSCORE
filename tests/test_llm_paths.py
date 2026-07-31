@@ -1,83 +1,119 @@
-"""LLM 층 실동작 검증 — 모의 Anthropic 클라이언트로 **실제 LLM 코드 경로**를 통과시킨다.
+"""LLM 층 실동작 검증 — 모의 HTTP 전송으로 **실제 LLM 코드 경로**를 통과시킨다.
 
 왜 필요한가 (정직성):
-    개발 환경에 ANTHROPIC_API_KEY가 없으면 news_llm/memo_llm은 규칙기반 폴백으로만
-    동작한다. 폴백만 테스트하면 "LLM을 붙였다"는 주장이 검증되지 않는다(허수아비).
-    본 테스트는 anthropic.Anthropic 을 모의 객체로 치환해 **키 없이도 LLM 분기 전체**
-    (요청 구성 → structured output 파싱 → 검증 → refusal 처리 → 예외 폴백)를 실행·검증한다.
+    개발 환경에 LLM 키가 없으면 news_llm/memo_llm은 규칙기반 폴백으로만 동작한다.
+    폴백만 테스트하면 "LLM을 붙였다"는 주장이 검증되지 않는다(허수아비).
+    본 테스트는 `src.llm._http_post` (HTTP 경계) 하나만 모의로 치환해 **키 없이도
+    LLM 분기 전체** — 요청 본문 구성 → responseSchema 변환 → 사고(thought) 파트 제거
+    → 응답 검증 → 안전차단/절단/네트워크오류 폴백 → 재시도 — 를 실행·검증한다.
+
+    HTTP 경계에서만 치환하므로 우리가 작성한 코드는 한 줄도 우회되지 않는다.
 
 실행: python -m tests.test_llm_paths      (종료코드 0 = 전부 통과)
 """
 from __future__ import annotations
 
+import contextlib
 import copy
 import json
 import os
 import sys
 import tempfile
-import types
 from pathlib import Path
+from typing import ClassVar
+
+import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.common import load_config  # noqa: E402
+# Windows 기본 콘솔(cp949)에서 한글·기호 출력이 깨지지 않도록
+with contextlib.suppress(AttributeError, OSError):  # 리다이렉트된 스트림 등
+    sys.stdout.reconfigure(encoding="utf-8")
+
+from src import llm as src_llm
+from src.common import load_config
 
 PASS, FAIL = "PASS", "FAIL"
 
+_REAL_POST = src_llm._http_post
+
 
 # ---------------------------------------------------------------------------
-# 모의 Anthropic SDK
+# 모의 HTTP 전송 (Gemini generateContent 응답 형태)
 # ---------------------------------------------------------------------------
 
-class _Block:
-    def __init__(self, text: str):
-        self.type = "text"
-        self.text = text
+class _MockResp:
+    """requests.Response 최소 대체 (status_code / text / json())."""
+
+    def __init__(self, payload: dict | None, status_code: int = 200, text: str | None = None):
+        self.status_code = status_code
+        self._payload = payload
+        self.text = text if text is not None else json.dumps(payload or {}, ensure_ascii=False)
+
+    def json(self):
+        if self._payload is None:
+            raise ValueError("응답이 JSON이 아님")
+        return self._payload
 
 
-class _Resp:
-    def __init__(self, text: str, stop_reason: str = "end_turn"):
-        self.content = [_Block(text)]
-        self.stop_reason = stop_reason
-        self.model = "mock-model"
+def _ok(text: str, *, thought: str | None = None, finish: str = "STOP") -> _MockResp:
+    """정상 응답. thought 를 주면 사고(thinking) 파트를 함께 실어 보낸다."""
+    parts: list[dict] = []
+    if thought is not None:
+        parts.append({"text": thought, "thought": True})
+    parts.append({"text": text, "thoughtSignature": "mock-sig"})
+    return _MockResp({
+        "candidates": [{"content": {"parts": parts}, "finishReason": finish, "index": 0}],
+        "modelVersion": "mock-gemini",
+        "usageMetadata": {"promptTokenCount": 11, "candidatesTokenCount": 22,
+                          "thoughtsTokenCount": 33},
+    })
 
 
-class _Messages:
-    def __init__(self, owner):
-        self._owner = owner
-
-    def create(self, **kwargs):
-        self._owner.calls.append(kwargs)
-        if self._owner.mode == "refusal":
-            return _Resp("", stop_reason="refusal")
-        if self._owner.mode == "raise":
-            raise RuntimeError("모의 API 오류 (네트워크 장애 시뮬레이션)")
-        if self._owner.mode == "empty":
-            r = _Resp("")
-            r.content = []
-            return r
-        return _Resp(self._owner.payload)
+def _blocked(reason: str = "SAFETY") -> _MockResp:
+    """안전정책 차단 응답 (응답 단계 차단)."""
+    return _MockResp({
+        "candidates": [{"content": {"parts": []}, "finishReason": reason, "index": 0}],
+        "modelVersion": "mock-gemini",
+    })
 
 
-class MockAnthropic:
-    """anthropic.Anthropic 대체. mode로 정상/거절/예외/빈응답을 시뮬레이션."""
+class MockTransport:
+    """호출 순서대로 스크립트된 응답을 돌려주는 모의 전송.
 
-    payload = ""
-    mode = "ok"
-    calls: list = []
+    항목이 Exception 이면 raise, _MockResp 면 반환. 스크립트가 소진되면 마지막 항목 반복.
+    """
 
-    def __init__(self, *a, **kw):
-        self.messages = _Messages(type(self))
+    calls: ClassVar[list[dict]] = []
+    script: ClassVar[list] = []
+
+    @classmethod
+    def install(cls, *responses) -> None:
+        cls.calls = []
+        cls.script = list(responses)
+        src_llm._http_post = cls._post
+
+    @classmethod
+    def _post(cls, url: str, headers: dict, body: dict, timeout: float):
+        cls.calls.append({"url": url, "headers": headers, "body": body, "timeout": timeout})
+        item = cls.script[min(len(cls.calls) - 1, len(cls.script) - 1)]
+        if isinstance(item, Exception):
+            raise item
+        return item
+
+    @classmethod
+    def last_body(cls) -> dict:
+        assert cls.calls, "LLM 호출이 일어나지 않음 (LLM 경로 미실행)"
+        return cls.calls[-1]["body"]
 
 
-def _install_mock(payload: str, mode: str = "ok") -> types.ModuleType:
-    MockAnthropic.payload = payload
-    MockAnthropic.mode = mode
-    MockAnthropic.calls = []
-    mod = types.ModuleType("anthropic")
-    mod.Anthropic = MockAnthropic  # type: ignore[attr-defined]
-    sys.modules["anthropic"] = mod
-    return mod
+def _has_key_anywhere(obj, key: str) -> bool:
+    """중첩 dict/list 어디에든 특정 키가 있는지 (스키마 정제 검증용)."""
+    if isinstance(obj, dict):
+        return key in obj or any(_has_key_anywhere(v, key) for v in obj.values())
+    if isinstance(obj, list):
+        return any(_has_key_anywhere(v, key) for v in obj)
+    return False
 
 
 def _tmp_cfg(tmp: Path) -> dict:
@@ -87,6 +123,7 @@ def _tmp_cfg(tmp: Path) -> dict:
     for p in cfg["paths"].values():
         Path(p).mkdir(parents=True, exist_ok=True)
     (Path(cfg["paths"]["raw"]) / "news").mkdir(parents=True, exist_ok=True)
+    cfg["llm"]["retry_backoff_sec"] = 0.0   # 재시도 경로를 지연 없이 검증
     return cfg
 
 
@@ -94,8 +131,89 @@ def _tmp_cfg(tmp: Path) -> dict:
 # 테스트
 # ---------------------------------------------------------------------------
 
+def test_llm_client(cfg: dict) -> str:
+    """src.llm 클라이언트 자체: 스키마 정제·사고파트 제거·차단/절단/재시도 분기."""
+    env = src_llm.api_key_env(cfg)
+    os.environ[env] = "mock-key-for-test"
+    try:
+        return _test_llm_client_body(cfg, env)
+    finally:
+        os.environ.pop(env, None)
+
+
+def _test_llm_client_body(cfg: dict, env: str) -> str:
+    # (0) JSON Schema → Gemini responseSchema 정제
+    gschema = src_llm.to_gemini_schema({
+        "type": "object",
+        "properties": {"a": {"type": "string"}, "b": {"type": "integer"}},
+        "required": ["a"],
+        "additionalProperties": False,
+    })
+    assert "additionalProperties" not in gschema, "미지원 키워드가 제거되지 않음 (400 유발)"
+    assert gschema["propertyOrdering"] == ["a", "b"], "필드 순서 고정(propertyOrdering) 누락"
+    print("    (0) 스키마 정제: additionalProperties 제거 + propertyOrdering 부여 확인")
+
+    # (1) 사고(thought) 파트가 결과 텍스트에 새어나오지 않아야 한다
+    MockTransport.install(_ok("최종답변입니다", thought="이건 내부추론이라 노출되면 안 됨"))
+    text, meta = src_llm.generate(cfg, system="sys", user="usr")
+    assert text == "최종답변입니다", f"사고 파트가 섞여 들어옴: {text!r}"
+    assert "내부추론" not in text, "모델 내부 추론이 사용자 텍스트로 노출됨"
+    assert meta["model"] == "mock-gemini" and meta["usage"]["candidatesTokenCount"] == 22
+    body = MockTransport.last_body()
+    assert body["systemInstruction"]["parts"][0]["text"] == "sys", "systemInstruction 미전달"
+    assert body["generationConfig"]["temperature"] == 0.0, "temperature 미전달"
+    assert body["safetySettings"], "safetySettings 미전달 (부정 기업뉴스 오탐 차단 방지)"
+    assert MockTransport.calls[-1]["headers"]["X-goog-api-key"], "API 키 헤더 미전달"
+    assert MockTransport.calls[-1]["url"].endswith(
+        f"/models/{cfg['llm']['model']}:generateContent"), "모델 엔드포인트 불일치"
+    print("    (1) 사고파트 제거 + 요청 본문(시스템·temperature·안전설정·키헤더) 확인")
+
+    # (2) 안전정책 차단 → LLMRefused (재시도하지 않음)
+    MockTransport.install(_blocked("SAFETY"))
+    try:
+        src_llm.generate(cfg, system="s", user="u")
+        raise AssertionError("차단 응답인데 예외가 발생하지 않음")
+    except src_llm.LLMRefused:
+        pass
+    assert len(MockTransport.calls) == 1, "차단은 재시도 무의미한데 재시도가 일어남"
+    print("    (2) 안전차단(SAFETY): LLMRefused 즉시 발생, 재시도 없음 확인")
+
+    # (3) 토큰 한도 절단 → LLMError (잘린 응답을 그대로 쓰지 않음)
+    MockTransport.install(_ok('{"signals": [{"artic', finish="MAX_TOKENS"))
+    try:
+        src_llm.generate(cfg, system="s", user="u")
+        raise AssertionError("절단 응답인데 예외가 발생하지 않음")
+    except src_llm.LLMFatal as exc:
+        assert "절단" in str(exc), f"절단 사유가 메시지에 없음: {exc}"
+    assert len(MockTransport.calls) == 1, \
+        f"같은 예산이면 또 잘리는데 재시도가 일어남 ({len(MockTransport.calls)}회 — 쿼터 낭비)"
+    print("    (3) 토큰 절단(MAX_TOKENS): 잘린 응답 거부 + 무의미한 재시도 없음 확인")
+
+    # (4) 일시 오류 → 지수 백오프 재시도 후 성공
+    MockTransport.install(requests.RequestException("일시 네트워크 오류"), _ok("복구됨"))
+    text4, meta4 = src_llm.generate(cfg, system="s", user="u")
+    assert text4 == "복구됨" and meta4["attempts"] == 2, f"재시도 경로 실패: {meta4}"
+    print("    (4) 일시 오류: 재시도 후 성공 확인 (attempts=2)")
+
+    # (5) 키 미설정 → 즉시 LLMError (호출 시도 자체를 하지 않음)
+    saved = os.environ.pop(env, None)
+    try:
+        MockTransport.install(_ok("불려선 안 됨"))
+        try:
+            src_llm.generate(cfg, system="s", user="u")
+            raise AssertionError("키가 없는데 예외가 발생하지 않음")
+        except src_llm.LLMError:
+            pass
+        assert not MockTransport.calls, "키가 없는데 HTTP 호출을 시도함"
+    finally:
+        if saved is not None:
+            os.environ[env] = saved
+    print("    (5) 키 미설정: 호출 시도 없이 즉시 예외 확인")
+    return PASS
+
+
 def test_news_llm_path(cfg: dict) -> str:
-    """news_llm의 LLM 분기: structured JSON 파싱·enum 검증·refusal·예외 폴백."""
+    """news_llm의 LLM 분기: 구조화 요청 구성·파싱·검증·차단/예외 폴백."""
     from src import news_llm
 
     articles = {"테스트브랜드": [
@@ -104,53 +222,73 @@ def test_news_llm_path(cfg: dict) -> str:
         {"title": "테스트브랜드 운영사 자금난 심화", "link": "http://b",
          "published": "Tue, 02 Jul 2024 00:00:00 GMT", "source": "테스트경제"},
     ]}
-    os.environ["ANTHROPIC_API_KEY"] = "mock-key-for-test"
+    env = src_llm.api_key_env(cfg)
+    os.environ[env] = "mock-key-for-test"
     try:
         # (1) 정상 응답 — LLM 경로가 실제로 사용되고 신호가 파싱되는지
         payload = json.dumps({"signals": [
-            {"article_index": 0, "event_type": "본부분쟁", "date": "2024-07-01",
+            {"article_index": 0, "event_type": "본부분쟁",
              "evidence_sentence": "가맹점주協 본사와 분쟁 격화", "confidence": "상"},
-            {"article_index": 1, "event_type": "재무이슈", "date": "2024-07-02",
+            {"article_index": 1, "event_type": "재무이슈",
              "evidence_sentence": "운영사 자금난 심화", "confidence": "중"},
         ]}, ensure_ascii=False)
-        _install_mock(payload, "ok")
+        MockTransport.install(_ok(payload, thought="분류 근거를 따져보는 중"))
         sigs = news_llm.extract_signals(articles, cfg)
         assert sigs, "LLM 경로에서 신호가 반환되지 않음"
-        assert MockAnthropic.calls, "client.messages.create 가 호출되지 않음 (LLM 경로 미실행)"
-        call = MockAnthropic.calls[0]
-        assert call.get("model") == cfg["llm"]["model"], f"모델 미전달: {call.get('model')}"
-        assert "temperature" not in call, "Opus 5는 temperature 미지원 — 전달되면 400 오류"
-        assert "thinking" not in call, "thinking 파라미터가 전달됨 (미지원)"
+        body = MockTransport.last_body()
+        gcfg = body["generationConfig"]
+        assert gcfg.get("responseMimeType") == "application/json", "구조화 출력 미요청"
+        assert not _has_key_anywhere(gcfg["responseSchema"], "additionalProperties"), \
+            "responseSchema 에 미지원 키워드가 남아 있음 (실호출 시 400)"
+        assert "지시문" in body["systemInstruction"]["parts"][0]["text"], \
+            "프롬프트 인젝션 방어 지시가 시스템 프롬프트에 없음"
         assert any(s.get("llm_used") for s in sigs), "llm_used 플래그가 True로 표기되지 않음"
         types_found = {s.get("event_type") for s in sigs}
         assert "본부분쟁" in types_found, f"사건유형 파싱 실패: {types_found}"
         print(f"    (1) 정상 응답: 신호 {len(sigs)}건, 유형 {sorted(types_found)}, llm_used=True")
 
-        # (2) refusal → 폴백으로 안전 전환
-        _install_mock("", "refusal")
-        sigs_r = news_llm.extract_signals(articles, cfg)
-        assert all(not s.get("llm_used") for s in sigs_r), "refusal인데 llm_used=True로 표기됨"
-        print("    (2) refusal 처리: 규칙 폴백 전환 확인 (llm_used=False)")
+        # (2) 범위 밖 인덱스·미지 enum → 코드가 다시 검증해 걸러내는지
+        bad = json.dumps({"signals": [
+            {"article_index": 99, "event_type": "본부분쟁", "evidence_sentence": "x", "confidence": "상"},
+            {"article_index": 0, "event_type": "존재하지않는유형",
+             "evidence_sentence": "가맹점주協 본사와 분쟁 격화", "confidence": "최상"},
+        ]}, ensure_ascii=False)
+        MockTransport.install(_ok(bad))
+        sigs2 = news_llm.extract_signals(articles, cfg)
+        assert len(sigs2) == 1, f"범위 밖 인덱스가 걸러지지 않음: {len(sigs2)}건"
+        assert sigs2[0]["event_type"] == "기타" and sigs2[0]["confidence"] == "하", \
+            f"미지 enum 값이 안전값으로 치환되지 않음: {sigs2[0]}"
+        print("    (2) 모델 출력 재검증: 범위밖 인덱스 제거 + 미지 enum 안전값 치환 확인")
 
-        # (3) API 예외 → 폴백
-        _install_mock("", "raise")
+        # (3) 안전차단 → 폴백으로 안전 전환
+        MockTransport.install(_blocked("SAFETY"))
+        sigs_r = news_llm.extract_signals(articles, cfg)
+        assert sigs_r, "차단 시 폴백이 신호를 반환하지 않음"
+        assert all(not s.get("llm_used") for s in sigs_r), "차단인데 llm_used=True로 표기됨"
+        print("    (3) 안전차단 처리: 규칙 폴백 전환 확인 (llm_used=False)")
+
+        # (4) 네트워크 예외(재시도 소진) → 폴백
+        MockTransport.install(requests.RequestException("모의 네트워크 장애"))
         sigs_e = news_llm.extract_signals(articles, cfg)
         assert sigs_e, "예외 발생 시 폴백이 신호를 반환하지 않음"
         assert all(not s.get("llm_used") for s in sigs_e), "예외인데 llm_used=True"
-        print("    (3) API 예외 처리: 폴백 전환 확인")
+        assert len(MockTransport.calls) == int(cfg["llm"]["max_retries"]), \
+            f"재시도 횟수 불일치: {len(MockTransport.calls)}"
+        print(f"    (4) 네트워크 예외: {len(MockTransport.calls)}회 재시도 후 폴백 전환 확인")
 
-        # (4) 잘못된 JSON → 폴백 (파서 견고성)
-        _install_mock("이것은 JSON이 아님", "ok")
+        # (5) 잘못된 JSON → 폴백 (파서 견고성)
+        MockTransport.install(_ok("이것은 JSON이 아님"))
         sigs_b = news_llm.extract_signals(articles, cfg)
         assert sigs_b, "JSON 파싱 실패 시 폴백이 동작하지 않음"
-        print("    (4) 비JSON 응답 처리: 폴백 전환 확인")
+        assert all(not s.get("llm_used") for s in sigs_b), "파싱 실패인데 llm_used=True"
+        print("    (5) 비JSON 응답 처리: 폴백 전환 확인")
     finally:
-        os.environ.pop("ANTHROPIC_API_KEY", None)
+        os.environ.pop(env, None)
     return PASS
 
 
 def test_memo_llm_path(cfg: dict) -> str:
-    """memo_llm의 LLM 분기: 프롬프트 구성·필수 고지 강제·거절/예외 폴백."""
+    """memo_llm의 LLM 분기: 프롬프트 구성·필수 고지 강제·차단/예외 폴백."""
     from src import memo_llm
 
     context = {
@@ -162,42 +300,53 @@ def test_memo_llm_path(cfg: dict) -> str:
                   "source_url": "http://a", "published": "2024-07-01"}],
         "portfolio": {"exposure_ekw": 120.5},
     }
-    os.environ["ANTHROPIC_API_KEY"] = "mock-key-for-test"
+    env = src_llm.api_key_env(cfg)
+    os.environ[env] = "mock-key-for-test"
     try:
         # (1) 정상 — LLM 텍스트가 사용되고 고지문이 보장되는지
-        _install_mock("## 심사메모\n브랜드 위험도가 높습니다.", "ok")
+        MockTransport.install(_ok("## 심사메모\n브랜드 위험도가 높습니다.",
+                                  thought="내부추론: 등급 High이므로..."))
         memo = memo_llm.generate_memo(context, cfg)
-        assert MockAnthropic.calls, "memo_llm이 LLM을 호출하지 않음"
-        call = MockAnthropic.calls[0]
-        assert "system" in call and call["system"], "시스템 프롬프트 미전달(근거 제한 불가)"
-        assert "temperature" not in call, "Opus 5는 temperature 미지원"
+        body = MockTransport.last_body()
+        system_text = body["systemInstruction"]["parts"][0]["text"]
+        assert system_text, "시스템 프롬프트 미전달(근거 제한 불가)"
+        assert "responseSchema" not in body["generationConfig"], \
+            "메모는 자유 마크다운인데 구조화 스키마가 걸림"
         assert memo_llm.DISCLAIMER in memo, "필수 고지문이 메모에 없음"
         assert "브랜드 위험도가 높습니다" in memo, "LLM 응답 텍스트가 반영되지 않음"
-        assert "LLM 생성" in memo, "LLM 사용 각주가 없음"
-        # 프롬프트 인젝션 방어 문구가 시스템 프롬프트에 있는지
-        assert "지시문" in call["system"] or "명령" in call["system"], \
+        assert "내부추론" not in memo, "모델 내부 추론이 메모에 노출됨"
+        assert "LLM 생성" in memo and "mock-gemini" in memo, "LLM 사용·모델 각주가 없음"
+        assert "지시문" in system_text or "명령" in system_text, \
             "뉴스 제목 프롬프트 인젝션 방어 지시가 시스템 프롬프트에 없음"
-        print(f"    (1) 정상 응답: LLM 텍스트 반영 + 고지문 강제 + 인젝션 방어 지시 확인 ({len(memo)}자)")
+        print(f"    (1) 정상 응답: LLM 텍스트 반영 + 사고파트 차단 + 고지문 강제 "
+              f"+ 인젝션 방어 지시 확인 ({len(memo)}자)")
 
         # (2) 고지문 누락 응답 → 강제 부착
-        _install_mock("고지문 없는 응답", "ok")
+        MockTransport.install(_ok("고지문 없는 응답"))
         memo2 = memo_llm.generate_memo(context, cfg)
         assert memo_llm.DISCLAIMER in memo2, "고지문 누락 시 강제 부착이 동작하지 않음"
         print("    (2) 고지문 누락 응답: 안전장치로 강제 부착 확인")
 
-        # (3) refusal → 결정적 템플릿 폴백
-        _install_mock("", "refusal")
+        # (3) 안전차단 → 결정적 템플릿 폴백
+        MockTransport.install(_blocked("PROHIBITED_CONTENT"))
         memo3 = memo_llm.generate_memo(context, cfg)
-        assert "LLM 미사용 폴백" in memo3, "refusal 시 폴백 템플릿이 사용되지 않음"
-        print("    (3) refusal 처리: 결정적 템플릿 폴백 확인")
+        assert "LLM 미사용 폴백" in memo3, "차단 시 폴백 템플릿이 사용되지 않음"
+        print("    (3) 안전차단 처리: 결정적 템플릿 폴백 확인")
 
-        # (4) 폴백 결정성 — 같은 입력 → 같은 출력
+        # (4) HTTP 400(설정 오류) → 재시도 없이 폴백
+        MockTransport.install(_MockResp(None, status_code=400, text="Invalid JSON payload"))
+        memo4 = memo_llm.generate_memo(context, cfg)
+        assert "LLM 미사용 폴백" in memo4, "HTTP 400 시 폴백이 동작하지 않음"
+        assert len(MockTransport.calls) == 1, "재시도 무의미한 400에서 재시도가 일어남"
+        print("    (4) HTTP 400 처리: 재시도 없이 즉시 폴백 확인")
+
+        # (5) 폴백 결정성 — 같은 입력 → 같은 출력
         a = memo_llm.generate_memo(context, cfg, force_fallback=True)
         b = memo_llm.generate_memo(context, cfg, force_fallback=True)
         assert a == b, "폴백 메모가 결정적이지 않음 (재현성 위반)"
-        print("    (4) 폴백 결정성: 동일 입력 → 동일 출력 확인")
+        print("    (5) 폴백 결정성: 동일 입력 → 동일 출력 확인")
     finally:
-        os.environ.pop("ANTHROPIC_API_KEY", None)
+        os.environ.pop(env, None)
     return PASS
 
 
@@ -254,37 +403,52 @@ def test_rag_retrieval(cfg: dict) -> str:
     bad = corpus2[(corpus2["source_type"] == "news") & (corpus2["text"].str.contains("사찰"))]
     assert bad.empty, "개체 매칭 필터가 무관 기사를 걸러내지 못함"
     print("    개체 매칭 필터: 무관 기사 코퍼스 유입 차단 확인")
+
+    # 색인 파일이 **진입점에 독립적**인지 (실측 결함 회귀 방지):
+    # 인스턴스를 그대로 피클하면 클래스 경로가 박히고, `python -m src.rag` 로 만든 색인은
+    # 경로가 `__main__.RagIndex` 가 되어 대시보드·다른 모듈에서 로드가 조용히 실패했다.
+    idx_path = Path(cfg["paths"]["outputs"]) / rag.INDEX_FILE
+    assert idx_path.exists(), "RAG 색인 파일이 저장되지 않음"
+    raw = idx_path.read_bytes()
+    assert b"__main__" not in raw, (
+        "색인 파일에 '__main__' 참조가 있음 — 만든 진입점에서만 로드된다(대시보드에서 실패). "
+        "객체가 아니라 state()를 저장해야 한다.")
+    assert b"RagIndex" not in raw, "색인 파일에 우리 클래스 참조가 박혀 있음 (state 저장 아님)"
+    loaded = rag.load_index(cfg)
+    assert loaded is not None, "저장된 색인을 다시 로드하지 못함"
+    hits2 = loaded.retrieve("테스트브랜드 계약종료 급증", k=3)
+    assert not hits2.empty, "재로드한 색인으로 검색이 되지 않음"
+    print("    색인 이식성: 클래스 참조 없이 저장 → 재로드·검색 정상 확인")
     return PASS
 
 
 def main() -> int:
-    print("=== FranSCORE LLM/RAG 경로 검증 (모의 API — 키 불필요) ===")
-    tests = [("news_llm_path", test_news_llm_path),
+    print("=== FranSCORE LLM/RAG 경로 검증 (모의 HTTP — 실키 불필요) ===")
+    tests = [("llm_client", test_llm_client),
+             ("news_llm_path", test_news_llm_path),
              ("memo_llm_path", test_memo_llm_path),
              ("rag_retrieval", test_rag_retrieval)]
     results = []
-    real_anthropic = sys.modules.get("anthropic")
-    with tempfile.TemporaryDirectory(prefix="franscore_llm_") as td:
-        for i, (name, fn) in enumerate(tests, 1):
-            cfg = _tmp_cfg(Path(td) / name)
-            print(f"[{i}/{len(tests)}] {name} ...")
-            try:
-                results.append((name, fn(cfg)))
-                print(f"[{i}/{len(tests)}] {name} ... {PASS}")
-            except Exception as exc:  # noqa: BLE001
-                import traceback
-                traceback.print_exc()
-                results.append((name, f"{FAIL} ({exc})"))
-                print(f"[{i}/{len(tests)}] {name} ... {FAIL}")
-    if real_anthropic is not None:
-        sys.modules["anthropic"] = real_anthropic
-    else:
-        sys.modules.pop("anthropic", None)
+    try:
+        with tempfile.TemporaryDirectory(prefix="franscore_llm_") as td:
+            for i, (name, fn) in enumerate(tests, 1):
+                cfg = _tmp_cfg(Path(td) / name)
+                print(f"[{i}/{len(tests)}] {name} ...")
+                try:
+                    results.append((name, fn(cfg)))
+                    print(f"[{i}/{len(tests)}] {name} ... {PASS}")
+                except Exception as exc:
+                    import traceback
+                    traceback.print_exc()
+                    results.append((name, f"{FAIL} ({exc})"))
+                    print(f"[{i}/{len(tests)}] {name} ... {FAIL}")
+    finally:
+        src_llm._http_post = _REAL_POST  # 실제 전송 함수 복원
 
     ok = sum(1 for _, r in results if r == PASS)
     print(f"\n=== SUMMARY: {ok}/{len(results)} passed ===")
     for n, r in results:
-        print(f"  {r if r == PASS else 'FAIL':5s} {n}" if r == PASS else f"  FAIL  {n}: {r}")
+        print(f"  {PASS:5s} {n}" if r == PASS else f"  FAIL  {n}: {r}")
     return 0 if ok == len(results) else 1
 
 

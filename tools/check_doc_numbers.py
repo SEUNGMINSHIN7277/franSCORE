@@ -1,0 +1,175 @@
+"""문서에 적힌 수치가 실제 산출물과 일치하는지 자동 대조한다.
+
+왜 필요한가 (정직성):
+    파이프라인을 다시 돌리면 지표가 바뀐다. 문서의 숫자는 사람이 손으로 고치므로
+    어딘가 하나는 반드시 낡은 채로 남는다. "문서 수치가 산출물과 일치한다"는 주장은
+    주장으로 두지 말고 **기계가 매번 확인**해야 한다.
+
+동작:
+    ① 산출물(outputs/, data/processed/)에서 핵심 수치를 다시 계산한다.
+       — 기대값을 이 파일에 적어두지 않는다. 적어두면 그 자체가 또 낡는다.
+    ② 그 수치를 문서 표기 형태(예: `2.456`, `3,635`, `9.2%`)로 만들어,
+       지정한 문서 파일에 그 문자열이 실제로 들어 있는지 확인한다.
+    ③ 폐기된 표기(STALE)가 문서 어디에도 남아 있지 않은지 확인한다.
+       (공급자 교체·지표 변경 후 잔존물을 잡는다.)
+
+한계(명시): 문자열 포함 검사이므로 "숫자가 문서에 있다"는 것까지만 보증하고
+    그 숫자가 올바른 문맥에 쓰였는지는 사람이 본다. 그래도 낡은 수치는 확실히 잡는다.
+
+실행: python tools/check_doc_numbers.py      (종료코드 0 = 전부 일치)
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "outputs"
+PROC = ROOT / "data" / "processed"
+
+DOCS = {
+    "README": ROOT / "README.md",
+    "IMPL": ROOT / "docs" / "IMPLEMENTATION.md",
+    "IFACE": ROOT / "docs" / "INTERFACES.md",
+    "AIUSE": ROOT / "docs" / "AI_USAGE.md",
+    "LEAK": ROOT / "docs" / "LEAKAGE_CHECKLIST.md",
+}
+
+# 폐기된 표기 — 문서 어디에도 남아 있으면 안 된다 (교체 누락 탐지).
+STALE: list[tuple[str, str]] = [
+    ("claude-opus-5", "런타임 LLM은 Gemini로 교체됨"),
+    ("ANTHROPIC_API_KEY", "런타임 LLM 키 환경변수는 GEMINI_API_KEY"),
+    ("anthropic SDK", "Gemini는 SDK 없이 REST 호출"),
+    ("모의 Anthropic", "테스트는 HTTP 경계 모의로 변경"),
+    ("walkforward_pooled_oos", "워크포워드 주 지표는 macro_avg_folds"),
+]
+
+_fails: list[str] = []
+_checked = 0
+
+
+def _txt(key: str) -> str:
+    return DOCS[key].read_text(encoding="utf-8")
+
+
+def need(label: str, value: str, *doc_keys: str) -> None:
+    """value 문자열이 지정한 문서들에 모두 있어야 한다."""
+    global _checked
+    _checked += 1
+    missing = [k for k in doc_keys if value not in _txt(k)]
+    if missing:
+        _fails.append(f"{label}: 실측 표기 '{value}' 가 {', '.join(missing)} 에 없음")
+        print(f"  [MISS] {label:46s} '{value}'  → {', '.join(missing)}")
+    else:
+        print(f"  [OK  ] {label:46s} '{value}'  ({', '.join(doc_keys)})")
+
+
+def info(label: str, value: object) -> None:
+    print(f"  [INFO] {label:46s} {value}")
+
+
+def head(t: str) -> None:
+    print("\n" + "=" * 92)
+    print(t)
+    print("=" * 92)
+
+
+def thou(n: float) -> str:
+    return f"{round(n):,}"
+
+
+def main() -> int:
+    head("① 패널 · 엔티티 정합")
+    pf = pd.read_parquet(PROC / "panel_full.parquet")
+    need("panel_full 행수", thou(len(pf)), "IMPL")
+    n_mnno = pf.loc[pf["id_source"] == "MNNO", "brand_id"].nunique()
+    n_name = pf.loc[pf["id_source"] == "NAME", "brand_id"].nunique()
+    need("고유 브랜드 수", thou(pf["brand_id"].nunique()), "IMPL")
+    need("관리번호 기반 브랜드", thou(n_mnno), "IMPL")
+    need("명칭 기반 브랜드", thou(n_name), "IMPL")
+
+    head("② 라벨 · 피처")
+    lab = pd.read_parquet(PROC / "labels.parquet")
+    need("라벨 표본 행수", thou(len(lab)), "README", "IMPL")
+    need("라벨 양성률", f"{100 * lab['label'].mean():.1f}%", "README", "IMPL", "AIUSE")
+    fs = pd.read_csv(OUT / "feature_summary.csv")
+    fs_ext = pd.read_csv(OUT / "extended" / "feature_summary.csv")
+    need("피처 수(기본 트랙)", str(len(fs)), "README", "IMPL", "IFACE")
+    info("피처 수(확장 트랙)", len(fs_ext))
+    dead = int((fs["n"] == 0).sum()) if "n" in fs.columns else 0
+    info("전량 결측(죽은) 피처 수", dead)
+    if dead:
+        _fails.append(f"죽은 피처 {dead}개 — 문서의 '죽은 피처 0개' 주장과 불일치")
+
+    head("③ 단일 시간분할 test (기본 트랙)")
+    te = pd.read_csv(OUT / "metrics.csv")
+    te = te[te["split"] == "test"].set_index("model")
+    need("test 표본수", thou(te["n"].max()), "README", "IMPL")
+    need("test 양성률", f"{100 * te['base_rate'].max():.1f}%", "README")
+    for m in ("persistence", "single", "logistic", "lgbm"):
+        need(f"{m} Lift@10", f"{te.loc[m, 'lift_at_10']:.3f}", "README")
+    need("보정 Brier", f"{te.loc['lgbm_calibrated', 'brier']:.3f}", "README")
+
+    head("④ 워크포워드 (주 지표 = fold 평균)")
+    wm = pd.read_csv(OUT / "walkforward_metrics.csv")
+    macro = wm[wm["scope"] == "macro_avg_folds"].set_index("model")
+    need("WF 표본수(풀링 OOS)", thou(macro["n"].max()), "README")
+    for m in ("persistence", "single", "logistic", "lgbm"):
+        need(f"WF fold평균 {m} Lift@10", f"{macro.loc[m, 'lift_at_10']:.3f}", "README")
+    ci = pd.read_csv(OUT / "walkforward_delta_ci.csv").set_index("comparison")
+    for comp in ci.index:
+        r = ci.loc[comp]
+        need(f"{comp} Δ", f"{r['mean_delta_lift']:.3f}", "README")
+        need(f"{comp} CI", f"[{r['ci_lo']:.3f}, {r['ci_hi']:.3f}]", "README")
+    bias = pd.read_csv(OUT / "walkforward_pool_bias.csv")
+    worst = bias.loc[bias["bias_ratio"].sub(1.0).abs().idxmax()]
+    need("원점수 풀링 최대 편향배수", f"{worst['bias_ratio']:.2f}", "IMPL")
+
+    head("⑤ 두 트랙 비교")
+    tc = pd.read_csv(OUT / "track_comparison.csv")
+    ext_ss = tc[(tc["track"] == "extended") & (tc["eval"] == "single_split_test")].set_index("model")
+    ext_wf = tc[(tc["track"] == "extended")
+                & (tc["eval"] == "walkforward_macro_avg_folds")].set_index("model")
+    ext_lab = pd.read_parquet(OUT / "extended" / "processed" / "labels.parquet")
+    need("확장 라벨 표본", thou(len(ext_lab)), "README")
+    need("확장 단일분할 lgbm", f"{ext_ss.loc['lgbm', 'lift_at_10']:.3f}", "README")
+    need("확장 단일분할 logistic", f"{ext_ss.loc['logistic', 'lift_at_10']:.3f}", "README")
+    need("확장 WF lgbm", f"{ext_wf.loc['lgbm', 'lift_at_10']:.3f}", "README")
+    need("확장 WF logistic", f"{ext_wf.loc['logistic', 'lift_at_10']:.3f}", "README")
+
+    head("⑥ 포트폴리오 (합성 예시 여신)")
+    port = pd.read_csv(OUT / "portfolio.csv")
+    s = json.loads((OUT / "portfolio_summary.json").read_text(encoding="utf-8"))
+    need("총 익스포저(억원)", thou(port["exposure_mkrw"].sum() / 100), "README", "IMPL")
+    need("EL LGD45(억원)", f"{port['el_lgd45_mkrw'].sum() / 100:.1f}", "README", "IMPL")
+    need("스트레스 EL LGD45(억원)", f"{port['stress_el_lgd45_mkrw'].sum() / 100:.1f}",
+         "README", "IMPL")
+    need("상위10 집중도", f"{100 * s['concentration']['top10_share']:.1f}%", "README", "IMPL")
+    need("HHI", f"{s['concentration']['hhi']:.3f}", "README", "IMPL")
+    need("High 등급 브랜드 수", f"{int(s['risk_grades']['counts']['High'])}/60", "IMPL")
+
+    head("⑦ 폐기 표기 잔존 검사")
+    for token, why in STALE:
+        hits = [k for k, p in DOCS.items() if token in p.read_text(encoding="utf-8")]
+        if hits:
+            _fails.append(f"폐기 표기 '{token}' 잔존: {', '.join(hits)} ({why})")
+            print(f"  [STALE] '{token}' → {', '.join(hits)}  ({why})")
+        else:
+            print(f"  [OK  ] '{token}' 잔존 없음")
+
+    head("결과")
+    if _fails:
+        print(f"불일치 {len(_fails)}건 / 검사 {_checked}건")
+        for f in _fails:
+            print(f"   - {f}")
+        return 1
+    print(f"문서 수치 {_checked}건 전부 산출물 실측과 일치, 폐기 표기 잔존 없음")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")
+    raise SystemExit(main())

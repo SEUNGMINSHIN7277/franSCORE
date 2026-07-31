@@ -50,12 +50,15 @@ def main() -> None:
                          "pr_auc": r.pr_auc, "roc_auc": r.roc_auc, "brier": r.brier,
                          "n": r.n, "base_rate": r.base_rate})
         if not wf.empty:
-            pooled = wf[wf["scope"] == "pooled_oos"]
-            for r in pooled.itertuples():
-                rows.append({"track": scope, "eval": "walkforward_pooled_oos", "model": r.model,
-                             "lift_at_10": r.lift_at_10, "precision_at_10": r.precision_at_10,
-                             "pr_auc": r.pr_auc, "roc_auc": r.roc_auc, "brier": r.brier,
-                             "n": r.n, "base_rate": r.base_rate})
+            # 워크포워드 집계 3종을 모두 싣는다 (주 지표 = macro_avg_folds).
+            # 원점수 풀링(pooled_oos_raw)은 fold별 확률 스케일 차이로 왜곡되지만
+            # 숨기지 않고 함께 공개한다 — backtest.py 상단 '집계 방식' 참조.
+            for sc in ("macro_avg_folds", "pooled_oos_rank", "pooled_oos_raw"):
+                for r in wf[wf["scope"] == sc].itertuples():
+                    rows.append({"track": scope, "eval": f"walkforward_{sc}", "model": r.model,
+                                 "lift_at_10": r.lift_at_10, "precision_at_10": r.precision_at_10,
+                                 "pr_auc": r.pr_auc, "roc_auc": r.roc_auc, "brier": r.brier,
+                                 "n": r.n, "base_rate": r.base_rate})
         ci_path = out / "walkforward_delta_ci.csv"
         if ci_path.exists():
             ci = pd.read_csv(ci_path)
@@ -69,7 +72,8 @@ def main() -> None:
     print("\n" + "=" * 78)
     print("두 트랙 비교 (기본=외식·점포30+ / 확장=전업종·점포20+) — 둘 다 공개")
     print("=" * 78)
-    for ev in ("single_split_test", "walkforward_pooled_oos"):
+    for ev in ("single_split_test", "walkforward_macro_avg_folds",
+               "walkforward_pooled_oos_rank", "walkforward_pooled_oos_raw"):
         sub = comp[comp["eval"] == ev]
         if sub.empty:
             continue

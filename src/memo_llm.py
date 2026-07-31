@@ -14,8 +14,8 @@ INTERFACES.md §4 (memo_llm.generate_memo) 구현.
 from __future__ import annotations
 
 import json
-import os
 
+from src import llm
 from src.common import get_logger, load_config
 
 log = get_logger("memo_llm")
@@ -159,7 +159,8 @@ def _fallback_memo(context: dict) -> str:
         for e in rag_ev:
             if not isinstance(e, dict):
                 continue
-            L.append(f"- [{e.get('source_type')} 유사도 {e.get('score')}] {e.get('text')}")
+            scope_mark = " ⚠️타브랜드/업계 참고" if e.get("scope") == "global" else ""
+            L.append(f"- [{e.get('source_type')} 유사도 {e.get('score')}{scope_mark}] {e.get('text')}")
             L.append(f"  - 문서ID: {e.get('doc_id')} · 출처: {e.get('source_name')} "
                      f"{e.get('published')} · {e.get('url')}")
         L.append("")
@@ -185,8 +186,8 @@ def generate_memo(context: dict, cfg: dict, force_fallback: bool = False) -> str
 
     context = {brand_name, grade, prob, shap_top(list), panel_metrics(dict),
                news(list), portfolio(dict)}
-    - API 키(env `llm.api_key_env`)가 있으면 Claude 호출 (입력 근거만 인용하도록
-      시스템 프롬프트로 제한). 없거나 실패/거절 시 결정적 템플릿 폴백.
+    - API 키(env `llm.api_key_env`)가 있으면 Gemini 호출 (입력 근거만 인용하도록
+      시스템 프롬프트로 제한). 없거나 실패/차단 시 결정적 템플릿 폴백.
     - force_fallback=True 이면 키가 있어도 폴백 경로 강제(테스트용).
     """
     # RAG: 검색된 근거 문서를 context에 주입 (명세 COULD "진짜 RAG").
@@ -200,47 +201,36 @@ def generate_memo(context: dict, cfg: dict, force_fallback: bool = False) -> str
             if ev:
                 context = {**context, "rag_evidence": ev[:8]}
                 log.info("RAG 근거 %d건 주입 (검색 기반 인용)", min(len(ev), 8))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             log.info("RAG 근거 검색 생략 (%s)", exc)
 
-    key_env = cfg["llm"].get("api_key_env", "ANTHROPIC_API_KEY")
-    if force_fallback or not os.environ.get(key_env):
+    if force_fallback or not llm.is_enabled(cfg):
         log.info(
             "메모 생성: LLM 미사용 (%s) — 결정적 템플릿 폴백",
-            "force_fallback" if force_fallback else f"env {key_env} 없음",
+            "force_fallback" if force_fallback else f"env {llm.api_key_env(cfg)} 없음",
         )
         return _fallback_memo(context)
 
+    user_prompt = (
+        "다음 입력 JSON만을 근거로 프랜차이즈 브랜드 심사메모를 작성하세요. "
+        "입력에 없는 사실은 쓰지 마세요.\n\n"
+        "입력 JSON:\n"
+        + json.dumps(context, ensure_ascii=False, indent=2, default=str)
+    )
     try:
-        import anthropic
-
-        client = anthropic.Anthropic()
-        user_prompt = (
-            "다음 입력 JSON만을 근거로 프랜차이즈 브랜드 심사메모를 작성하세요. "
-            "입력에 없는 사실은 쓰지 마세요.\n\n"
-            "입력 JSON:\n"
-            + json.dumps(context, ensure_ascii=False, indent=2, default=str)
-        )
-        resp = client.messages.create(
-            model=cfg["llm"]["model"],
-            max_tokens=int(cfg["llm"].get("max_tokens", 4000)),
-            system=_MEMO_SYSTEM,
-            messages=[{"role": "user", "content": user_prompt}],
-        )
-        if resp.stop_reason == "refusal":
-            raise RuntimeError("LLM 응답 거절(stop_reason=refusal)")
-        text = "\n".join(b.text for b in resp.content if b.type == "text").strip()
-        if not text:
-            raise RuntimeError("LLM 응답에 텍스트 블록 없음")
-        # 필수 문구 안전장치: 누락 시 강제 부착
-        if DISCLAIMER not in text:
-            text += f"\n\n> ⚠️ **{DISCLAIMER}.**"
-        text += "\n\n---\n각주: LLM 생성 (모델: " + str(cfg["llm"]["model"]) + ", 입력 근거 한정)"
-        log.info("메모 생성: LLM 사용 (model=%s, %d자)", cfg["llm"]["model"], len(text))
-        return text
-    except Exception as exc:
+        text, meta = llm.generate(cfg, system=_MEMO_SYSTEM, user=user_prompt)
+    except llm.LLMError as exc:
         log.warning("LLM 메모 생성 실패 → 결정적 템플릿 폴백: %s", exc)
         return _fallback_memo(context)
+
+    text = text.strip()
+    # 필수 문구 안전장치: 모델이 빠뜨려도 고지 없이 나가는 일이 없도록 강제 부착
+    if DISCLAIMER not in text:
+        text += f"\n\n> ⚠️ **{DISCLAIMER}.**"
+    # 각주는 실제 응답이 보고한 모델 버전을 쓴다 (설정값과 다를 수 있음 — 별칭·자동 승급 대비)
+    text += f"\n\n---\n각주: LLM 생성 (모델: {meta['model']}, 입력 근거 한정)"
+    log.info("메모 생성: LLM 사용 (model=%s, %d자)", meta["model"], len(text))
+    return text
 
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """FranSCORE 안전성(sanity) 테스트 — 계약 docs/INTERFACES.md §7 (pytest 불요, 표준 assert).
 
 실행: 프로젝트 루트에서  python -m tests.test_sanity
@@ -22,7 +21,9 @@
 """
 from __future__ import annotations
 
+import contextlib
 import copy
+import itertools
 import json
 import sys
 import tempfile
@@ -32,11 +33,16 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from src import model as model_mod
+from src import portfolio as portfolio_mod
 from src.common import get_logger, load_config, make_synthetic_panel, set_seed
 from src.features import build_features
 from src.labels import build_labels
-from src import model as model_mod
-from src import portfolio as portfolio_mod
+from src.panel import PANEL_VALUE_COLS
+
+# Windows 기본 콘솔(cp949)에서 한글·기호 출력이 깨지지 않도록
+with contextlib.suppress(AttributeError, OSError):  # 리다이렉트된 스트림 등
+    sys.stdout.reconfigure(encoding="utf-8")
 
 log = get_logger("test_sanity")
 
@@ -136,17 +142,15 @@ def _mini_panel() -> pd.DataFrame:
         stores = spec.get("stores", _NEUTRAL_STORES)
         g21_sales = spec.get("sales_g21", 0.04)   # 중립 매출성장 +4%
         c21 = spec.get("c21", 0.05)               # 중립 계약종료율 5%
-        st = dict(zip((2019, 2020, 2021), stores))
+        st = dict(zip((2019, 2020, 2021), stores, strict=False))
         sales = {2019: 300_000.0}
         sales[2020] = sales[2019] * 1.03          # 전 브랜드 동일 +3% → 사건 없음
         sales[2021] = sales[2020] * (1.0 + g21_sales)
         crate = {2020: 0.05, 2021: c21}           # 2020 전 브랜드 동일 → 사건 없음
         for yr in (2019, 2020, 2021):
             prev = st.get(yr - 1)
-            if yr in crate and prev:
-                total_end = crate[yr] * prev      # (종료+해지)/전년점포 = 정확히 crate
-            else:
-                total_end = 1.0                   # 2019: 전년 없음 → rate NaN (미사용)
+            # (종료+해지)/전년점포 = 정확히 crate. 2019는 전년이 없어 rate가 NaN이므로 미사용.
+            total_end = crate[yr] * prev if (yr in crate and prev) else 1.0
             n_end = total_end * 0.6
             n_cancel = total_end - n_end
             n_new = max(0.0, st[yr] - (prev or st[yr]) + total_end)
@@ -279,20 +283,46 @@ def test_time_leakage(ctx: dict) -> None:
     panel = make_synthetic_panel(cfg)
     t0 = 2022  # 합성 패널 연도 2019~2024 의 중간 기준연도
 
+    # 커버리지 가드 ①: 합성 패널이 실패널의 값 컬럼을 하나라도 빠뜨리면, build_features 의
+    # `if "<col>" in df.columns` 분기가 통째로 건너뛰어져 그 피처는 아래 검사 범위 밖이 된다.
+    # (적대적 리뷰에서 실제로 발견된 사각지대 — 신규 피처 9종이 검증되지 않고 있었다.)
+    missing = [c for c in PANEL_VALUE_COLS if c not in panel.columns]
+    assert not missing, (
+        f"합성 패널에 실패널 컬럼 누락 → 해당 피처가 누출 검증에서 조용히 제외됨: {missing}. "
+        f"src/common.py make_synthetic_panel 에 추가하세요.")
+
     base = build_features(panel, tcfg)
 
     pert = panel.copy()
     fut = pert["year"] > t0
     assert fut.any() and (~fut).any(), "교란 대상/비대상 연도가 모두 있어야 함"
-    # t0 이후 연도의 수치를 전면 교란 (행 추가/삭제·업종 변경은 없음)
-    pert.loc[fut, "n_stores"] = pert.loc[fut, "n_stores"] * 2.0 + 37.0
-    pert.loc[fut, "avg_sales"] = pert.loc[fut, "avg_sales"] * 0.3 + 999.0
-    pert.loc[fut, "avg_sales_per_area"] = pert.loc[fut, "avg_sales_per_area"] * 1.7
-    pert.loc[fut, "n_contract_end"] = pert.loc[fut, "n_contract_end"] + 41.0
-    pert.loc[fut, "n_contract_cancel"] = pert.loc[fut, "n_contract_cancel"] + 13.0
-    pert.loc[fut, "n_new"] = pert.loc[fut, "n_new"] + 29.0
-    pert.loc[fut, "n_direct"] = pert.loc[fut, "n_direct"] + 7.0
-    pert.loc[fut, "n_name_change"] = pert.loc[fut, "n_name_change"] + 11.0
+    # t0 이후 연도의 값을 전면 교란 (행 추가/삭제·업종 변경은 없음).
+    # 컬럼 하나라도 교란하지 않으면 그 컬럼을 쓰는 피처는 '통과한 것처럼' 보이므로,
+    # 아래 커버리지 가드 ②로 실패널 값 컬럼 전부가 교란 대상인지 강제한다.
+    perturb = {
+        "n_stores":          lambda s: s * 2.0 + 37.0,
+        "n_direct":          lambda s: s + 7.0,
+        "n_new":             lambda s: s + 29.0,
+        "n_contract_end":    lambda s: s + 41.0,
+        "n_contract_cancel": lambda s: s + 13.0,
+        "n_name_change":     lambda s: s + 11.0,
+        "avg_sales":         lambda s: s * 0.3 + 999.0,
+        "avg_sales_per_area": lambda s: s * 1.7,
+        "biz_start_year":    lambda s: s - 5.0,
+        "emp_cnt":           lambda s: s * 3.0 + 17.0,
+        "exec_cnt":          lambda s: s + 5.0,
+        "n_regions":         lambda s: (s + 4.0).clip(upper=17.0),
+        "region_hhi":        lambda s: s * 0.5,
+        "top_region_share":  lambda s: s * 0.5,
+        "region_max_stores": lambda s: s + 23.0,
+        "cancel_flag":       lambda s: 1.0 - s,
+        "cancel_type":       lambda s: "직권취소",
+    }
+    uncovered = [c for c in PANEL_VALUE_COLS if c not in perturb]
+    assert not uncovered, (
+        f"교란 대상에서 빠진 패널 컬럼 → 누출 검증 사각지대: {uncovered}")
+    for col, fn in perturb.items():
+        pert.loc[fut, col] = fn(pert.loc[fut, col])
 
     after = build_features(pert, tcfg)
 
@@ -407,9 +437,9 @@ def test_portfolio(ctx: dict) -> None:
     assert (port["exposure_mkrw"] > 0).all(), "exposure 는 양수여야 함"
 
     lgds = sorted(float(x) for x in tcfg["portfolio"]["lgd_scenarios"])
-    assert all(0.0 < l <= 1.0 for l in lgds), f"LGD 시나리오가 (0,1] 밖: {lgds}"
-    el_cols = [f"el_lgd{round(l * 100):02d}_mkrw" for l in lgds]
-    sel_cols = [f"stress_el_lgd{round(l * 100):02d}_mkrw" for l in lgds]
+    assert all(0.0 < lgd <= 1.0 for lgd in lgds), f"LGD 시나리오가 (0,1] 밖: {lgds}"
+    el_cols = [f"el_lgd{round(lgd * 100):02d}_mkrw" for lgd in lgds]
+    sel_cols = [f"stress_el_lgd{round(lgd * 100):02d}_mkrw" for lgd in lgds]
     for c in el_cols + sel_cols:
         assert c in port.columns, f"portfolio.csv 에 {c} 컬럼 없음"
 
@@ -424,7 +454,7 @@ def test_portfolio(ctx: dict) -> None:
 
     # LGD 단조성 (브랜드별): LGD ↑ → EL ↑ (기본·스트레스 모두)
     for cols in (el_cols, sel_cols):
-        for lo, hi in zip(cols[:-1], cols[1:]):
+        for lo, hi in itertools.pairwise(cols):
             bad = (port[hi].to_numpy(dtype=float)
                    < port[lo].to_numpy(dtype=float) - tol).sum()
             assert bad == 0, f"LGD 단조성 위반: {hi} < {lo} 인 브랜드 {bad}개"
@@ -432,7 +462,7 @@ def test_portfolio(ctx: dict) -> None:
     # 스트레스 EL ≥ 기본 EL (multiplier ≥ 1 전제 — config 확인)
     mult = float(tcfg["portfolio"]["stress_pd_multiplier"])
     assert mult >= 1.0, f"stress_pd_multiplier={mult} < 1 (테스트 전제 위반)"
-    for base_c, st_c in zip(el_cols, sel_cols):
+    for base_c, st_c in zip(el_cols, sel_cols, strict=False):
         bad = (port[st_c].to_numpy(dtype=float)
                < port[base_c].to_numpy(dtype=float) - tol).sum()
         assert bad == 0, f"스트레스 EL < 기본 EL 인 브랜드 {bad}개 ({st_c})"
@@ -475,8 +505,8 @@ def main() -> int:
     fp_before = _fingerprint_dir(processed_dir)
 
     print("=== FranSCORE sanity suite (python -m tests.test_sanity) ===")
-    print(f"    isolation: all runs write to a temp dir; real data/processed and "
-          f"outputs/ are never written")
+    print("    isolation: all runs write to a temp dir; real data/processed and "
+          "outputs/ are never written")
     results: list[tuple[str, bool, str]] = []
 
     with tempfile.TemporaryDirectory(prefix="franscore_sanity_") as td:
@@ -497,7 +527,7 @@ def main() -> int:
     guard_ok = fp_before == fp_after
     if not guard_ok:
         print("GUARD FAIL: data/processed changed during tests!")
-        before, after = dict((f[0], f) for f in fp_before), dict((f[0], f) for f in fp_after)
+        before, after = {f[0]: f for f in fp_before}, {f[0]: f for f in fp_after}
         changed = sorted(set(before) ^ set(after)
                          | {k for k in set(before) & set(after) if before[k] != after[k]})
         print(f"  changed entries: {changed}")

@@ -1,59 +1,59 @@
 {
-  "generated_at": "2026-07-30T21:34:30",
+  "generated_at": "2026-07-31T16:26:17",
   "synthetic": true,
   "test_year": 2023,
   "n_brands": 60,
   "pd_column_used": "p_calibrated",
-  "total_exposure_mkrw": 452936.98834940366,
-  "total_exposure_ekw": 4529.369883494037,
+  "total_exposure_mkrw": 495428.0280776642,
+  "total_exposure_ekw": 4954.280280776642,
   "concentration": {
-    "hhi": 0.06152553370128008,
-    "top10_share": 0.6644970125828571,
-    "top1_share": 0.12694107903225263
+    "hhi": 0.09104189120097332,
+    "top10_share": 0.6863780052400369,
+    "top1_share": 0.22457681213592431
   },
   "risk_grades": {
     "high_quantile": 0.9,
     "medium_quantile": 0.7,
-    "high_pd_cut": 0.30770129423446646,
-    "medium_pd_cut": 0.09322743593443783,
+    "high_pd_cut": 0.3800089909215956,
+    "medium_pd_cut": 0.1323600228821102,
     "counts": {
-      "Low": 43,
-      "Medium": 12,
-      "High": 5
+      "Low": 41,
+      "Medium": 13,
+      "High": 6
     },
     "exposure_mkrw": {
-      "High": 20579.626957070905,
-      "Low": 404486.91873934533,
-      "Medium": 27870.44265298737
+      "High": 15348.706795198254,
+      "Low": 446229.4845353107,
+      "Medium": 33849.83674715536
     }
   },
   "expected_loss_scenarios": [
     {
       "lgd": 0.3,
-      "el_mkrw": 7351.4727957624455,
-      "el_ekw": 73.51472795762446,
-      "el_pct_of_exposure": 0.01623067443123322,
-      "stress_el_mkrw": 8644.185344789192,
-      "stress_el_ekw": 86.44185344789192,
-      "stress_el_pct_of_exposure": 0.019084741514024714
+      "el_mkrw": 6329.321989714952,
+      "el_ekw": 63.29321989714952,
+      "el_pct_of_exposure": 0.01277546208734633,
+      "stress_el_mkrw": 7211.471795426514,
+      "stress_el_ekw": 72.11471795426515,
+      "stress_el_pct_of_exposure": 0.014556043232774128
     },
     {
       "lgd": 0.45,
-      "el_mkrw": 11027.20919364367,
-      "el_ekw": 110.2720919364367,
-      "el_pct_of_exposure": 0.024346011646849835,
-      "stress_el_mkrw": 12966.278017183788,
-      "stress_el_ekw": 129.66278017183788,
-      "stress_el_pct_of_exposure": 0.028627112271037067
+      "el_mkrw": 9493.982984572425,
+      "el_ekw": 94.93982984572425,
+      "el_pct_of_exposure": 0.01916319313101949,
+      "stress_el_mkrw": 10817.207693139771,
+      "stress_el_ekw": 108.17207693139771,
+      "stress_el_pct_of_exposure": 0.02183406484916119
     },
     {
       "lgd": 0.6,
-      "el_mkrw": 14702.945591524891,
-      "el_ekw": 147.02945591524892,
-      "el_pct_of_exposure": 0.03246134886246644,
-      "stress_el_mkrw": 17288.370689578383,
-      "stress_el_ekw": 172.88370689578383,
-      "stress_el_pct_of_exposure": 0.03816948302804943
+      "el_mkrw": 12658.643979429904,
+      "el_ekw": 126.58643979429904,
+      "el_pct_of_exposure": 0.02555092417469266,
+      "stress_el_mkrw": 14422.943590853029,
+      "stress_el_ekw": 144.2294359085303,
+      "stress_el_pct_of_exposure": 0.029112086465548255
     }
   ],
   "stress": {
@@ -62,7 +62,7 @@
     "pd_cap": 1.0,
     "n_stressed_brands": 6
   },
-  "headline": "[합성 예시 여신] 2023년 test 브랜드 60개로 구성한 포트폴리오의 총 여신은 4,529억원이며, 중간 시나리오(LGD 45%) 기준 1년 예상손실은 110.3억원(여신의 2.43%), 위험 상위 10% 브랜드 동시 악화 스트레스 시 129.7억원으로 확대됩니다. 상위 10개 브랜드 여신 집중도는 66.4%, HHI는 0.062입니다.",
+  "headline": "[합성 예시 여신] 2023년 test 브랜드 60개로 구성한 포트폴리오의 총 여신은 4,954억원이며, 중간 시나리오(LGD 45%) 기준 1년 예상손실은 94.9억원(여신의 1.92%), 위험 상위 10% 브랜드 동시 악화 스트레스 시 108.2억원으로 확대됩니다. 상위 10개 브랜드 여신 집중도는 68.6%, HHI는 0.091입니다.",
   "assumptions": {
     "synthetic_exposure": true,
     "statement_ko": "본 포트폴리오의 여신 exposure는 실제 여신 데이터가 아니라 seed 고정 난수로 합성한 예시값입니다(방법론 실증용 — 자동 여신결정 아님). exposure_i = n_stores_i × 점포당 평균여신(백만원) × LogNormal(0, sigma).",
@@ -76,10 +76,10 @@
     "pd_definition": "PD는 모델이 예측한 '1년 내 구조악화 전환 확률'을 부도확률의 대용 지표로 사용한 것으로, 실제 부도율과 다를 수 있습니다.",
     "el_formula": "EL_i = exposure_i × PD_i × LGD (LGD 시나리오 3종)",
     "stress_rule": "PD 상위 10% 브랜드(6개)의 PD × 1.5 (상한 1.0) 동시 악화 가정",
-    "risk_grade_basis": "test 전체 브랜드 예측확률 분포 내 **순위(pct rank)** 기준 — High = 상위 10%, Medium = 상위 30% 이내. 값 임계 컷은 보정확률 동률 블록이 경계에 걸리면 등급 비율이 설계값을 크게 초과하므로(실측 High 29%) 순위 기준으로 부여한다.",
+    "risk_grade_basis": "test 전체 브랜드 예측확률 분포 내 **순위(pct rank)** 기준 — High = 상위 10%, Medium = 상위 30% 이내. 값 임계 컷은 보정확률 동률 블록이 경계에 걸릴 때 등급 비율이 설계값을 초과할 수 있어(개발 중 실측 사례 확인) 순위 기준으로 부여한다.",
     "risk_grade_cut_values_reference": {
-      "high_pd_cut": 0.307701,
-      "medium_pd_cut": 0.093227,
+      "high_pd_cut": 0.380009,
+      "medium_pd_cut": 0.13236,
       "note": "참고용 값 — 등급 판정에는 순위를 사용한다"
     },
     "store_count_source": "panel.parquet",

@@ -3,20 +3,19 @@
 사용법 (프로젝트 루트에서):
     python check_keys.py            # 둘 다 점검
     python check_keys.py --data     # data.go.kr 키만
-    python check_keys.py --llm      # Anthropic 키만
+    python check_keys.py --llm      # Gemini 키만
 
 무엇을 알려주나:
   · 키가 설정돼 있는지, 어떤 형태인지(Encoding/Decoding 판별)
   · 6개 데이터셋 각각에 활용신청이 승인됐는지 (하나씩 실제 호출)
   · 실패 시 원인을 구분해서 안내 (미등록 / 아직 미활성 / 이중 인코딩 / 트래픽 초과)
-  · Anthropic 키가 실제로 호출 가능한지 (최소 토큰 1회 호출)
+  · Gemini 키가 실제로 호출 가능한지 (모델 목록 조회 + 설정 모델로 1회 실호출)
 """
 from __future__ import annotations
 
 import argparse
 import os
 import sys
-import urllib.parse
 
 import requests
 
@@ -52,8 +51,6 @@ def _classify(body: dict | None, raw_text: str, status: int) -> tuple[bool, str]
                            "키는 계정당 1개로 모든 API 공용이지만, 데이터셋별 활용신청은 따로 해야 합니다.")
         if "LIMITED_NUMBER_OF_SERVICE_REQUESTS" in txt:
             return False, "일일 트래픽 초과(개발계정 10,000건/일). 내일 다시 시도하세요."
-        if "SERVICE_ACCESS_DENIED" in txt:
-            return False, "접근 거부. 활용신청 승인 상태를 확인하세요."
         return False, f"JSON 파싱 실패(응답 앞부분: {txt[:120]!r})"
     code = str(body.get("resultCode", body.get("response", {}).get("header", {}).get("resultCode", "")))
     msg = str(body.get("resultMsg", ""))
@@ -134,67 +131,82 @@ def check_data_key(cfg: dict) -> bool:
 
 
 def check_llm_key(cfg: dict) -> bool:
+    from src import llm
+
+    env_name = llm.api_key_env(cfg)
+    model = llm.model_name(cfg)
     print()
     print("=" * 72)
-    print("Anthropic (ANTHROPIC_API_KEY) 점검")
+    print(f"Google Gemini ({env_name}) 점검")
     print("=" * 72)
-    key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    key = llm.api_key(cfg)
     if not key:
-        print(f"{NG} 환경변수 ANTHROPIC_API_KEY 가 설정돼 있지 않습니다.")
+        print(f"{NG} 환경변수 {env_name} 가 설정돼 있지 않습니다.")
         print("       PowerShell 영구 설정:")
-        print('         [Environment]::SetEnvironmentVariable("ANTHROPIC_API_KEY","<키>","User")')
+        print(f'         [Environment]::SetEnvironmentVariable("{env_name}","<키>","User")')
+        print("       (설정 후 터미널을 새로 열어야 반영됩니다)")
         print("       미설정 상태에서도 파이프라인은 규칙 폴백으로 정상 동작합니다.")
         return False
-    masked = key[:12] + "..." + key[-4:] if len(key) > 20 else "(짧음)"
-    print(f"{OK} 키 감지: {masked}")
-    if not key.startswith("sk-ant-"):
-        print(f"{WARN} 일반적인 Anthropic 키는 'sk-ant-' 로 시작합니다. 형식을 확인하세요.")
+    masked = key[:6] + "..." + key[-4:] if len(key) > 14 else "(짧음)"
+    print(f"{OK} 키 감지: {masked} (길이 {len(key)})")
+    if not (key.startswith("AIza") or key.startswith("AQ.")):
+        print(f"{WARN} Gemini 키는 보통 'AIza'(레거시) 또는 'AQ.'(신형)로 시작합니다. 형식 확인 필요.")
 
-    model = cfg["llm"]["model"]
+    # 1) 모델 목록 조회 — 키 자체의 유효성과 설정 모델의 접근 가능 여부를 함께 본다.
+    base = str(cfg["llm"].get("api_base", "https://generativelanguage.googleapis.com/v1beta"))
     try:
-        import anthropic
-    except ImportError:
-        print(f"{NG} anthropic 패키지 미설치 — pip install -r requirements.txt")
+        r = requests.get(f"{base.rstrip('/')}/models",
+                         headers={"X-goog-api-key": key}, timeout=30)
+        if r.status_code != 200:
+            print(f"{NG} 모델 목록 조회 실패 (HTTP {r.status_code})")
+            body = r.text[:400].replace(key, "***KEY***")
+            print(f"       → {body}")
+            if r.status_code in (401, 403):
+                print("       → 키가 유효하지 않거나 Generative Language API가 비활성입니다.")
+                print("       → https://aistudio.google.com/apikey 에서 키·프로젝트를 확인하세요.")
+            return False
+        names = [m.get("name", "").removeprefix("models/") for m in r.json().get("models", [])
+                 if "generateContent" in (m.get("supportedGenerationMethods") or [])]
+        print(f"{OK} 모델 목록 조회 성공 (generateContent 지원 {len(names)}종)")
+        if model in names:
+            print(f"{OK} 설정 모델 사용 가능: {model}")
+        else:
+            print(f"{NG} 설정 모델 '{model}' 이(가) 목록에 없습니다. config.yaml 의 llm.model 을 바꾸세요.")
+            print(f"       → 사용 가능한 예: {', '.join(names[:6])}")
+            return False
+    except requests.RequestException as e:
+        print(f"{NG} 네트워크 오류: {type(e).__name__}")
         return False
+
+    # 2) 실제 파이프라인이 쓰는 코드 경로(src.llm.generate)로 1회 호출 — 진짜 동작 확인.
     try:
-        client = anthropic.Anthropic()
-        resp = client.messages.create(
-            model=model, max_tokens=16,
-            messages=[{"role": "user", "content": "Reply with exactly: OK"}],
+        text, meta = llm.generate(
+            cfg, system="You are a connectivity check.",
+            user="Reply with exactly: OK", max_tokens=512,
         )
-        text = "".join(b.text for b in resp.content if b.type == "text").strip()
-        print(f"{OK} 호출 성공 (model={model}, 응답={text!r})")
-        u = resp.usage
-        print(f"       토큰: 입력 {u.input_tokens} / 출력 {u.output_tokens}")
+        u = meta.get("usage", {})
+        print(f"{OK} 실호출 성공 (model={meta['model']}, 응답={text.strip()[:40]!r})")
+        print(f"       토큰: 입력 {u.get('promptTokenCount', '?')} / "
+              f"출력 {u.get('candidatesTokenCount', '?')} / "
+              f"사고 {u.get('thoughtsTokenCount', 0)}")
         print()
-        print("  ✅ LLM 층 활성화 가능 — 다음 실행 시 실제 Claude가 사용됩니다:")
+        print("  ✅ LLM 층 활성화 — 다음 실행 시 실제 Gemini가 사용됩니다:")
         print("     python run_pipeline.py --step news     (뉴스 신호 구조화 추출)")
         print("     streamlit run src/app.py               (심사메모 실제 생성)")
         return True
-    except Exception as e:  # noqa: BLE001
-        name = type(e).__name__
-        print(f"{NG} 호출 실패: {name}")
-        hint = {
-            "AuthenticationError": "키가 유효하지 않습니다. Console에서 다시 발급하세요.",
-            "PermissionDeniedError": "이 키로 해당 모델에 접근 권한이 없습니다.",
-            "NotFoundError": f"모델 ID '{model}' 를 찾을 수 없습니다. config.yaml의 llm.model 확인.",
-            "RateLimitError": "요청 한도 초과. 잠시 후 재시도하세요.",
-            "APIConnectionError": "네트워크 연결 실패.",
-        }.get(name)
-        if hint:
-            print(f"       → {hint}")
-        else:
-            print(f"       → {str(e)[:300]}")
-        if "credit" in str(e).lower() or "billing" in str(e).lower():
-            print("       → **크레딧 부족**일 수 있습니다. Console > Billing 에서 크레딧을 충전하세요.")
-            print("          (Claude Pro/Max 구독은 API 크레딧에 포함되지 않습니다)")
+    except llm.LLMError as e:
+        print(f"{NG} 실호출 실패: {type(e).__name__}")
+        print(f"       → {str(e)[:400]}")
+        low = str(e).lower()
+        if "quota" in low or "429" in low:
+            print("       → 무료 등급 분당/일일 한도일 수 있습니다. 잠시 후 재시도하세요.")
         return False
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="FranSCORE API 키 진단")
     ap.add_argument("--data", action="store_true", help="data.go.kr 키만 점검")
-    ap.add_argument("--llm", action="store_true", help="Anthropic 키만 점검")
+    ap.add_argument("--llm", action="store_true", help="Gemini 키만 점검")
     args = ap.parse_args()
     both = not (args.data or args.llm)
     cfg = load_config()

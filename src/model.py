@@ -94,9 +94,7 @@ def _numeric_feature_frame(df: pd.DataFrame, logger) -> pd.DataFrame:
     dropped: list[str] = []
     for c in feat_cols:
         s = df[c]
-        if s.dtype == bool:
-            keep[c] = s.astype("float64")
-        elif pd.api.types.is_numeric_dtype(s):
+        if s.dtype == bool or pd.api.types.is_numeric_dtype(s):
             keep[c] = s.astype("float64")
         else:
             coerced = pd.to_numeric(s, errors="coerce")
@@ -212,7 +210,7 @@ def fit_lgbm_valid_selected(X: pd.DataFrame, y: np.ndarray, tr, va, cfg: dict, l
     logger.info("LightGBM 복잡도 선택(valid AUC 기준, test 미사용): %s", note)
     logger.info("LightGBM 선택: %s, best_iteration=%d, valid_auc=%.4f",
                 best["cand"], best["best_iter"], best["valid_auc"])
-    return best["model"], best["best_iter"], note
+    return best["model"], best["best_iter"], note, dict(best["cand"])
 
 
 def train_all(features: pd.DataFrame, labels: pd.DataFrame, cfg: dict) -> dict:
@@ -267,9 +265,9 @@ def train_all(features: pd.DataFrame, labels: pd.DataFrame, cfg: dict) -> dict:
     # --- 피처 행렬 (ASCII-safe 이름 통일) ------------------------------------
     X_orig = _numeric_feature_frame(df, log)
     safe_names, name_map = _sanitize_feature_names(X_orig.columns)
-    if any(s != o for s, o in zip(safe_names, X_orig.columns)):
+    if any(s != o for s, o in zip(safe_names, X_orig.columns, strict=False)):
         log.info("피처명 %d개 ASCII-safe 치환 (매핑은 split_years.json)",
-                 sum(s != o for s, o in zip(safe_names, X_orig.columns)))
+                 sum(s != o for s, o in zip(safe_names, X_orig.columns, strict=False)))
     X = X_orig.set_axis(safe_names, axis=1)
 
     # --- 기준모형 ① persistence ② single -------------------------------------
@@ -291,7 +289,7 @@ def train_all(features: pd.DataFrame, labels: pd.DataFrame, cfg: dict) -> dict:
     p_logit = logistic_pipe.predict_proba(X)[:, 1]
 
     # --- 주모형 LightGBM (valid 기반 복잡도 선택 + valid early stopping) -----
-    clf, best_iter, sel_note = fit_lgbm_valid_selected(X, y, tr, va, cfg, log)
+    clf, best_iter, sel_note, sel_cand = fit_lgbm_valid_selected(X, y, tr, va, cfg, log)
     p_lgbm = clf.predict_proba(X)[:, 1]
 
     # --- is_new_brand: train 연도에 등장하지 않은 brand_id --------------------
@@ -322,7 +320,7 @@ def train_all(features: pd.DataFrame, labels: pd.DataFrame, cfg: dict) -> dict:
     fm.to_parquet(fm_path, index=False)
 
     label_cols = [c for c in lab.columns if c not in ("brand_id", "year") and c in df.columns]
-    lj = df[["brand_id", "year", "split"] + label_cols].copy()
+    lj = df[["brand_id", "year", "split", *label_cols]].copy()
     lj_path = proc_dir / "labels_joined.parquet"
     lj.to_parquet(lj_path, index=False)
 
@@ -350,6 +348,7 @@ def train_all(features: pd.DataFrame, labels: pd.DataFrame, cfg: dict) -> dict:
         "eval_metric": "auc",                      # 조기종료·복잡도 선택 모두 valid AUC 기준
         "best_iteration": best_iter,
         "complexity_selection": sel_note,          # valid AUC 기반 후보 비교 로그 (test 미사용)
+        "selected_complexity": sel_cand,           # 선택된 후보 (ablation 등 재학습이 동일 사용)
         "feature_name_map": name_map,  # safe -> 원본 피처명
     }
     sy_path = out_dir / "split_years.json"

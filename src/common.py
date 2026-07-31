@@ -76,6 +76,16 @@ def make_synthetic_panel(cfg: dict, n_brands: int = 300, years: tuple[int, int] 
 
     일부 브랜드는 특정 연도에 '구조악화 국면'으로 전환(성장 둔화→점포 순감·매출 하락·
     계약종료 급증)하도록 설계해 라벨·모델 코드의 배선을 점검할 수 있게 한다.
+
+    ⚠️ **실패널의 전 컬럼을 빠짐없이 생성해야 한다.** 컬럼이 하나 빠지면 build_features 의
+       해당 분기(`if "biz_start_year" in df.columns` 등)가 통째로 건너뛰어지고,
+       그 피처는 시점누출 테스트(tests/test_sanity.test_time_leakage)의 검사 범위에서
+       조용히 빠진다 — "전 피처 누출 검증"이라는 주장이 거짓이 된다(적대적 리뷰 지적).
+       panel.py 가 컬럼을 추가하면 여기도 반드시 함께 추가할 것.
+
+    지역 분포는 임의값을 흩뿌리지 않고 **내부적으로 정합**하게 생성한다:
+    상위지역 점유율 top_share 를 뽑고 나머지 지역에 균등 분배한 뒤 HHI 를 실제로 계산해
+    (n_regions, region_hhi, top_region_share, region_max_stores) 가 서로 모순되지 않게 한다.
     """
     rng = np.random.default_rng(cfg["seed"])
     majors = list(_INDUSTRIES.keys())
@@ -90,6 +100,8 @@ def make_synthetic_panel(cfg: dict, n_brands: int = 300, years: tuple[int, int] 
         n_direct = max(0.0, round(n_stores * rng.uniform(0.0, 0.15)))
         avg_sales = float(rng.uniform(150_000, 700_000))  # 천원
         base_growth = rng.normal(0.06, 0.08)
+        # 가맹사업 개시연도 (브랜드 고정) — 관측 시작보다 0~15년 앞선다
+        biz_start_year = float(start - int(rng.integers(0, 16)))
         # 악화 전환 연도 (약 35% 브랜드, 관측 중반 이후)
         turn_year = int(rng.integers(start + 2, y1 + 1)) if rng.random() < 0.35 else None
         for year in range(start, y1 + 1):
@@ -103,6 +115,19 @@ def make_synthetic_panel(cfg: dict, n_brands: int = 300, years: tuple[int, int] 
             n_cancel = round(prev_stores * end_rate * rng.uniform(0.0, 0.4))
             n_new = max(0.0, round(n_stores - prev_stores + n_end + n_cancel))
             avg_sales = max(30_000.0, avg_sales * (1 + sg))
+            # 직영점수도 해마다 변한다. 브랜드 내 고정값으로 두면 f_struct_direct_growth 가
+            # 전 행 0(상수)이 되어 **그 피처가 누출 테스트에서 사실상 검증되지 않는다**.
+            n_direct = float(min(n_stores, max(0.0, round(n_direct * (1 + rng.normal(0.03, 0.15))))))
+            # 본부 규모 (15109828 브랜드개요 대응) — 점포수에 느슨히 연동
+            emp_cnt = float(max(3, round(n_stores * rng.uniform(0.05, 0.30))))
+            exec_cnt = float(max(1, round(emp_cnt * rng.uniform(0.02, 0.15))))
+            # 지역 분포 (15125490 지역별 대응) — 서로 모순 없도록 실제로 계산한다
+            n_regions = int(min(17, max(1, round(n_stores / 12) + int(rng.integers(-1, 2)))))
+            top_share = float(rng.uniform(1.0 / n_regions, min(1.0, 1.0 / n_regions + 0.5)))
+            rest = (1.0 - top_share) / (n_regions - 1) if n_regions > 1 else 0.0
+            region_hhi = top_share ** 2 + (n_regions - 1) * rest ** 2
+            # 등록취소 (15125518 대응) — 악화 전환 브랜드의 마지막 연도에 드물게 발생
+            cancelled = turn_year is not None and year == y1 and rng.random() < 0.15
             rows.append({
                 "brand_id": brand_id,
                 "brand_name": f"합성브랜드{i:04d}",
@@ -118,6 +143,15 @@ def make_synthetic_panel(cfg: dict, n_brands: int = 300, years: tuple[int, int] 
                 "n_name_change": float(rng.integers(0, max(2, int(prev_stores * 0.05)))),
                 "avg_sales": avg_sales if rng.random() > 0.05 else np.nan,
                 "avg_sales_per_area": avg_sales / rng.uniform(8, 25),
+                "biz_start_year": biz_start_year,
+                "emp_cnt": emp_cnt,
+                "exec_cnt": exec_cnt,
+                "n_regions": float(n_regions),
+                "region_hhi": float(region_hhi),
+                "top_region_share": float(top_share),
+                "region_max_stores": float(round(n_stores * top_share)),
+                "cancel_flag": 1.0 if cancelled else 0.0,
+                "cancel_type": ("자진취소" if rng.random() < 0.7 else "직권취소") if cancelled else None,
             })
     df = pd.DataFrame(rows).sort_values(["brand_id", "year"]).reset_index(drop=True)
     return df

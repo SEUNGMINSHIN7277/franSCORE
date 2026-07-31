@@ -241,7 +241,7 @@ def build_portfolio(cfg: dict) -> None:
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "synthetic": True,
         "test_year": test_year,
-        "n_brands": int(len(port)),
+        "n_brands": len(port),
         "pd_column_used": pd_col,
         "total_exposure_mkrw": total_exposure,
         "total_exposure_ekw": _to_ekw(total_exposure),
@@ -287,8 +287,8 @@ def build_portfolio(cfg: dict) -> None:
                 "test 전체 브랜드 예측확률 분포 내 **순위(pct rank)** 기준 — "
                 f"High = 상위 {1 - float(grades_cfg['high']):.0%}, "
                 f"Medium = 상위 {1 - float(grades_cfg['medium']):.0%} 이내. "
-                "값 임계 컷은 보정확률 동률 블록이 경계에 걸리면 등급 비율이 설계값을 크게 "
-                "초과하므로(실측 High 29%) 순위 기준으로 부여한다."),
+                "값 임계 컷은 보정확률 동률 블록이 경계에 걸릴 때 등급 비율이 설계값을 "
+                "초과할 수 있어(개발 중 실측 사례 확인) 순위 기준으로 부여한다."),
             "risk_grade_cut_values_reference": {
                 "high_pd_cut": round(hi_cut, 6), "medium_pd_cut": round(med_cut, 6),
                 "note": "참고용 값 — 등급 판정에는 순위를 사용한다",

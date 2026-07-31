@@ -1,0 +1,60 @@
+{
+  "brand": "비엔나커피하우스",
+  "queries": [
+    "비엔나커피하우스",
+    "비엔나커피하우스 가맹점",
+    "비엔나커피하우스 본사 분쟁",
+    "비엔나커피하우스 폐점",
+    "비엔나커피하우스 가맹 갈등"
+  ],
+  "articles": [
+    {
+      "title": "헤밍웨이 \"우리는 세 곳의 카페가 필요하다\" - 중앙일보",
+      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE0tT0d5elI3YUhlZDVhUXFjb21vR3VTUUx0SE90WjN4SjJlS0hKWElrQVF1QzNjQTgzcWVVMDNKNWpMTGlvV3I0TlpEVFo0R2lkVDZoWFl3?oc=5",
+      "published": "Fri, 04 Feb 2022 08:00:00 GMT",
+      "source": "중앙일보"
+    },
+    {
+      "title": "비엔나 커피하우스의 독특한 문화 전통 - artsnculture.com",
+      "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBoRWlGTG5yV1NHbEM0UDdyT2dGWjFzZkZfNy1wbEU0OXNnQ1M1bXpWUlA0em04Q1czQTVFN2lGU2RzUERENVpmMzlJeXptOUpwekotUENsbDN6NlI0ZDYtNm5vMk5zYW44amIxYVFR?oc=5",
+      "published": "Tue, 01 Apr 2025 07:00:00 GMT",
+      "source": "artsnculture.com"
+    },
+    {
+      "title": "휘핑크림 없어도...도시에서 느끼는 ‘비엔나 커피’ - chosun.com",
+      "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE1fdFZjVHVuQUMtQ3B3SjVYRzdtT1RZX3YwZFJfVzJsLWp3cXV0b2IwWWx0ZjhuYVg0VWhWdnpPWnpQTGxSUG1ycVFTVnNadC1zM3lpOHRpY2xhY3ZlQzg5d1V0LXN3Sl81MnBCbkxwSUd1bzhJMGFnc0h4dHdfSVk?oc=5",
+      "published": "Mon, 21 Oct 2024 07:00:00 GMT",
+      "source": "chosun.com"
+    },
+    {
+      "title": "비엔나커피하우스, 2020년 크리스마스 홀리데이 메뉴 3종 론칭 - asiae.co.kr",
+      "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9sUW9SUXFpSzNGM0JTRWtfckVTQnVrUTlRMVQyd0FrYURvN2dLU3dPdDh4dmtaNDVzSHZHallPTFFoaTQwWmw2blFwVk9zZ0dQNTJ4T2xjcmhfVGhSaExvMQ?oc=5",
+      "published": "Mon, 30 Nov 2020 08:00:00 GMT",
+      "source": "asiae.co.kr"
+    },
+    {
+      "title": "카페 대형화 바람 타고 비엔나커피하우스 성장 주목 - 파이낸셜뉴스",
+      "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE81OFhDT1VNOG5QX1d6dmF1VFdSaW1MWDRoLWR0YW9CVDRIUTgtU3lSYUE3dm1vZDQ4eUxYX19JVGZtUlBoaGU2djJmWW1ZbzJoY05veHNnUDFHdw?oc=5",
+      "published": "Sun, 19 Sep 2021 07:00:00 GMT",
+      "source": "파이낸셜뉴스"
+    },
+    {
+      "title": "클림트부터 베토벤까지, 그들이 사랑한 달콤한 디저트와 커피 [쿠킹] - v.daum.net",
+      "link": "https://news.google.com/rss/articles/CBMiRkFVX3lxTFBWSi0xUFVHRExJWS1aX1FKak1SNkVQcVB1OVBUcDRXT1FFdXl5aDNZQjl6MTVuVTVBS0MyQVd2WHJvYkw3Tnc?oc=5",
+      "published": "Fri, 10 Jan 2025 08:00:00 GMT",
+      "source": "v.daum.net"
+    },
+    {
+      "title": "[人사이트]정의석 제이엠케이 대표 “'비엔나커피하우스' 상표권 등록 완료…해외 공략도” - 전자신문",
+      "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTFAwNmJ6LW0zN2w4R0pjWlMxNnNsazVhdnNkcnBLaHZlYmhtbWlDMUtGSFlZMUZpSTZ3ejlRZkVsY0xFQUdpM3c4SmhjZ2ZZdw?oc=5",
+      "published": "Wed, 11 Aug 2021 07:00:00 GMT",
+      "source": "전자신문"
+    },
+    {
+      "title": "카페창업 프랜차이즈 ‘비엔나커피하우스’, 고급화·대형화 전략 펼쳐 - 서울경제",
+      "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBiOU9FdGVEbzlPbHRfOEpyN1lJOHRUUkRrVE9EYkNFZEozTlp4V00wY0lURG9Ja0J5cG1uYTRCdmdOWUt2UFRKZ3lydEQtQzNuRnfSAVNBVV95cUxPX1l2UjlkMm9uX0xWS1pZRVgtdHJ6N0tURXZHdkVFMUVhX0JDNlRQNW1RVHFtd1ltaFJCaVZpUFgwNGdsZTJ2dy1kUFpETThhNzhRMA?oc=5",
+      "published": "Tue, 23 Jun 2020 07:00:00 GMT",
+      "source": "서울경제"
+    }
+  ]
+}

@@ -29,6 +29,7 @@
 """
 from __future__ import annotations
 
+import contextlib
 import re
 import unicodedata
 
@@ -157,12 +158,15 @@ def build_master(cfg: dict) -> pd.DataFrame:
 
     idrows = df[has_id]
     if len(idrows):
-        per_year_corps = idrows.groupby(["brand_mnno", "_yr"])["norm_corp"].nunique()
-        collide_ids = set(per_year_corps[per_year_corps > 1]
+        # 충돌 판정 키 = 본부관리번호(hq_mnno) (리뷰 지적 반영: norm_corp 기준은 같은 본부의
+        # 법인명 표기 변형(예: 농업회사법인 표기 차이·한/영 표기)까지 별도 엔티티로 오분리한다.
+        # hq_mnno는 공정위가 부여한 본부 식별자라 표기 변형에 불변)
+        per_year_hqs = idrows.groupby(["brand_mnno", "_yr"])["hq_mnno"].nunique()
+        collide_ids = set(per_year_hqs[per_year_hqs > 1]
                           .reset_index()["brand_mnno"].unique())
     else:
         collide_ids = set()
-    log.info("R3: 연도 내 법인 충돌 brandMnno %d개 → 본부관리번호로 분리 "
+    log.info("R3: 연도 내 본부(hq_mnno) 충돌 brandMnno %d개 → 본부관리번호로 분리 "
              "(그 외는 brandMnno 단독 키로 연도 연속성 유지)", len(collide_ids))
 
     mnno_plain = df["brand_mnno"].astype(str)
@@ -197,11 +201,9 @@ def build_master(cfg: dict) -> pd.DataFrame:
         "고유브랜드_명칭기반": int(df.loc[~has_id, "brand_id"].nunique()),
         "모호_관리번호_무효화": int((df["n_candidates"].fillna(1) > 1).sum()),
     }])
-    try:
+    with contextlib.suppress(OSError):
         rep.to_csv(cfg["paths"]["outputs"] / "entity_resolution_report.csv",
                    index=False, encoding="utf-8-sig")
-    except OSError:
-        pass
     return df
 
 

@@ -9,15 +9,15 @@
 
 | 티어 | 모듈 | 상태 | 증빙 |
 |---|---|---|---|
-| MUST | M1 데이터패널 | ✅ | `outputs/survival_report.csv` — 1,810브랜드/7,556 자격행 |
-| MUST | M2 피처/라벨 | ✅ | `outputs/feature_summary.csv`(36피처, 죽은 피처 0), `label_composition.csv`(양성률 9.2%) |
-| MUST | M3 GBM+기준모형+지표 | ✅ | `outputs/metrics.csv` — Lift@10 **2.336 > 기준 최고 2.170** |
+| MUST | M1 데이터패널 | ✅ | `outputs/survival_report.csv` — 1,809브랜드/7,544 자격행 |
+| MUST | M2 피처/라벨 | ✅ | `outputs/feature_summary.csv`(35피처, 죽은 피처 0), `label_composition.csv`(양성률 9.2%) |
+| MUST | M3 GBM+기준모형+지표 | ✅ | `outputs/metrics.csv` — Lift@10 **2.500 > 기준 최고 2.167** |
 | MUST | M5 데모화면1 | ✅ | `src/app.py` 화면① — 실데이터 브라우저 렌더링 검증 |
-| SHOULD | 확률 보정 | ✅ | isotonic(valid 적합→test 적용) + 동률 tie-break, `calibration.png/csv`, Brier 0.076 |
+| SHOULD | 확률 보정 | ✅ | isotonic(valid 적합→test 적용) + 동률 tie-break, `calibration.png/csv`, Brier 0.075 |
 | SHOULD | SHAP | ✅ | `shap_summary.png`, `shap_values.parquet`(행별 상위10) |
 | SHOULD | M4 포트폴리오 집중·상관(원화) | ✅ | `portfolio.csv`, `portfolio_summary.json` |
-| SHOULD | M4 LLM 뉴스층 | ✅ | `news_signals.json` + **모의 API 실경로 검증**(`tests/test_llm_paths.py`) |
-| COULD | 진짜 RAG | ✅ | `src/rag.py` — 2만 문서 코퍼스·TF-IDF 색인·검색 인용 |
+| SHOULD | M4 LLM 뉴스층 | ✅ | `news_signals.json` — **실제 Gemini 호출 63/63건**(폴백 0) + 모의 HTTP 실경로 검증(`tests/test_llm_paths.py`) |
+| COULD | 진짜 RAG | ✅ | `src/rag.py` — 20,153문서 코퍼스(공시 20,000 + 뉴스 153)·TF-IDF 색인·검색 인용 |
 | COULD | 스트레스 시나리오 | ✅ | 위험 상위 10% PD×1.5 동시 악화 |
 | COULD | bootstrap | ✅ | `metrics_bootstrap_ci.csv`, `lift_delta_bootstrap.csv`, `walkforward_delta_ci.csv` |
 | COULD | 데모화면2 | ✅ | `src/app.py` 화면② |
@@ -31,7 +31,7 @@
 | 공정위 오픈API 수집·캐시 | `src/collect.py` | `collect_all`, `fetch_service_year` (재시도·백오프·gzip 스냅샷·키 마스킹) |
 | 엔티티 정합 | `src/entity.py` | `build_crosswalk`, `build_master` (관리번호 2홉 정합) |
 | 패널(brand×year) | `src/panel.py` | `build_panel`, `_merge_region_direct`, `_merge_cancel`, `apply_sample_filter`, `survival_report` |
-| 피처 | `src/features.py` | `build_features` (36개 / 5그룹) |
+| 피처 | `src/features.py` | `build_features` (35개 / 5그룹) |
 | 라벨(악화 전환) | `src/labels.py` | `build_labels`, `compute_derived_metrics`, `_event_flags` |
 | 기준모형 3종 + LightGBM | `src/model.py` | `train_all`, `_baseline_scores`, `fit_lgbm_valid_selected` |
 | 지표·보정·SHAP·ablation | `src/evaluate.py` | `evaluate_all`, `_bootstrap_ci`, `_paired_bootstrap` |
@@ -45,7 +45,12 @@
 | 파라미터 단일 원천 | `config.yaml` | 라벨·분할·모델 복잡도 후보·시나리오·LLM 전부 |
 
 기술 스택: Python 3.13 · pandas · lightgbm 4.7 · shap 0.52 · scikit-learn 1.6 · streamlit 1.57 ·
-anthropic SDK · feedparser · joblib (requirements.txt 버전 고정). 명세는 3.11 기준이나 3.13에서 검증.
+requests · feedparser · joblib (requirements.txt 버전 고정). 명세는 3.11 기준이나 3.13에서 검증.
+런타임 LLM은 **Google Gemini v1beta REST**를 `requests` 로 직접 호출한다(`src/llm.py`) — 별도 SDK
+의존성을 추가하지 않는 이유는 ① 이미 있는 재시도 계층과 실패정책을 통일하고, ② 제출본 고정 시
+SDK 마이너 버전에 따른 응답 형태 변화로 재현이 깨지는 위험을 없애기 위해서다.
+린트는 `ruff.toml`(규칙) + `requirements-dev.txt`(ruff==0.16.0) 로 **규칙과 버전을 함께 고정**해
+누가 돌려도 같은 결과가 나오게 했다 — `python -m ruff check .` → All checks passed!
 
 ## 2. M1 — 데이터 파이프라인 (명세 §2)
 
@@ -64,7 +69,7 @@ anthropic SDK · feedparser · joblib (requirements.txt 버전 고정). 명세�
 | **추가 15125518** | ✅ 수집 | 브랜드 등록취소(자진/직권) — 하드 실패 신호 |
 
 구현 세부: `serviceKey` env 우선(`DATA_GO_KR_KEY`), 원본 JSON을 `data/raw/`에 그대로 보존
-(대용량은 gzip — 152만행이 6.7MB), 429/실패 재시도·지수 백오프, 호출 로그, **예외 메시지의 키 마스킹**.
+(대용량은 gzip — 144만행이 6.7MB), 429/실패 재시도·지수 백오프, 호출 로그, **예외 메시지의 키 마스킹**.
 
 ### 2.2 엔티티 정합 — 명세 "브랜드 관리번호 우선" 충족
 
@@ -79,29 +84,39 @@ anthropic SDK · feedparser · joblib (requirements.txt 버전 고정). 명세�
 | R4 모호 처리 | 후보 2개+ → 관리번호 미부여, 명칭 기반 ID로 **남기고** 로깅(버리면 생존편향) | 1.4% 무효화 |
 | R5 제거 | 정규화 후 명칭 공백 → 제거·로깅 | 3행 |
 
-**결과: 관리번호 확보율 97.8%**, 고유 브랜드 20,590개(관리번호 기반 19,662 / 명칭 기반 928),
-본부 변경 이력 4,136 브랜드 추적. 리포트: `outputs/entity_resolution_report.csv`.
-정합 개선 효과: 명칭 기반 23,220개 → 관리번호 기반 20,590개 (리브랜딩이 올바르게 **연결**됨).
+**결과: 관리번호 확보율 97.8%**, 고유 브랜드 20,626개(관리번호 기반 19,698 / 명칭 기반 928),
+본부 변경 이력 추적. 리포트: `outputs/entity_resolution_report.csv`.
+정합 개선 효과: 명칭 기반 23,220개 → 관리번호 기반 20,626개 (리브랜딩이 올바르게 **연결**됨).
+최종 패널 `panel_full.parquet` 76,717행 (실적연도 2016~2024).
 
 ### 2.3 패널
 
 - 패널 연도 = 공시 기준연도 − 1 (수치가 직전 회계연도 실적, `acntgYr`로 교차 확인).
+- **운영 타임라인 해석 (선행성의 정확한 의미):** 브랜드-연도 t의 피처는 **t+1년 공시**
+  (회계연도 t 실적 수록)가 접수된 시점에 계산 가능하고, 라벨(t+1년 실적의 악화)은 **t+2년
+  공시**로 확정된다. 즉 은행이 공시를 받아 점수를 산출한 시점 기준으로 **약 1년 앞의 악화
+  전환**을 예측하는 구조다. 피처와 라벨은 서로 다른 공시(정보집합)에서 나오므로 시점이 겹치지
+  않으며, 이 정렬은 15125490의 `acntgYr = 공시연도 − 1` 필드와 독립 API 간 가맹점수 일치율
+  98.9%로 데이터 차원에서 교차 검증했다. 연 1회 공시의 시의성 공백은 LLM 뉴스 층이 메운다
+  (점수 미투입, 화면 표시 전용).
 - 매출 0/미기재 → 결측(행 유지). 상하위 1% winsorize(연도별 횡단면).
 - **0점포 아티팩트 처리**: 직전연도 10개+ 브랜드가 당해 0으로 보고된 558행은 공시 미기재·재등록
   아티팩트로 판정해 결측 처리(적대적 리뷰 확정 결함 수정 — 412→0→395 같은 원복 사례 다수).
-- **직영점수·지역분산 병합**: 15125490의 `areaNm='전체'` 행 → 직영점수(병합률 84.6%),
-  17개 시도 행 → 진출지역수·지역HHI·최다지역비중(56.7%, 자격 표본에서는 97.7%).
+- **직영점수·지역분산 병합**: 15125490의 `areaNm='전체'` 행 → 직영점수(병합률 84.4%),
+  17개 시도 행 → 진출지역수·지역HHI·최다지역비중(전체 54.8%, **학습에 쓰이는 자격 표본에서는
+  96.1%**). 전체 병합률이 낮은 이유는 소규모·단명 브랜드가 지역 공시를 남기지 않기 때문이고,
+  실제 모형 표본(점포 30+·3년 연속)에서는 거의 결측이 없다.
   ⚠️ '전체'와 지역 행을 합산하면 정확히 2배 중복 → 분리 사용. **독립 API 간 가맹점수 일치율 98.9%**.
-- **등록취소 병합**: 390행 매칭(자진 331 / 직권 59).
+- **등록취소 병합**: 접수연도 기준 317행 매칭(자진 195 / 직권 122).
 - **실시간 표본 자격**(적대적 리뷰 수정): `eligible_t` = [t까지 누적 최대 점포수 ≥ 30] AND
   [t에서 끝나는 연속 관측 ≥ 3년] — 과거 정보만 사용.
 
-**✅ M1 DoD:** 생존성 진단표 출력, 라벨 표본 3,641행(수백 건 이상), 양성률 9.2% (목표 10~30%
+**✅ M1 DoD:** 생존성 진단표 출력, 라벨 표본 3,635행(수백 건 이상), 양성률 9.2% (목표 10~30%
 대역 하단 근접 — 완화 조건 미사용, 확장 트랙은 별도 공개).
 
 ## 3. M2 — 피처 & 라벨 (명세 §3)
 
-### 3.1 피처 — 명세 요구 항목 전수 대조 (36개)
+### 3.1 피처 — 명세 요구 항목 전수 대조 (35개)
 
 | 명세 요구 | 구현 피처 | 상태 |
 |---|---|---|
@@ -115,7 +130,7 @@ anthropic SDK · feedparser · joblib (requirements.txt 버전 고정). 명세�
 | 기타 라벨 밖 신호 | `f_chg_new_open_rate`, `f_chg_name_change_rate`, `f_struct_open_close_gap`, `f_lvl_biz_age`, `f_lvl_emp_cnt_log`, `f_lvl_brand_age` | ✅ |
 | 뉴스 신호(피처) | ⛔ 의도적 미투입 | 명세 §5.1 "점수에 미투입"이 우선(누출·재현성) |
 
-**죽은 피처 0개** (학습 표본 결측률: 직영비중 2.1%, 지역분산 2.3%, 면적당매출 6.7~19.8%).
+**죽은 피처 0개** (자격 표본 보유율: 직영점수 96.6%, 지역분산 96.1%, 면적당매출 91.8%, 업력 99.9%, 임직원수 100%). 단일 업종 트랙에서 상수가 되는 업종 더미는 **생성 단계에서** 제외한다 — 값 분산을 보고 사후에 버리면 피처 스키마가 미래 값에까지 의존하게 되어 시점누출 원칙을 스키마 차원에서 위반하기 때문이다(누출 테스트가 실제로 검출).
 ⛔ 시점 누출 방지: (brand, t) 피처는 t 이하만 사용 — 자동 검증(t+1 이후 전체 교란 후 bit-exact 불변).
 
 ### 3.2 라벨
@@ -155,30 +170,69 @@ anthropic SDK · feedparser · joblib (requirements.txt 버전 고정). 명세�
 | (추가) 워크포워드 확장창 | `walkforward_metrics.csv`, `walkforward_predictions.parquet`, `walkforward_delta_ci.csv` |
 | (추가) 두 트랙 비교 | `track_comparison.csv` |
 
-**✅ M3 DoD:** `metrics.csv`에 기준모형 3종 vs LightGBM 비교표 생성, LightGBM Lift@10%
-**2.336 > 기준모형 최고 2.170** → 통과. 플랜B 불필요(단, 검정력 보강 결과도 함께 공개 — README ②).
+**✅ M3 DoD:** `metrics.csv`에 기준모형 3종 vs LightGBM 비교표 생성, test 2023(n=740, 양성률 8.1%)
+기준 LightGBM Lift@10% **2.500 > 기준모형 최고 2.167** → 통과.
+플랜B 불필요(단, 검정력 보강 결과도 함께 공개 — README ②).
 
-보정 관련 수정: isotonic 계단으로 보정확률이 소수 값으로 붕괴해 상위 10% 경계에 대규모 동률이
+보정 관련 수정 ①: isotonic 계단으로 보정확률이 소수 값으로 붕괴해 상위 10% 경계에 대규모 동률이
 생기던 결함(리뷰 확정)을 원점수 순위 tie-break로 해소하고, 보정 점수 기준 지표를 metrics.csv에 추가.
+
+보정 관련 수정 ② — **PD 상·하한**: isotonic 은 계단함수라 양 끝이 검증표본의 경험률로 포화된다.
+실측에서 보정확률이 정확히 **1.000(3행)** 과 **1.4e-08(하위 830행)** 까지 나왔고, 대시보드에는
+"P(악화 전환) 100.0%"가 그대로 표시됐다. 1년 악화확률 100%·7천만분의 1은 수십 건의 검증 관측이
+뒷받침할 수 있는 추정이 아니며, `EL = exposure × PD × LGD` 를 통해 손실 추정까지 과신하게 만든다.
+여신 실무의 PD 하한 관행(바젤 IRB 0.03%)을 따라 `config.evaluate.pd_floor=0.0003`,
+`pd_cap=0.99` 로 클립한다. **단조 변환이라 순위는 바뀌지 않으므로** Lift@k·Precision@k·PR-AUC·
+ROC-AUC 는 그대로이고, 과신만 억제되어 Brier·EL 에만 반영된다(EL 94.5억 → 94.9억으로 보수화).
+
+### 4.1 워크포워드 집계 방식 — 실측으로 발견한 결함과 수정
+
+fold별 OOS 예측을 모아 **원점수 전역 상위 10%** 로 Lift를 계산하던 초기 방식에서,
+LightGBM의 풀링 Lift(2.150)가 **모든 개별 fold 값(2.62 / 2.25 / 2.50)보다 낮은** 모순이 나왔다.
+원인은 fold마다 모형을 재학습하므로 **출력 확률의 스케일이 fold마다 다르다**는 것이다
+(LightGBM 최대확률: 2021 fold 0.80 / 2022 fold 0.84 / 2023 fold 0.57).
+그 결과 2023 fold는 행의 35.9%를 차지하면서 전역 상위 10%의 4.4%만 차지했다
+(**편향배수 0.12**, 1.0이 중립). 이 방식은 재학습 모형에 불리하고 매년 같은 변환을 쓰는
+고정공식 기준모형(persistence·단일변수)에 유리한 인위적 편향을 만든다.
+
+수정: 상위 k% 지표는 **fold 안에서** 계산한다.
+- `macro_avg_folds` — fold별 지표의 단순평균. **주 지표**
+  (운영 의미: "매년 상위 10%를 점검하면 얻는 리프트". 은행은 연도를 섞어 한 줄로 세우지 않는다.)
+- `pooled_oos_rank` — fold 내 백분위로 정규화 후 풀링 (스케일 드리프트 제거)
+- `pooled_oos_raw` — 결함이 있는 원래 방식. **삭제하지 않고 함께 공개**하고,
+  진단 근거를 `outputs/walkforward_pool_bias.csv` 에 수치로 남긴다.
+
+부트스트랩도 같은 원칙으로 바꿨다: 연도블록을 재표집한 뒤 **fold 안에서 Lift를 계산해 평균**한
+값의 차이를 본다. 세 집계 모두에서 결론은 같다 — LightGBM은 persistence를 유의하게 이기고,
+단일변수·로지스틱과는 통계적으로 동등하다.
 
 ## 5. M4 — 신규성/실시간 층 (명세 §5)
 
 ### 5.1 LLM 뉴스 신호
 - Google News RSS(키 불필요, 발행일 포함) → `data/raw/news/` 스냅샷.
 - 엔티티 매칭 필터(일반명사·부분문자 오염 제거) — RAG 코퍼스에도 동일 규칙 적용.
-- Claude(claude-opus-5) structured 추출 `{사건유형, 발생시점, 근거문장, 신뢰도}`,
-  JSON Schema 강제, `stop_reason=="refusal"` 처리, 예외·비JSON 시 규칙 폴백.
+- **Google Gemini(`gemini-3.6-flash`) structured 추출** `{사건유형, 발생시점, 근거문장, 신뢰도}` —
+  `responseSchema` 로 출력 형태를 강제(모델이 자유 텍스트를 섞을 수 없음)하고, 그 위에 **코드가
+  다시 검증**한다(기사 인덱스 범위·enum 소속 재확인 — 스키마를 통과해도 인덱스는 틀릴 수 있다).
+- 공용 클라이언트 `src/llm.py` 가 실패 경로를 유형별로 분리한다:
+  일시 장애(네트워크·429·5xx)는 **지수 백오프 재시도**, 안전정책 차단·HTTP 400·토큰 절단은
+  **재시도 없이 즉시 폴백**(같은 입력이면 결과가 같으므로 쿼터 낭비를 막는다).
+  사고(thinking) 파트는 응답에서 제거해 **모델 내부 추론이 메모로 새지 않게** 한다.
+- 안전 필터는 `BLOCK_ONLY_HIGH` — 입력이 '소송·부도·집단폐점' 같은 부정적 기업 뉴스라
+  기본 임계값에서는 정상 기사가 유해로 오탐되어 분류가 통째로 막히는 일이 있다.
+  차단되더라도 예외로 올려 규칙 폴백으로 내려앉으므로 무방비가 아니다.
 - **점수 미투입** (`config.llm.score_injection: false`) — 화면·메모 표시 전용.
-- **실동작 검증**: 키 없이도 모의 Anthropic 클라이언트로 정상/거절/예외/비JSON 4경로 전부 검증
-  (`tests/test_llm_paths.py` 3/3). 로그는 의도가 아니라 **실제 LLM 추출 건수/폴백 건수**를 분리 보고
-  (리뷰 후 발견한 오도 로그 수정).
+- **실동작 검증**: 키 없이도 HTTP 경계만 모의로 치환해 스키마 정제·사고파트 제거·차단·절단·
+  재시도·키미설정·인덱스 재검증까지 전 경로 검증(`tests/test_llm_paths.py` 4/4).
+  실키 연결은 `python check_keys.py --llm` 이 모델 목록 조회 + 실제 코드 경로 1회 호출로 확인한다.
+  로그는 의도가 아니라 **실제 LLM 추출 건수/폴백 건수**를 분리 보고(오도 로그 결함 수정 반영).
 
 ### 5.2 포트폴리오 집중·상관
 - 합성 exposure(점포수 비례 × 로그정규, seed 고정, **합성임을 전 산출물에 명시**).
-- 집중도: 브랜드별 exposure·상위10 비중 66.4%·HHI 0.062.
+- 집중도: 브랜드별 exposure·상위10 비중 68.6%·HHI 0.091.
 - 상관 손실 `EL = exposure × PD(보정) × LGD{0.3,0.45,0.6}`, 스트레스(상위 10% PD×1.5, cap 1.0).
 - 위험등급은 **순위 기반**(값 임계 컷이 동률과 충돌해 High가 설계 10%→29%로 부풀던 결함 수정).
-- 헤드라인: 총 여신 4,529억원 → LGD 45% EL 110.3억원, 스트레스 129.7억원.
+- 헤드라인: 총 여신 4,954억원 → LGD 45% EL 94.9억원, 스트레스 108.2억원. 위험등급 High 6/60.
 
 ### 5.3 심사메모 + RAG (COULD)
 - 입력(SHAP 상위요인 + 공시 수치 + 뉴스 + **RAG 검색 근거**)만 인용하도록 시스템 프롬프트 제약.
@@ -202,7 +256,7 @@ anthropic SDK · feedparser · joblib (requirements.txt 버전 고정). 명세�
 ## 7. 신뢰도·재현성 (명세 §7)
 seed·버전·raw 스냅샷·config 단일원천 ✅ / 모듈 단일책임 ✅ / sanity 테스트 5종 + LLM·RAG 3종 ✅ /
 로깅 ✅ / README 실행순서 ✅ / 출처 링크·발행일 ✅
-**재현 테스트 실측**: 새 클론에서 API 없이 스냅샷만으로 라벨 3,641행·양성률 9.2%·Lift 2.336 동일 재현.
+**재현 테스트 실측**: 새 클론에서 API 없이 스냅샷만으로 라벨 3,635행·양성률 9.2%·Lift 2.500 동일 재현.
 
 ## 8. 일정 (명세 §8)
 명세 D1~D5(5일)를 압축 수행. 잔여: PPT·참가신청서 본문·GitHub 업로드·`submit` 태그 freeze.

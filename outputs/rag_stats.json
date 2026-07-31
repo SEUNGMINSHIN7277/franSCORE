@@ -1,8 +1,8 @@
 {
-  "n_documents": 20117,
+  "n_documents": 20153,
   "by_source_type": {
     "disclosure": 20000,
-    "news": 117
+    "news": 153
   },
   "n_brands_covered": 4668,
   "retrieval": "TF-IDF (word 1-2gram + char_wb 2-4gram) + cosine similarity",

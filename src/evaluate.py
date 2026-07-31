@@ -30,17 +30,17 @@ import joblib
 import matplotlib
 
 matplotlib.use("Agg")  # 반드시 pyplot import 전에 (Windows/headless)
-import matplotlib.pyplot as plt  # noqa: E402
-import lightgbm as lgb  # noqa: E402
-import numpy as np  # noqa: E402
-import pandas as pd  # noqa: E402
-import shap  # noqa: E402
-from lightgbm import LGBMClassifier  # noqa: E402
-from sklearn.isotonic import IsotonicRegression  # noqa: E402
-from sklearn.linear_model import LogisticRegression  # noqa: E402
-from sklearn.metrics import average_precision_score, roc_auc_score  # noqa: E402
+import lightgbm as lgb
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import shap
+from lightgbm import LGBMClassifier
+from sklearn.isotonic import IsotonicRegression
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import average_precision_score, roc_auc_score
 
-from src.common import get_logger, load_config, set_seed  # noqa: E402
+from src.common import get_logger, load_config, set_seed
 
 log = get_logger("evaluate")
 
@@ -66,7 +66,7 @@ def _metric_row(y, p, k_pct: float) -> dict:
         log.warning("점수 NaN %d행 제외 후 지표 계산", int((~ok).sum()))
     y, p = y[ok], p[ok]
     out = {"lift_at_10": np.nan, "precision_at_10": np.nan, "pr_auc": np.nan,
-           "roc_auc": np.nan, "brier": np.nan, "n": int(len(y)), "base_rate": np.nan}
+           "roc_auc": np.nan, "brier": np.nan, "n": len(y), "base_rate": np.nan}
     if len(y) == 0:
         return out
     base = float(y.mean())
@@ -180,12 +180,29 @@ def _fit_calibrator(p: np.ndarray, y: np.ndarray, method: str):
     return m
 
 
-def _apply_calibrator(m, p: np.ndarray, method: str) -> np.ndarray:
+def _apply_calibrator(m, p: np.ndarray, method: str, cfg: dict | None = None) -> np.ndarray:
+    """보정확률 산출 + **PD 상·하한 적용**.
+
+    왜 상·하한이 필요한가 (실측 결함):
+        isotonic 은 계단함수라 양 끝 구간이 검증표본의 경험률로 **포화**된다. 실측에서
+        보정확률이 정확히 1.000(3행)과 1.4e-08(하위 830행)까지 나왔다. 1년 악화확률
+        "100%"·"7천만분의 1"은 수십 건의 검증 관측이 뒷받침할 수 있는 추정이 아니고,
+        그대로 `EL = exposure × PD × LGD` 에 들어가 손실 추정까지 과신하게 만든다.
+        여신 실무에서 PD에 하한(바젤 IRB는 0.03%)과 상한을 두는 것과 같은 이유다.
+
+    ⚠️ 클립은 **단조 변환**이라 순위가 바뀌지 않는다 — Lift@k·Precision@k·PR-AUC·ROC-AUC
+       같은 순위 기반 지표는 영향을 받지 않고, 과신만 억제된다(Brier·EL에만 반영).
+    """
     if method == "identity" or m is None:
-        return np.clip(p, 0.0, 1.0)
-    if method == "isotonic":
-        return np.clip(m.predict(p), 0.0, 1.0)
-    return np.clip(m.predict_proba(p.reshape(-1, 1))[:, 1], 0.0, 1.0)
+        out = np.clip(p, 0.0, 1.0)
+    elif method == "isotonic":
+        out = np.clip(m.predict(p), 0.0, 1.0)
+    else:
+        out = np.clip(m.predict_proba(p.reshape(-1, 1))[:, 1], 0.0, 1.0)
+    ecfg = (cfg or {}).get("evaluate") or {}
+    floor = float(ecfg.get("pd_floor", 0.0))
+    cap = float(ecfg.get("pd_cap", 1.0))
+    return np.clip(out, floor, cap)
 
 
 def _reliability_table(y: np.ndarray, p: np.ndarray, n_bins: int) -> pd.DataFrame:
@@ -231,7 +248,7 @@ def evaluate_all(cfg: dict) -> None:
         for name, col in MODEL_COLS.items():
             rows.append({"model": name, "split": split,
                          **_metric_row(sub["y_true"], sub[col], k_pct)})
-    metrics = pd.DataFrame(rows)[["model", "split"] + METRIC_ORDER]
+    metrics = pd.DataFrame(rows)[["model", "split", *METRIC_ORDER]]
     metrics.to_csv(out_dir / "metrics.csv", index=False, encoding="utf-8-sig")
     log.info("metrics.csv 저장 (%d행: %d모형 × 분할)", len(metrics), len(MODEL_COLS))
 
@@ -249,10 +266,15 @@ def evaluate_all(cfg: dict) -> None:
         method, calibrator = "identity", None
     else:
         calibrator = _fit_calibrator(p_va, y_va, method)
-    p_cal_all = _apply_calibrator(calibrator, preds["p_lgbm"].to_numpy(dtype=float), method)
+    p_cal_all = _apply_calibrator(calibrator, preds["p_lgbm"].to_numpy(dtype=float), method, cfg)
+    _ecfg = cfg.get("evaluate") or {}
+    _floor, _cap = float(_ecfg.get("pd_floor", 0.0)), float(_ecfg.get("pd_cap", 1.0))
+    log.info("PD 상·하한 적용: [%.4g, %.4g] — 하한 도달 %d행 / 상한 도달 %d행 "
+             "(isotonic 양끝 포화 억제, 순위 불변)",
+             _floor, _cap, int((p_cal_all <= _floor).sum()), int((p_cal_all >= _cap).sum()))
     joblib.dump(
         {"method": method, "model": calibrator, "fitted_on": "valid",
-         "n_valid": int(len(va)), "input_col": "p_lgbm"},
+         "n_valid": len(va), "input_col": "p_lgbm"},
         out_dir / "calibrator.joblib",
     )
     # 동률 붕괴 방지 (적대적 리뷰 확정 결함 수정): isotonic 계단으로 보정확률이 소수의
@@ -275,7 +297,7 @@ def evaluate_all(cfg: dict) -> None:
             continue
         cal_rows.append({"model": "lgbm_calibrated", "split": split,
                          **_metric_row(sub["y_true"], sub["p_calibrated"], k_pct)})
-    metrics = pd.concat([metrics, pd.DataFrame(cal_rows)[["model", "split"] + METRIC_ORDER]],
+    metrics = pd.concat([metrics, pd.DataFrame(cal_rows)[["model", "split", *METRIC_ORDER]]],
                         ignore_index=True)
     metrics.to_csv(out_dir / "metrics.csv", index=False, encoding="utf-8-sig")
 
@@ -407,7 +429,7 @@ def evaluate_all(cfg: dict) -> None:
         for name, col in MODEL_COLS.items():
             nb_rows.append({"is_new_brand": flag_val, "model": name,
                             **_metric_row(sub["y_true"], sub[col], k_pct)})
-    nb = pd.DataFrame(nb_rows, columns=["is_new_brand", "model"] + METRIC_ORDER)
+    nb = pd.DataFrame(nb_rows, columns=["is_new_brand", "model", *METRIC_ORDER])
     nb.to_csv(out_dir / "newbrand_split.csv", index=False, encoding="utf-8-sig")
 
     # --- 6) ablation.csv (피처그룹 누적 재학습 - 동일 시간분할) ---------------
@@ -425,6 +447,17 @@ def evaluate_all(cfg: dict) -> None:
     y_all = mm["y_true"].to_numpy()
     ab_params = dict((cfg.get("model") or {}).get("lightgbm") or {})
     ab_params.setdefault("random_state", int(cfg["seed"]))
+    # 본모델이 valid로 선택한 복잡도를 ablation 재학습에도 동일 적용 (리뷰 확정 결함 수정:
+    # 기본 파라미터로 재학습하면 ablation이 출하 모델과 다른 모형을 비교하게 됨)
+    sel_path = out_dir / "split_years.json"
+    if sel_path.exists():
+        try:
+            _sel = json.loads(sel_path.read_text(encoding="utf-8")).get("selected_complexity")
+            if isinstance(_sel, dict) and _sel:
+                ab_params.update(_sel)
+                log.info("ablation: 본모델 선택 복잡도 적용 %s", _sel)
+        except (OSError, json.JSONDecodeError):
+            pass
     ab_params["n_estimators"] = min(300, int(ab_params.get("n_estimators", 300)))  # 소형 재학습
     esr = int((cfg.get("model") or {}).get("early_stopping_rounds", 50))
     ab_metric = "auc" if len(np.unique(y_all[va_m])) > 1 else "binary_logloss"
@@ -443,7 +476,8 @@ def evaluate_all(cfg: dict) -> None:
                 eval_set=[(mm.loc[va_m, cols], y_all[va_m])],
                 eval_metric=ab_metric,
                 # first_metric_only=True: 본모델과 동일하게 auc 기준 조기종료 (리뷰 확정 결함 수정)
-                callbacks=[lgb.early_stopping(esr, first_metric_only=True, verbose=False), lgb.log_evaluation(period=0)],
+                callbacks=[lgb.early_stopping(esr, first_metric_only=True, verbose=False),
+                           lgb.log_evaluation(period=0)],
             )
         p_te = ab_clf.predict_proba(mm.loc[te_m, cols])[:, 1]
         mrow = _metric_row(y_all[te_m], p_te, k_pct)
@@ -496,7 +530,7 @@ def evaluate_all(cfg: dict) -> None:
     print()
     print("=== Baselines vs LightGBM (test split) ===")
     print(disp.to_string())
-    print(f"(test n={n_test}, base_rate={base:.3f}, k=top {int(round(k_pct * 100))}%)")
+    print(f"(test n={n_test}, base_rate={base:.3f}, k=top {round(k_pct * 100)}%)")
     print()
     log.info("evaluate_all 완료 - 산출물 위치: %s", out_dir)
 

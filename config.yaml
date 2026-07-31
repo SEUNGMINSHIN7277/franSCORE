@@ -20,33 +20,13 @@ paths:
 # -----------------------------------------------------------------------------
 collect:
   # data.go.kr 오픈API (serviceKey 필요 — env DATA_GO_KR_KEY)
-  # endpoint 상세는 조사 후 확정하여 아래에 기록 (collect.py가 이 표를 읽음)
-  api_base: "https://apis.data.go.kr/1130000"
+  # ⚠️ 엔드포인트 목록(URL·연도 파라미터명·페이지크기·gzip 여부)은 **코드에 단일 정의**한다:
+  #    src/collect.py 의 SERVICES 딕셔너리 (6종, 전부 실호출로 응답 스키마까지 검증한 값).
+  #    설정과 코드에 같은 표를 이중으로 두면 어긋날 수 있어 여기에는 호출 정책만 남긴다.
   service_key_env: DATA_GO_KR_KEY
-  page_size: 1000
   max_retries: 5
   retry_backoff_sec: 2.0
   timeout_sec: 30
-  apis:
-    brand_sales:        # 15143710 브랜드별 평균매출액·가맹점수
-      dataset_id: "15143710"
-      path: null        # 조사 결과로 채움
-    franchise_status:   # 15110241 가맹점 현황 (신규개점·계약종료·계약해지·명의변경)
-      dataset_id: "15110241"
-      path: null
-    brand_overview:     # 15109828 브랜드 개요
-      dataset_id: "15109828"
-      path: null
-    disclosure_list:    # 15125569 정보공개서 목록
-      dataset_id: "15125569"
-      path: null
-    industry_openclose: # 15110402/15157660 업종 개폐점률 (업종 기준선 전용)
-      dataset_id: "15110402"
-      path: null
-  # 키 없이 내려받는 파일데이터 대안 (조사 결과로 채움)
-  file_fallback:
-    enabled: true
-    files: []
 
 # -----------------------------------------------------------------------------
 # M1 표본 필터 (생존성 진단 후 완화 규칙 적용 가능 — 완화 사용 시 로그에 명시)
@@ -144,6 +124,13 @@ evaluate:
   calibration_min_samples: 300
   n_bins_calibration: 10
   bootstrap_n: 200                # COULD: 신뢰구간
+  # PD 상·하한 — isotonic 보정은 계단함수라 양 끝이 검증표본 경험률로 포화된다
+  # (실측: 정확히 1.000 / 1.4e-08 까지 발생). 1년 악화확률 "100%"·"7천만분의 1"은
+  # 수십 건의 관측이 뒷받침할 수 없는 추정이고 EL 계산까지 과신하게 만든다.
+  # 여신 실무의 PD 하한(바젤 IRB 0.03%) 관행을 따른다. **단조 클립이라 순위는 불변** —
+  # Lift@k·PR-AUC 등 순위 지표는 그대로이고 Brier·EL만 보수화된다.
+  pd_floor: 0.0003
+  pd_cap: 0.99
 
 # -----------------------------------------------------------------------------
 # M4 포트폴리오 (예시 여신 — 합성 exposure임을 화면·문서에 명시)
@@ -164,10 +151,18 @@ portfolio:
 # M4 LLM (뉴스 신호·심사메모) — 점수 미투입 (누출·재현성 원칙)
 # -----------------------------------------------------------------------------
 llm:
-  provider: anthropic
-  api_key_env: ANTHROPIC_API_KEY
-  model: claude-opus-5            # 뉴스 구조화·메모 생성 (⚠️ Opus 5는 temperature 파라미터 미지원)
-  max_tokens: 4000
+  provider: google_gemini
+  api_key_env: GEMINI_API_KEY
+  api_base: "https://generativelanguage.googleapis.com/v1beta"
+  # 모델 고정(pin). 별칭(gemini-flash-latest)은 시점에 따라 실체가 바뀌어 재현성을 해치므로 쓰지 않는다.
+  # 동일 클라이언트로 gemini-2.5-flash / gemini-2.5-pro 호환 확인 — 교체 시 이 한 줄만 바꾸면 된다.
+  model: gemini-3.6-flash
+  max_tokens: 8000                # ⚠️ Gemini는 사고(thinking) 토큰도 이 예산에 포함된다
+  temperature: 0.0                # 재현성 우선 (완전 결정적은 아님 — 산출물은 스냅샷으로 보존)
+  # thinking: {thinkingLevel: low}  # (선택) 모델별 사고 예산 파라미터를 그대로 전달. 기본은 모델 기본값.
+  max_retries: 4                  # 429/5xx 지수 백오프 재시도
+  retry_backoff_sec: 2.0
+  timeout_sec: 90
   news:
     source: google_news_rss       # 키 불필요
     max_articles_per_brand: 8

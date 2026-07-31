@@ -1,4 +1,4 @@
-﻿track,comparison,mean_delta_lift,ci_lo,ci_hi,p_win,n_boot,bootstrap_unit
-primary,lgbm - persistence,0.788414567300985,0.4131307499303038,1.1951303390879702,1.0,200,year_block
-primary,lgbm - single,-0.0293361031345032,-0.2360747142458881,0.2489854873099934,0.26,200,year_block
-primary,lgbm - logistic,-0.0190756679522497,-0.315464048954615,0.4481738771579886,0.505,200,year_block
+﻿track,comparison,mean_delta_lift,ci_lo,ci_hi,p_win,n_boot,metric,bootstrap_unit
+primary,lgbm - persistence,0.7745340318843585,0.6019351938306186,0.9366507936507938,1.0,200,macro_avg_fold_lift_at_10,year_block
+primary,lgbm - single,0.0633796348168897,-0.1830916070131758,0.2904126984126988,0.775,200,macro_avg_fold_lift_at_10,year_block
+primary,lgbm - logistic,0.000932285506795,-0.4332731611162987,0.4029126984126986,0.4,200,macro_avg_fold_lift_at_10,year_block

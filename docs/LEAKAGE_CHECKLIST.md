@@ -1,7 +1,7 @@
 # 시점 누출 점검 체크리스트 (명세 §4.2)
 
 > 각 항목은 **자동 테스트 또는 코드 위치**로 증빙된다. 수동 주장만으로 통과 처리하지 않는다.
-> 실행: `python -m tests.test_sanity` (5/5 통과 필요), `python -m tests.test_llm_paths` (3/3)
+> 실행: `python -m tests.test_sanity` (5/5 통과 필요), `python -m tests.test_llm_paths` (4/4)
 
 ## 1. 라벨 시점 > 피처 시점
 

@@ -18,7 +18,7 @@ import time
 
 import pandas as pd
 
-from src.common import ROOT, get_logger, load_config, make_synthetic_panel, set_seed
+from src.common import get_logger, load_config, make_synthetic_panel, set_seed
 
 log = get_logger("pipeline")
 
@@ -81,7 +81,8 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
             from src import panel as panel_mod
             panel_mod.survival_report(panel, cfg)
         else:
-            from src import entity, panel as panel_mod
+            from src import entity
+            from src import panel as panel_mod
             master = entity.build_master(cfg)
             panel = panel_mod.build_panel(cfg, master)
             panel_mod.survival_report(panel, cfg)
@@ -128,7 +129,6 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
         panel = _load_panel(cfg, demo)
         if preds_path.exists():
             preds = pd.read_parquet(preds_path)
-            test_brands = preds[preds["split"] == "test"]["brand_id"].unique()
             col = "p_calibrated" if "p_calibrated" in preds.columns else "p_lgbm"
             top = (preds[preds["split"] == "test"].sort_values(col, ascending=False)
                    .head(15)["brand_id"].tolist())
@@ -146,7 +146,7 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="FranSCORE pipeline")
-    ap.add_argument("--step", default="all", choices=STEPS + ["all"])
+    ap.add_argument("--step", default="all", choices=[*STEPS, "all"])
     ap.add_argument("--demo", action="store_true", help="합성 패널 스모크 (outputs/_smoke 격리)")
     ap.add_argument("--scope", default="primary", choices=["primary", "extended"],
                     help="primary=명세 표본(외식·점포30+) / extended=플랜B 확장(전업종·점포20+)")
@@ -169,7 +169,7 @@ def main() -> None:
             run_step(s, cfg, args.demo)
         try:
             run_step("news", cfg, args.demo)
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             log.warning("news 스텝 실패 (전체 파이프라인은 유효): %s", e)
     else:
         run_step(args.step, cfg, args.demo)
