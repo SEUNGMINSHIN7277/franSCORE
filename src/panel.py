@@ -71,6 +71,8 @@ def build_panel(cfg: dict, master: pd.DataFrame | None = None) -> pd.DataFrame:
     df = _merge_region_direct(df, cfg)
     # 브랜드 등록취소(자진/직권) 병합 — 하드 실패 신호
     df = _merge_cancel(df, cfg)
+    # 창업금액 병합 — 여신 익스포저 산출의 관측 기반 (합성 난수 대체)
+    df = _merge_startup_cost(df, cfg)
 
     cols = ["brand_id", "id_source", "brand_mnno", "hq_mnno",
             "brand_name", "company_name", "industry_major", "industry_mid",
@@ -96,13 +98,71 @@ def build_panel(cfg: dict, master: pd.DataFrame | None = None) -> pd.DataFrame:
 
 _REGION_COLS = ["n_regions", "region_hhi", "top_region_share", "region_max_stores"]
 
+# 15110265 창업금액 (천원). 여신 익스포저를 **공시 실측값**에서 유도하기 위한 원천.
+_COST_COLS = ["startup_fee", "startup_edu", "startup_deposit", "startup_etc", "startup_total"]
+
+
+def _merge_startup_cost(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
+    """15110265 브랜드별 창업 금액(가맹금·교육비·보증금·기타) 병합. 단위 천원.
+
+    왜 필요한가: 포트폴리오 여신 익스포저를 난수로 만들면 집중도·손실 수치가 전부
+    가정의 산물이 된다. 창업비용은 정보공개서 **필수 공시 항목**이라 브랜드별 실측값이
+    존재하므로, 이것을 여신 규모의 관측 기반으로 삼는다(자세한 산식은 portfolio.py).
+    """
+    for c in _COST_COLS:
+        df[c] = float("nan")
+    try:
+        rows = load_snapshots(cfg, "brand_startup_cost")
+    except Exception:
+        rows = []
+    if not rows:
+        log.warning("brand_startup_cost 스냅샷 없음 — 창업비용 병합 생략(여신 익스포저 근거 약화)")
+        return df
+
+    cs = pd.DataFrame(rows)
+    cs["norm_brand"] = cs["brandNm"].map(normalize_name)
+    cs["norm_corp"] = cs.get("corpNm").map(normalize_name)
+    cs["industry_major"] = cs["indutyLclasNm"].astype(str).str.strip()
+    # 공시연도 → 패널 연도(실적연도) = 공시연도 − 1 : 다른 병합과 동일한 정렬 규칙
+    cs["_yr"] = pd.to_numeric(cs["yr"], errors="coerce") - 1
+    ren = {"jngBzmnJngAmt": "startup_fee", "jngBzmnEduAmt": "startup_edu",
+           "jngBzmnAssrncAmt": "startup_deposit", "jngBzmnEtcAmt": "startup_etc",
+           "smtnAmt": "startup_total"}
+    for src, dst in ren.items():
+        cs[dst] = pd.to_numeric(cs.get(src), errors="coerce")
+    cs = cs.dropna(subset=["_yr"])
+
+    base = df.drop(columns=_COST_COLS)
+    # 1차: 법인명까지 포함한 정확 조인 (동명 브랜드의 금액 오귀속 방지)
+    c1 = cs.groupby(["norm_brand", "norm_corp", "industry_major", "_yr"],
+                    as_index=False)[_COST_COLS].first()
+    merged = base.merge(c1, on=["norm_brand", "norm_corp", "industry_major", "_yr"], how="left")
+    hit1 = merged["startup_total"].notna()
+
+    # 2차 폴백: (브랜드명, 업종, 연도)가 법인 1개로 유일할 때만
+    c2 = (cs.groupby(["norm_brand", "industry_major", "_yr"])
+            .agg(**{c: (c, "first") for c in _COST_COLS}, _n=("norm_corp", "nunique"))
+            .reset_index())
+    c2 = c2[c2["_n"] == 1].drop(columns=["_n"])
+    merged = merged.merge(c2, on=["norm_brand", "industry_major", "_yr"],
+                          how="left", suffixes=("", "_fb"))
+    for c in _COST_COLS:
+        merged[c] = merged[c].fillna(merged[f"{c}_fb"])
+    merged = merged.drop(columns=[f"{c}_fb" for c in _COST_COLS])
+
+    rate = merged["startup_total"].notna().mean()
+    log.info("창업비용 병합률 %.1f%% (1차 정확키 %.1f%%) — 중앙값 %s천원",
+             100 * rate, 100 * hit1.mean(),
+             f"{merged['startup_total'].median():,.0f}" if rate else "-")
+    return merged
+
 # 패널의 '값' 컬럼 (식별자·연도 제외) — 단일 정의.
 # ⚠️ 이 목록은 세 곳이 공유한다: ① build_panel 의 출력 컬럼 순서,
 #    ② common.make_synthetic_panel 이 생성해야 할 컬럼, ③ 시점누출 테스트의 커버리지 검사.
 #    여기에 컬럼을 추가하면 ②도 함께 추가해야 한다 (테스트가 자동으로 잡아낸다).
 PANEL_VALUE_COLS = ["n_stores", "n_direct", *_NUM_COLS[1:],
                     "biz_start_year", "emp_cnt", "exec_cnt",
-                    *_REGION_COLS, "cancel_flag", "cancel_type"]
+                    *_REGION_COLS, "cancel_flag", "cancel_type", *_COST_COLS]
 
 
 def _merge_region_direct(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:

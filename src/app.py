@@ -85,7 +85,24 @@ GRADE_RECO = {
 }
 
 _DISCLAIMER = "본 지표는 2선 리스크 관리 참고용이며 자동 여신 결정에 사용되지 않습니다."
-_SYNTH_WARN = "여신 익스포저는 합성 예시입니다 (방법론 실증용)"
+_EXPOSURE_WARN = {
+    "actual_loan_book": "여신 익스포저: 은행 제공 **실제 여신 데이터**",
+    "disclosed_startup_cost": ("여신 익스포저: 공정위 **공시 창업비용 실측값** 기반 추정 "
+                              "(가맹점수 × 창업비용 × 대출조달비율 × 은행 점유율 — 뒤 두 비율은 가정)"),
+    "synthetic_lognormal": "여신 익스포저는 합성 예시입니다 (방법론 실증용)",
+}
+_SYNTH_WARN = _EXPOSURE_WARN["synthetic_lognormal"]   # 산출물을 읽기 전 기본 문구
+
+
+def exposure_warning(cfg: dict) -> str:
+    """portfolio_summary.json 의 산출 근거에 맞는 고지 문구를 돌려준다."""
+    try:
+        s = json.loads(
+            (Path(cfg["paths"]["outputs"]) / "portfolio_summary.json").read_text(encoding="utf-8"))
+        basis = ((s.get("assumptions") or {}).get("exposure") or {}).get("basis")
+        return _EXPOSURE_WARN.get(basis, _SYNTH_WARN)
+    except (OSError, ValueError, KeyError):
+        return _SYNTH_WARN
 _NEWS_CAPTION = "점수 미반영 · 사실관계 별도 확인 필요"
 
 _EVENT_COLORS = {
@@ -400,8 +417,9 @@ def brand_name_map(panel: pd.DataFrame | None) -> dict[str, str]:
 def render_sidebar(cfg: dict) -> str:
     st.sidebar.title("FranSCORE")
     st.sidebar.caption("프랜차이즈 구조악화 조기경보 · KB AI Challenge 프로토타입")
-    view = st.sidebar.radio("화면 선택", ["① 브랜드 상세", "② 포트폴리오 뷰"])
-    st.sidebar.warning(_SYNTH_WARN)
+    view = st.sidebar.radio("화면 선택",
+                            ["① 브랜드 상세", "② 포트폴리오 뷰", "③ 최신 점검 큐"])
+    st.sidebar.warning(exposure_warning(cfg))
 
     st.sidebar.markdown("### 데이터 상태")
     for key, spec in _ARTIFACTS.items():
@@ -618,7 +636,7 @@ def render_brand_view(cfg: dict) -> None:
                 cols[i].metric(f"스트레스 ({pretty_lgd_label(c)})", f"{v:,.2f} 억원")
                 pf_ctx[f"stress_{c}_eokwon"] = v
                 i += 1
-            st.caption("⚠️ " + _SYNTH_WARN + " · EL = exposure × PD × LGD (LGD 시나리오 3종)")
+            st.caption("⚠️ " + exposure_warning(cfg) + " · EL = exposure × PD × LGD (LGD 시나리오 3종)")
 
     # --- 심사메모 ---
     with st.expander("심사메모 (LLM 생성 — 입력 근거만 인용)"):
@@ -651,8 +669,15 @@ def render_brand_view(cfg: dict) -> None:
                 st.info(f"심사메모 생성에 실패했습니다: {e} — "
                         "memo_llm 모듈/API 키(GEMINI_API_KEY)를 확인하세요.")
         if memo_key in st.session_state:
-            st.markdown(st.session_state[memo_key])
+            memo_text = st.session_state[memo_key]
+            st.markdown(memo_text)
             st.caption(_DISCLAIMER)
+            # 세션에만 두면 창을 닫는 순간 사라져 여신 파일에 첨부할 수 없다 → 내려받기 제공.
+            # 파일명에 타임스탬프를 넣지 않는다 (memo_llm 의 '동일 입력 → 동일 출력' 결정성 유지).
+            st.download_button(
+                "심사메모 내려받기 (.md)", memo_text.encode("utf-8-sig"),
+                file_name=f"franscore_memo_{sel}.md", mime="text/markdown",
+                key=f"memo_dl_{sel}")
 
 
 # ---------------------------------------------------------------------------
@@ -732,7 +757,7 @@ def _render_correlation_panel(cfg: dict) -> None:
 
 def render_portfolio_view(cfg: dict) -> None:
     st.header("② 포트폴리오 뷰")
-    st.caption("⚠️ " + _SYNTH_WARN)
+    st.caption("⚠️ " + exposure_warning(cfg))
 
     pf = load_artifact("portfolio")
     summary = load_artifact("portfolio_summary")
@@ -903,6 +928,11 @@ def render_portfolio_view(cfg: dict) -> None:
     else:
         st.info("스트레스 EL 값을 찾지 못했습니다 (--step portfolio 확인).")
 
+    # --- 내보내기 (심사역이 결과를 반출할 수 있어야 실제로 쓰인다) ---
+    st.download_button(
+        "포트폴리오 전체 CSV 내려받기", dfp.to_csv(index=False).encode("utf-8-sig"),
+        file_name="franscore_portfolio.csv", mime="text/csv")
+
     # --- 브랜드 공통요인 상관: 이 도구의 존재 이유를 화면에서 증명한다 ---
     _render_correlation_panel(cfg)
 
@@ -923,6 +953,82 @@ def render_portfolio_view(cfg: dict) -> None:
                 "완전 시간분할의 test 연도 Lift@10% · Precision@10% · PR-AUC가 핵심 비교 지표입니다.")
 
 
+def render_queue_view(cfg: dict) -> None:
+    """화면 ③ 최신 점검 큐 — 라벨이 아직 없는 **최신 코호트**의 운영 점수.
+
+    화면 ①·②는 라벨이 확정된 과거(test) 기준이라 성능 근거를 보여주는 화면이다.
+    실제 업무에서 심사역이 매일 보는 것은 **가장 최근 공시로 매긴 점수**이므로 분리한다.
+    필터·정렬·내보내기를 여기에 둔다(심사역이 큐를 좁혀 CSV로 반출하는 것이 실제 동선).
+    """
+    st.header("③ 최신 점검 큐")
+    path = Path(cfg["paths"]["outputs"]) / "scores_latest.csv"
+    meta_path = Path(cfg["paths"]["outputs"]) / "scores_latest_meta.json"
+    if not path.exists():
+        st.info("최신 점수가 없습니다 — `python run_pipeline.py --step score` 를 실행하세요.")
+        return
+    df = _read_csv_file(path)
+    meta = _read_json_file(meta_path) if meta_path.exists() else {}
+
+    yr = meta.get("scored_year", "?")
+    st.caption(
+        f"**{yr}년 공시 기준** 자격 브랜드 {len(df):,}개의 사전 점수입니다. "
+        "이 코호트는 아직 라벨이 확정되지 않아 사후 검증이 불가하며, 성능 근거는 "
+        "과거 백테스트(화면 ①·② 및 metrics.csv)에 있습니다. " + _DISCLAIMER)
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("점수 산출 브랜드", f"{len(df):,}")
+    for col, g in zip((c2, c3, c4), ("High", "Medium", "Low"), strict=False):
+        col.metric(f"{g} 등급", f"{int((df['risk_grade'] == g).sum()):,}")
+
+    # ---- 필터 ----
+    st.subheader("필터")
+    f1, f2, f3 = st.columns([2, 2, 2])
+    grades = f1.multiselect("위험등급", ["High", "Medium", "Low"], default=["High"])
+    inds = sorted(df["industry_major"].dropna().astype(str).unique()) \
+        if "industry_major" in df.columns else []
+    picked_ind = f2.multiselect("업종", inds, default=[])
+    max_stores = int(pd.to_numeric(df.get("n_stores"), errors="coerce").fillna(0).max() or 0)
+    min_stores = f3.slider("최소 가맹점 수", 0, max(max_stores, 1), 0, step=10)
+
+    view = df.copy()
+    if grades:
+        view = view[view["risk_grade"].isin(grades)]
+    if picked_ind:
+        view = view[view["industry_major"].astype(str).isin(picked_ind)]
+    if min_stores > 0 and "n_stores" in view.columns:
+        view = view[pd.to_numeric(view["n_stores"], errors="coerce").fillna(0) >= min_stores]
+
+    sort_col = st.selectbox(
+        "정렬 기준", [c for c in ("pd_1y", "n_stores", "pd_rank_pct") if c in view.columns])
+    view = view.sort_values(sort_col, ascending=False)
+    st.caption(f"필터 결과 **{len(view):,}건** (전체 {len(df):,}건 중)")
+
+    show = [c for c in ("brand_name", "industry_major", "industry_mid", "n_stores",
+                        "pd_1y", "risk_grade", "factor1", "factor2", "factor3")
+            if c in view.columns]
+    # 숫자는 문자열로 만들지 않는다 — 문자열이면 표 정렬이 사전순이 되어 조용히 틀린다
+    st.dataframe(
+        view[show].head(300), hide_index=True, width="stretch",
+        column_config={
+            "pd_1y": st.column_config.NumberColumn("악화확률", format="%.1f%%"),
+            "n_stores": st.column_config.NumberColumn("가맹점 수", format="%d"),
+            "brand_name": st.column_config.TextColumn("브랜드"),
+            "factor1": st.column_config.TextColumn("주요 요인 1"),
+            "factor2": st.column_config.TextColumn("주요 요인 2"),
+            "factor3": st.column_config.TextColumn("주요 요인 3"),
+        })
+    if len(view) > 300:
+        st.caption("표에는 상위 300건만 표시합니다 — 전체는 아래 CSV로 받으세요.")
+
+    # ---- 내보내기 ----
+    st.download_button(
+        "필터 결과 CSV 내려받기", view.to_csv(index=False).encode("utf-8-sig"),
+        file_name=f"franscore_queue_{yr}.csv", mime="text/csv")
+    st.download_button(
+        "전체 점수 CSV 내려받기", df.to_csv(index=False).encode("utf-8-sig"),
+        file_name=f"franscore_scores_{yr}.csv", mime="text/csv")
+
+
 # ---------------------------------------------------------------------------
 # 엔트리포인트
 # ---------------------------------------------------------------------------
@@ -934,12 +1040,14 @@ def main() -> None:
 
     view = render_sidebar(cfg)
 
-    st.warning("⚠️ " + _SYNTH_WARN + " — " + _DISCLAIMER)
+    st.warning("⚠️ " + exposure_warning(cfg) + " — " + _DISCLAIMER)
 
     if view.startswith("①"):
         render_brand_view(cfg)
-    else:
+    elif view.startswith("②"):
         render_portfolio_view(cfg)
+    else:
+        render_queue_view(cfg)
 
 
 if __name__ == "__main__":

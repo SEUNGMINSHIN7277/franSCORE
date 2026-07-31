@@ -126,6 +126,11 @@ def make_synthetic_panel(cfg: dict, n_brands: int = 300, years: tuple[int, int] 
             top_share = float(rng.uniform(1.0 / n_regions, min(1.0, 1.0 / n_regions + 0.5)))
             rest = (1.0 - top_share) / (n_regions - 1) if n_regions > 1 else 0.0
             region_hhi = top_share ** 2 + (n_regions - 1) * rest ** 2
+            # 창업비용 (15110265 대응, 천원) — 브랜드 내에서는 완만히 변동
+            startup_fee = float(round(rng.uniform(3_000, 12_000), -2))
+            startup_edu = float(round(rng.uniform(1_000, 6_000), -2))
+            startup_deposit = float(round(rng.uniform(0, 5_000), -2))
+            startup_etc = float(round(rng.uniform(20_000, 150_000), -2))
             # 등록취소 (15125518 대응) — 악화 전환 브랜드의 마지막 연도에 드물게 발생
             cancelled = turn_year is not None and year == y1 and rng.random() < 0.15
             rows.append({
@@ -150,6 +155,12 @@ def make_synthetic_panel(cfg: dict, n_brands: int = 300, years: tuple[int, int] 
                 "region_hhi": float(region_hhi),
                 "top_region_share": float(top_share),
                 "region_max_stores": float(round(n_stores * top_share)),
+                # 창업비용 (천원) — 실패널은 15110265 공시값. 업종·브랜드별로 크게 다르다.
+                "startup_fee": startup_fee,
+                "startup_edu": startup_edu,
+                "startup_deposit": startup_deposit,
+                "startup_etc": startup_etc,
+                "startup_total": startup_fee + startup_edu + startup_deposit + startup_etc,
                 "cancel_flag": 1.0 if cancelled else 0.0,
                 "cancel_type": ("자진취소" if rng.random() < 0.7 else "직권취소") if cancelled else None,
             })

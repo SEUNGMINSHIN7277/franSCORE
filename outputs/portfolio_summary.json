@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-07-31T16:26:17",
+  "generated_at": "2026-07-31T20:04:51",
   "synthetic": true,
   "test_year": 2023,
   "n_brands": 60,
   "pd_column_used": "p_calibrated",
-  "total_exposure_mkrw": 495428.0280776642,
-  "total_exposure_ekw": 4954.280280776642,
+  "total_exposure_mkrw": 66590.91332999998,
+  "total_exposure_ekw": 665.9091332999998,
   "concentration": {
-    "hhi": 0.09104189120097332,
-    "top10_share": 0.6863780052400369,
-    "top1_share": 0.22457681213592431
+    "hhi": 0.06834482620115334,
+    "top10_share": 0.6223428440548168,
+    "top1_share": 0.1505442262117717
   },
   "risk_grades": {
     "high_quantile": 0.9,
@@ -22,38 +22,38 @@
       "High": 6
     },
     "exposure_mkrw": {
-      "High": 15348.706795198254,
-      "Low": 446229.4845353107,
-      "Medium": 33849.83674715536
+      "High": 2421.3616199999997,
+      "Low": 58045.86891,
+      "Medium": 6123.6828
     }
   },
   "expected_loss_scenarios": [
     {
       "lgd": 0.3,
-      "el_mkrw": 6329.321989714952,
-      "el_ekw": 63.29321989714952,
-      "el_pct_of_exposure": 0.01277546208734633,
-      "stress_el_mkrw": 7211.471795426514,
-      "stress_el_ekw": 72.11471795426515,
-      "stress_el_pct_of_exposure": 0.014556043232774128
+      "el_mkrw": 889.1908464213079,
+      "el_ekw": 8.89190846421308,
+      "el_pct_of_exposure": 0.013353035751511717,
+      "stress_el_mkrw": 1027.5341848919618,
+      "stress_el_ekw": 10.275341848919618,
+      "stress_el_pct_of_exposure": 0.015430546504143617
     },
     {
       "lgd": 0.45,
-      "el_mkrw": 9493.982984572425,
-      "el_ekw": 94.93982984572425,
-      "el_pct_of_exposure": 0.01916319313101949,
-      "stress_el_mkrw": 10817.207693139771,
-      "stress_el_ekw": 108.17207693139771,
-      "stress_el_pct_of_exposure": 0.02183406484916119
+      "el_mkrw": 1333.786269631962,
+      "el_ekw": 13.337862696319622,
+      "el_pct_of_exposure": 0.02002955362726758,
+      "stress_el_mkrw": 1541.3012773379426,
+      "stress_el_ekw": 15.413012773379426,
+      "stress_el_pct_of_exposure": 0.023145819756215425
     },
     {
       "lgd": 0.6,
-      "el_mkrw": 12658.643979429904,
-      "el_ekw": 126.58643979429904,
-      "el_pct_of_exposure": 0.02555092417469266,
-      "stress_el_mkrw": 14422.943590853029,
-      "stress_el_ekw": 144.2294359085303,
-      "stress_el_pct_of_exposure": 0.029112086465548255
+      "el_mkrw": 1778.3816928426158,
+      "el_ekw": 17.78381692842616,
+      "el_pct_of_exposure": 0.026706071503023433,
+      "stress_el_mkrw": 2055.0683697839236,
+      "stress_el_ekw": 20.550683697839236,
+      "stress_el_pct_of_exposure": 0.030861093008287235
     }
   ],
   "stress": {
@@ -62,12 +62,20 @@
     "pd_cap": 1.0,
     "n_stressed_brands": 6
   },
-  "headline": "[합성 예시 여신] 2023년 test 브랜드 60개로 구성한 포트폴리오의 총 여신은 4,954억원이며, 중간 시나리오(LGD 45%) 기준 1년 예상손실은 94.9억원(여신의 1.92%), 위험 상위 10% 브랜드 동시 악화 스트레스 시 108.2억원으로 확대됩니다. 상위 10개 브랜드 여신 집중도는 68.6%, HHI는 0.091입니다.",
+  "headline": "[공시 창업비용 기반 추정 여신] 2023년 test 브랜드 60개로 구성한 포트폴리오의 총 여신은 666억원이며, 중간 시나리오(LGD 45%) 기준 1년 예상손실은 13.3억원(여신의 2.00%), 위험 상위 10% 브랜드 동시 악화 스트레스 시 15.4억원으로 확대됩니다. 상위 10개 브랜드 여신 집중도는 62.2%, HHI는 0.068입니다.",
   "assumptions": {
-    "synthetic_exposure": true,
-    "statement_ko": "본 포트폴리오의 여신 exposure는 실제 여신 데이터가 아니라 seed 고정 난수로 합성한 예시값입니다(방법론 실증용 — 자동 여신결정 아님). exposure_i = n_stores_i × 점포당 평균여신(백만원) × LogNormal(0, sigma).",
-    "exposure_scale_per_store_mkrw": 50.0,
-    "exposure_lognorm_sigma": 0.5,
+    "exposure": {
+      "basis": "disclosed_startup_cost",
+      "is_synthetic": false,
+      "startup_cost_observed_brands": 60,
+      "n_brands": 60,
+      "loan_to_startup_cost": 0.6,
+      "bank_share": 0.15,
+      "source_api": "15110265 브랜드별 창업 금액 현황",
+      "assumption_note": "창업비용·가맹점수는 공정위 공시 실측값. 대출조달비율·은행 점유율은 가정(실제 여신은 미공개)."
+    },
+    "synthetic_exposure": false,
+    "statement_ko": "여신 exposure는 **공정위 공시 창업비용(15110265) 실측값**에서 유도했습니다: exposure = 가맹점수 × 브랜드별 창업비용 × 대출조달비율 × 은행 점유율. 창업비용과 가맹점수는 실측이며, 대출조달비율·은행 점유율은 가정입니다 (실제 여신 잔액은 은행 내부 자료로 공개되지 않습니다). 따라서 절대 금액은 시나리오이나, 브랜드 간 상대 규모·집중도는 실제 구조를 반영합니다.",
     "seed": 42,
     "units": {
       "exposure": "백만원(MKRW)",

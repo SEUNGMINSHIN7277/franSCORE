@@ -315,6 +315,11 @@ def test_time_leakage(ctx: dict) -> None:
         "region_hhi":        lambda s: s * 0.5,
         "top_region_share":  lambda s: s * 0.5,
         "region_max_stores": lambda s: s + 23.0,
+        "startup_fee":       lambda s: s * 1.5 + 900.0,
+        "startup_edu":       lambda s: s + 700.0,
+        "startup_deposit":   lambda s: s * 2.0 + 300.0,
+        "startup_etc":       lambda s: s * 0.7 + 1_100.0,
+        "startup_total":     lambda s: s * 1.3 + 2_500.0,
         "cancel_flag":       lambda s: 1.0 - s,
         "cancel_type":       lambda s: "직권취소",
     }

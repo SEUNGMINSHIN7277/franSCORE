@@ -58,6 +58,14 @@ SERVICES: dict[str, dict] = {
         "page_size": 10000,
         "gzip": True,          # 연 18~21만행 → 원본 스냅샷 gzip 보존
     },
+    # 15110265 브랜드별 창업 금액 현황 — 가맹금·교육비·보증금·기타(인테리어 등) 실측 공시.
+    # **여신 익스포저를 합성 난수가 아니라 실제 공시 금액에서 유도**하기 위한 원천.
+    # 단위 천원. smtnAmt = 4개 항목 합계 = 가맹점 1곳 개설에 드는 총 투자액.
+    "brand_startup_cost": {
+        "url": "https://apis.data.go.kr/1130000/FftcBrandFntnStatsService/getBrandFntnStats",
+        "year_param": "yr",
+        "page_size": 3000,
+    },
     # 15125518 브랜드 등록취소 목록 — 자진/직권 취소(하드 실패 신호). 관리번호 없음(명칭 조인).
     "brand_cancel": {
         "url": "https://apis.data.go.kr/1130000/FftcBrandRtrcnInfo2_Service/getbrandRtrcnListinfo",

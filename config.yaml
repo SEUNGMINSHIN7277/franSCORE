@@ -136,9 +136,19 @@ evaluate:
 # M4 포트폴리오 (예시 여신 — 합성 exposure임을 화면·문서에 명시)
 # -----------------------------------------------------------------------------
 portfolio:
-  synthetic: true                 # ⚠️ 실여신 아님 — 방법론 실증용 예시
   n_brands_sampled: 60            # 예측 대상 브랜드 중 예시 포트폴리오 편입 수
-  exposure_scale_per_store_mkrw: 50   # 점포당 평균 여신 5천만원 가정 (백만원 단위)
+  # ── 여신 익스포저 산출 (우선순위: 실제여신 → 공시 창업비용 → 합성) ──
+  # ① 은행 내부에서 돌릴 때: 아래에 CSV 경로만 채우면 실제 여신으로 전환된다.
+  #    필요 컬럼 brand_id(또는 brand_name) + exposure_mkrw [+ n_borrowers]
+  exposure_source: null
+  # ② 기본값 — 공정위 공시 창업비용(15110265) 실측 기반:
+  #      exposure = 가맹점수 × 창업비용 × loan_to_startup_cost × bank_share
+  #    창업비용·가맹점수는 **실측**이고, 아래 두 비율만 가정이다.
+  #    실제 여신 잔액은 은행 내부 자료라 공개 데이터에 존재하지 않는다.
+  loan_to_startup_cost: 0.6       # 창업비용 중 대출로 조달하는 비율 (자기자본 40% 가정)
+  bank_share: 0.15                # 그 대출 중 한 은행이 취급하는 몫 (시중은행 다수 경쟁 가정)
+  # ③ 창업비용 원천이 전혀 없을 때만 쓰는 합성 폴백 파라미터
+  exposure_scale_per_store_mkrw: 50
   exposure_lognorm_sigma: 0.5
   lgd_scenarios: [0.3, 0.45, 0.6] # 손실률(LGD) 시나리오 저/중/고
   stress_top_pct: 0.10            # 스트레스: 위험 상위 10% 동시 악화

@@ -34,6 +34,22 @@ log = get_logger("portfolio")
 
 MKRW_PER_EKW = 100.0  # 1억원 = 100백만원
 
+# 익스포저 산출 근거별 고지 문구 — 화면·요약JSON이 같은 문장을 쓰도록 한 곳에 둔다.
+_EXPOSURE_STATEMENT = {
+    "actual_loan_book": (
+        "여신 exposure는 은행이 제공한 **실제 여신 데이터**입니다 "
+        "(config.portfolio.exposure_source)."),
+    "disclosed_startup_cost": (
+        "여신 exposure는 **공정위 공시 창업비용(15110265) 실측값**에서 유도했습니다: "
+        "exposure = 가맹점수 × 브랜드별 창업비용 × 대출조달비율 × 은행 점유율. "
+        "창업비용과 가맹점수는 실측이며, 대출조달비율·은행 점유율은 가정입니다 "
+        "(실제 여신 잔액은 은행 내부 자료로 공개되지 않습니다). "
+        "따라서 절대 금액은 시나리오이나, 브랜드 간 상대 규모·집중도는 실제 구조를 반영합니다."),
+    "synthetic_lognormal": (
+        "여신 exposure는 실제 데이터가 아니라 seed 고정 난수로 합성한 예시값입니다 "
+        "(창업비용 원천을 찾지 못한 경우의 폴백 — 집중도 수치는 가정의 산물)."),
+}
+
 
 def _to_ekw(mkrw: float) -> float:
     """백만원 → 억원 변환 (표시용)."""
@@ -61,7 +77,10 @@ def _load_store_counts(processed: Path) -> tuple[pd.DataFrame, pd.DataFrame | No
     panel_path = processed / "panel.parquet"
     if panel_path.exists():
         panel = pd.read_parquet(panel_path)
-        stores = panel[["brand_id", "year", "n_stores"]].copy()
+        # startup_total(공시 창업비용)도 함께 가져온다 — 여신 익스포저 산출의 실측 기반
+        keep = ["brand_id", "year", "n_stores"] + (
+            ["startup_total"] if "startup_total" in panel.columns else [])
+        stores = panel[keep].copy()
         meta_cols = [c for c in ["brand_id", "brand_name", "industry_major", "industry_mid"]
                      if c in panel.columns]
         meta = (panel.sort_values(["brand_id", "year"])
@@ -94,7 +113,96 @@ def _attach_store_counts(test: pd.DataFrame, stores: pd.DataFrame) -> tuple[pd.D
                       .groupby("brand_id")["n_stores"].last())
         merged.loc[missing, "n_stores"] = merged.loc[missing, "brand_id"].map(last)
         n_fallback = int(missing.sum() - merged["n_stores"].isna().sum())
+    # 창업비용은 연도별 공시 누락이 흔하므로 브랜드별 최신 관측치로 보완 (과거 정보만 사용)
+    if "startup_total" in merged.columns:
+        miss_c = merged["startup_total"].isna()
+        if miss_c.any() and "startup_total" in stores.columns:
+            last_c = (stores.dropna(subset=["startup_total"])
+                            .sort_values(["brand_id", "year"])
+                            .groupby("brand_id")["startup_total"].last())
+            merged.loc[miss_c, "startup_total"] = merged.loc[miss_c, "brand_id"].map(last_c)
     return merged, n_fallback
+
+
+def _build_exposure(port: pd.DataFrame, cfg: dict, rng) -> tuple[pd.DataFrame, dict]:
+    """브랜드별 여신 익스포저 산출. **실제 여신 > 공시 창업비용 > 합성** 순으로 시도.
+
+    ── 여신 익스포저란 ─────────────────────────────────────────────────────────
+    은행이 그 브랜드의 **가맹점주들에게 빌려준 대출 잔액의 합**이다. 브랜드가 무너지면
+    그 금액이 한꺼번에 부실해질 수 있으므로, 브랜드 단위 집중 리스크의 크기 그 자체다.
+
+    ── 층 ①: 실제 여신 (은행 내부 데이터) ─────────────────────────────────────
+    `config.portfolio.exposure_source` 에 CSV 경로를 주면 그것을 쓴다.
+    필요 컬럼: brand_id(또는 brand_name) + exposure_mkrw [+ n_borrowers]
+    은행 내부에서 돌릴 때는 이 경로만 채우면 나머지 파이프라인이 그대로 동작한다.
+
+    ── 층 ②: 공시 창업비용 기반 추정 (기본값, **실측 기반**) ───────────────────
+    실제 여신은 은행 내부 자료라 공개 데이터에 존재하지 않는다. 그러나 정보공개서는
+    **가맹점 1곳 개설 총 투자액(가맹금+교육비+보증금+기타)을 브랜드별로 공시**한다
+    (15110265, 천원). 이를 관측 기반으로 삼아:
+
+        익스포저 = 가맹점수 × 창업비용(공시 실측) × 대출조달비율 × 은행 점유율
+
+    **창업비용·가맹점수는 실측**이고 뒤의 두 비율만 가정이다. 난수를 쓰지 않으므로
+    브랜드 간 상대 규모(집중도·HHI)가 **실제 업종·브랜드 구조를 반영**한다.
+
+    ── 층 ③: 합성 (원천이 전혀 없을 때만) ─────────────────────────────────────
+    """
+    pcfg = cfg["portfolio"]
+    src = pcfg.get("exposure_source")
+    n = len(port)
+
+    if src:                                        # 층 ①
+        p = Path(src)
+        if not p.is_absolute():
+            p = Path(cfg.get("_root", ".")) / p
+        if p.exists():
+            real = pd.read_csv(p)
+            key = "brand_id" if "brand_id" in real.columns else "brand_name"
+            if key not in port.columns or "exposure_mkrw" not in real.columns:
+                raise ValueError(f"{p}: '{key}' 와 'exposure_mkrw' 컬럼이 필요합니다")
+            cols = [key, "exposure_mkrw"] + (
+                ["n_borrowers"] if "n_borrowers" in real.columns else [])
+            port = port.drop(columns=["exposure_mkrw"], errors="ignore").merge(
+                real[cols].drop_duplicates(key), on=key, how="left")
+            hit = int(port["exposure_mkrw"].notna().sum())
+            port["exposure_mkrw"] = port["exposure_mkrw"].fillna(0.0)
+            log.info("여신 익스포저: **실제 여신 데이터** 사용 (%s, %d/%d 매칭)", p, hit, n)
+            return port, {"basis": "actual_loan_book", "source_file": str(p),
+                          "matched_brands": hit, "is_synthetic": False}
+        log.warning("exposure_source=%s 파일이 없어 공시 창업비용 기반으로 대체", p)
+
+    ltv = float(pcfg.get("loan_to_startup_cost", 0.6))
+    share = float(pcfg.get("bank_share", 0.15))
+    if "startup_total" in port.columns and port["startup_total"].notna().any():   # 층 ②
+        cost = pd.to_numeric(port["startup_total"], errors="coerce")
+        n_hit = int(cost.notna().sum())
+        # 결측은 같은 업종 중앙값 → 없으면 전체 중앙값 (난수 미사용).
+        # 업종 컬럼은 이 시점에 아직 붙지 않았을 수 있으므로 방어적으로 처리한다.
+        if "industry_major" in port.columns:
+            cost = cost.fillna(port.assign(_c=cost)
+                                   .groupby("industry_major")["_c"].transform("median"))
+        cost = cost.fillna(cost.median())
+        stores = pd.to_numeric(port["n_stores"], errors="coerce").fillna(0.0)
+        port["startup_cost_mkrw"] = cost / 1000.0             # 천원 → 백만원
+        port["exposure_mkrw"] = stores * port["startup_cost_mkrw"] * ltv * share
+        log.info("여신 익스포저: **공시 창업비용 기반** (실측 %d/%d 브랜드, 점포당 중앙값 "
+                 "%.1f백만원) × 대출조달비율 %.0f%% × 은행 점유율 %.0f%%",
+                 n_hit, n, float(port["startup_cost_mkrw"].median()), 100 * ltv, 100 * share)
+        return port, {"basis": "disclosed_startup_cost", "is_synthetic": False,
+                      "startup_cost_observed_brands": n_hit, "n_brands": n,
+                      "loan_to_startup_cost": ltv, "bank_share": share,
+                      "source_api": "15110265 브랜드별 창업 금액 현황",
+                      "assumption_note": ("창업비용·가맹점수는 공정위 공시 실측값. "
+                                          "대출조달비율·은행 점유율은 가정(실제 여신은 미공개).")}
+
+    scale = float(pcfg.get("exposure_scale_per_store_mkrw", 50))                 # 층 ③
+    sigma = float(pcfg.get("exposure_lognorm_sigma", 0.5))
+    port["exposure_mkrw"] = (port["n_stores"].to_numpy(dtype=float) * scale
+                             * rng.lognormal(mean=0.0, sigma=sigma, size=n))
+    log.warning("여신 익스포저: 창업비용 원천이 없어 **합성 난수** 사용")
+    return port, {"basis": "synthetic_lognormal", "is_synthetic": True,
+                  "scale_per_store_mkrw": scale, "sigma": sigma}
 
 
 def build_portfolio(cfg: dict) -> None:
@@ -148,17 +256,13 @@ def build_portfolio(cfg: dict) -> None:
     hi_cut = float(np.quantile(test["pd_1y"], float(grades_cfg["high"])))
     med_cut = float(np.quantile(test["pd_1y"], float(grades_cfg["medium"])))
 
-    # ---------------- 4) 예시 포트폴리오 합성 (seed 고정 — ⚠️ 합성 exposure) ----------------
+    # ---------------- 4) 예시 포트폴리오 + 여신 익스포저 ----------------
     rng = np.random.default_rng(cfg["seed"])
     n_sample = min(int(pcfg["n_brands_sampled"]), len(test))
     eligible = test.sort_values("brand_id").reset_index(drop=True)  # 입력 행순서 무관 결정성
     take = np.sort(rng.choice(len(eligible), size=n_sample, replace=False))
     port = eligible.iloc[take].reset_index(drop=True)
-
-    scale = float(pcfg["exposure_scale_per_store_mkrw"])
-    sigma = float(pcfg["exposure_lognorm_sigma"])
-    lognorm = rng.lognormal(mean=0.0, sigma=sigma, size=n_sample)
-    port["exposure_mkrw"] = port["n_stores"].to_numpy(dtype=float) * scale * lognorm
+    port, expo_meta = _build_exposure(port, cfg, rng)
     port["exposure_ekw"] = port["exposure_mkrw"] / MKRW_PER_EKW
 
     total_exposure = float(port["exposure_mkrw"].sum())
@@ -210,23 +314,28 @@ def build_portfolio(cfg: dict) -> None:
         port["brand_name"] = port["brand_id"]
     else:
         port["brand_name"] = port["brand_name"].fillna(port["brand_id"])
-    port["exposure_is_synthetic"] = True  # ⚠️ 합성 exposure 명시 (실여신 아님)
+    # 익스포저의 출처를 행마다 명시 — 실여신/공시추정/합성 중 무엇인지 숨기지 않는다
+    port["exposure_basis"] = expo_meta["basis"]
+    port["exposure_is_synthetic"] = bool(expo_meta.get("is_synthetic", True))
 
     lead = [c for c in ["brand_id", "brand_name", "industry_major", "industry_mid",
                         "year", "n_stores", "pd_1y", "risk_grade",
-                        "exposure_mkrw", "exposure_ekw", "exposure_share",
+                        "startup_cost_mkrw", "exposure_mkrw", "exposure_ekw", "exposure_share",
                         "is_stressed", "pd_stressed"] if c in port.columns]
     rest = [c for c in port.columns if c not in lead]
     port = port[lead + rest].sort_values("exposure_mkrw", ascending=False).reset_index(drop=True)
 
     csv_path = outputs / "portfolio.csv"
-    port.to_csv(csv_path, index=False, encoding="utf-8")
+    port.to_csv(csv_path, index=False, encoding="utf-8-sig")
     log.info("portfolio.csv 저장: %s (%d 브랜드)", csv_path, len(port))
 
     # ---------------- 9) 요약 JSON (헤드라인 + 가정 명세) ----------------
     mid = el_rows[len(el_rows) // 2]  # 중간 LGD 시나리오를 헤드라인에 사용
+    basis_tag = {"actual_loan_book": "[실제 여신]",
+                 "disclosed_startup_cost": "[공시 창업비용 기반 추정 여신]",
+                 "synthetic_lognormal": "[합성 예시 여신]"}.get(expo_meta["basis"], "[여신]")
     headline = (
-        f"[합성 예시 여신] {test_year}년 test 브랜드 {len(port)}개로 구성한 포트폴리오의 "
+        f"{basis_tag} {test_year}년 test 브랜드 {len(port)}개로 구성한 포트폴리오의 "
         f"총 여신은 {_to_ekw(total_exposure):,.0f}억원이며, "
         f"중간 시나리오(LGD {mid['lgd']:.0%}) 기준 1년 예상손실은 "
         f"{mid['el_ekw']:,.1f}억원(여신의 {mid['el_pct_of_exposure']:.2%}), "
@@ -267,13 +376,10 @@ def build_portfolio(cfg: dict) -> None:
         },
         "headline": headline,
         "assumptions": {
-            "synthetic_exposure": True,
-            "statement_ko": (
-                "본 포트폴리오의 여신 exposure는 실제 여신 데이터가 아니라 seed 고정 난수로 "
-                "합성한 예시값입니다(방법론 실증용 — 자동 여신결정 아님). "
-                "exposure_i = n_stores_i × 점포당 평균여신(백만원) × LogNormal(0, sigma)."),
-            "exposure_scale_per_store_mkrw": scale,
-            "exposure_lognorm_sigma": sigma,
+            "exposure": expo_meta,
+            "synthetic_exposure": bool(expo_meta.get("is_synthetic", True)),
+            "statement_ko": _EXPOSURE_STATEMENT.get(
+                expo_meta["basis"], "여신 exposure 산출 근거 미상"),
             "seed": int(cfg["seed"]),
             "units": {"exposure": "백만원(MKRW)", "display": "억원 = 백만원 / 100"},
             "pd_definition": (
