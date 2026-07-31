@@ -67,6 +67,11 @@ def need(label: str, value: str, *doc_keys: str) -> None:
         print(f"  [OK  ] {label:46s} '{value}'  ({', '.join(doc_keys)})")
 
 
+def _checked_inc() -> None:
+    global _checked
+    _checked += 1
+
+
 def info(label: str, value: object) -> None:
     print(f"  [INFO] {label:46s} {value}")
 
@@ -151,7 +156,54 @@ def main() -> int:
     need("HHI", f"{s['concentration']['hhi']:.3f}", "README", "IMPL")
     need("High 등급 브랜드 수", f"{int(s['risk_grades']['counts']['High'])}/60", "IMPL")
 
-    head("⑦ 폐기 표기 잔존 검사")
+    head("⑦ 브랜드 공통요인 상관 (전제 검증)")
+    bc = json.loads((OUT / "brand_correlation.json").read_text(encoding="utf-8"))
+    dec = bc["decomposition"]
+    need("상관 통제없음", f"{dec['no_control']['rho_asset']:.3f}", "README")
+    need("상관 연도통제", f"{dec['year_controlled']['rho_asset']:.3f}", "README")
+    need("상관 연도+업종통제(headline)", f"{bc['rho_asset']:.3f}", "README", "IMPL")
+    need("상관 95% CI", f"[{bc['rho_asset_ci_lo']:.3f}, {bc['rho_asset_ci_hi']:.3f}]", "README")
+    need("분석 브랜드-연도", thou(bc["n_brand_years"]), "README")
+    need("분석 지역쌍", thou(bc["n_region_pairs"]), "README")
+    need("전지역 동시감소 실측", f"{100 * bc['all_regions_decline_observed']:.2f}%", "README")
+    need("전지역 동시감소 배수", f"{bc['all_regions_decline_ratio']:.1f}배", "README")
+
+    btw = bc["between_brand"]
+    need("브랜드 간 상관 rho_B", f"{btw['rho_between']:.3f}", "README")
+    need("rho_B CI", f"[{btw['rho_between_ci_lo']:.3f}, {btw['rho_between_ci_hi']:.3f}]", "README")
+
+    ci_ = json.loads((OUT / "correlation_impact.json").read_text(encoding="utf-8"))
+    need("차주(가맹점) 수", thou(ci_["n_franchisees"]), "README")
+    for lvl, _lab in (("p95", "95%"), ("p99", "99%"), ("p999", "99.9%")):
+        need(f"{lvl} 독립가정 손실(억)", f"{ci_[f'independent_{lvl}_mkrw'] / 100:.1f}", "README")
+        need(f"{lvl} 상관반영 손실(억)", f"{ci_[f'brand_correlated_{lvl}_mkrw'] / 100:.1f}", "README")
+        need(f"{lvl} 과소추정(억)", f"{ci_[f'understatement_{lvl}_mkrw'] / 100:.1f}", "README")
+    need("UL99 배수", f"{ci_['ul99_multiple']:.2f}배", "README")
+    need("UL99 독립(억)", f"{ci_['independent_ul99_mkrw'] / 100:.1f}", "README")
+    need("UL99 상관(억)", f"{ci_['brand_correlated_ul99_mkrw'] / 100:.1f}", "README")
+
+    head("⑦-2 폐기값 잔존 검사 (같은 자리에 옛 수치가 남아 있는가)")
+    # need() 는 '정답이 문서에 있는가'만 본다 — 옛 값이 함께 남아 있어도 통과한다.
+    # 실제로 이 사각지대 때문에 헤드라인에 옛 수치가 남는 사고가 있었다(자체 감사 검출).
+    # 그래서 '같은 패턴에 매칭되는 다른 값'이 남아 있으면 실패시킨다.
+    import re as _re
+    for label, pattern, truth in (
+        ("과소추정 억원", r"과소추정\**\s*\+?([\d,]+\.\d)억",
+         f"{ci_['understatement_p99_mkrw'] / 100:.1f}"),
+        ("몬테카를로 횟수", r"몬테카를로\s*(\d+)만\s*회", str(ci_["n_sims"] // 10000)),
+        ("UL 배수", r"([\d.]+)배\*{0,2}다", f"{ci_['ul99_multiple']:.2f}"),
+    ):
+        txt = _txt("README")
+        found = set(_re.findall(pattern, txt))
+        stale = {v for v in found if v.replace(",", "") != truth}
+        _checked_inc()
+        if stale:
+            _fails.append(f"{label}: 폐기값 {sorted(stale)} 이 README에 남아 있음 (정답 {truth})")
+            print(f"  [STALE] {label:28s} 잔존 {sorted(stale)} (정답 {truth})")
+        else:
+            print(f"  [OK  ] {label:28s} 정답 '{truth}' 외 다른 값 없음")
+
+    head("⑧ 폐기 표기 잔존 검사")
     for token, why in STALE:
         hits = [k for k, p in DOCS.items() if token in p.read_text(encoding="utf-8")]
         if hits:

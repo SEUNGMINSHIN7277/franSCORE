@@ -297,6 +297,29 @@ def evaluate_all(cfg: dict) -> None:
             continue
         cal_rows.append({"model": "lgbm_calibrated", "split": split,
                          **_metric_row(sub["y_true"], sub["p_calibrated"], k_pct)})
+
+    # ⚠️ **공정 비교**: 기준모형에도 *완전히 동일한* 보정 절차를 적용한 행을 함께 낸다.
+    #    (적대적 감사 확정 지적) LightGBM만 보정해 놓고 "Brier 최우수"라고 하면 불공정하다 —
+    #    기준모형의 원점수는 애초에 확률로 해석되도록 만들어진 값이 아니기 때문이다.
+    #    같은 valid로 같은 방법(isotonic/sigmoid)을 적합해 붙인 뒤 비교해야 주장이 성립한다.
+    #    결과가 불리해지더라도 그대로 공개한다.
+    for name, col in MODEL_COLS.items():
+        if name == "lgbm":
+            continue
+        if calibrator is None or len(va) == 0 or len(np.unique(y_va)) < 2:
+            continue
+        cal_b = _fit_calibrator(va[col].to_numpy(dtype=float), y_va, method)
+        p_b = _apply_calibrator(cal_b, preds[col].to_numpy(dtype=float), method, cfg)
+        tb = preds[col].rank(method="first").to_numpy(dtype=float)
+        p_b = np.clip(p_b + tb / max(len(tb), 1) * 1e-5, 0.0, 1.0)
+        for split in ("train", "valid", "test"):
+            m = (preds["split"] == split).to_numpy()
+            if not m.any():
+                continue
+            cal_rows.append({"model": f"{name}_calibrated", "split": split,
+                             **_metric_row(preds.loc[m, "y_true"], p_b[m], k_pct)})
+    log.info("공정 비교: 기준모형 3종에도 동일 보정(%s, valid 적합) 적용해 비교 행 추가", method)
+
     metrics = pd.concat([metrics, pd.DataFrame(cal_rows)[["model", "split", *METRIC_ORDER]]],
                         ignore_index=True)
     metrics.to_csv(out_dir / "metrics.csv", index=False, encoding="utf-8-sig")

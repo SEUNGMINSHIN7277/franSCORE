@@ -3,7 +3,7 @@
 사용법 (프로젝트 루트에서):
     python run_pipeline.py --step all            # M1→M2→M3→M4 전체
     python run_pipeline.py --step collect        # 개별 스텝
-    python run_pipeline.py --step panel|features|labels|model|evaluate|portfolio|news
+    python run_pipeline.py --step panel|features|labels|model|evaluate|portfolio|correlation|news
     python run_pipeline.py --step all --demo     # 합성 패널 스모크 (outputs/_smoke 격리)
 
 각 스텝은 파일 기반 중간 산출물로 독립 실행 가능하다.
@@ -22,7 +22,8 @@ from src.common import get_logger, load_config, make_synthetic_panel, set_seed
 
 log = get_logger("pipeline")
 
-STEPS = ["collect", "panel", "features", "labels", "model", "evaluate", "portfolio", "news"]
+STEPS = ["collect", "panel", "features", "labels", "model", "evaluate", "portfolio",
+         "correlation", "news"]
 
 
 def _extended_cfg(cfg: dict) -> dict:
@@ -122,6 +123,14 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
     elif step == "portfolio":
         from src import portfolio
         portfolio.build_portfolio(cfg)
+
+    elif step == "correlation":
+        # 브랜드 공통요인 상관 실증 (portfolio 이후 — 손실 영향 계산에 exposure·PD가 필요)
+        if demo:
+            log.info("demo 모드에서는 상관 실증 생략 (지역 원본 스냅샷 필요)")
+            return
+        from src import correlation
+        correlation.run(cfg)
 
     elif step == "news":
         from src import news_llm

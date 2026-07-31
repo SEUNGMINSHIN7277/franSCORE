@@ -489,12 +489,96 @@ def test_portfolio(ctx: dict) -> None:
 # 러너
 # ---------------------------------------------------------------------------
 
+def test_correlation_math(ctx: dict) -> None:
+    """브랜드 공통요인 상관 추정기의 **수학적 정확성**을 알려진 정답으로 검증한다.
+
+    이 모듈은 "브랜드 상관이 실재한다"는 프로젝트의 핵심 주장을 떠받치므로,
+    추정기가 맞다는 것을 실데이터가 아니라 **정답을 아는 합성 데이터**로 증명한다.
+      ① 자산상관 역산 왕복: ρ를 정해 Φ₂로 p11을 만들고 되돌려 ρ를 복원
+      ② 독립 데이터 → ρ ≈ 0 (거짓 양성이 나오지 않는가)
+      ③ 상관 데이터 → 심어둔 ρ를 복원 (검정력이 있는가)
+      ④ 층화가 공통충격을 실제로 제거하는가 (연도 효과만 있고 브랜드 효과 0인 데이터)
+    """
+    from scipy.stats import multivariate_normal, norm
+
+    from src import correlation as corr
+
+    # ① 역산 왕복
+    for p_true, rho_true in ((0.10, 0.15), (0.40, 0.42), (0.25, 0.05)):
+        thr = norm.ppf(p_true)
+        p11 = float(multivariate_normal.cdf([thr, thr], mean=[0.0, 0.0],
+                                            cov=[[1.0, rho_true], [rho_true, 1.0]]))
+        back = corr.asset_correlation(p_true, p11)
+        assert abs(back - rho_true) < 1e-3, \
+            f"자산상관 역산 오차: 참값 {rho_true} → 복원 {back:.5f}"
+    print("    (1) 자산상관 역산 왕복: 3개 조건에서 오차 <1e-3 확인")
+
+    rng = np.random.default_rng(0)
+    R, n_brands, years = 12, 900, [2020, 2021, 2022]
+
+    def synth(rho: float, year_shift: dict | None = None) -> pd.DataFrame:
+        """단일요인 모형으로 (브랜드×연도×지역) 감소 사건 생성."""
+        rows = []
+        for b in range(n_brands):
+            for y in years:
+                base = 0.40 + (year_shift or {}).get(y, 0.0)
+                thr = norm.ppf(base)
+                z = rng.standard_normal()
+                e = rng.standard_normal(R)
+                x = np.sqrt(rho) * z + np.sqrt(1.0 - rho) * e
+                k = int((x < thr).sum())
+                rows.append({"brand_mnno": f"B{b:04d}", "year": y, "R": R, "k": k,
+                             "stores": R * 5.0, "industry": "외식"})
+        return pd.DataFrame(rows).set_index(["brand_mnno", "year"])
+
+    # ② 독립 → ρ ≈ 0 (거짓 양성 없음)
+    r0 = corr.stratified_rho(synth(1e-9), ["year", "industry"])
+    assert abs(r0["rho_asset"]) < 0.03, f"독립 데이터인데 상관이 검출됨: {r0['rho_asset']:.4f}"
+    print(f"    (2) 독립 데이터: 자산상관 {r0['rho_asset']:.4f} ≈ 0 (거짓 양성 없음)")
+
+    # ③ 상관 심기 → 복원
+    rho_planted = 0.30
+    r1 = corr.stratified_rho(synth(rho_planted), ["year", "industry"])
+    assert abs(r1["rho_asset"] - rho_planted) < 0.05, \
+        f"심어둔 상관 {rho_planted} 복원 실패: {r1['rho_asset']:.4f}"
+    print(f"    (3) 상관 {rho_planted} 심음 → 복원 {r1['rho_asset']:.4f} (오차 <0.05)")
+
+    # ④ 연도 공통충격만 있고 브랜드 효과 0 → 층화가 그것을 제거해야 한다
+    shocked = synth(1e-9, year_shift={2020: -0.18, 2021: 0.0, 2022: +0.18})
+    naive = corr.stratified_rho(shocked, None)["rho_asset"]
+    controlled = corr.stratified_rho(shocked, ["year", "industry"])["rho_asset"]
+    assert naive > controlled + 0.02, \
+        f"연도 충격이 통제 전후로 차이를 만들지 않음 (naive {naive:.4f} / 통제 {controlled:.4f})"
+    assert abs(controlled) < 0.03, \
+        f"연도 통제 후에도 상관이 남음 — 층화가 공통충격을 못 걷어냄: {controlled:.4f}"
+    print(f"    (4) 연도 공통충격만 존재: 통제전 {naive:.4f} → 통제후 {controlled:.4f} "
+          f"(층화가 거시요인을 제거함)")
+
+    # ⑤ 손실 시뮬레이션 재현성 + 단조성 — 같은 입력이면 같은 결과여야 하고,
+    #    상관이 커지면 꼬리손실은 반드시 커져야 한다(모형이 옳다면 수학적으로 보장됨).
+    thr = norm.ppf(np.array([0.05, 0.10, 0.02, 0.20, 0.08]))
+    expo = np.array([100.0, 300.0, 50.0, 800.0, 200.0])
+    a1 = corr._simulate_losses([0.0, 0.4], thr, expo, 0.45, 20_000, seed=7)
+    a2 = corr._simulate_losses([0.0, 0.4], thr, expo, 0.45, 20_000, seed=7)
+    assert np.array_equal(a1[0.0], a2[0.0]) and np.array_equal(a1[0.4], a2[0.4]), \
+        "손실 시뮬레이션이 같은 seed에서 재현되지 않음 (재현성 원칙 위반)"
+    assert abs(a1[0.0].mean() - a1[0.4].mean()) / a1[0.0].mean() < 0.05, \
+        "상관은 기대손실을 바꾸면 안 된다 (꼬리만 두꺼워져야 함)"
+    q99_indep = float(np.quantile(a1[0.0], 0.99))
+    q99_corr = float(np.quantile(a1[0.4], 0.99))
+    assert q99_corr > q99_indep, \
+        f"상관을 넣었는데 꼬리손실이 커지지 않음 ({q99_corr:.1f} vs {q99_indep:.1f})"
+    print(f"    (5) 손실 시뮬레이션: 동일 seed 재현 확인 · EL 불변 · "
+          f"99% 손실 {q99_indep:.0f}→{q99_corr:.0f} (상관이 꼬리만 두껍게 함)")
+
+
 TESTS = [
     ("label_rules", test_label_rules),
     ("time_leakage", test_time_leakage),
     ("time_split", test_time_split),
     ("predictions_schema", test_predictions_schema),
     ("portfolio_sanity", test_portfolio),
+    ("correlation_math", test_correlation_math),
 ]
 
 

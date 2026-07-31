@@ -659,6 +659,77 @@ def render_brand_view(cfg: dict) -> None:
 # 화면 2 — 포트폴리오 뷰
 # ---------------------------------------------------------------------------
 
+def _render_correlation_panel(cfg: dict) -> None:
+    """브랜드 공통요인 상관 실증 결과 — '왜 브랜드 단위로 봐야 하나'의 근거를 화면에 노출.
+
+    산출물만 만들고 화면에 띄우지 않으면 심사역이 볼 수 없다(= 쓰이지 않는 분석).
+    """
+    out_dir = Path(cfg["paths"]["outputs"])
+    cpath, ipath = out_dir / "brand_correlation.json", out_dir / "correlation_impact.json"
+    if not (cpath.exists() and ipath.exists()):
+        st.info("브랜드 상관 실증 결과가 없습니다 — `python run_pipeline.py --step correlation` 실행.")
+        return
+    try:
+        bc = json.loads(cpath.read_text(encoding="utf-8"))
+        ci = json.loads(ipath.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        st.warning(f"상관 실증 산출물을 읽지 못했습니다: {exc}")
+        return
+
+    st.subheader("브랜드 공통요인 상관 — 왜 '브랜드 단위'로 봐야 하는가")
+    st.caption(
+        "한 브랜드의 점포는 여러 시도에 흩어져 있고 시도마다 상권·경기가 다릅니다. "
+        "점포 감소가 지역별로 독립이면 입지 요인, 여러 지역에서 동시에 일어나면 브랜드 요인입니다. "
+        f"브랜드-연도 {bc['n_brand_years']:,}개 · 지역쌍 {bc['n_region_pairs']:,}개 실측."
+    )
+    lo, hi = bc.get("basel_corporate_R", [0.12, 0.24])
+    c1, c2, c3 = st.columns(3)
+    c1.metric("브랜드 고유 자산상관 ρ", f"{bc['rho_asset']:.3f}",
+              help=f"연도·업종 통제 후. 95% CI [{bc['rho_asset_ci_lo']:.3f}, "
+                   f"{bc['rho_asset_ci_hi']:.3f}] (브랜드 블록 부트스트랩)")
+    c2.metric("바젤 IRB 기업여신 가정 대비", f"{bc['rho_asset'] / hi:.1f}~{bc['rho_asset'] / lo:.1f}배",
+              help=f"바젤이 기업여신에 가정하는 자산상관 {lo:.0%}~{hi:.0%} 대비")
+    c3.metric("전 지역 동시감소", f"{bc['all_regions_decline_ratio']:.1f}배",
+              help=f"실측 {100 * bc['all_regions_decline_observed']:.2f}% vs "
+                   f"지역 독립 가정 {100 * bc['all_regions_decline_if_independent']:.3f}%")
+
+    dec = bc.get("decomposition") or {}
+    if dec:
+        labels = {"no_control": "통제 없음", "year_controlled": "연도(거시) 통제",
+                  "year_industry_controlled": "연도+업종 통제 = 브랜드 고유"}
+        rows = [{"통제 수준": labels.get(k, k), "자산상관 ρ": round(v["rho_asset"], 4)}
+                for k, v in dec.items() if k in labels]
+        st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+        st.caption("거시·업종을 걷어내도 상관이 거의 그대로입니다 → 브랜드 자체가 공통 요인입니다.")
+
+    btw = bc.get("between_brand") or {}
+    if btw.get("rho_between") is not None:
+        st.caption(
+            f"반면 **브랜드 사이**의 상관은 ρ_B={btw['rho_between']:.3f} 로 거의 0입니다"
+            f"(연도별 악화율이 안정적 — 거시 공통요인 미검출). "
+            f"즉 위험은 경기가 아니라 **브랜드에** 있습니다."
+        )
+    st.markdown(
+        f"**브랜드를 무시했을 때의 손실 과소추정** — 차주(가맹점) 단위 2단계 요인 모형, "
+        f"{ci.get('n_franchisees', 0):,}개 차주 · 몬테카를로 {ci.get('n_sims', 0) // 10000}만 회"
+    )
+    imp = []
+    for lvl, nm in (("p95", "95%"), ("p99", "99%"), ("p999", "99.9%")):
+        imp.append({
+            "신뢰수준": nm,
+            "차주 독립 가정 (억원)": round(ci[f"independent_{lvl}_mkrw"] / 100, 1),
+            "브랜드 상관 반영 (억원)": round(ci[f"brand_correlated_{lvl}_mkrw"] / 100, 1),
+            "과소추정 (억원)": round(ci[f"understatement_{lvl}_mkrw"] / 100, 1),
+            "과소추정률": f"{100 * ci[f'understatement_{lvl}_pct']:.1f}%",
+        })
+    st.dataframe(pd.DataFrame(imp), hide_index=True, width="stretch")
+    st.caption(
+        f"비예상손실(자본 소요분) 기준 {ci['ul99_multiple']:.2f}배. "
+        "⚠️ 관측 단위는 '지역 내 가맹점 수 감소'이지 차주 부도가 아니므로 ρ는 대리지표이며, "
+        "exposure는 합성 예시입니다 — 절대 금액이 아니라 **독립 가정 대비 배수**가 메시지입니다."
+    )
+
+
 def render_portfolio_view(cfg: dict) -> None:
     st.header("② 포트폴리오 뷰")
     st.caption("⚠️ " + _SYNTH_WARN)
@@ -831,6 +902,9 @@ def render_portfolio_view(cfg: dict) -> None:
         st.caption(f"스트레스: 위험 상위 {top_pct:.0%} 브랜드 PD × {mult} (cap 1.0) 동시 악화 가정")
     else:
         st.info("스트레스 EL 값을 찾지 못했습니다 (--step portfolio 확인).")
+
+    # --- 브랜드 공통요인 상관: 이 도구의 존재 이유를 화면에서 증명한다 ---
+    _render_correlation_panel(cfg)
 
     # --- 가정 명세 ---
     if isinstance(summary, dict):
