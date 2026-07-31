@@ -337,7 +337,7 @@ LightGBM의 풀링 Lift(2.150)가 **모든 개별 fold 값(2.62 / 2.25 / 2.50)�
 ### 5.1 LLM 뉴스 신호
 - Google News RSS(키 불필요, 발행일 포함) → `data/raw/news/` 스냅샷.
 - 엔티티 매칭 필터(일반명사·부분문자 오염 제거) — RAG 코퍼스에도 동일 규칙 적용.
-- **Google Gemini(`gemini-3.6-flash`) structured 추출** `{사건유형, 발생시점, 근거문장, 신뢰도}` —
+- **Google Gemini(`gemini-2.5-flash`) structured 추출** `{사건유형, 발생시점, 근거문장, 신뢰도}` —
   `responseSchema` 로 출력 형태를 강제(모델이 자유 텍스트를 섞을 수 없음)하고, 그 위에 **코드가
   다시 검증**한다(기사 인덱스 범위·enum 소속 재확인 — 스키마를 통과해도 인덱스는 틀릴 수 있다).
 - 공용 클라이언트 `src/llm.py` 가 실패 경로를 유형별로 분리한다:

@@ -189,6 +189,9 @@ class Ctx:
     hist: pd.DataFrame                  # 대상연도까지의 이력 (연도 오름차순)
     ind: dict                           # 업종 벤치마크 (같은 연도·업종그룹)
     industry_label: str
+    # 전 연도 벤치마크. 해마다 공시되지 않는 항목(창업비용 등)을 과거 값으로 볼 때
+    # **그 값의 연도 분포**와 비교해야 하므로 전체를 들고 있는다.
+    bench: dict = field(default_factory=dict)
     hq: pd.DataFrame | None = None      # 본부 재무 (fiscal_year 오름차순, ≤ year-1)
     hq_company: str = ""
     demand: dict | None = None          # 네이버 검색어트렌드 요약
@@ -224,17 +227,6 @@ def _decline_streak(series: Iterable[float | None]) -> int:
             break
         n += 1
     return n
-
-
-def _churn_rate(ctx: Ctx) -> float | None:
-    """기초 점포 대비 계약종료+해지 비율."""
-    prev = ctx.prev()
-    base = ctx.g("n_stores", prev) if prev is not None else None
-    if base is None or base <= 0:
-        return None
-    end = ctx.g("n_contract_end") or 0.0
-    cancel = ctx.g("n_contract_cancel") or 0.0
-    return (end + cancel) / base
 
 
 # ---------------------------------------------------------------------------
@@ -611,14 +603,32 @@ def r_young_brand(ctx: Ctx) -> Finding | None:
 
 
 def r_startup_cost_high(ctx: Ctx) -> Finding | None:
-    total = ctx.g("startup_total")
-    fn = ctx.ind.get("startup_pct_of")
-    if total is None or total <= 0 or fn is None:
+    """창업비용이 업종 대비 과다한가.
+
+    ⚠️ 창업비용 공시는 해마다 나오지 않는다 — 실측으로 **2024년은 전 브랜드 결측**이었다.
+       대상연도만 보면 이 규칙은 영원히 발동하지 않는다(적대적 감사에서 적발).
+       창업비용은 해마다 크게 바뀌지 않는 구조적 속성이므로, **대상연도 이하에서
+       가장 최근에 공시된 값**을 쓰고 그 값의 연도를 문장에 명시한다.
+       비교 분포도 같은 연도의 것을 써야 사과를 사과와 비교한 것이 된다.
+    """
+    hist = ctx.hist[ctx.hist["startup_total"].notna()]
+    hist = hist[pd.to_numeric(hist["startup_total"], errors="coerce") > 0]
+    if hist.empty:
+        return None
+    row = hist.iloc[-1]
+    total, src_year = _num(row["startup_total"]), int(row["year"])
+    if total is None:
+        return None
+    ind = ctx.ind if src_year == ctx.year else ctx.bench.get(
+        (src_year, ctx.industry_label), {})
+    fn = ind.get("startup_pct_of")
+    if fn is None:
         return None
     p = fn(total)
     if p is None or p < 0.85:
         return None
-    med = ctx.ind.get("startup_median")
+    med = ind.get("startup_median")
+    lead = f"{src_year}년 공시 기준 " if src_year != ctx.year else ""
     sales = ctx.g("avg_sales")
     payback = ""
     if sales and sales > 0:
@@ -627,12 +637,13 @@ def r_startup_cost_high(ctx: Ctx) -> Finding | None:
     return Finding(
         code="STARTUP_COST_HIGH", category="구조", severity="Low", direction="risk",
         title="창업비용이 업종 대비 높습니다",
-        detail=(f"창업비용 합계 {won(total)}는 {ctx.industry_label} 업종 "
-                f"{_rank_word(p)} 수준입니다"
+        detail=(f"{lead}창업비용 합계 {won(total)}{josa(won(total))} "
+                f"{ctx.industry_label} 업종 {_rank_word(p)} 수준입니다"
                 + (f" (업종 중간값 {won(med)})." if med is not None else ".")
                 + payback),
-        source=f"공정거래위원회 정보공개서 {ctx.year}",
-        evidence={"startup_total": total, "pctile": p, "industry_median": med})
+        source=f"공정거래위원회 정보공개서 {src_year}",
+        evidence={"startup_total": total, "pctile": p, "industry_median": med,
+                  "source_year": src_year})
 
 
 def r_registration_cancelled(ctx: Ctx) -> Finding | None:
@@ -1332,7 +1343,7 @@ def diagnose_cohort(cfg: dict, scores: pd.DataFrame, panel: pd.DataFrame,
         ctx = Ctx(
             brand_id=bid, brand_name=str(s.get("brand_name") or cur.get("brand_name") or bid),
             year=year, cur=cur, hist=hist, ind=ind,
-            industry_label=str(ind.get("label") or grp),
+            industry_label=str(ind.get("label") or grp), bench=bench,
             hq=_hq_frame(hq_all, norm_corp(company), year), hq_company=company,
             demand=(demand or {}).get(bid), news=(news or {}).get(bid))
         findings = run_rules(ctx)

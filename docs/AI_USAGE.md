@@ -86,7 +86,7 @@
 - **비고 (개발 도구 AI ≠ 산출물 내부 AI — 구분해서 읽어주십시오):**
   - **개발에 사용한 AI**는 위 표대로 Claude Code(Claude Fable 5 / Opus 5)다.
   - **산출물 자체에 런타임 구성요소로 탑재된 LLM**은 **Google Gemini
-    (`gemini-3.6-flash`, Generative Language API v1beta)** 다 — 뉴스 신호 구조화 추출과
+    (`gemini-2.5-flash`, Generative Language API v1beta)** 다 — 뉴스 신호 구조화 추출과
     심사메모 생성에 실제로 호출된다(`src/llm.py` 공용 클라이언트, 실키로 라이브 검증 완료).
   - LLM 층은 **폴백 우선 설계**다. 키 미설정·안전정책 차단·토큰 절단·네트워크 장애 시
     규칙기반/결정적 템플릿으로 자동 전환하고 산출물에 `llm_used=false` 로 정직하게 표기한다.

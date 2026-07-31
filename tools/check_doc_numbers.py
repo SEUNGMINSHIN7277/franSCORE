@@ -45,6 +45,11 @@ STALE: list[tuple[str, str]] = [
     ("anthropic SDK", "Gemini는 SDK 없이 REST 호출"),
     ("모의 Anthropic", "테스트는 HTTP 경계 모의로 변경"),
     ("walkforward_pooled_oos", "워크포워드 주 지표는 macro_avg_folds"),
+    # 실제로 호출하는 모델은 config.yaml 의 llm.model (gemini-2.5-flash) 이다.
+    # 문서에만 다른 이름이 남으면 '쓰지 않는 모델을 썼다'고 적는 셈이라 잡아낸다.
+    ("gemini-3.6", "실제 호출 모델은 config.yaml llm.model 값"),
+    ("src/ui.py", "화면 코드는 src/views/ 로 분리됨"),
+    ("모델 근거", "해당 화면은 AI 상담으로 대체됨"),
 ]
 
 _fails: list[str] = []

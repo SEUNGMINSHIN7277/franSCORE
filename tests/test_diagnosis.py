@@ -186,6 +186,44 @@ def test_score_spread() -> None:
           f"최다 중복 {worst}개 · 상위10 모두 구분됨")
 
 
+def test_no_dormant_rules() -> None:
+    """선언만 하고 **한 번도 발동하지 않는 규칙**이 없는가.
+
+    적대적 감사에서 STARTUP_COST_HIGH 가 적발됐다 — 대상연도(2024)의 창업비용이
+    전 브랜드 결측이라 규칙이 원리상 발동할 수 없었는데도 코드에는 남아 있었다.
+    '있는 척하는 기능'을 자동으로 잡아내기 위해 실제 발동 여부를 검사한다.
+
+    검색수요 규칙 4종은 네이버 자격증명이 있어야 데이터가 생기므로, 키가 없을 때는
+    미발동이 정상이다. 그 경우만 예외로 두되 **몇 개가 왜 잠들어 있는지 출력**한다.
+    """
+    cfg = load_config()
+    fp = Path(cfg["paths"]["outputs"]) / "brand_diagnosis.parquet"
+    if not fp.exists():
+        print("    (건너뜀 — 진단 산출물 없음)")
+        return
+    fired = set(pd.read_parquet(fp)["code"])
+
+    declared: set[str] = set()
+    for fn in D.RULES:
+        for c in fn.__code__.co_consts:
+            if isinstance(c, str) and c.isupper() and "_" in c and len(c) > 4:
+                declared.add(c)
+                break
+
+    from src import naver
+    demand_codes = {"DEMAND_DECLINE", "DEMAND_UNDERPERFORM",
+                    "CATEGORY_DECLINE", "DEMAND_GROWTH"}
+    excused = set() if naver.is_enabled(cfg) else demand_codes
+
+    dormant = sorted(declared - fired - excused)
+    assert not dormant, (
+        f"한 번도 발동하지 않는 규칙 {len(dormant)}개: {dormant} — "
+        "데이터가 없어 원리상 발동 불가한 규칙이 코드에 남아 있다")
+    zzz = sorted(declared & excused - fired)
+    print(f"    선언 {len(declared)}종 · 발동 {len(declared & fired)}종"
+          + (f" · 키 대기 {len(zzz)}종 {zzz}" if zzz else " · 전부 발동"))
+
+
 TESTS = [
     ("smoothing_properties", test_smoothing_properties),
     ("smoothing_tiebreak", test_smoothing_survives_tiebreak_noise),
@@ -194,6 +232,7 @@ TESTS = [
     ("findings_match_source", test_findings_match_source_data),
     ("findings_brand_specific", test_findings_are_brand_specific),
     ("score_spread", test_score_spread),
+    ("no_dormant_rules", test_no_dormant_rules),
 ]
 
 

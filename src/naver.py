@@ -1,4 +1,4 @@
-"""네이버 오픈API — 검색어트렌드(수요)·뉴스·지역검색.
+"""네이버 오픈API — 검색어트렌드(수요)·뉴스·로고.
 
 왜 검색어트렌드인가
     공시는 1년에 한 번, 그것도 이듬해에 나온다. 가맹점 수가 줄었다는 사실을 은행이
@@ -12,7 +12,6 @@
 API (developers.naver.com 애플리케이션 자격증명 — 무료, 일 25,000회)
     검색어트렌드  POST https://openapi.naver.com/v1/datalab/search
     뉴스 검색     GET  https://openapi.naver.com/v1/search/news.json
-    지역 검색     GET  https://openapi.naver.com/v1/search/local.json
     헤더 X-Naver-Client-Id / X-Naver-Client-Secret
 
 정직성
@@ -45,7 +44,6 @@ SECRET_ENV = "NAVER_CLIENT_SECRET"
 
 _DATALAB_URL = "https://openapi.naver.com/v1/datalab/search"
 _NEWS_URL = "https://openapi.naver.com/v1/search/news.json"
-_LOCAL_URL = "https://openapi.naver.com/v1/search/local.json"
 
 # 데이터랩 제약 (공식 문서): keywordGroups 최대 5개, 그룹당 keywords 최대 20개
 MAX_GROUPS = 5
@@ -325,16 +323,6 @@ def brand_logo(brand_name: str, cfg: dict | None = None) -> str:
         if ratio > best_score:
             best, best_score = str(it.get("thumbnail") or it.get("link") or ""), ratio
     return best
-
-
-def local_places(query: str, cfg: dict | None = None, display: int = 5) -> list[dict]:
-    """지역 검색 — 실제 영업 중인 점포가 검색에 잡히는지 확인용."""
-    data = _request("GET", _LOCAL_URL, cfg, headers=_headers(cfg),
-                    params={"query": query, "display": min(int(display), 5)})
-    return [{"name": _clean(it.get("title")), "category": it.get("category", ""),
-             "address": it.get("roadAddress") or it.get("address", ""),
-             "link": it.get("link", "")}
-            for it in data.get("items", [])]
 
 
 # ---------------------------------------------------------------------------

@@ -1,10 +1,10 @@
 {
   "year": 2024,
   "n_brands": 1442,
-  "n_findings": 8763,
-  "avg_findings_per_brand": 6.08,
-  "distinct_headlines": 37,
-  "distinct_finding_sets": 908,
+  "n_findings": 8948,
+  "avg_findings_per_brand": 6.21,
+  "distinct_headlines": 38,
+  "distinct_finding_sets": 978,
   "findings_by_code": {
     "HQ_NO_DATA": 1269,
     "STORE_DECLINE": 827,
@@ -22,6 +22,7 @@
     "SALES_DECLINE_STREAK": 298,
     "STORE_GROWTH": 292,
     "REGION_SHRINK": 203,
+    "STARTUP_COST_HIGH": 185,
     "NEW_OPEN_STALL": 142,
     "HQ_SOLID": 78,
     "REGION_CONCENTRATION": 51,
@@ -38,6 +39,6 @@
   },
   "demand_covered": 0,
   "news_covered": 7,
-  "hq_covered": 1429,
+  "hq_covered": 1431,
   "note": "소견은 규칙 기반이며 각 문장의 수치는 해당 브랜드 공시·감사보고서 실측값이다. watch_score = pd_component(백테스트 검증 모델 순위) + rule_component(규칙 가산)."
 }

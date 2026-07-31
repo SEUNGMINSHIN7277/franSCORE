@@ -229,12 +229,16 @@ python run_both_tracks.py
 # RAG 코퍼스·색인 구축 (심사메모 근거 검색)
 python -m src.rag
 
-# 대시보드
+# 브랜드별 진단 소견 (공시·본부재무·검색수요·보도 → 문장 소견 + 감시점수)
+python run_pipeline.py --step diagnose
+
+# 서비스 화면
 streamlit run src/app.py
 
 # 테스트
-python -m tests.test_sanity        # 5/5 (라벨규칙·시점누출·시간분할·스키마·포트폴리오)
-python -m tests.test_llm_paths     # 4/4 (LLM 클라이언트·실경로·RAG — 모의 HTTP, 키 불필요)
+python tests/test_sanity.py        # 6/6 (라벨규칙·시점누출·시간분할·스키마·포트폴리오·상관)
+python tests/test_diagnosis.py     # 7/7 (계단보간·조사·규칙성분·소견 사실성·브랜드 변별)
+python tests/test_llm_paths.py     # 4/4 (LLM 클라이언트·실경로·RAG — 모의 HTTP, 키 불필요)
 
 # 린트 (규칙·버전 고정 — ruff.toml / requirements-dev.txt)
 pip install -r requirements-dev.txt && python -m ruff check .    # 기대: All checks passed!
@@ -247,7 +251,7 @@ pip install -r requirements-dev.txt && python -m ruff check .    # 기대: All c
 - `data/raw/` 스냅샷 포함(대용량은 gzip) → **API 키 없이 전체 지표 재현 가능**.
   수집 재실행 시에만 `DATA_GO_KR_KEY` 필요 (data.go.kr 개발계정 자동승인).
 - LLM 기능(뉴스 신호 구조화·심사메모)은 `GEMINI_API_KEY` 설정 시
-  **Google Gemini(`gemini-3.6-flash`)** 로 동작 — `python check_keys.py --llm` 으로 즉시 진단 가능.
+  **Google Gemini(`gemini-2.5-flash`)** 로 동작 — `python check_keys.py --llm` 으로 즉시 진단 가능.
   없으면 규칙기반 폴백으로 자동 전환(화면·로그에 `llm_used=false`, 폴백 건수까지 명시).
   **키 없이도 LLM 실제 코드 경로는 모의 HTTP 테스트로 검증됨**(`tests/test_llm_paths.py`).
 - 합성 데이터 스모크: `python run_pipeline.py --step all --demo` (산출물 `outputs/_smoke/` 격리)
@@ -265,13 +269,70 @@ franscore/
 │  └─ extended/           # 확장 표본 트랙 산출물 (격리)
 ├─ src/
 │  ├─ collect.py entity.py panel.py        # M1 수집·관리번호 정합·패널
-│  ├─ features.py labels.py                # M2 피처(35)·라벨 (시점누출 자동검증)
+│  ├─ dart.py ifrmp.py naver.py            # M1.5 본부재무(DART)·정보공개서·네이버(수요/뉴스)
+│  ├─ features.py labels.py                # M2 피처(49)·라벨 (시점누출 자동검증)
 │  ├─ model.py evaluate.py backtest.py     # M3 학습·기준모형3종·지표·보정·SHAP·워크포워드
-│  ├─ news_llm.py portfolio.py memo_llm.py rag.py  # M4 뉴스·원화손실·심사메모·RAG
-│  └─ app.py                               # M5 Streamlit 대시보드 (2화면)
-├─ tests/                 # sanity 5종 + LLM/RAG 경로 3종
-└─ docs/                  # INTERFACES · IMPLEMENTATION · LEAKAGE_CHECKLIST · AI_USAGE
+│  ├─ score.py diagnosis.py                # M3.5 최신 코호트 점수 + 브랜드별 진단 소견(규칙 34종)
+│  ├─ news_llm.py portfolio.py memo_llm.py rag.py chat.py  # M4 뉴스·원화손실·심사메모·RAG·상담
+│  ├─ theme.py                             # KB 디자인 시스템 (색·타이포·차트 템플릿)
+│  ├─ app.py                               # M5 서비스 셸 (테마 + 좌측 내비 + 라우팅)
+│  └─ views/                               # 화면 5종
+│     ├─ overview.py                       #   한눈에 보기 — 현황·우선 점검 대상
+│     ├─ brand.py                          #   브랜드 조회 — 자동완성·진단소견·추이·본부재무·수요
+│     ├─ queue.py                          #   점검 큐 — 배정·처리상태·확인 메모
+│     ├─ portfolio.py                      #   여신 포트폴리오 — 실행/회수 반영 즉시 재계산
+│     └─ assistant.py                      #   AI 상담 — 자연어 질의 + 근거 인용
+├─ tests/                 # sanity 6종 + 진단 7종 + LLM/RAG 4종
+├─ docs/                  # INTERFACES · IMPLEMENTATION · LEAKAGE_CHECKLIST · AI_USAGE
+└─ DEPLOY.md              # 웹 배포 절차 (Streamlit Cloud / HF Spaces / 사내망)
 ```
+
+## 서비스 화면
+
+심사역이 실제로 쓰는 화면입니다. **개발 근거(산출물 존재 여부·하이퍼파라미터·백테스트
+지표표)는 이 화면에 두지 않습니다** — 그것은 이 README 와 `docs/`, `outputs/` 의 몫입니다.
+
+| 화면 | 하는 일 |
+|---|---|
+| 한눈에 보기 | 전체 현황과 **지금 봐야 할 브랜드 8개**. 각 브랜드에 그 브랜드의 수치로 쓴 진단 문장이 붙는다 |
+| 브랜드 조회 | 한 글자만 쳐도 후보가 뜨는 검색. 진단 소견 · 공시 추이 · 가맹본부 재무 · 검색 수요를 탭으로 |
+| 점검 큐 | 담당자 배정 → 처리상태 → 확인 메모. 엑셀·CSV 반출 |
+| 여신 포트폴리오 | 여신 실행·회수를 입력하면 총여신·쏠림(HHI)·집중도·예상손실이 **즉시 재계산**. 브랜드·업종 한도 초과 경고 |
+| AI 상담 | "인생냉면 창업 고민 중인데 분석해줘" 같은 자연어 질의 → 공시·감사보고서·뉴스에서 근거를 찾아 답변 |
+
+디자인은 KB국민은행 운영 사이트에서 **실측한 값**을 씁니다 — 시그니처 `#FFCC00`,
+웜 그레이 텍스트 `#4E473F`·보더 `#EAE5DF`. 차트는 전부 같은 팔레트의 Plotly 템플릿입니다.
+
+### 브랜드별 진단 소견 (`src/diagnosis.py`)
+
+구버전 화면은 위험 근거를 SHAP 피처명 3개로 보여줬습니다. 피처명이 18종뿐이라
+**상위 브랜드의 설명이 전부 같았고**, 숫자가 없어 심사 소견으로 쓸 수 없었습니다.
+
+지금은 규칙 34종이 공시 이력·본부 재무·검색수요·보도를 훑어 그 브랜드의 실제 수치로
+문장을 만듭니다. 업종 벤치마크(같은 연도·업종그룹 분위수)를 함께 넣어 비교 가능하게 합니다.
+
+> 2024년에 계약이 끝난 가맹점이 82개로, 연초 점포의 58.6%입니다.
+> 한식 업종 상위 8%에 해당합니다. 업종 중간값은 4.6%입니다.
+
+실측: **1,442개 브랜드 · 소견 8,763건 · 브랜드당 6.1건 · 서로 다른 소견조합 908종.**
+
+감시점수는 `pd_component`(백테스트로 검증된 모델 순위)와 `rule_component`(규칙 정책)를
+**산출물에 분리 기록**합니다. 어디까지가 검증된 부분인지 드러나야 하기 때문입니다.
+규칙 성분은 카테고리별로 체감 합산합니다 — 단순 합산은 '계약종료율 높음'·'중도해지 많음'·
+'순유출' 처럼 한 사실을 세 각도에서 말한 소견이 겹쳐 +126점까지 치솟아
+검증된 모델 성분(최대 100)을 압도했습니다.
+
+### 확률 계단 제거
+
+isotonic 보정은 계단 함수라 **2,510개 중 216개가 42.86%(=3/7)로 같은 확률**을 달고
+있었습니다. 화면에서 이것은 "모델이 브랜드를 구분하지 못한다"로 읽힙니다.
+계단 내부를 원점수 순위로 **대칭 분산**해 폈습니다 — 계단 평균을 정확히 보존하므로
+보정 품질이 유지됩니다.
+
+| test 분할 (n=740) | 서로 다른 값 | 평균확률 | ECE | Lift@10 | 순위상관 |
+|---|---|---|---|---|---|
+| isotonic 계단 | 17 | 0.10071 | 0.03612 | 2.667 | — |
+| **보간 후** | **511** | **0.10071** | **0.03612** | **2.667** | **1.000000** |
 
 ## 데이터 출처 (공개·무료·개인정보 0)
 
