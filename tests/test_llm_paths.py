@@ -345,6 +345,20 @@ def test_memo_llm_path(cfg: dict) -> str:
         b = memo_llm.generate_memo(context, cfg, force_fallback=True)
         assert a == b, "폴백 메모가 결정적이지 않음 (재현성 위반)"
         print("    (5) 폴백 결정성: 동일 입력 → 동일 출력 확인")
+
+        # (6) **환각 검증** — 입력에 없는 수치를 지어내면 잡아내는가
+        #     프롬프트로 지시만 하고 검증하지 않으면 보증이 아니다.
+        clean = memo_llm.check_faithfulness(
+            "가맹점 수 57개, 평균매출 115,552천원, 확률 31.0%", context)
+        assert clean["ok"], f"입력에 있는 수치인데 환각으로 오탐: {clean['unsupported']}"
+        halluc = memo_llm.check_faithfulness(
+            "가맹점 수 57개이며 부채비율은 412.7%, 영업이익률 -18.3%로 악화됐다", context)
+        assert not halluc["ok"], "입력에 없는 수치(412.7·18.3)를 잡아내지 못함"
+        assert "412.7" in halluc["unsupported"], f"미검출: {halluc['unsupported']}"
+        MockTransport.install(_ok("부채비율 412.7%로 급등했습니다."))
+        memo6 = memo_llm.generate_memo(context, cfg)
+        assert "자동 근거 검증 경고" in memo6, "환각 수치가 경고 없이 메모에 실림"
+        print(f"    (6) 환각 검증: 정상 통과 + 지어낸 수치 {halluc['unsupported']} 검출·경고 부착 확인")
     finally:
         os.environ.pop(env, None)
     return PASS

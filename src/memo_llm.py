@@ -14,6 +14,7 @@ INTERFACES.md §4 (memo_llm.generate_memo) 구현.
 from __future__ import annotations
 
 import json
+import re
 
 from src import llm
 from src.common import get_logger, load_config
@@ -181,6 +182,58 @@ def _fallback_memo(context: dict) -> str:
     return "\n".join(L)
 
 
+_NUM_RE = re.compile(r"\d[\d,]*(?:\.\d+)?")
+
+
+def _context_numbers(context: dict) -> set[float]:
+    """입력 근거에 등장하는 수치 집합 (환각 검증의 기준선)."""
+    text = json.dumps(context, ensure_ascii=False, default=str)
+    out: set[float] = set()
+    for tok in _NUM_RE.findall(text):
+        try:
+            out.add(float(tok.replace(",", "")))
+        except ValueError:
+            continue
+    return out
+
+
+def check_faithfulness(memo: str, context: dict) -> dict:
+    """메모에 등장하는 수치가 **입력 근거에서 유래했는지** 검증한다 (환각 탐지).
+
+    왜 필요한가 (자체 감사 critical 지적):
+        기존에는 "입력 근거만 인용하라"고 **프롬프트로 지시만** 하고, 출력 검증은 고지문
+        문자열 포함 여부 한 줄이 전부였다. 즉 모델이 없는 수치를 지어내도 그대로 통과했다.
+        지시는 보증이 아니다 — 검증해야 보증이다.
+
+    판정 규칙 (오탐을 줄이기 위한 관용):
+      · 입력에 있는 값과 **반올림 허용 범위 내**로 일치하면 근거 있음
+      · 확률 0.137 → "13.7%" 같은 **×100 / ÷100 표현 변환**도 근거 있음으로 인정
+      · 목록 번호·연도(1900~2100)·한 자리 수는 검사 대상에서 제외(문장 구조상 불가피)
+    반환: {n_checked, n_unsupported, unsupported: [...], ok: bool}
+    """
+    ctx = _context_numbers(context)
+    scaled = {v * 100 for v in ctx} | {v / 100 for v in ctx}
+    unsupported: list[str] = []
+    checked = 0
+    for tok in _NUM_RE.findall(memo):
+        raw = tok.replace(",", "")
+        try:
+            v = float(raw)
+        except ValueError:
+            continue
+        if len(raw.replace(".", "").lstrip("0")) <= 1:      # 한 자리 → 목록 번호 등
+            continue
+        if 1900 <= v <= 2100 and "." not in raw:            # 연도
+            continue
+        checked += 1
+        tol = max(abs(v) * 1e-3, 5e-4)
+        if any(abs(v - c) <= tol for c in ctx) or any(abs(v - c) <= tol for c in scaled):
+            continue
+        unsupported.append(tok)
+    return {"n_checked": checked, "n_unsupported": len(unsupported),
+            "unsupported": unsupported[:20], "ok": not unsupported}
+
+
 def generate_memo(context: dict, cfg: dict, force_fallback: bool = False) -> str:
     """context → 마크다운 심사메모 문자열.
 
@@ -227,6 +280,19 @@ def generate_memo(context: dict, cfg: dict, force_fallback: bool = False) -> str
     # 필수 문구 안전장치: 모델이 빠뜨려도 고지 없이 나가는 일이 없도록 강제 부착
     if DISCLAIMER not in text:
         text += f"\n\n> ⚠️ **{DISCLAIMER}.**"
+
+    # 환각 검증: 입력 근거에 없는 수치가 섞였는지 확인하고 **화면에 그대로 알린다**.
+    # 조용히 통과시키면 심사역이 지어낸 숫자를 사실로 읽는다.
+    faith = check_faithfulness(text, context)
+    if not faith["ok"]:
+        log.warning("메모 환각 의심: 입력 근거에 없는 수치 %d개 %s",
+                    faith["n_unsupported"], faith["unsupported"])
+        text += ("\n\n> 🔎 **자동 근거 검증 경고** — 이 메모에서 입력 근거와 대조되지 않는 "
+                 f"수치 {faith['n_unsupported']}개를 발견했습니다: "
+                 f"`{', '.join(faith['unsupported'])}`. 해당 수치는 인용하지 마시고 "
+                 "원자료로 직접 확인하십시오.")
+    else:
+        log.info("메모 환각 검증 통과: 수치 %d개 전부 입력 근거와 대조됨", faith["n_checked"])
     # 각주는 실제 응답이 보고한 모델 버전을 쓴다 (설정값과 다를 수 있음 — 별칭·자동 승급 대비)
     text += f"\n\n---\n각주: LLM 생성 (모델: {meta['model']}, 입력 근거 한정)"
     log.info("메모 생성: LLM 사용 (model=%s, %d자)", meta["model"], len(text))

@@ -23,7 +23,7 @@ from src.common import get_logger, load_config, make_synthetic_panel, set_seed
 log = get_logger("pipeline")
 
 STEPS = ["collect", "panel", "features", "labels", "model", "evaluate", "portfolio",
-         "correlation", "news"]
+         "score", "correlation", "news", "eval_llm"]
 
 
 def _extended_cfg(cfg: dict) -> dict:
@@ -124,6 +124,16 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
         from src import portfolio
         portfolio.build_portfolio(cfg)
 
+    elif step == "eval_llm":
+        # LLM이 규칙기반보다 실제로 나은지 정량 측정 (정답셋 대조)
+        from src import eval_llm
+        eval_llm.run(cfg)
+
+    elif step == "score":
+        # 운영 점수 산출 — 라벨이 아직 없는 최신 코호트 (학습 없이 산출물만 사용)
+        from src import score
+        score.score_latest(cfg)
+
     elif step == "correlation":
         # 브랜드 공통요인 상관 실증 (portfolio 이후 — 손실 영향 계산에 exposure·PD가 필요)
         if demo:
@@ -134,17 +144,12 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
 
     elif step == "news":
         from src import news_llm
-        preds_path = cfg["paths"]["processed"] / "predictions.parquet"
-        panel = _load_panel(cfg, demo)
-        if preds_path.exists():
-            preds = pd.read_parquet(preds_path)
-            col = "p_calibrated" if "p_calibrated" in preds.columns else "p_lgbm"
-            top = (preds[preds["split"] == "test"].sort_values(col, ascending=False)
-                   .head(15)["brand_id"].tolist())
-            names = (panel[panel["brand_id"].isin(top)][["brand_id", "brand_name"]]
-                     .drop_duplicates("brand_id")["brand_name"].tolist())
-        else:
-            names = panel["brand_name"].drop_duplicates().head(10).tolist()
+        if demo:
+            # --demo 는 합성 스모크다. 실제 RSS를 때리고 git 추적 대상 data/raw/news 를
+            # 오염시키면 안 된다(감사 지적 — 격리 약속이 깨져 있었다).
+            log.info("demo 모드에서는 뉴스 수집 생략 (실제 RSS·스냅샷 오염 방지)")
+            return
+        names = news_llm.select_brands(cfg)
         news_llm.run_news(names, cfg)
 
     else:

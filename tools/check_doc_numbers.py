@@ -182,6 +182,28 @@ def main() -> int:
     need("UL99 독립(억)", f"{ci_['independent_ul99_mkrw'] / 100:.1f}", "README")
     need("UL99 상관(억)", f"{ci_['brand_correlated_ul99_mkrw'] / 100:.1f}", "README")
 
+    head("⑦-3 LLM 정량 평가 (규칙기반 대비)")
+    ep = OUT / "llm_eval.json"
+    if not ep.exists():
+        print("  [SKIP] llm_eval.json 없음 — `--step eval_llm` 실행 필요")
+    else:
+        ev = json.loads(ep.read_text(encoding="utf-8"))
+        if not ev.get("llm_evaluated"):
+            _fails.append(f"LLM 평가가 무효 상태다: {ev.get('llm_invalidated_reason')}")
+            print(f"  [FAIL] LLM 지표 무효 — {ev.get('llm_invalidated_reason')}")
+        else:
+            for scope in ("real", "synthetic", "all"):
+                if scope not in ev:
+                    continue
+                for who in ("rules", "llm"):
+                    m = ev[scope][who]
+                    need(f"{scope}/{who} 정확도", f"{m['accuracy']:.3f}", "README")
+                    need(f"{scope}/{who} macro-F1", f"{m['macro_f1']:.3f}", "README")
+                    need(f"{scope}/{who} 위험F1", f"{m['risk_f1']:.3f}", "README")
+            need("평가 대상 실수집 건수", f"{ev['real']['rules']['n']}건", "README")
+            need("평가 프로브 건수", f"{ev['synthetic']['rules']['n']}건", "README")
+            info("평가 모델", ev.get("model"))
+
     head("⑦-2 폐기값 잔존 검사 (같은 자리에 옛 수치가 남아 있는가)")
     # need() 는 '정답이 문서에 있는가'만 본다 — 옛 값이 함께 남아 있어도 통과한다.
     # 실제로 이 사각지대 때문에 헤드라인에 옛 수치가 남는 사고가 있었다(자체 감사 검출).

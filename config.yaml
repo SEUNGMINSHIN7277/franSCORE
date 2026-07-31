@@ -155,17 +155,26 @@ llm:
   api_key_env: GEMINI_API_KEY
   api_base: "https://generativelanguage.googleapis.com/v1beta"
   # 모델 고정(pin). 별칭(gemini-flash-latest)은 시점에 따라 실체가 바뀌어 재현성을 해치므로 쓰지 않는다.
-  # 동일 클라이언트로 gemini-2.5-flash / gemini-2.5-pro 호환 확인 — 교체 시 이 한 줄만 바꾸면 된다.
-  model: gemini-3.6-flash
+  # **정량 평가를 통과한 모델을 그대로 운영에 쓴다** — outputs/llm_eval.json 이 이 모델로
+  # 측정한 결과다(정확도 0.966 / 위험 재현율 1.000, 규칙기반 0.475 대비).
+  # gemini-3.6-flash 도 동일 클라이언트로 동작하나 무료 등급 일일 쿼터가 빨리 소진돼
+  # 평가를 완주하지 못했다. 측정하지 않은 모델을 운영에 쓰지 않는다는 원칙에 따라 2.5-flash 고정.
+  model: gemini-2.5-flash
   max_tokens: 8000                # ⚠️ Gemini는 사고(thinking) 토큰도 이 예산에 포함된다
   temperature: 0.0                # 재현성 우선 (완전 결정적은 아님 — 산출물은 스냅샷으로 보존)
   # thinking: {thinkingLevel: low}  # (선택) 모델별 사고 예산 파라미터를 그대로 전달. 기본은 모델 기본값.
-  max_retries: 4                  # 429/5xx 지수 백오프 재시도
-  retry_backoff_sec: 2.0
+  max_retries: 6                  # 429/5xx 지수 백오프 재시도 (무료 등급 분당 한도 대응)
+  retry_backoff_sec: 4.0
   timeout_sec: 90
+  eval_pace_sec: 8.0              # 평가 시 브랜드 배치 간 대기 — 분당 요청 한도 회피
   news:
     source: google_news_rss       # 키 불필요
     max_articles_per_brand: 8
     query_suffixes: ["가맹점", "본사 분쟁", "폐점", "가맹 갈등"]
     cache_dir: data/raw/news      # 스냅샷 보존
+    max_age_months: 24            # 시의성 — 이보다 오래된 기사는 조기경보로 쓰지 않는다
+    # 뉴스 수집 대상 선정 하한. 위험 상위만 고르면 영세·무명 브랜드가 뽑혀 언론 보도 자체가
+    # 없다(실측: 262건 중 위험 이벤트 0건). 조기경보가 성립하려면 '보도가 존재할 규모'와
+    # '위험이 높음'을 함께 만족해야 한다.
+    min_stores_for_news: 100
   score_injection: false          # ⚠️ 뉴스 신호는 모델 점수에 미반영 (화면 표시 전용)
