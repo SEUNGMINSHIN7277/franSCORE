@@ -463,6 +463,9 @@ def evaluate_all(cfg: dict) -> None:
         ("lvl+chg", ["f_lvl_", "f_chg_"]),
         ("lvl+chg+trd", ["f_lvl_", "f_chg_", "f_trd_"]),
         ("lvl+chg+trd+ind+struct", ["f_lvl_", "f_chg_", "f_trd_", "f_ind_", "f_struct_"]),
+        # 본부 재무(f_hq_)를 **마지막 단계로 분리**해야 이 층이 실제로 기여했는지가 보인다.
+        # 함께 묶으면 "추가했는데 성능은 그대로"인 경우를 숨기게 된다.
+        ("전체(+본부재무)", ["f_lvl_", "f_chg_", "f_trd_", "f_ind_", "f_struct_", "f_hq_"]),
     ]
     tr_m = (mm["split"] == "train").to_numpy()
     va_m = (mm["split"] == "valid").to_numpy()

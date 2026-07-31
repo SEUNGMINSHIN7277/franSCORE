@@ -31,6 +31,7 @@ import numpy as np
 import pandas as pd
 
 from src.common import get_logger, load_config, make_synthetic_panel, set_seed
+from src.dart import norm_corp
 from src.labels import compute_derived_metrics
 
 log = get_logger("features")
@@ -48,8 +49,136 @@ def _slope(a: np.ndarray) -> float:
     return float(np.polyfit(x, a[m], 1)[0])
 
 
-def build_features(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
-    """계약 §2: [brand_id, year] + f_* 컬럼 반환. (brand, t) 행은 t 이하 연도만 사용."""
+# 가맹본부 재무에서 파생 피처를 만들 때 쓰는 원천 컬럼 (누출 테스트의 교란 대상 목록).
+# ⚠️ src/dart.py 가 컬럼을 추가하면 여기와 tests/test_sanity.py 의 교란표에 함께 추가할 것.
+HQ_VALUE_COLS = ("assets", "liabilities", "equity", "capital_stock", "revenue",
+                 "operating_income", "net_income", "going_concern_flag")
+
+# 본부 재무의 허용 노후도(년). 최근 결산이 이보다 오래되면 붙이지 않는다 —
+# 5년 전 재무제표를 '현재 본부 상태'로 쓰면 오히려 잘못된 안심/경보를 준다.
+_HQ_MAX_STALENESS = 3
+
+
+def _load_hq_financials(cfg: dict) -> pd.DataFrame | None:
+    p = Path(cfg["paths"]["processed"]) / "hq_financials.parquet"
+    if not p.exists():
+        log.info("hq_financials.parquet 없음 — 본부 재무 피처(f_hq_*)를 생성하지 않는다 "
+                 "(`python -m src.dart` 로 수집).")
+        return None
+    return pd.read_parquet(p)
+
+
+def _attach_hq_features(feat: pd.DataFrame, df: pd.DataFrame,
+                        hq_fin: pd.DataFrame | None, cfg: dict) -> pd.DataFrame:
+    """패널 (brand, t) 에 **회계연도 ≤ t-1** 의 가장 최근 본부 재무를 붙여 f_hq_* 를 만든다.
+
+    ⛔ 시점 안전 — 왜 t-1 인가:
+        회계연도 t 의 감사보고서는 t+1 년 3~4월에 공시되고, 공정위 브랜드 통계 t년치도
+        t+1 년에 공개된다. 따라서 회계연도 t 를 써도 형식상 누출은 아니다. 그럼에도
+        **t-1 로 한 해 더 물린다** — 두 공시의 시차가 해마다 흔들릴 수 있고, 여신 모형에서
+        '아슬아슬하게 안 새는 설계'는 나중에 반드시 문제가 되기 때문이다. 한 해를 버리는
+        대신 누출 가능성을 구조적으로 0 으로 만든다.
+    """
+    if hq_fin is None or hq_fin.empty or "company_name" not in df.columns:
+        return feat
+
+    fin = hq_fin.copy()
+    for c in HQ_VALUE_COLS:
+        if c not in fin.columns:
+            fin[c] = np.nan
+        fin[c] = pd.to_numeric(fin[c], errors="coerce")
+    fin["fiscal_year"] = pd.to_numeric(fin["fiscal_year"], errors="coerce")
+    fin = fin.dropna(subset=["key", "fiscal_year"]).sort_values(["key", "fiscal_year"])
+
+    # 재무 자체의 시계열 파생 (같은 법인 안에서 연속 회계연도일 때만)
+    g = fin.groupby("key", sort=False)
+    prev_rev = g["revenue"].shift(1)
+    prev_yr = g["fiscal_year"].shift(1)
+    consec = (fin["fiscal_year"] - prev_yr).eq(1)
+    fin["rev_growth"] = ((fin["revenue"] - prev_rev) / prev_rev.abs()).where(
+        consec & prev_rev.abs().gt(0))
+    # 연속 적자 연수 — 흑자를 만나면 0 으로 리셋되는 누적 카운트.
+    # ⚠️ 두 가지를 반드시 끊어줘야 한다(적대적 리뷰 지적):
+    #   ① 회계연도 갭 — 결측 연도를 건너뛰고 이어 세면 '가짜 연속 적자'가 만들어진다.
+    #   ② 순이익 결측 — '모른다'를 '흑자'로 취급해 연속 카운트를 리셋하면, 확인하지 못한
+    #      것을 확인해서 괜찮았다고 말하는 셈이다. 결측 행의 streak 는 결측으로 둔다.
+    loss = fin["net_income"].lt(0)
+    known = fin["net_income"].notna()
+    reset = (~consec) | (~known) | (~loss)
+    blocks = reset.groupby(fin["key"]).cumsum()
+    fin["loss_streak"] = (loss.astype(float)
+                          .groupby([fin["key"], blocks]).cumsum()
+                          .where(known))
+
+    left = df[["brand_id", "year", "company_name"]].copy()
+    left["key"] = left["company_name"].map(norm_corp)
+    left["_asof"] = pd.to_numeric(left["year"], errors="coerce") - 1
+    left = left.dropna(subset=["_asof"]).sort_values("_asof")
+
+    m = pd.merge_asof(left, fin.rename(columns={"fiscal_year": "_fy"}).sort_values("_fy"),
+                      left_on="_asof", right_on="_fy", by="key", direction="backward")
+    max_stale = float((cfg.get("dart") or {}).get("max_staleness_years",
+                                                  _HQ_MAX_STALENESS))
+    m["_age"] = m["_asof"] - m["_fy"]
+    stale = m["_age"] > max_stale
+    m.loc[stale, ["_fy", "_age", *HQ_VALUE_COLS, "rev_growth", "loss_streak"]] = np.nan
+
+    def safe_div(a: pd.Series, b: pd.Series) -> pd.Series:
+        b = b.where(b.abs() > 0)
+        return a / b
+
+    out = pd.DataFrame(index=m.index)
+    # 자기자본비율은 부채비율보다 안정적이다 — 자본이 음수(완전잠식)여도 발산하지 않고
+    # 음수로 이어져 그대로 '더 나쁨'을 뜻한다. 부채비율은 자본→0 에서 무한대로 튄다.
+    out["f_hq_equity_ratio"] = safe_div(m["equity"], m["assets"])
+    out["f_hq_liab_ratio"] = safe_div(m["liabilities"], m["assets"])
+    out["f_hq_op_margin"] = safe_div(m["operating_income"], m["revenue"])
+    out["f_hq_net_margin"] = safe_div(m["net_income"], m["revenue"])
+    out["f_hq_roa"] = safe_div(m["net_income"], m["assets"])
+    out["f_hq_revenue_log"] = np.log1p(m["revenue"].clip(lower=0))
+    out["f_hq_revenue_growth"] = m["rev_growth"]
+    out["f_hq_loss_streak"] = m["loss_streak"]
+    out["f_hq_op_loss"] = m["operating_income"].lt(0).astype(float).where(
+        m["operating_income"].notna())
+    # 자본잠식: 자본총계 < 자본금(부분) / 자본총계 ≤ 0(완전). 주석의 '자본잠식' 문자열이
+    # 아니라 **숫자로** 판정한다 (문자열은 피투자회사 잠식까지 잡아 오탐이 난다).
+    out["f_hq_capital_impaired"] = (
+        m["equity"].lt(m["capital_stock"]).astype(float)
+        .where(m["equity"].notna() & m["capital_stock"].notna()))
+    out["f_hq_equity_negative"] = m["equity"].le(0).astype(float).where(m["equity"].notna())
+    out["f_hq_going_concern"] = m["going_concern_flag"]
+    # 재무 확보 여부 자체가 신호다(외부감사 대상 = 일정 규모 이상). 결측을 0 으로 덮지 않고
+    # 별도 지표로 분리해, 모형이 '무정보'와 '나쁜 값'을 구분할 수 있게 한다.
+    out["f_hq_has_financials"] = m["_fy"].notna().astype(float)
+    out["f_hq_data_age"] = m["_age"]
+
+    m = pd.concat([m[["brand_id", "year"]], out], axis=1)
+    # (brand_id, year) 가 중복이면 merge 가 행을 조용히 불려 피처 행수가 패널과 어긋난다.
+    # 그렇게 되면 이후 라벨 조인까지 오염되므로 여기서 즉시 실패시킨다.
+    dup = m.duplicated(["brand_id", "year"]).sum()
+    if dup:
+        raise ValueError(f"본부 재무 결합 키 (brand_id, year) 중복 {dup}건 — 패널 무결성 확인 필요")
+    n_before = len(feat)
+    res = feat.merge(m, on=["brand_id", "year"], how="left")
+    if len(res) != n_before:
+        raise ValueError(f"본부 재무 결합으로 행수 변화 {n_before} → {len(res)}")
+    n_cov = int(res["f_hq_has_financials"].fillna(0).sum())
+    log.info("본부 재무 피처: %d/%d 행에 결합 (%.1f%%), 자본잠식 %d행 / 계속기업의문 %d행",
+             n_cov, len(res), 100.0 * n_cov / max(len(res), 1),
+             int(res["f_hq_capital_impaired"].fillna(0).sum()),
+             int(res["f_hq_going_concern"].fillna(0).sum()))
+    return res
+
+
+def build_features(panel: pd.DataFrame, cfg: dict,
+                   hq_fin: pd.DataFrame | None = None) -> pd.DataFrame:
+    """계약 §2: [brand_id, year] + f_* 컬럼 반환. (brand, t) 행은 t 이하 연도만 사용.
+
+    hq_fin: 가맹본부 재무 (src/dart.py 산출). None 이면 processed 에서 읽는다.
+            테스트는 합성 재무를 직접 넘겨 누출 검증 범위에 포함시킨다.
+    """
+    if hq_fin is None:
+        hq_fin = _load_hq_financials(cfg)
     df = compute_derived_metrics(panel)
     gb = df.groupby("brand_id", sort=False)
     feat = df[["brand_id", "year"]].copy()
@@ -140,6 +269,11 @@ def build_features(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
         nreg = pd.to_numeric(df["n_regions"], errors="coerce")
         feat["f_struct_stores_per_region"] = df["n_stores"] / nreg.where(nreg > 0)
 
+    # --- f_hq_ 가맹본부 재무 (DART 전자공시) --------------------------------
+    # 브랜드 지표는 결과이고 본부 재무는 원인에 가깝다. 본부가 자본잠식·영업적자에 빠지면
+    # 물류·판촉·신규출점 지원이 끊기고 그 여파가 1~2년 뒤 가맹점 지표에 나타난다.
+    feat = _attach_hq_features(feat, df, hq_fin, cfg)
+
     # --- 상수(제로분산) 피처 점검 — '제거'가 아니라 '보고' -------------------
     # 상수 컬럼은 모형에 정보가 없다(LGBM은 분할 불가, 로지스틱은 절편에 흡수). 다만
     # 값 분산을 보고 컬럼을 **버리면** 피처 집합이 전체 연도(=미래 포함) 값에 의존하게
@@ -152,8 +286,18 @@ def build_features(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
                     len(const_cols), const_cols)
 
     # --- 윈저라이즈: 연도별 횡단면 분위수 클립 (t+1 미사용 — 누출 방지) ----
+    # ⚠️ **이진 플래그는 제외해야 한다.** 윈저라이즈는 연도별 상하위 pct 를 잘라내는데,
+    #    발생률이 pct(1%)보다 낮은 해에는 상위 분위수 자체가 0 이 되어 해당 플래그가
+    #    **전부 0 으로 지워진다**. 실측에서 계속기업의문은 6만 행 중 70행(0.1%)이라
+    #    가장 중요한 위험 신호가 통째로 사라질 뻔했다(적대적 리뷰 지적).
+    #    0/1 값은 이상치가 존재할 수 없으므로 윈저라이즈 대상이 아니다.
     fcols = [c for c in feat.columns if c.startswith("f_")]
-    cont_cols = [c for c in fcols if not c.startswith("f_ind_major_")]
+    binary_cols = [c for c in fcols
+                   if set(pd.unique(feat[c].dropna())) <= {0.0, 1.0}]
+    cont_cols = [c for c in fcols
+                 if not c.startswith("f_ind_major_") and c not in binary_cols]
+    if binary_cols:
+        log.info("윈저라이즈 제외(이진 플래그) %d개: %s", len(binary_cols), binary_cols)
     pct = float(cfg["sample"]["winsorize_pct"])
     for c in cont_cols:
         lo = feat.groupby("year")[c].transform(lambda s: s.quantile(pct))

@@ -18,6 +18,7 @@ import pandas as pd
 import streamlit as st
 
 from src.brand_search import search
+from src.common import load_config
 
 # 등급 표기 — 영문 등급명을 그대로 노출하지 않는다
 GRADE_KR = {"High": "주의", "Medium": "관찰", "Low": "양호"}
@@ -223,3 +224,88 @@ def _brand_card(r: pd.Series) -> None:
                 direction = "위험을 높이는 쪽" if (val or 0) > 0 else "위험을 낮추는 쪽"
                 st.markdown(f"- {name} — {direction}")
         st.caption(GRADE_ACTION.get(str(r["risk_grade"]), ""))
+        _hq_finance_block(str(r.get("brand_id") or ""), str(r["brand_name"]))
+
+
+@st.cache_data(show_spinner=False)
+def _hq_table(brand_id: str, brand_name: str) -> tuple[pd.DataFrame | None, str, str]:
+    """브랜드 → 가맹본부 감사보고서 재무 (없으면 None).
+
+    ⚠️ brand_name 문자열이 아니라 **brand_id** 로 찾는다. 동명 브랜드가 실재하므로
+       이름으로 매칭하면 다른 법인의 감사보고서가 붙는다 — dart.py 가 사업자번호 대조로
+       막아둔 오배정을 화면에서 되살리는 셈이다(적대적 리뷰 지적).
+    """
+    cfg = load_config()
+    proc = Path(cfg["paths"]["processed"])
+    fp, pp = proc / "hq_financials.parquet", proc / "panel.parquet"
+    if not (fp.exists() and pp.exists()):
+        return None, "", ""
+    panel = pd.read_parquet(pp, columns=["brand_id", "brand_name", "company_name", "year"])
+    hit = panel[panel["brand_id"] == brand_id].sort_values("year")
+    if hit.empty:                       # 구버전 산출물 호환 — 이름 폴백은 마지막 수단
+        hit = panel[panel["brand_name"] == brand_name].sort_values("year")
+        if hit["company_name"].nunique() > 1:
+            return None, "", ""         # 동명 브랜드가 여러 법인 → 확정 불가, 표시하지 않음
+    if hit.empty:
+        return None, "", ""
+    company = str(hit["company_name"].iloc[-1])
+    from src.dart import norm_corp
+    fin = pd.read_parquet(fp)
+    fin = fin[fin["key"] == norm_corp(company)].sort_values("fiscal_year")
+    if fin.empty:
+        return None, company, ""
+    rc = fin["rcept_no"].dropna()
+    url = (f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={rc.iloc[-1]}"
+           if len(rc) else "")
+    return fin, company, url
+
+
+def _hq_finance_block(brand_id: str, brand_name: str) -> None:
+    """가맹본부 재무 — 브랜드 지표보다 **앞서는** 신호라 별도로 보여준다.
+
+    화면 설계 원칙: 숫자를 나열하지 않고 '무엇이 문제인가'를 먼저 문장으로 말한 뒤,
+    그 판단의 원본(감사보고서 접수 문서)으로 바로 갈 수 있는 링크를 붙인다.
+    """
+    fin, company, url = _hq_table(brand_id, brand_name)
+    if fin is None:
+        return
+    with st.expander(f"가맹본부 재무 — {company} (금융감독원 전자공시)", expanded=False):
+        last = fin.iloc[-1]
+        warn = []
+        if pd.notna(last.get("equity")) and last["equity"] <= 0:
+            warn.append("**완전자본잠식** — 자본총계가 음수입니다")
+        elif (pd.notna(last.get("equity")) and pd.notna(last.get("capital_stock"))
+              and last["equity"] < last["capital_stock"]):
+            warn.append("**부분 자본잠식** — 자본총계가 자본금에 못 미칩니다")
+        if pd.notna(last.get("operating_income")) and last["operating_income"] < 0:
+            warn.append("**영업손실** — 본업에서 적자입니다")
+        # ⚠️ NaN 은 파이썬에서 truthy 다 — notna 검사 없이 쓰면 결측이 '위험'으로 뒤집힌다.
+        gc = last.get("going_concern_flag")
+        if pd.notna(gc) and gc:
+            warn.append("**감사보고서에 계속기업 관련 중요한 불확실성이 기재**되어 있습니다")
+        if str(last.get("audit_opinion") or "") not in ("", "적정", "None"):
+            warn.append(f"**감사의견 '{last['audit_opinion']}'** — 적정의견이 아닙니다")
+        if warn:
+            for w in warn:
+                st.warning(w)
+        elif str(last.get("source") or "") == "사업보고서":
+            # 구조화 재무제표만 있는 경우 감사의견·계속기업 기재를 **확인하지 못한** 것이지
+            # 문제가 없다고 확인한 것이 아니다. 그 차이를 그대로 말한다.
+            st.info("재무 수치상 자본잠식·영업손실은 없습니다. 다만 이 본부는 사업보고서 "
+                    "재무제표만 확보되어 **감사의견·계속기업 관련 기재는 확인하지 못했습니다**.")
+        else:
+            st.success("자본잠식·영업손실·감사의견 특이사항은 확인되지 않았습니다.")
+
+        show = fin[["fiscal_year", "assets", "liabilities", "equity", "revenue",
+                    "operating_income", "net_income"]].copy()
+        for c in show.columns[1:]:
+            show[c] = (pd.to_numeric(show[c], errors="coerce") / 1e8).round(1)
+        show.columns = ["결산연도", "자산(억)", "부채(억)", "자본(억)",
+                        "매출(억)", "영업이익(억)", "순이익(억)"]
+        st.dataframe(show.set_index("결산연도"), use_container_width=True)
+        st.caption(
+            "가맹본부가 무너지면 물류·판촉·신규출점 지원이 끊기고, 그 여파가 가맹점 "
+            "지표에 나타나기까지 보통 1~2년이 걸립니다. 그래서 본부 재무는 브랜드 "
+            "지표보다 **앞서는** 신호입니다.")
+        if url:
+            st.markdown(f"[감사보고서 원문 보기 (DART)]({url})")

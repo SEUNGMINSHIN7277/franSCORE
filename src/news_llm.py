@@ -14,7 +14,9 @@ INTERFACES.md §4 (news_llm.py) 구현.
 """
 from __future__ import annotations
 
+import html
 import json
+import os
 import re
 import time
 import urllib.parse
@@ -23,6 +25,7 @@ from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import feedparser
+import requests
 
 from src import llm
 from src.common import get_logger, load_config, set_seed
@@ -47,6 +50,57 @@ _KEYWORD_RULES: list[tuple[str, list[str]]] = [
 
 _RSS_URL = "https://news.google.com/rss/search?q={q}&hl=ko&gl=KR&ceid=KR:ko"
 _SLEEP_BETWEEN_REQUESTS_SEC = 0.4  # 요청 간 예의상 대기
+
+# ── 네이버 검색 API (선택) ────────────────────────────────────────────────────
+# 왜 추가하는가: Google News RSS 는 **제목만** 준다. 제목 한 줄로 '본부분쟁'인지
+# 단순 홍보인지 가르는 데는 한계가 뚜렷하다(오분류의 주된 원인). 네이버 검색 API 는
+# description(본문 요약)을 함께 주므로 판단 근거가 한 줄에서 한 문단으로 늘어난다.
+# 국내 프랜차이즈·지역 매체 색인도 구글보다 촘촘하다.
+# 비용: **무료**. 하루 25,000회 호출 한도가 있을 뿐 과금이 아니다.
+#       (developers.naver.com 에서 Client ID/Secret 발급 — 즉시 발급)
+_NAVER_URL = "https://openapi.naver.com/v1/search/news.json"
+NAVER_ID_ENV = "NAVER_CLIENT_ID"
+NAVER_SECRET_ENV = "NAVER_CLIENT_SECRET"
+_TAG_RE = re.compile(r"<[^>]+>")
+
+
+def naver_credentials() -> tuple[str, str] | None:
+    cid = os.environ.get(NAVER_ID_ENV, "").strip()
+    sec = os.environ.get(NAVER_SECRET_ENV, "").strip()
+    return (cid, sec) if cid and sec else None
+
+
+def _unescape(s: str) -> str:
+    """네이버 응답의 <b> 강조 태그와 HTML 엔티티 제거."""
+    return html.unescape(_TAG_RE.sub("", str(s or ""))).strip()
+
+
+def _fetch_naver_articles(query: str, *, display: int, creds: tuple[str, str]) -> list[dict]:
+    """네이버 뉴스 검색 1회. 실패는 빈 리스트 (Google RSS 로 이어서 보완)."""
+    cid, sec = creds
+    try:
+        r = requests.get(_NAVER_URL, params={"query": query, "display": display,
+                                             "sort": "date"},
+                         headers={"X-Naver-Client-Id": cid,
+                                  "X-Naver-Client-Secret": sec},
+                         timeout=15)
+        r.raise_for_status()
+        items = r.json().get("items", []) or []
+    except Exception as exc:
+        log.warning("네이버 뉴스 검색 실패(무시): query=%r err=%s", query, str(exc)[:120])
+        return []
+    out = []
+    for it in items:
+        link = str(it.get("originallink") or it.get("link") or "")
+        if not link:
+            continue
+        out.append({"title": _unescape(it.get("title")),
+                    "link": link,
+                    "published": str(it.get("pubDate") or ""),
+                    "source": "네이버뉴스검색",
+                    # RSS 에는 없는 값 — LLM 이 제목만 보고 추측하지 않게 해준다
+                    "summary": _unescape(it.get("description"))})
+    return out
 
 # 위험 유형 (모니터링 대상). '기타'·'무관'은 화면에 띄우지 않는다.
 # '수요급감'도 위험이다 — 프랜차이즈 여신에서 브랜드 수요 붕괴는 본부 분쟁·폐점의 선행 신호다.
@@ -166,11 +220,34 @@ def fetch_news(brand_names: list[str], cfg: dict) -> dict[str, list]:
     raw_dir = Path(cfg["paths"]["raw"]) / "news"
     raw_dir.mkdir(parents=True, exist_ok=True)
 
+    # 네이버 키가 있으면 **먼저** 네이버로 훑고, 부족분을 Google RSS 로 채운다.
+    # 순서가 중요하다: 네이버 결과에는 본문 요약이 붙어 있어 같은 기사라도 판단 근거가 많다.
+    creds = naver_credentials()
+    if creds:
+        log.info("뉴스 원천: 네이버 검색 API(본문요약 포함) + Google News RSS 보완")
+    else:
+        log.info("뉴스 원천: Google News RSS(제목만). %s/%s 를 설정하면 본문 요약까지 "
+                 "확보된다 — 무료이며 일 25,000회 한도.", NAVER_ID_ENV, NAVER_SECRET_ENV)
+
     out: dict[str, list] = {}
     for brand in brand_names:
         articles: list[dict] = []
         seen_links: set[str] = set()
         queries = [brand] + [f"{brand} {sfx}" for sfx in suffixes]
+
+        if creds:
+            for q in queries:
+                if len(articles) >= max_n:
+                    break
+                for a in _fetch_naver_articles(q, display=max_n, creds=creds):
+                    if a["link"] in seen_links or len(articles) >= max_n:
+                        continue
+                    if max_age_days > 0 and _age_days(a["published"]) > max_age_days:
+                        continue
+                    seen_links.add(a["link"])
+                    articles.append(a)
+                time.sleep(_SLEEP_BETWEEN_REQUESTS_SEC)
+
         for q in queries:
             if len(articles) >= max_n:
                 break
@@ -263,10 +340,21 @@ def _extract_with_llm(brand: str, articles: list[dict], cfg: dict) -> list[dict]
     responseSchema 로 출력 형태를 강제하지만, **모델 출력을 신뢰하지 않고** 인덱스 범위·
     enum 소속을 코드에서 다시 검증한다(스키마를 통과해도 인덱스는 틀릴 수 있다).
     """
-    titles_block = "\n".join(f"{i}. {a.get('title', '')}" for i, a in enumerate(articles))
+    # 본문 요약(네이버 검색 API)이 있으면 함께 넣는다. 제목만으로는 '분쟁'인지 '홍보'인지
+    # 가르기 어려운 사례가 많다 — 근거를 한 줄에서 한 문단으로 늘리는 것이 분류 품질에
+    # 가장 직접적으로 기여한다. Google RSS 만 있을 때는 기존과 동일하게 제목만 들어간다.
+    lines = []
+    for i, a in enumerate(articles):
+        line = f"{i}. {a.get('title', '')}"
+        if (s := str(a.get("summary") or "").strip()):
+            line += f"\n   (본문 요약) {s[:300]}"
+        lines.append(line)
+    titles_block = "\n".join(lines)
+    has_summary = any(a.get("summary") for a in articles)
     prompt = (
         f"브랜드: {brand}\n\n"
-        f"아래는 이 브랜드 관련 검색으로 수집된 기사 제목 목록입니다 (0-기반 인덱스).\n"
+        f"아래는 이 브랜드 관련 검색으로 수집된 기사 목록입니다 (0-기반 인덱스"
+        f"{', 일부는 본문 요약 포함' if has_summary else ', 제목만 제공'}).\n"
         f"각 기사를 event_type 으로 분류해 JSON으로 반환하세요. "
         f"모든 기사에 대해 하나씩 signals 항목을 만드세요.\n\n"
         f"{titles_block}"

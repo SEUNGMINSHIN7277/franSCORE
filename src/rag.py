@@ -144,9 +144,113 @@ def _disclosure_documents(cfg: dict, max_rows: int | None = None) -> list[dict]:
     return docs
 
 
+def _hq_financial_documents(cfg: dict) -> list[dict]:
+    """가맹본부 감사보고서 → 자연어 문서.
+
+    ⭐ 이 층이 코퍼스의 성격을 바꾼다. 기존 disclosure 문서는 우리가 이미 가진 패널 수치를
+    문장으로 다시 쓴 것이라, 심사메모가 그것을 '인용'해도 사실상 자기 인용이었다
+    (자체 감사 지적). 반면 이 문서의 근거는 **금감원에 접수된 감사보고서**이고, 접수번호로
+    원문 URL 이 특정된다 — 심사역이 클릭해서 직접 확인할 수 있는 1차 출처다.
+    """
+    fp = Path(cfg["paths"]["processed"]) / "hq_financials.parquet"
+    pp = Path(cfg["paths"]["processed"]) / "panel.parquet"
+    if not fp.exists() or not pp.exists():
+        return []
+    fin = pd.read_parquet(fp)
+    panel = pd.read_parquet(pp)
+    if "company_name" not in panel.columns or fin.empty:
+        return []
+    # 옛 스냅샷에 신규 컬럼이 없을 수 있다 — itertuples 가 AttributeError 로 죽지 않게 채운다
+    for c in ("assets", "liabilities", "equity", "capital_stock", "revenue",
+              "operating_income", "net_income", "audit_opinion", "going_concern_flag",
+              "rcept_no", "rcept_dt", "source", "corp_code"):
+        if c not in fin.columns:
+            fin[c] = None
+
+    from src.dart import norm_corp
+    latest = panel.sort_values("year").drop_duplicates("brand_id", keep="last").copy()
+    latest["key"] = latest["company_name"].map(norm_corp)
+    # 한 본부가 여러 브랜드를 가질 수 있다 — 브랜드마다 문서를 만들어야 브랜드 검색에 걸린다
+    link = latest[["key", "brand_id", "brand_name", "company_name"]].dropna(subset=["key"])
+
+    def won(v, unit=1e8, suffix="억원"):
+        return "미상" if pd.isna(v) else f"{v / unit:,.1f}{suffix}"
+
+    docs: list[dict] = []
+    for r in fin.merge(link, on="key", how="inner").itertuples():
+        fy = int(r.fiscal_year)
+        parts = [f"{fy}년 결산 기준 {r.company_name}(브랜드: {r.brand_name}) 가맹본부 재무"]
+        parts.append(f"자산총계 {won(r.assets)}")
+        parts.append(f"부채총계 {won(r.liabilities)}")
+        parts.append(f"자본총계 {won(r.equity)}")
+        parts.append(f"매출액 {won(r.revenue)}")
+        parts.append(f"영업이익 {won(r.operating_income)}")
+        parts.append(f"당기순이익 {won(r.net_income)}")
+        if pd.notna(r.equity) and pd.notna(r.assets) and r.assets:
+            parts.append(f"자기자본비율 {100 * r.equity / r.assets:.1f}%")
+        if pd.notna(r.equity) and r.equity <= 0:
+            parts.append("**자본총계가 음수로 완전자본잠식 상태**")
+        elif pd.notna(r.equity) and pd.notna(r.capital_stock) and r.equity < r.capital_stock:
+            parts.append("**자본총계가 자본금에 미달하여 부분 자본잠식**")
+        if pd.notna(r.operating_income) and r.operating_income < 0:
+            parts.append("영업손실 발생")
+        if getattr(r, "audit_opinion", None):
+            parts.append(f"감사의견 {r.audit_opinion}")
+        # NaN(= 확인 못 함)은 truthy 라 notna 검사가 필요하다 — 없으면 결측이 경보로 뒤집힌다
+        gc = getattr(r, "going_concern_flag", None)
+        if pd.notna(gc) and gc:
+            parts.append("**감사보고서에 계속기업 관련 중요한 불확실성 기재**")
+
+        rc = getattr(r, "rcept_no", None)
+        url = (f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={rc}" if rc
+               else "https://opendart.fss.or.kr (전자공시)")
+        docs.append({
+            "doc_id": f"dart:{r.corp_code}:{fy}:{r.brand_id}",
+            "brand_name": r.brand_name,
+            "source_type": "hq_financial",
+            "text": ", ".join(parts),
+            "url": url,
+            "published": str(getattr(r, "rcept_dt", "") or fy),
+            "source_name": f"금융감독원 전자공시 {getattr(r, 'source', '감사보고서')}",
+            "year": fy,
+            "brand_id": r.brand_id,
+        })
+    return docs
+
+
+def _ifrmp_documents(cfg: dict) -> list[dict]:
+    """정보공개서 원문 섹션 → 문서 (공정위 정식 키가 있을 때만 채워진다).
+
+    본문 API 는 데모키에서 고정 1건만 주므로(src/ifrmp.py 참조) 지금은 보통 빈 리스트다.
+    파일이 없으면 조용히 건너뛰되, 있으면 **법 위반·소송·계약해지 사유 원문**이 들어온다.
+    """
+    p = Path(cfg["paths"]["processed"]) / "ifrmp_sections.parquet"
+    if not p.exists():
+        return []
+    df = pd.read_parquet(p)
+    docs = []
+    for r in df.itertuples():
+        txt = _clean(str(r.text))[:2000]
+        if len(txt) < 40:
+            continue
+        docs.append({
+            "doc_id": f"ifrmp:{r.jngIfrmpSn}:{r.section}",
+            "brand_name": r.brandNm,
+            "source_type": "ifrmp",
+            "text": f"[{r.brandNm} 정보공개서 — {r.title}] {txt}",
+            "url": (f"https://franchise.ftc.go.kr/api/viewer.do?jngIfrmpSn={r.jngIfrmpSn}"),
+            "published": str(r.yr),
+            "source_name": "공정거래위원회 정보공개서",
+            "year": int(r.yr),
+            "brand_id": pd.NA,
+        })
+    return docs
+
+
 def build_corpus(cfg: dict, max_disclosure_rows: int | None = 20000) -> pd.DataFrame:
-    """뉴스 + 공시 문서 코퍼스 구축 및 저장."""
-    docs = _news_documents(cfg) + _disclosure_documents(cfg, max_disclosure_rows)
+    """뉴스 + 공시 + 본부 감사보고서 + 정보공개서 원문 코퍼스 구축 및 저장."""
+    docs = (_news_documents(cfg) + _disclosure_documents(cfg, max_disclosure_rows)
+            + _hq_financial_documents(cfg) + _ifrmp_documents(cfg))
     if not docs:
         log.warning("RAG 코퍼스 문서 0건 — 뉴스/패널 산출물 확인 필요")
         return pd.DataFrame()

@@ -348,7 +348,10 @@ def build_portfolio(cfg: dict) -> None:
 
     summary = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
-        "synthetic": True,
+        # 익스포저가 실제로 합성 난수인지 여부. 하드코딩 True 로 두면 공시 창업비용 실측을
+        # 쓰고 있는데도 "합성"이라고 알리게 되어(실제로 그런 상태였다) 정직 표기가 거꾸로
+        # 틀린다. 실측 원천을 쓸 때는 그렇게 말해야 한다 — 과소 주장도 부정확한 주장이다.
+        "synthetic": bool(expo_meta.get("is_synthetic", True)),
         "test_year": test_year,
         "n_brands": len(port),
         "pd_column_used": pd_col,

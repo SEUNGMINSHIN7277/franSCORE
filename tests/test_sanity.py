@@ -36,7 +36,8 @@ import pandas as pd
 from src import model as model_mod
 from src import portfolio as portfolio_mod
 from src.common import get_logger, load_config, make_synthetic_panel, set_seed
-from src.features import build_features
+from src.dart import make_synthetic_hq_financials
+from src.features import HQ_VALUE_COLS, build_features
 from src.labels import build_labels
 from src.panel import PANEL_VALUE_COLS
 
@@ -291,7 +292,20 @@ def test_time_leakage(ctx: dict) -> None:
         f"합성 패널에 실패널 컬럼 누락 → 해당 피처가 누출 검증에서 조용히 제외됨: {missing}. "
         f"src/common.py make_synthetic_panel 에 추가하세요.")
 
-    base = build_features(panel, tcfg)
+    # 본부 재무(f_hq_*)는 패널이 아니라 **별도 표**에서 온다. 합성 재무를 명시적으로
+    # 넘기지 않으면 그 피처들이 아래 검증 범위에서 통째로 빠진다 — 과거에 신규 피처가
+    # 조용히 검증 밖으로 나갔던 것과 같은 사고다.
+    hq = make_synthetic_hq_financials(cfg, panel)
+    base = build_features(panel, tcfg, hq_fin=hq)
+
+    # 커버리지 가드 ③: f_hq_* 가 전부 결측/상수여도 "교란 전후 동일"은 자동으로 성립한다.
+    # 즉 피처가 죽어 있으면 이 테스트는 통과해도 아무것도 검증하지 못한다 —
+    # 실제로 값이 살아 있는지 먼저 확인한다.
+    hq_cols = [c for c in base.columns if c.startswith("f_hq_")]
+    assert hq_cols, "f_hq_* 피처가 생성되지 않음 — 합성 본부재무 결합 실패"
+    dead = [c for c in hq_cols if base[c].nunique(dropna=True) <= 1]
+    assert not dead, (
+        f"f_hq_* 피처가 상수/전결측이라 누출 검증이 공회전한다: {dead}")
 
     pert = panel.copy()
     fut = pert["year"] > t0
@@ -329,7 +343,29 @@ def test_time_leakage(ctx: dict) -> None:
     for col, fn in perturb.items():
         pert.loc[fut, col] = fn(pert.loc[fut, col])
 
-    after = build_features(pert, tcfg)
+    # 본부 재무도 같은 기준으로 교란한다. 피처는 회계연도 ≤ t-1 만 쓰므로
+    # 회계연도 > t0-1 (= 미래 결산)을 흔들어도 year<=t0 피처는 불변이어야 한다.
+    hq_pert = hq.copy()
+    hq_fut = hq_pert["fiscal_year"] > t0 - 1
+    assert hq_fut.any() and (~hq_fut).any(), "본부 재무 교란 대상/비대상이 모두 있어야 함"
+    hq_perturb = {
+        "assets":            lambda s: s * 3.0 + 1e10,
+        "liabilities":       lambda s: s * 0.2 + 5e9,
+        "equity":            lambda s: -s - 7e9,
+        "capital_stock":     lambda s: s * 4.0 + 1e8,
+        "revenue":           lambda s: s * 0.1 + 2e10,
+        "operating_income":  lambda s: -s - 3e9,
+        "net_income":        lambda s: -s - 9e9,
+        "going_concern_flag": lambda s: 1.0 - s,
+    }
+    uncovered_hq = [c for c in HQ_VALUE_COLS if c not in hq_perturb]
+    assert not uncovered_hq, (
+        f"교란 대상에서 빠진 본부 재무 컬럼 → 누출 검증 사각지대: {uncovered_hq}. "
+        f"src/features.py HQ_VALUE_COLS 와 이 표를 함께 유지하세요.")
+    for col, fn in hq_perturb.items():
+        hq_pert.loc[hq_fut, col] = fn(hq_pert.loc[hq_fut, col])
+
+    after = build_features(pert, tcfg, hq_fin=hq_pert)
 
     b = base[base["year"] <= t0].reset_index(drop=True)
     a = after[after["year"] <= t0].reset_index(drop=True)
@@ -474,7 +510,17 @@ def test_portfolio(ctx: dict) -> None:
 
     with open(json_path, encoding="utf-8") as f:
         summary = json.load(f)
-    assert summary.get("synthetic") is True, "합성 exposure 명시(synthetic=true) 누락"
+    # 익스포저 출처 표기가 **실제 경로와 일치**해야 한다.
+    # 예전에는 synthetic 이 하드코딩 True 라 공시 창업비용 실측을 쓰면서도 "합성"이라고
+    # 알렸다. 과대 주장뿐 아니라 이런 과소 주장도 부정확한 표기다 — 양방향으로 검증한다.
+    expo = (summary.get("assumptions") or {}).get("exposure") or {}
+    basis = expo.get("basis")
+    assert basis in ("actual_loan_book", "disclosed_startup_cost", "synthetic_lognormal"), (
+        f"익스포저 산출 근거(basis) 표기 없음/미상: {basis!r}")
+    assert summary.get("synthetic") == (basis == "synthetic_lognormal"), (
+        f"synthetic 플래그({summary.get('synthetic')})가 실제 산출 근거({basis})와 불일치")
+    assert expo.get("is_synthetic") == summary.get("synthetic"), (
+        "assumptions.exposure.is_synthetic 과 최상위 synthetic 플래그가 어긋남")
     total_exp = float(summary["total_exposure_mkrw"])
     scen = summary["expected_loss_scenarios"]
     assert [float(s["lgd"]) for s in scen] == lgds, "요약 시나리오 LGD 순서/값 불일치"

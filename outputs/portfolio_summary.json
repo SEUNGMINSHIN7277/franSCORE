@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-31T20:04:51",
-  "synthetic": true,
+  "generated_at": "2026-08-01T02:54:55",
+  "synthetic": false,
   "test_year": 2023,
   "n_brands": 60,
   "pd_column_used": "p_calibrated",
@@ -14,46 +14,46 @@
   "risk_grades": {
     "high_quantile": 0.9,
     "medium_quantile": 0.7,
-    "high_pd_cut": 0.3800089909215956,
-    "medium_pd_cut": 0.1323600228821102,
+    "high_pd_cut": 0.2353027949510478,
+    "medium_pd_cut": 0.08982730893755816,
     "counts": {
-      "Low": 41,
-      "Medium": 13,
+      "Low": 39,
+      "Medium": 15,
       "High": 6
     },
     "exposure_mkrw": {
-      "High": 2421.3616199999997,
-      "Low": 58045.86891,
-      "Medium": 6123.6828
+      "High": 2027.4676200000001,
+      "Low": 54077.627609999996,
+      "Medium": 10485.818099999999
     }
   },
   "expected_loss_scenarios": [
     {
       "lgd": 0.3,
-      "el_mkrw": 889.1908464213079,
-      "el_ekw": 8.89190846421308,
-      "el_pct_of_exposure": 0.013353035751511717,
-      "stress_el_mkrw": 1027.5341848919618,
-      "stress_el_ekw": 10.275341848919618,
-      "stress_el_pct_of_exposure": 0.015430546504143617
+      "el_mkrw": 1020.4894955370349,
+      "el_ekw": 10.20489495537035,
+      "el_pct_of_exposure": 0.01532475595401231,
+      "stress_el_mkrw": 1117.4409078020735,
+      "stress_el_ekw": 11.174409078020735,
+      "stress_el_pct_of_exposure": 0.016780681506265712
     },
     {
       "lgd": 0.45,
-      "el_mkrw": 1333.786269631962,
-      "el_ekw": 13.337862696319622,
-      "el_pct_of_exposure": 0.02002955362726758,
-      "stress_el_mkrw": 1541.3012773379426,
-      "stress_el_ekw": 15.413012773379426,
-      "stress_el_pct_of_exposure": 0.023145819756215425
+      "el_mkrw": 1530.7342433055521,
+      "el_ekw": 15.30734243305552,
+      "el_pct_of_exposure": 0.02298713393101846,
+      "stress_el_mkrw": 1676.1613617031103,
+      "stress_el_ekw": 16.761613617031102,
+      "stress_el_pct_of_exposure": 0.025171022259398566
     },
     {
       "lgd": 0.6,
-      "el_mkrw": 1778.3816928426158,
-      "el_ekw": 17.78381692842616,
-      "el_pct_of_exposure": 0.026706071503023433,
-      "stress_el_mkrw": 2055.0683697839236,
-      "stress_el_ekw": 20.550683697839236,
-      "stress_el_pct_of_exposure": 0.030861093008287235
+      "el_mkrw": 2040.9789910740699,
+      "el_ekw": 20.4097899107407,
+      "el_pct_of_exposure": 0.03064951190802462,
+      "stress_el_mkrw": 2234.881815604147,
+      "stress_el_ekw": 22.34881815604147,
+      "stress_el_pct_of_exposure": 0.033561363012531424
     }
   ],
   "stress": {
@@ -62,7 +62,7 @@
     "pd_cap": 1.0,
     "n_stressed_brands": 6
   },
-  "headline": "[공시 창업비용 기반 추정 여신] 2023년 test 브랜드 60개로 구성한 포트폴리오의 총 여신은 666억원이며, 중간 시나리오(LGD 45%) 기준 1년 예상손실은 13.3억원(여신의 2.00%), 위험 상위 10% 브랜드 동시 악화 스트레스 시 15.4억원으로 확대됩니다. 상위 10개 브랜드 여신 집중도는 62.2%, HHI는 0.068입니다.",
+  "headline": "[공시 창업비용 기반 추정 여신] 2023년 test 브랜드 60개로 구성한 포트폴리오의 총 여신은 666억원이며, 중간 시나리오(LGD 45%) 기준 1년 예상손실은 15.3억원(여신의 2.30%), 위험 상위 10% 브랜드 동시 악화 스트레스 시 16.8억원으로 확대됩니다. 상위 10개 브랜드 여신 집중도는 62.2%, HHI는 0.068입니다.",
   "assumptions": {
     "exposure": {
       "basis": "disclosed_startup_cost",
@@ -86,8 +86,8 @@
     "stress_rule": "PD 상위 10% 브랜드(6개)의 PD × 1.5 (상한 1.0) 동시 악화 가정",
     "risk_grade_basis": "test 전체 브랜드 예측확률 분포 내 **순위(pct rank)** 기준 — High = 상위 10%, Medium = 상위 30% 이내. 값 임계 컷은 보정확률 동률 블록이 경계에 걸릴 때 등급 비율이 설계값을 초과할 수 있어(개발 중 실측 사례 확인) 순위 기준으로 부여한다.",
     "risk_grade_cut_values_reference": {
-      "high_pd_cut": 0.380009,
-      "medium_pd_cut": 0.13236,
+      "high_pd_cut": 0.235303,
+      "medium_pd_cut": 0.089827,
       "note": "참고용 값 — 등급 판정에는 순위를 사용한다"
     },
     "store_count_source": "panel.parquet",

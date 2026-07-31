@@ -156,6 +156,44 @@ def main() -> int:
     need("HHI", f"{s['concentration']['hhi']:.3f}", "README", "IMPL")
     need("High 등급 브랜드 수", f"{int(s['risk_grades']['counts']['High'])}/60", "IMPL")
 
+    head("⑥-2 가맹본부 재무 (DART) · 정보공개서 원문")
+    dp = OUT / "dart_match_report.json"
+    if not dp.exists():
+        print("  [SKIP] dart_match_report.json 없음 — `--step dart` 실행 필요")
+    else:
+        dm = json.loads(dp.read_text(encoding="utf-8"))
+        v = dm["verdicts"]
+        need("DART 확정 법인", thou(v.get("확정", 0)), "IMPL")
+        need("DART 불일치 법인", thou(v.get("불일치", 0)), "IMPL")
+        # 이름 매칭만 믿었을 때의 오매칭 비율 — 이 층의 존재 이유를 숫자로 고정한다
+        tot = sum(v.values()) or 1
+        need("이름 매칭 오매칭률", f"{100 * v.get('불일치', 0) / tot:.0f}%", "IMPL")
+        el = dm["eligible"]
+        need("본부재무 커버리지(자격·가맹점가중)",
+             f"{100 * el['with_financials_store_weighted']:.1f}%", "README", "IMPL")
+        info("자격 브랜드 확정 커버리지(가맹점가중)",
+             f"{100 * el['confirmed_store_weighted']:.1f}%")
+        q = dm.get("quality") or {}
+        if q.get("balance_pass_rate") is not None:
+            info("회계 항등식 통과율", f"{100 * q['balance_pass_rate']:.1f}% "
+                                       f"({q['balance_checked']:,}건 검증)")
+        info("계속기업 불확실성 기재", q.get("going_concern_flagged"))
+
+    ip = OUT / "ifrmp_status.json"
+    if not ip.exists():
+        print("  [SKIP] ifrmp_status.json 없음")
+    else:
+        st = json.loads(ip.read_text(encoding="utf-8"))
+        pv = st.get("parser_validation") or {}
+        need("정보공개서 표준 섹션 수", str(pv.get("sections_found", "?")), "IMPL")
+        info("데모 고정응답 탐지", st.get("demo_check", {}).get("is_demo"))
+        info("브랜드별 수집 건수", st.get("collected_brands"))
+        # 데모 상태인데 '전량 수집했다'고 적혀 있으면 즉시 실패시킨다
+        if st.get("demo_check", {}).get("is_demo"):
+            for k in ("IMPL", "README"):
+                if "정식 키" not in _txt(k):
+                    _fails.append(f"정보공개서가 데모 상태인데 {k} 에 키 대기 사실이 없음")
+
     head("⑦ 브랜드 공통요인 상관 (전제 검증)")
     bc = json.loads((OUT / "brand_correlation.json").read_text(encoding="utf-8"))
     dec = bc["decomposition"]

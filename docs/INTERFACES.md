@@ -136,7 +136,9 @@ walkforward_predictions.parquet / walkforward_delta_ci.csv.
 ### portfolio.build_portfolio(cfg)
 - 입력: predictions.parquet(test, p_calibrated 우선) + panel(점포수; (brand,year) 정확 매칭
   실패 시 브랜드 최신 관측 폴백·로깅).
-- 합성 exposure(점포수 × 점포당 백만원 × LogNormal, seed 고정 — **합성임을 전 산출물 명시**).
+- 익스포저 3단 우선순위: ① 실여신 CSV → ② **공시 창업비용(15110265) 실측**(기본) →
+  ③ 합성 LogNormal 폴백. 어느 경로를 탔는지 `assumptions.exposure.basis` 와 최상위
+  `synthetic` 플래그가 **실제 경로를 따라** 기록된다.
 - 등급 = test 전체 분포 내 **순위(pct rank, method='first')** 기준 High(상위 10%)/Medium(30%)/
   Low — 값 임계 컷은 동률 왜곡 때문에 사용하지 않는다(참고 컷값만 기록).
 - EL = exposure × PD × LGD{0.3,0.45,0.6}; 스트레스 = PD 상위 10% × 1.5 (cap 1.0).

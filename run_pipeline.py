@@ -22,8 +22,10 @@ from src.common import get_logger, load_config, make_synthetic_panel, set_seed
 
 log = get_logger("pipeline")
 
-STEPS = ["collect", "panel", "features", "labels", "model", "evaluate", "portfolio",
-         "score", "correlation", "news", "eval_llm"]
+# dart·ifrmp 는 panel 뒤·features 앞에 온다: 본부 재무를 붙이려면 패널의 법인명이 필요하고,
+# 그 결과(hq_financials.parquet)를 features 가 읽는다.
+STEPS = ["collect", "panel", "dart", "ifrmp", "features", "labels", "model", "evaluate",
+         "portfolio", "score", "correlation", "news", "eval_llm"]
 
 
 def _extended_cfg(cfg: dict) -> dict:
@@ -87,6 +89,29 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
             master = entity.build_master(cfg)
             panel = panel_mod.build_panel(cfg, master)
             panel_mod.survival_report(panel, cfg)
+
+    elif step == "dart":
+        # 키가 없거나 네트워크가 막혀도 파이프라인 전체를 세우지 않는다 —
+        # 본부 재무는 '있으면 더 좋은' 층이고, 없으면 features 가 f_hq_* 를 만들지 않는다.
+        if demo:
+            log.info("demo 모드 — 외부 API 호출(DART) 생략")
+        else:
+            try:
+                from src import dart
+                dart.collect_financials(cfg)
+            except Exception as exc:
+                log.error("DART 수집 실패 — 본부 재무 피처 없이 계속 진행합니다: %s",
+                          str(exc)[:200])
+
+    elif step == "ifrmp":
+        if demo:
+            log.info("demo 모드 — 외부 API 호출(정보공개서) 생략")
+        else:
+            try:
+                from src import ifrmp
+                ifrmp.build(cfg)
+            except Exception as exc:
+                log.error("정보공개서 수집 실패 — 계속 진행합니다: %s", str(exc)[:200])
 
     elif step == "features":
         from src import features
