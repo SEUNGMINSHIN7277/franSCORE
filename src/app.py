@@ -35,6 +35,7 @@ if str(_ROOT) not in sys.path:
 import streamlit as st
 
 from src.common import get_logger, load_config, set_seed
+from src.feature_names import feature_korean_name
 
 _LOG = get_logger("app")
 
@@ -110,102 +111,6 @@ _EVENT_COLORS = {
     "집단폐점": "#8e44ad", "기타": "#7f8c8d", "무관": "#bdc3c7",
 }
 
-# ---------------------------------------------------------------------------
-# f_* 피처명 -> 한국어 표시명 매핑 (정확 매칭 우선, 이하 토큰 규칙 폴백)
-# ---------------------------------------------------------------------------
-_FEATURE_KR_EXACT = {
-    "f_lvl_n_stores": "[수준] 가맹점 수",
-    "f_lvl_avg_sales": "[수준] 평균매출(log)",
-    "f_lvl_avg_sales_log1p": "[수준] 평균매출(log)",
-    "f_lvl_direct_ratio": "[수준] 직영점 비중",
-    "f_lvl_brand_age": "[수준] 브랜드 연차",
-    "f_chg_store_growth_rate": "[변화] 점포 증가율",
-    "f_chg_sales_growth": "[변화] 매출 증가율",
-    "f_chg_contract_end_rate": "[변화] 계약종료율",
-    "f_chg_new_open_rate": "[변화] 신규개점률",
-    "f_chg_name_change_rate": "[변화] 명의변경률",
-}
-
-_PREFIX_KR = [
-    ("f_lvl_", "[수준] "),
-    ("f_chg_", "[변화] "),
-    ("f_trd_", "[추세] "),
-    ("f_ind_", "[업종상대] "),
-    ("f_struct_", "[구조] "),
-]
-
-# 긴 토큰 우선 (부분문자열 우선순위)
-_TOKEN_KR = [
-    # 긴 토큰 먼저 (부분문자열 우선순위) — 지역분산·면적당매출 피처 추가
-    ("sales_per_area_growth", "면적당매출 증가율"),
-    ("stores_per_region", "지역당 평균 점포수"),
-    ("top_region_share", "최다 지역 비중"),
-    ("real_sales_growth", "실질 매출 증가율"),
-    ("store_growth_rate", "점포 증가율"),
-    ("contract_end_rate", "계약종료율"),
-    ("sales_per_area", "면적당매출"),
-    ("direct_growth", "직영점 증감율"),
-    ("region_hhi", "지역 집중도(HHI)"),
-    ("n_regions", "진출 지역 수"),
-    ("store_growth", "점포 증가율"),
-    ("sales_growth", "매출 증가율"),
-    ("contract_end", "계약종료"),
-    ("direct_ratio", "직영점 비중"),
-    ("emp_cnt", "본부 직원수"),
-    ("biz_age", "가맹사업 업력"),
-    ("brand_age", "브랜드 연차"),
-    ("name_change", "명의변경"),
-    ("new_open", "신규개점"),
-    ("open_close_gap", "개점-종료 격차"),
-    ("n_stores", "가맹점 수"),
-    ("n_direct", "직영점 수"),
-    ("avg_sales", "평균매출"),
-    ("n_new", "신규개점"),
-    ("major", "업종 대분류"),
-    ("gap", "격차"),
-]
-
-_QUAL_KR = [
-    ("mean", "평균"),
-    ("slope", "기울기"),
-    ("std", "변동성"),
-    ("rank_pct", "업종 내 백분위"),
-    ("rank", "업종 내 백분위"),
-    ("pct", "백분위"),
-    ("diff", "변화"),
-    ("chg", "전년비 변화"),
-    ("2y", "최근 2년"),
-    ("3y", "최근 3년"),
-    ("log1p", ""),
-    ("log", ""),
-]
-
-
-def feature_korean_name(feat: str) -> str:
-    """f_* 피처명을 한국어 표시명으로 변환. 미지의 이름도 안전하게 처리."""
-    if feat in _FEATURE_KR_EXACT:
-        return _FEATURE_KR_EXACT[feat]
-    name = str(feat)
-    prefix_kr = ""
-    for pre, kr in _PREFIX_KR:
-        if name.startswith(pre):
-            prefix_kr, name = kr, name[len(pre):]
-            break
-    base_kr, rest = None, name
-    for token, tkr in _TOKEN_KR:
-        if token in name:
-            base_kr = tkr
-            rest = name.replace(token, "", 1)
-            break
-    if base_kr is None:
-        return prefix_kr + name
-    quals = []
-    for token, tkr in _QUAL_KR:
-        if token and token in rest and tkr:
-            quals.append(tkr)
-            rest = rest.replace(token, "", 1)
-    label = base_kr + ((" " + "·".join(quals)) if quals else "")
-    return prefix_kr + label
 
 
 # ---------------------------------------------------------------------------
@@ -417,8 +322,9 @@ def brand_name_map(panel: pd.DataFrame | None) -> dict[str, str]:
 def render_sidebar(cfg: dict) -> str:
     st.sidebar.title("FranSCORE")
     st.sidebar.caption("프랜차이즈 구조악화 조기경보 · KB AI Challenge 프로토타입")
-    view = st.sidebar.radio("화면 선택",
-                            ["① 브랜드 상세", "② 포트폴리오 뷰", "③ 최신 점검 큐"])
+    view = st.sidebar.radio(
+        "화면",
+        ["한눈에 보기", "브랜드 조회", "점검 큐", "여신 포트폴리오", "모델 근거"])
     st.sidebar.warning(exposure_warning(cfg))
 
     st.sidebar.markdown("### 데이터 상태")
@@ -427,16 +333,18 @@ def render_sidebar(cfg: dict) -> str:
         mark = "✅" if p.exists() else "❌"
         st.sidebar.caption(f"{mark} {spec['filename']}")
 
+    # 모델 상세(하이퍼파라미터 탐색 로그 등)는 심사역 화면의 소음이므로 접어둔다.
+    # 검증자가 확인할 수 있도록 없애지는 않는다.
     split_years = load_artifact("split_years")
     if isinstance(split_years, dict) and split_years:
-        pairs = " · ".join(
-            f"{k}={v}" for k, v in split_years.items()
-            if not str(k).startswith("_") and not isinstance(v, (dict, list))
-        )
-        if pairs:
-            st.sidebar.caption(f"시간분할: {pairs}")
+        key_bits = " · ".join(f"{k}={split_years[k]}" for k in
+                              ("test_year", "valid_year", "n_test") if k in split_years)
+        if key_bits:
+            st.sidebar.caption(f"평가 기준: {key_bits}")
+        with st.sidebar.expander("모델 상세 (개발·검증용)"):
+            st.json({k: v for k, v in split_years.items() if not str(k).startswith("_")})
     else:
-        st.sidebar.caption("시간분할: (split_years.json 없음 — --step model)")
+        st.sidebar.caption("평가 기준: (split_years.json 없음 — `--step model` 실행 필요)")
     return view
 
 
@@ -445,7 +353,11 @@ def render_sidebar(cfg: dict) -> str:
 # ---------------------------------------------------------------------------
 
 def render_brand_view(cfg: dict) -> None:
-    st.header("① 브랜드 상세")
+    st.header("모델 근거 — 백테스트 상세")
+    st.caption(
+        "이 화면은 **성능 근거를 확인하는 화면**입니다. 라벨(정답)이 확정된 2023년 표본을 대상으로 "
+        "모델이 실제로 맞혔는지, 어떤 요인을 보고 그렇게 판단했는지를 보여줍니다. "
+        "업무에 쓰는 최신 점수는 '한눈에 보기'·'브랜드 조회'·'점검 큐' 화면에 있습니다.")
 
     preds = load_artifact("predictions")
     if preds is None:
@@ -966,8 +878,11 @@ def render_queue_view(cfg: dict) -> None:
     if not path.exists():
         st.info("최신 점수가 없습니다 — `python run_pipeline.py --step score` 를 실행하세요.")
         return
-    df = _read_csv_file(path)
-    meta = _read_json_file(meta_path) if meta_path.exists() else {}
+    from src import ui as _ui
+    df, meta, _scope = _ui.load_scores(cfg)   # 전 업종(확장) 우선 — 커버리지가 넓을수록 유용
+    if df is None:
+        df = _read_csv_file(path)
+        meta = _read_json_file(meta_path) if meta_path.exists() else {}
 
     yr = meta.get("scored_year", "?")
     st.caption(
@@ -1042,12 +957,18 @@ def main() -> None:
 
     st.warning("⚠️ " + exposure_warning(cfg) + " — " + _DISCLAIMER)
 
-    if view.startswith("①"):
-        render_brand_view(cfg)
-    elif view.startswith("②"):
+    from src import ui
+
+    if view == "한눈에 보기":
+        ui.render_overview(cfg)
+    elif view == "브랜드 조회":
+        ui.render_lookup(cfg)
+    elif view == "점검 큐":
+        render_queue_view(cfg)
+    elif view == "여신 포트폴리오":
         render_portfolio_view(cfg)
     else:
-        render_queue_view(cfg)
+        render_brand_view(cfg)
 
 
 if __name__ == "__main__":

@@ -34,6 +34,7 @@ import pandas as pd
 
 from src.common import get_logger, load_config, set_seed
 from src.evaluate import _apply_calibrator
+from src.feature_names import feature_korean_name
 from src.model import _numeric_feature_frame, _sanitize_feature_names
 
 log = get_logger("score")
@@ -125,7 +126,10 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
         cols = np.array(trained)
         for i in range(TOP_FACTORS):
             idx = order[:, i]
-            res[f"factor{i + 1}"] = [name_map.get(str(c), str(c)) for c in cols[idx]]
+            # 원시 피처명(f_ind_contract_end_pct)이 그대로 나가면 아무도 읽을 수 없다 →
+            # 화면·CSV·메모가 공유하는 한국어 표시명으로 변환해서 저장한다.
+            res[f"factor{i + 1}"] = [feature_korean_name(name_map.get(str(c), str(c)))
+                                     for c in cols[idx]]
             res[f"factor{i + 1}_shap"] = np.round(contrib[np.arange(len(idx)), idx], 5)
     except Exception as exc:
         log.warning("SHAP 기여도 산출 생략: %s", exc)
