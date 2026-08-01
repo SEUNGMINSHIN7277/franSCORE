@@ -33,31 +33,43 @@ https://share.streamlit.io/deploy?repository=SEUNGMINSHIN7277%2FfranSCORE&branch
 
 ### 1-2. API 키 등록 (선택)
 
-키가 없어도 앱은 정상 동작합니다. 아래 기능만 꺼집니다.
+**키가 하나도 없어도 앱은 정상 동작합니다.** 새로 clone 한 상태에서 키 없이 5개
+화면이 전부 뜨는 것을 실측 확인했습니다. 이미 수집해 둔 산출물(점수·진단 소견·
+로고 269건·검색수요 292건)이 저장소에 들어 있기 때문입니다.
 
-| 키 | 없을 때 |
-|---|---|
-| `GEMINI_API_KEY` | AI 상담이 답변을 생성하지 않고 **수집된 사실만 정리**해 보여줍니다 |
-| `NAVER_CLIENT_ID` / `NAVER_CLIENT_SECRET` | 검색수요 탭이 "연결되지 않았습니다"로 표시되고, 브랜드 로고 대신 글자 마크가 나옵니다 |
+키는 **다시 수집하거나 AI 상담 답변을 생성할 때만** 필요합니다.
 
-등록: 배포된 앱 → 우측 하단 `Manage app` → `Settings` → `Secrets` 에 아래를 붙여넣습니다.
+| 키 | 없을 때 화면 | 발급처 |
+|---|---|---|
+| `GEMINI_API_KEY` | AI 상담이 답변을 만들지 않고 **수집된 사실만 정리**해 보여줍니다 | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — `AIza…` 형식 |
+| `NCP_API_KEY_ID`<br>`NCP_API_KEY` | 이미 수집된 292개 브랜드의 검색수요는 **그대로 보입니다**. 갱신만 안 됩니다 | NCP 콘솔 → NAVER API HUB → Application |
+| `DART_API_KEY` | 이미 수집된 본부 재무는 그대로 보입니다. 갱신만 안 됩니다 | [opendart.fss.or.kr](https://opendart.fss.or.kr) |
+
+등록: 배포된 앱 → 우측 하단 `Manage app` → `Settings` → `Secrets` 에 붙여넣습니다.
 
 ```toml
 GEMINI_API_KEY = "여기에-키"
-NAVER_CLIENT_ID = "여기에-아이디"
-NAVER_CLIENT_SECRET = "여기에-시크릿"
+NCP_API_KEY_ID = "여기에-아이디"
+NCP_API_KEY = "여기에-시크릿"
+DART_API_KEY = "여기에-키"
 ```
 
 저장하면 앱이 자동 재시작합니다. `src/common.load_secrets()` 가 이 값을 환경변수로
 올리므로 코드 수정은 필요 없습니다.
 
+> ⚠️ **키를 저장소에 커밋하지 마십시오.** `.env` 는 `.gitignore` 에 있고, 배포는
+> 플랫폼 Secrets 로만 전달합니다. 이 대화에 붙여넣은 키들은 제출 전 재발급을 권합니다.
+
 ### 1-3. 자원 한도
 
-| 항목 | 사용량 | 한도 |
+| 항목 | 실측값 | Streamlit Cloud 한도 |
 |---|---|---|
-| 저장소 크기 | 242MB | 제한 없음 (파일당 100MB) |
+| 저장소 크기 | 251MB (clone 기준) | 제한 없음 (파일당 100MB) |
+| 최대 파일 | `rag_index.joblib` 64MB | 100MB |
 | RAG 색인 상주 메모리 | 236MB | — |
 | 앱 전체 상주 (추정) | 약 500MB | 약 2.7GB |
+
+첫 배포는 저장소 clone + 의존성 설치로 5~8분 걸립니다. 이후 재시작은 빠릅니다.
 
 RAG 색인은 배포를 감안해 `float32` + 문자 n-gram 상한 40,000 으로 줄였습니다
 (91MB → 67MB, 상주 263MB → 236MB). 줄이기 전후 검색 결과를 실측 비교해
@@ -110,7 +122,7 @@ python run_pipeline.py --step features
 python run_pipeline.py --step labels
 python run_pipeline.py --step model
 python run_pipeline.py --step score
-python run_pipeline.py --step demand      # 검색수요 (NAVER 키 필요, 선택)
+python run_pipeline.py --step demand      # 검색수요 + 브랜드 로고 (NCP 키 필요, 선택)
 python run_pipeline.py --step news        # 뉴스 (선택)
 python run_pipeline.py --step diagnose    # 브랜드별 진단 소견
 python -m src.rag                         # RAG 색인 재구축
@@ -125,11 +137,41 @@ python -m src.rag                         # RAG 색인 재구축
 ## 5. 배포 전 점검
 
 ```bash
-python -m ruff check src/ tools/ tests/
+python -m ruff check .
 python tests/test_sanity.py
 python tests/test_diagnosis.py
 python tests/test_llm_paths.py
+python tools/check_doc_numbers.py
 ```
 
 전부 통과해야 합니다. 마지막 확인 시점 기준: ruff 통과 · sanity 6/6 ·
-diagnosis 7/7 · LLM/RAG 4/4.
+diagnosis 8/8 · LLM/RAG 4/4 · 문서 수치 88건 일치.
+
+**새 clone 재현 확인** — 배포 환경과 같은 조건(키 없음)을 흉내 냅니다.
+
+```bash
+git clone https://github.com/SEUNGMINSHIN7277/franSCORE.git /tmp/franscore-check
+cd /tmp/franscore-check && pip install -r requirements.txt
+streamlit run src/app.py --server.port 8788
+```
+
+5개 화면이 모두 뜨고 오류가 없어야 합니다.
+
+---
+
+## 6. 네이버 API 자격증명 얻는 곳 (혼동하기 쉬움)
+
+네이버가 개발자센터 오픈API를 **NAVER API HUB**(네이버 클라우드)로 이관했습니다.
+둘은 자격증명도 엔드포인트도 다릅니다.
+
+| | 구 개발자센터 | **NAVER API HUB (현재 사용)** |
+|---|---|---|
+| 콘솔 | developers.naver.com | ncloud.com → NAVER API HUB |
+| 자격증명 | Client ID / Secret | Client ID / Secret (`X-NCP-APIGW-…`) |
+| 검색 API | 가능 | 가능 |
+| **검색어트렌드** | **불가** (Scope Status Invalid) | **가능** |
+
+Client ID 는 **10자 안팎**, Client Secret 은 **40자**입니다. 둘의 길이가 크게
+다르므로 헷갈리면 길이로 구분하십시오.
+
+경로: NCP 콘솔 → `NAVER API HUB` → `Application` → 앱 선택 → `인증 정보`
