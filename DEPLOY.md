@@ -25,7 +25,7 @@ https://share.streamlit.io/deploy?repository=SEUNGMINSHIN7277%2FfranSCORE&branch
 | Repository | `SEUNGMINSHIN7277/franSCORE` |
 | Branch | `main` |
 | Main file path | `src/app.py` |
-| Python version | `3.12` 또는 `3.13` (Advanced settings) |
+| Python version | **`3.13`** — `Advanced settings` 에서 **반드시 직접 지정** (아래 1-1-c) |
 | App URL | 원하는 주소 (예: `franscore`) |
 
 `Deploy!` 를 누르면 의존성 설치에 3~5분 걸립니다.
@@ -73,6 +73,37 @@ https://github.com/SEUNGMINSHIN7277/franSCORE/blob/main/src/app.py
 저장소 루트 URL 을 넣으면
 `The field needs to contain a Github URL pointing to a .py file` 로 거부됩니다.
 이 모드 역시 비공개 저장소면 1-1-a 의 권한 승인이 선행돼야 합니다.
+
+### 1-1-c. ⚠️ Python 은 3.13 이어야 합니다 (실제로 여기서 막혔음)
+
+`Advanced settings` 에서 지정하지 않으면 Community Cloud 가 **최신 Python(3.14)** 을
+잡습니다. 그러면 아래 네 패키지가 **3.14용 wheel 이 없어 소스 빌드로 넘어가고**,
+컨테이너에 컴파일러·meson·BLAS 가 없으므로 끝내 완료되지 않습니다.
+
+| 패키지 | Python 3.13 | Python 3.14 |
+|---|---|---|
+| `numpy==2.2.4` | wheel 있음 | **없음** |
+| `pandas==2.2.3` | wheel 있음 | **없음** |
+| `scikit-learn==1.6.1` | wheel 있음 | **없음** |
+| `matplotlib==3.10.1` | wheel 있음 | **없음** |
+| 나머지 8개 (lightgbm·shap·pyarrow·streamlit·plotly·joblib·openpyxl·PyYAML) | 있음 | 있음 |
+
+`Resolved 67 packages in 655ms` 까지는 정상적으로 지나가므로 성공한 것처럼 보입니다.
+**의존성 해석은 성공하고 그다음 빌드에서 막히는 것**이라, 로그가 조용한 채로
+20 분 넘게 흐르다 머신이 재기동되면 이 증상입니다.
+
+버전 핀을 푸는 방식은 권하지 않습니다. 학습된 모델이 `scikit-learn 1.6.1` ·
+`lightgbm 4.7.0` 으로 직렬화돼 있어 상위 버전에서 언피클 경고·오류가 날 수 있고,
+재현성 보증이 이 프로젝트의 주장 중 하나이기 때문입니다. Python 쪽을 맞춥니다.
+
+**이미 3.14 로 배포해 버렸다면** — Community Cloud 는 배포 후 Python 버전 변경을
+지원하지 않습니다. 앱을 지우고 다시 만들어야 합니다. 서브도메인은 삭제 즉시
+재사용할 수 있으므로 주소는 그대로 유지됩니다.
+
+1. 앱 목록에서 해당 앱 우측 **점 세 개** → **`Delete app`** (확인창에 앱 이름 입력)
+2. **`Create app`** → 저장소·브랜치·`src/app.py` 지정
+3. App URL 에 **같은 이름** 다시 입력
+4. **`Advanced settings`** → `Python version` **`3.13`** → Secrets 입력 → `Save` → `Deploy!`
 
 ### 1-2. API 키 등록 (선택)
 
