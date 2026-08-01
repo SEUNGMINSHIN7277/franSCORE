@@ -1,0 +1,112 @@
+{
+  "cuts": [
+    0.05,
+    0.105
+  ],
+  "old_cuts": [
+    0.7,
+    0.9
+  ],
+  "n_rows": 3576,
+  "years": [
+    2021,
+    2022,
+    2023
+  ],
+  "distribution": {
+    "new_top_share_by_year": {
+      "2021": 0.2435,
+      "2022": 0.2743,
+      "2023": 0.2498
+    },
+    "old_top_share_by_year": {
+      "2021": 0.1004,
+      "2022": 0.1006,
+      "2023": 0.1002
+    },
+    "new_top_share_sd": 0.016272,
+    "old_top_share_sd": 0.0002
+  },
+  "realized": {
+    "new": [
+      {
+        "grade": "FS1",
+        "n": 807,
+        "events": 13,
+        "rate": 0.016109,
+        "ci_lo": 0.008605,
+        "ci_hi": 0.027389
+      },
+      {
+        "grade": "FS2",
+        "n": 992,
+        "events": 78,
+        "rate": 0.078629,
+        "ci_lo": 0.062646,
+        "ci_hi": 0.097163
+      },
+      {
+        "grade": "FS3",
+        "n": 264,
+        "events": 100,
+        "rate": 0.378788,
+        "ci_lo": 0.320036,
+        "ci_hi": 0.440294
+      }
+    ],
+    "old": [
+      {
+        "grade": "Low",
+        "n": 1734,
+        "events": 85,
+        "rate": 0.04902,
+        "ci_lo": 0.03934,
+        "ci_hi": 0.060259
+      },
+      {
+        "grade": "Medium",
+        "n": 214,
+        "events": 59,
+        "rate": 0.275701,
+        "ci_lo": 0.216982,
+        "ci_hi": 0.340751
+      },
+      {
+        "grade": "High",
+        "n": 115,
+        "events": 47,
+        "rate": 0.408696,
+        "ci_lo": 0.317941,
+        "ci_hi": 0.504271
+      }
+    ],
+    "new_monotone": true,
+    "old_monotone": true,
+    "new_ci_separated": 2,
+    "old_ci_separated": 1,
+    "new_monotone_years": 3,
+    "old_monotone_years": 3,
+    "n_years": 3
+  },
+  "no_change_migration": {
+    "n_pairs_no_change": 651,
+    "new_moved": 0,
+    "old_moved": 43,
+    "new_rate": 0.0,
+    "old_rate": 0.066052
+  },
+  "queue": {
+    "new": {
+      "share_of_cohort": 0.128,
+      "capture_of_events": 0.5236,
+      "precision": 0.3788,
+      "n": 264
+    },
+    "old": {
+      "share_of_cohort": 0.0557,
+      "capture_of_events": 0.2461,
+      "precision": 0.4087,
+      "n": 115
+    }
+  }
+}
