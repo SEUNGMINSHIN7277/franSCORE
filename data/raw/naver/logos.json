@@ -90,10 +90,10 @@
   "file": ""
  },
  "역전할머니맥주1982": {
-  "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "yeokjeonfnc.com",
+  "px": 64,
+  "file": "data/raw/naver/logo_img/f5742255ec1e2f77.png",
   "rejected": "도메인 공유(62개 브랜드)",
   "pruned": "shared"
  },
@@ -242,10 +242,10 @@
   "file": "data/raw/naver/logo_img/0e4d1f9e128c7af0.png"
  },
  "밥스토랑": {
-  "url": "",
-  "domain": "pf.kakao.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "bizhankook.com",
+  "px": 180,
+  "file": "data/raw/naver/logo_img/fa0635790a2331a1.png",
   "rejected": "도메인 공유(7개 브랜드)"
  },
  "또래오래": {
@@ -263,9 +263,9 @@
  "피자마루": {
   "url": "",
   "domain": "gflix.kr",
-  "px": 0,
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "탕화쿵푸마라탕": {
@@ -277,9 +277,9 @@
  "명랑시대쌀핫도그": {
   "url": "",
   "domain": "www.jumpoline.com",
-  "px": 0,
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "봉구스밥버거": {
@@ -289,19 +289,19 @@
   "file": ""
  },
  "또봉이통닭": {
-  "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "ttobongee.com",
+  "px": 105,
+  "file": "data/raw/naver/logo_img/4e42ca2488e597f7.png",
   "rejected": "도메인 공유(16개 브랜드)",
   "pruned": "shared"
  },
  "크라운호프보리장인": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "www.jobplanet.co.kr",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "맥시칸치킨": {
@@ -329,10 +329,11 @@
   "file": ""
  },
  "일품양평해장국": {
-  "url": "https://www.jemin.com/image/logo/snslogo_20200707023821.png",
+  "url": "",
   "domain": "www.jemin.com",
   "px": 200,
-  "file": "data/raw/naver/logo_img/fbdda93262367f6c.png"
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "가장맛있는족발": {
   "url": "",
@@ -355,9 +356,9 @@
  "카페요아정": {
   "url": "",
   "domain": "www.changupdo.com",
-  "px": 0,
+  "px": 100,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "반올림피자": {
@@ -409,10 +410,10 @@
   "file": "data/raw/naver/logo_img/bda32bd986a512e4.png"
  },
  "배떡": {
-  "url": "",
-  "domain": "thewiki.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "unisquads.io",
+  "px": 180,
+  "file": "data/raw/naver/logo_img/5e10fd5c12dac9e6.png",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
@@ -425,9 +426,9 @@
  "죽이야기": {
   "url": "",
   "domain": "www.ggilbo.com",
-  "px": 0,
+  "px": 200,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "청년피자": {
@@ -445,16 +446,16 @@
  "홍콩반점0410": {
   "url": "",
   "domain": "www.theborn.co.kr",
-  "px": 0,
+  "px": 192,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "커피베이": {
-  "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.coffeebay.com",
+  "px": 630,
+  "file": "data/raw/naver/logo_img/3619b5a39a677c06.png",
   "rejected": "도메인 공유(16개 브랜드)",
   "pruned": "shared"
  },
@@ -510,17 +511,17 @@
  },
  "엑스오엑스오푸드카페": {
   "url": "",
-  "domain": "fchalab.com",
-  "px": 0,
+  "domain": "sosangong.com",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "담꾹": {
-  "url": "",
-  "domain": "www.mk.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.damgguk.com",
+  "px": 96,
+  "file": "data/raw/naver/logo_img/64e7240249f6dc4c.png",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
@@ -555,18 +556,18 @@
   "file": ""
  },
  "피자알볼로": {
-  "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "doublesp.com",
+  "px": 192,
+  "file": "data/raw/naver/logo_img/af5d774a6c9eba8b.png",
   "rejected": "도메인 공유(16개 브랜드)",
   "pruned": "shared"
  },
  "기영이숯불두마리치킨": {
-  "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "bluecvs.com",
+  "px": 512,
+  "file": "data/raw/naver/logo_img/743b1fe3aaf75486.png",
   "rejected": "도메인 공유(16개 브랜드)",
   "pruned": "shared"
  },
@@ -579,7 +580,7 @@
  "빽보이피자": {
   "url": "",
   "domain": "www.theborn.co.kr",
-  "px": 0,
+  "px": 192,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
@@ -587,9 +588,9 @@
  "달리는커피": {
   "url": "",
   "domain": "www.siminilbo.co.kr",
-  "px": 0,
+  "px": 350,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "국수나무": {
@@ -613,7 +614,7 @@
  "오복 오봉집": {
   "url": "",
   "domain": "story.kakao.com",
-  "px": 0,
+  "px": 180,
   "file": "",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
@@ -633,7 +634,7 @@
  "얌샘김밥": {
   "url": "",
   "domain": "yumsem.com",
-  "px": 0,
+  "px": 192,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -670,8 +671,8 @@
  },
  "벌크커피(BULK COFFEE)": {
   "url": "",
-  "domain": "www.jumpoline.com",
-  "px": 0,
+  "domain": "www.bulkcoffee-fran.co.kr",
+  "px": 180,
   "file": "",
   "rejected": "도메인 공유(29개 브랜드)",
   "pruned": "shared"
@@ -707,10 +708,10 @@
   "file": "data/raw/naver/logo_img/7e3e053fa7781acf.png"
  },
  "마장동 고기집": {
-  "url": "",
-  "domain": "imweb.me",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "mjdgo.com",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/13660d605eebde9f.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
@@ -735,9 +736,9 @@
  "노브랜드 버거(No Brand Burger)": {
   "url": "",
   "domain": "m.ekn.kr",
-  "px": 0,
+  "px": 128,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "읍천리 382": {
@@ -755,7 +756,7 @@
  "요거트아이스크림의 정석": {
   "url": "",
   "domain": "apps.apple.com",
-  "px": 0,
+  "px": 180,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -768,15 +769,15 @@
  },
  "설동궁찜닭": {
   "url": "",
-  "domain": "jusogo.kr",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)"
+  "rejected": "도메인 공유(28개 브랜드)"
  },
  "33떡볶이": {
   "url": "",
-  "domain": "www.shinailbo.co.kr",
-  "px": 0,
+  "domain": "xn--33-w62in4ae0vjogbrexyby61c.com",
+  "px": 630,
   "file": "",
   "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
@@ -801,10 +802,10 @@
   "rejected": "도메인 공유(2개 브랜드)"
  },
  "생마차": {
-  "url": "",
-  "domain": "www.shinailbo.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.beer1900.com",
+  "px": 76,
+  "file": "data/raw/naver/logo_img/ef39ad1587cdeff9.png",
   "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
@@ -828,8 +829,8 @@
  },
  "스텔라떡볶이": {
   "url": "",
-  "domain": "www.mk.co.kr",
-  "px": 0,
+  "domain": "www.goodnovel.com",
+  "px": 72,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
@@ -847,10 +848,10 @@
   "file": ""
  },
  "장호덕손만두": {
-  "url": "",
-  "domain": "www.mokpo.go.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.jangmandoo.com",
+  "px": 600,
+  "file": "data/raw/naver/logo_img/4120e4ccbd247dc7.png",
   "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
@@ -862,10 +863,10 @@
  },
  "대박삼겹김치찜&초대박등갈비김치찜": {
   "url": "",
-  "domain": "www.kbsm.net",
-  "px": 0,
+  "domain": "www.joongang.co.kr",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "쥬씨(JUICY)": {
@@ -888,10 +889,10 @@
  },
  "치킨신드롬": {
   "url": "",
-  "domain": "xn--hu1b83jnmp41b93b.com",
-  "px": 0,
+  "domain": "cookiedeal.io",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(9개 브랜드)"
  },
  "정직유부": {
   "url": "http://www.jjub0524.com/favicon.ico",
@@ -920,9 +921,9 @@
  "목구멍": {
   "url": "",
   "domain": "korean.visitseoul.net",
-  "px": 0,
+  "px": 292,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "프레드피자": {
@@ -932,26 +933,26 @@
   "file": "data/raw/naver/logo_img/1f87999346e3cc27.png"
  },
  "코코호도": {
-  "url": "",
-  "domain": "imweb.me",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "cocohodo.co.kr",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/b7cdd29cfcefc335.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "바른보쌈1990": {
   "url": "",
-  "domain": "weseb.com",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "백억커피": {
-  "url": "",
-  "domain": "www.shinailbo.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "10billioncoffee.co.kr",
+  "px": 96,
+  "file": "data/raw/naver/logo_img/02894a94cbb27f65.png",
   "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
@@ -960,21 +961,22 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "요거트월드": {
-  "url": "https://www.dailysecu.com/image/logo/snslogotrans_20250610104120.jpg",
+  "url": "",
   "domain": "www.dailysecu.com",
   "px": 630,
-  "file": "data/raw/naver/logo_img/deff4d8d4337e86e.png"
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "한신우동": {
   "url": "",
-  "domain": "www.tiktok.com",
-  "px": 0,
+  "domain": "tadkerake.com",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "뉴욕버거": {
@@ -991,10 +993,10 @@
  },
  "고기듬뿍국물두루치기": {
   "url": "",
-  "domain": "startuplus.kr",
-  "px": 0,
+  "domain": "www.bluer.co.kr",
+  "px": 315,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "화락바베큐치킨": {
@@ -1005,10 +1007,10 @@
  },
  "돼지게티": {
   "url": "",
-  "domain": "imweb.me",
-  "px": 0,
+  "domain": "gflix.kr",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "조마루감자탕": {
@@ -1026,7 +1028,7 @@
  "놀부부대찌개": {
   "url": "",
   "domain": "www.dailypop.kr",
-  "px": 0,
+  "px": 200,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -1034,7 +1036,7 @@
  "까투리": {
   "url": "",
   "domain": "www.yna.co.kr",
-  "px": 0,
+  "px": 180,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -1058,19 +1060,19 @@
   "file": ""
  },
  "팔각도": {
-  "url": "",
-  "domain": "www.shinailbo.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "8gakdo.co.kr",
+  "px": 211,
+  "file": "data/raw/naver/logo_img/4b051b2efa60a867.png",
   "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
  "카페프리헷": {
   "url": "",
-  "domain": "litt.ly",
-  "px": 0,
+  "domain": "tadkerake.com",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "티바두마리치킨": {
@@ -1082,7 +1084,7 @@
  "완미족발": {
   "url": "",
   "domain": "buza.biz",
-  "px": 0,
+  "px": 512,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -1136,10 +1138,10 @@
   "file": ""
  },
  "PLUS 82(플러스 82)": {
-  "url": "",
-  "domain": "pf.kakao.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "plus82project.com",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/3b0b1fcdbe47e5b2.png",
   "rejected": "도메인 공유(7개 브랜드)"
  },
  "더카페": {
@@ -1151,7 +1153,7 @@
  "드롭탑(DROPTOP)": {
   "url": "",
   "domain": "www.sportschosun.com",
-  "px": 0,
+  "px": 144,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -1206,10 +1208,10 @@
  },
  "피자에땅": {
   "url": "",
-  "domain": "weseb.com",
-  "px": 0,
+  "domain": "myteatime.kr",
+  "px": 196,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "소림마라": {
@@ -1250,7 +1252,7 @@
  },
  "이비가짬뽕": {
   "url": "",
-  "domain": "linkareer.com",
+  "domain": "www.ebiga.co.kr",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(6개 브랜드)",
@@ -1270,7 +1272,7 @@
  },
  "주식회사포차천국": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "changup4u.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(62개 브랜드)",
@@ -1295,10 +1297,10 @@
   "file": "data/raw/naver/logo_img/a5939f0d0610cf4a.png"
  },
  "롤링파스타": {
-  "url": "",
-  "domain": "card.kbcard.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.etoday.co.kr",
+  "px": 64,
+  "file": "data/raw/naver/logo_img/fd10c87eb07e9b23.png",
   "rejected": "도메인 공유(18개 브랜드)",
   "pruned": "shared"
  },
@@ -1323,7 +1325,7 @@
  "푸줏간 고기도시락": {
   "url": "",
   "domain": "www.dailypop.kr",
-  "px": 0,
+  "px": 200,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -1348,18 +1350,18 @@
  },
  "김선생불닭발": {
   "url": "",
-  "domain": "startuplus.kr",
-  "px": 0,
+  "domain": "www.theshim.net",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "김사부의곱창명가": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "www.theshim.net",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "79대포": {
@@ -1373,7 +1375,7 @@
   "domain": "www.gimhae.go.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(12개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "순살만공격": {
   "url": "",
@@ -1383,7 +1385,7 @@
  },
  "청자다방": {
   "url": "",
-  "domain": "bizk.co.kr",
+  "domain": "www.cheongjadabang.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(20개 브랜드)"
@@ -1407,40 +1409,40 @@
   "file": "data/raw/naver/logo_img/ed1aba2d7a6c02bb.png"
  },
  "라무진": {
-  "url": "",
-  "domain": "card.kbcard.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.beer2day.com",
+  "px": 600,
+  "file": "data/raw/naver/logo_img/1ef6495cf4ec5d5a.png",
   "rejected": "도메인 공유(18개 브랜드)",
   "pruned": "shared"
  },
  "알통떡강정": {
-  "url": "",
-  "domain": "www.changupdo.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "webstyle21.com",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/76c9027f174eb1df.png",
   "rejected": "도메인 공유(45개 브랜드)",
   "pruned": "shared"
  },
  "셀렉토커피": {
   "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
+  "domain": "www.mhns.co.kr",
+  "px": 200,
   "file": "",
-  "rejected": "도메인 공유(16개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "김종구식맛치킨ㆍ 전기바베큐 옛날통닭": {
   "url": "",
   "domain": "www.daangn.com",
-  "px": 0,
+  "px": 100,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "봉추찜닭": {
   "url": "",
-  "domain": "www.seouldanurim.net",
+  "domain": "www.bongchu.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
@@ -1483,10 +1485,10 @@
   "file": "data/raw/naver/logo_img/4c10a0ce379efc4d.png"
  },
  "에그폭탄덮밥": {
-  "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "eggbomb.co.kr",
+  "px": 400,
+  "file": "data/raw/naver/logo_img/b913cabddbc854e2.png",
   "rejected": "도메인 공유(62개 브랜드)",
   "pruned": "shared"
  },
@@ -1503,10 +1505,10 @@
   "file": "data/raw/naver/logo_img/0f179bb9560fbe7a.png"
  },
  "육칠이": {
-  "url": "",
-  "domain": "card.kbcard.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "shopjubang.co.kr",
+  "px": 150,
+  "file": "data/raw/naver/logo_img/4bd31083977a5643.png",
   "rejected": "도메인 공유(18개 브랜드)",
   "pruned": "shared"
  },
@@ -1525,9 +1527,9 @@
  "올쿡24": {
   "url": "",
   "domain": "cookiedeal.io",
-  "px": 0,
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "닥엔돈스": {
@@ -1543,10 +1545,10 @@
   "file": ""
  },
  "빅스타피자(Bigstar Pizza)": {
-  "url": "",
-  "domain": "card.kbcard.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.bigstarpizza.co.kr",
+  "px": 150,
+  "file": "data/raw/naver/logo_img/19151e88bccdd94d.png",
   "rejected": "도메인 공유(18개 브랜드)",
   "pruned": "shared"
  },
@@ -1609,14 +1611,14 @@
   "domain": "easyjeju.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)"
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "긴자료코": {
   "url": "",
-  "domain": "www.fctime.net",
+  "domain": "www.sbiz.or.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "천씨씨커피": {
   "url": "https://mestarry.com/favicon.ico",
@@ -1679,18 +1681,18 @@
   "file": "data/raw/naver/logo_img/3b094e618e8611a0.png"
  },
  "아마스빈": {
-  "url": "",
-  "domain": "www.changupdo.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.gazilab.co",
+  "px": 720,
+  "file": "data/raw/naver/logo_img/2f420e6733473a9d.png",
   "rejected": "도메인 공유(45개 브랜드)",
   "pruned": "shared"
  },
  "핵밥": {
-  "url": "",
-  "domain": "www.kbsm.net",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "hecbob.com",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/156e5538aa3475ac.png",
   "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
@@ -1711,7 +1713,7 @@
   "domain": "fctier.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "바우네나주곰탕": {
@@ -1731,7 +1733,7 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "밥풀릭스": {
@@ -1743,9 +1745,9 @@
  "커스텀커피": {
   "url": "",
   "domain": "tadkerake.com",
-  "px": 0,
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "기대만족": {
@@ -1783,7 +1785,7 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "제육대가": {
@@ -1791,7 +1793,7 @@
   "domain": "infosori.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(8개 브랜드)",
   "pruned": "shared"
  },
  "코리안바베큐": {
@@ -1813,10 +1815,10 @@
   "file": "data/raw/naver/logo_img/d87eff6a224ddf0a.png"
  },
  "미태리": {
-  "url": "",
-  "domain": "litt.ly",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "mymitaly.com",
+  "px": 600,
+  "file": "data/raw/naver/logo_img/70be652213ac6243.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
@@ -1848,9 +1850,9 @@
  "토프레소": {
   "url": "",
   "domain": "www.mhns.co.kr",
-  "px": 0,
+  "px": 200,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "도야족발보쌈": {
@@ -1858,7 +1860,7 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "담소 소사골 순대 육개장": {
@@ -1880,10 +1882,10 @@
   "file": "data/raw/naver/logo_img/48999c555e3c631c.png"
  },
  "신참떡볶이": {
-  "url": "",
-  "domain": "pf.kakao.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.sincham.com",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/84d0b8a04dcfc7b8.png",
   "rejected": "도메인 공유(7개 브랜드)"
  },
  "라화쿵부": {
@@ -1912,7 +1914,7 @@
  },
  "팔팔포장마차": {
   "url": "",
-  "domain": "jusogo.kr",
+  "domain": "new.emmaru.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)"
@@ -1922,7 +1924,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "로띠번": {
@@ -1940,7 +1942,7 @@
  "박가부대": {
   "url": "",
   "domain": "www.wonandone.co.kr",
-  "px": 0,
+  "px": 400,
   "file": "",
   "rejected": "동일 이미지가 다른 브랜드에도 사용됨",
   "pruned": "shared"
@@ -1959,10 +1961,10 @@
  },
  "하루엔소쿠": {
   "url": "",
-  "domain": "yesexpo.co.kr",
+  "domain": "se.expopia.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(10개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "피자스톰": {
@@ -1974,21 +1976,21 @@
  "더꼬치다": {
   "url": "",
   "domain": "grt.purpleo.kr",
-  "px": 0,
-  "file": "",
+  "px": 64,
+  "file": "data/raw/naver/logo_img/fce45b1f00caa312.png",
   "pruned": "shared"
  },
  "도로시파스타": {
   "url": "",
-  "domain": "infosori.com",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "무지개맥주": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "www.rainbowbeer.co.kr",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(62개 브랜드)",
@@ -2007,18 +2009,18 @@
   "file": "data/raw/naver/logo_img/19235b5a2f812bc6.png"
  },
  "길동우동": {
-  "url": "",
-  "domain": "weseb.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "gildongudong.com",
+  "px": 210,
+  "file": "data/raw/naver/logo_img/51ad0040babfcd86.png",
   "rejected": "도메인 공유(37개 브랜드)",
   "pruned": "shared"
  },
  "고반식당": {
-  "url": "",
-  "domain": "www.gimhae.go.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "gobanglobal.co.kr",
+  "px": 630,
+  "file": "data/raw/naver/logo_img/1e7c6776930bca05.png",
   "rejected": "도메인 공유(12개 브랜드)"
  },
  "윤이불닭발": {
@@ -2028,10 +2030,10 @@
   "file": ""
  },
  "새마을식당": {
-  "url": "",
-  "domain": "www.insight.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "newmaul.com",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/fc7be3d08ad74835.png",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
@@ -2040,7 +2042,7 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "인생닭강정": {
@@ -2057,17 +2059,17 @@
  },
  "마라공방": {
   "url": "",
-  "domain": "infosori.com",
+  "domain": "maps.openers.ai",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "커피마마": {
-  "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.famtimes.co.kr",
+  "px": 630,
+  "file": "data/raw/naver/logo_img/8e17f0bc29ae1551.png",
   "rejected": "도메인 공유(16개 브랜드)",
   "pruned": "shared"
  },
@@ -2079,10 +2081,10 @@
  },
  "요달의찜닭": {
   "url": "",
-  "domain": "www.jumpoline.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "발도스커피(valdos coffee)": {
@@ -2090,7 +2092,7 @@
   "domain": "yesexpo.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(10개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "라라코스트(raracost)": {
@@ -2112,10 +2114,10 @@
   "file": "data/raw/naver/logo_img/a5d067bbaab9116a.png"
  },
  "진이찬방": {
-  "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "jinifood.co.kr",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/fff0f7da2870a1fe.png",
   "rejected": "도메인 공유(16개 브랜드)",
   "pruned": "shared"
  },
@@ -2172,7 +2174,7 @@
   "domain": "www.shinailbo.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "명인만두": {
@@ -2182,10 +2184,10 @@
   "file": "data/raw/naver/logo_img/eed57b1bdde23aee.png"
  },
  "이것이국밥이다": {
-  "url": "",
-  "domain": "www.store114.net",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "byeolhaexp.com",
+  "px": 400,
+  "file": "data/raw/naver/logo_img/83e42fab8b70c1ed.png",
   "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
@@ -2203,10 +2205,10 @@
  },
  "홍콩할매닭발명가": {
   "url": "",
-  "domain": "duli.co.kr",
+  "domain": "localmap.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(7개 브랜드)"
+  "rejected": "도메인 공유(6개 브랜드)"
  },
  "꼬지사께": {
   "url": "http://kkojisakke.com/new/img/common/bi.png",
@@ -2216,8 +2218,8 @@
  },
  "일품대패": {
   "url": "",
-  "domain": "www.mokpo.go.kr",
-  "px": 0,
+  "domain": "www.tiktok.com",
+  "px": 400,
   "file": "",
   "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
@@ -2241,7 +2243,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "대동집": {
@@ -2251,10 +2253,10 @@
   "file": "data/raw/naver/logo_img/aaef185a362f829a.png"
  },
  "만복집": {
-  "url": "",
-  "domain": "www.store114.net",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.manboknoodle.com",
+  "px": 134,
+  "file": "data/raw/naver/logo_img/52c31fa934fdba49.png",
   "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
@@ -2275,7 +2277,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "만랩커피": {
@@ -2295,7 +2297,7 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "청담동말자싸롱": {
@@ -2309,7 +2311,7 @@
   "domain": "yesexpo.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(10개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "인생건어물맥주": {
@@ -2323,13 +2325,13 @@
   "domain": "weseb.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "디디치킨(DD치킨)": {
   "url": "",
   "domain": "www.sportschosun.com",
-  "px": 0,
+  "px": 144,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -2345,7 +2347,7 @@
   "domain": "check.kkuda.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "리얼펍": {
@@ -2405,9 +2407,9 @@
  "샐러리아 SALARIA": {
   "url": "",
   "domain": "ddak.disco.re",
-  "px": 0,
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "행복한찜닭": {
@@ -2415,7 +2417,7 @@
   "domain": "yesexpo.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(10개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "오마뎅": {
@@ -2443,11 +2445,11 @@
   "file": ""
  },
  "강다짐": {
-  "url": "",
-  "domain": "www.gimhae.go.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(12개 브랜드)"
+  "url": "(재탐색)",
+  "domain": "www.ziksir.com",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/7eb73697d01c7de4.png",
+  "rejected": "도메인 공유(11개 브랜드)"
  },
  "무모한 초밥": {
   "url": "",
@@ -2471,10 +2473,10 @@
  },
  "화평댁닭구이": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "weekly.donga.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "옥된장": {
@@ -2491,10 +2493,10 @@
  },
  "북창동순두부": {
   "url": "",
-  "domain": "litt.ly",
+  "domain": "dkore.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "걸작떡볶이치킨": {
@@ -2506,9 +2508,9 @@
  "편편집": {
   "url": "",
   "domain": "tadkerake.com",
-  "px": 0,
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "내가닭도리탕이다": {
@@ -2544,7 +2546,7 @@
  "삼동소바": {
   "url": "",
   "domain": "www.sentv.co.kr",
-  "px": 0,
+  "px": 512,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -2572,7 +2574,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "배터지는생동까스": {
@@ -2582,11 +2584,11 @@
   "file": ""
  },
  "커피사피엔스": {
-  "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(16개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "cff-sapiens.com",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/5cb15ac2e90d500e.png",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "압구정화로구이": {
@@ -2615,25 +2617,25 @@
  },
  "모락떡볶이": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "냠냠숯불두마리치킨": {
   "url": "",
-  "domain": "pf.kakao.com",
-  "px": 0,
+  "domain": "www.dailian.co.kr",
+  "px": 283,
   "file": "",
-  "rejected": "도메인 공유(7개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "봉자막창": {
-  "url": "",
-  "domain": "weseb.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.bongjafood.com",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/6c8ac285c4bbe219.png",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "혜화동 돈까스극장": {
@@ -2643,10 +2645,10 @@
   "file": "data/raw/naver/logo_img/8e785b8c599a31ec.png"
  },
  "뉴욕야시장": {
-  "url": "",
-  "domain": "www.richfood.net",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "newyorknightmarket.co.kr",
+  "px": 400,
+  "file": "data/raw/naver/logo_img/68723a10f988c82b.png",
   "rejected": "도메인 공유(3개 브랜드)"
  },
  "국밥생각": {
@@ -2701,7 +2703,8 @@
   "url": "",
   "domain": "localmap.co.kr",
   "px": 0,
-  "file": ""
+  "file": "",
+  "rejected": "도메인 공유(6개 브랜드)"
  },
  "맛깔참죽": {
   "url": "http://www.yesjuk.com/_images/common/thumb_img.png",
@@ -2729,10 +2732,10 @@
  },
  "정통집": {
   "url": "",
-  "domain": "weseb.com",
-  "px": 0,
+  "domain": "ayo.pe.kr",
+  "px": 642,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "오늘통닭": {
@@ -2743,10 +2746,10 @@
  },
  "대패가1900": {
   "url": "",
-  "domain": "linkareer.com",
-  "px": 0,
+  "domain": "thinkyou.co.kr",
+  "px": 126,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "고집센그집갈비탕": {
@@ -2754,7 +2757,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "왓더버거": {
@@ -2770,11 +2773,11 @@
   "file": ""
  },
  "무청감자탕": {
-  "url": "",
-  "domain": "www.shinailbo.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "xn--439a300aikjt7ec1f.com",
+  "px": 96,
+  "file": "data/raw/naver/logo_img/18c438ca2876e0c2.png",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "웅이네 오돌뼈": {
@@ -2797,10 +2800,10 @@
  },
  "아부찌부대찌개": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "샐러디아": {
@@ -2811,17 +2814,17 @@
  },
  "효자동솥뚜껑삼겹살감자탕순대국": {
   "url": "",
-  "domain": "fctier.kr",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "충만치킨": {
   "url": "https://choongman.co.kr/images/shortcut.png",
   "domain": "choongman.co.kr",
-  "px": 24,
-  "file": ""
+  "px": 416,
+  "file": "data/raw/naver/logo_img/f2a50efba6555f58.png"
  },
  "부산아지매국밥": {
   "url": "https://www.busanajimae.com/images/og.jpg",
@@ -2831,24 +2834,24 @@
  },
  "호시타코야끼": {
   "url": "",
-  "domain": "infosori.com",
-  "px": 0,
+  "domain": "local.114-service.co.kr",
+  "px": 150,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "이동규인왔따쪽갈비": {
   "url": "",
-  "domain": "fctier.kr",
-  "px": 0,
+  "domain": "sosangong.com",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "백스비어": {
   "url": "",
   "domain": "www.fetv.co.kr",
-  "px": 0,
+  "px": 630,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -2862,7 +2865,7 @@
  "돈까스짱": {
   "url": "",
   "domain": "www.fetv.co.kr",
-  "px": 0,
+  "px": 630,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -2887,11 +2890,11 @@
   "file": ""
  },
  "만타스시31": {
-  "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.incheonilbo.com",
+  "px": 600,
+  "file": "data/raw/naver/logo_img/caf15f01c81ae595.png",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "아주커": {
@@ -2926,18 +2929,18 @@
  },
  "두부만드는사람들": {
   "url": "",
-  "domain": "www.jumpoline.com",
+  "domain": "dumansa.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(27개 브랜드)",
   "pruned": "shared"
  },
  "스트릿츄러스": {
-  "url": "",
-  "domain": "www.gimhae.go.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(12개 브랜드)"
+  "url": "(재탐색)",
+  "domain": "www.starfield.co.kr",
+  "px": 192,
+  "file": "data/raw/naver/logo_img/5f380ea8ceba6d7c.png",
+  "rejected": "도메인 공유(11개 브랜드)"
  },
  "카페인24": {
   "url": "https://cdn.imweb.me/thumbnail/20251027/88b40e0bdd97c.png",
@@ -2966,33 +2969,33 @@
  "유미카츠": {
   "url": "",
   "domain": "www.goodnovel.com",
-  "px": 0,
+  "px": 72,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "싸움의고수": {
   "url": "",
-  "domain": "linkareer.com",
-  "px": 0,
+  "domain": "thinkyou.co.kr",
+  "px": 126,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "언양닭칼국수": {
-  "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "whataulsan.com",
+  "px": 128,
+  "file": "data/raw/naver/logo_img/ed4f491082142c3a.png",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "동경에서먹었던규동": {
   "url": "",
-  "domain": "weseb.com",
-  "px": 0,
+  "domain": "f-cha.co.kr",
+  "px": 196,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "COFFEE COOK (커피쿡)": {
@@ -3003,18 +3006,18 @@
  },
  "올떡": {
   "url": "",
-  "domain": "www.slist.kr",
-  "px": 0,
+  "domain": "www.thepublic.kr",
+  "px": 200,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "수백당": {
   "url": "",
-  "domain": "www.gimhae.go.kr",
-  "px": 0,
+  "domain": "www.linktoplace.com",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(12개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "명태어장": {
   "url": "",
@@ -3045,7 +3048,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "브라더한정식도시락": {
@@ -3065,7 +3068,7 @@
   "domain": "www.kbsm.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "지지고(GGGO)": {
@@ -3076,10 +3079,10 @@
  },
  "파스타에반하다": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "한양화로": {
@@ -3096,10 +3099,10 @@
  },
  "박군치킨": {
   "url": "",
-  "domain": "weseb.com",
+  "domain": "www.parkgunchicken.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "과일담은 요거트 맛집 요맛": {
@@ -3107,30 +3110,30 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "컬투치킨": {
-  "url": "",
-  "domain": "card.kbcard.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.cultwofnb.com",
+  "px": 128,
+  "file": "data/raw/naver/logo_img/c2cebec1e34cfc11.png",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "달떡볶이": {
-  "url": "",
-  "domain": "www.mimint.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "dal-tokk.co.kr",
+  "px": 1080,
+  "file": "data/raw/naver/logo_img/2ecca3bbb442fd77.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "일일수작": {
-  "url": "",
-  "domain": "www.mimint.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "codaaiere.com",
+  "px": 192,
+  "file": "data/raw/naver/logo_img/b9aff43ecb386348.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
@@ -3144,14 +3147,15 @@
   "url": "",
   "domain": "www.sbiz.or.kr",
   "px": 0,
-  "file": ""
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "마포냉면 숯불구이": {
   "url": "",
   "domain": "jumpo.shop",
-  "px": 0,
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
  "삼겹본능": {
@@ -3159,7 +3163,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "칠봉통닭": {
@@ -3167,7 +3171,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "차얌": {
@@ -3181,37 +3185,38 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "동네커피": {
-  "url": "",
-  "domain": "www.changupdo.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.dongnae-coffee.com",
+  "px": 315,
+  "file": "data/raw/naver/logo_img/58969d3171538923.png",
+  "rejected": "도메인 공유(43개 브랜드)",
   "pruned": "shared"
  },
  "배무치숯불두마리치킨": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "www.tiktok.com",
+  "px": 400,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "놀부보쌈족발": {
-  "url": "https://cdn.imweb.me/thumbnail/20230314/fafb4adbd246b.png",
+  "url": "",
   "domain": "myteatime.kr",
   "px": 196,
-  "file": "data/raw/naver/logo_img/609854802726a2d8.png"
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "유로코피자(EUROKO PIZZA)": {
   "url": "",
   "domain": "gflix.kr",
-  "px": 0,
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "백남옥달인손만두": {
@@ -3234,7 +3239,7 @@
  },
  "솔솥": {
   "url": "",
-  "domain": "story.kakao.com",
+  "domain": "callback.kr",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(5개 브랜드)",
@@ -3251,7 +3256,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "홍대쌀국수": {
@@ -3259,15 +3264,15 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "킹치찌개찜": {
   "url": "",
-  "domain": "pervsi.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "오늘은전골": {
@@ -3285,19 +3290,19 @@
   "pruned": "shared"
  },
  "토리키치": {
-  "url": "",
-  "domain": "tabelog.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.torikichi.co.kr",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/babb55760ff4b219.png",
   "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "짬뽕관": {
-  "url": "",
-  "domain": "card.kbcard.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.xn--zb0bq16amwh.com",
+  "px": 400,
+  "file": "data/raw/naver/logo_img/21967620afe449fa.png",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "스쿨푸드": {
@@ -3307,41 +3312,42 @@
   "file": ""
  },
  "한라맥주": {
-  "url": "https://homepage.id/wp-content/uploads/2025/04/favicon2025-300x300.png",
+  "url": "",
   "domain": "homepage.id",
   "px": 300,
-  "file": "data/raw/naver/logo_img/ef1c3bce739b6a93.png"
+  "file": "",
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "홍춘천": {
-  "url": "",
-  "domain": "yesexpo.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(10개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.it-b.co.kr",
+  "px": 201,
+  "file": "data/raw/naver/logo_img/d16b304f014bc8af.png",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "케이엠지엠홀덤앤이벤트펍(KMGM HOLD’EM & EVENT PUB)": {
   "url": "",
-  "domain": "fchalab.com",
-  "px": 0,
+  "domain": "jumjuhub.com",
+  "px": 256,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "해탄": {
   "url": "",
   "domain": "wordrow.kr",
-  "px": 0,
+  "px": 70,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "더진국": {
   "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(16개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "1도씨맥주(1℃ 맥주)": {
@@ -3352,10 +3358,10 @@
  },
  "제주옥탑": {
   "url": "",
-  "domain": "bizk.co.kr",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(28개 브랜드)"
  },
  "화화돼지왕갈비": {
   "url": "https://cdn.imweb.me/upload/S20260516d17fa423d4836/0dca99c68f675.ico",
@@ -3368,15 +3374,15 @@
   "domain": "fchalab.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "찐하오 마라탕": {
   "url": "",
-  "domain": "fclh.purpleo.co.kr",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "아마스빈코리아": {
@@ -3384,7 +3390,7 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "화로상회": {
@@ -3394,27 +3400,27 @@
   "file": "data/raw/naver/logo_img/586dd48c4b0053a9.png"
  },
  "아재불닭발": {
-  "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.interview365.com",
+  "px": 64,
+  "file": "data/raw/naver/logo_img/e069302f7c155052.png",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "달빛경성술집": {
   "url": "",
-  "domain": "www.jumpoline.com",
-  "px": 0,
+  "domain": "www.tiktok.com",
+  "px": 400,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "어처구니없는두릉도원북촌순두부": {
   "url": "",
-  "domain": "jejal.net",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "월간맥주": {
@@ -3424,11 +3430,11 @@
   "file": "data/raw/naver/logo_img/cc1ea966c009e753.png"
  },
  "준코노래타운": {
-  "url": "",
-  "domain": "startuplus.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.nextdaily.co.kr",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/9785d0651df3936f.png",
+  "rejected": "도메인 공유(25개 브랜드)",
   "pruned": "shared"
  },
  "우주라이크(WOULDULIKE)": {
@@ -3448,15 +3454,15 @@
   "domain": "weseb.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "피자와썹": {
   "url": "",
-  "domain": "infosori.com",
-  "px": 0,
+  "domain": "www.thepublic.kr",
+  "px": 200,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "지정환피자": {
@@ -3472,23 +3478,23 @@
   "file": "data/raw/naver/logo_img/417017420a6ce2cd.png"
  },
  "하륜일만족발": {
-  "url": "",
-  "domain": "pchanet.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.ilmanjokbal.com",
+  "px": 67,
+  "file": "data/raw/naver/logo_img/85965e1ae67010b4.png",
   "rejected": "도메인 공유(4개 브랜드)"
  },
  "한남동그집": {
-  "url": "",
-  "domain": "www.ksilbo.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "geujip.com",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/ca40d954b250430c.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "교동면옥": {
   "url": "",
-  "domain": "www.daegufood.go.kr",
+  "domain": "kyodongfnb.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
@@ -3511,7 +3517,7 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "무공돈까스": {
@@ -3521,17 +3527,18 @@
   "file": "data/raw/naver/logo_img/23dd09297b8cee00.png"
  },
  "미스터빠삭": {
-  "url": "https://img.wowtv.co.kr/thumb/778x403_default_thumb.png",
+  "url": "",
   "domain": "www.wowtv.co.kr",
   "px": 403,
-  "file": "data/raw/naver/logo_img/010fa1f583a13731.png"
+  "file": "",
+  "rejected": "도메인 공유(7개 브랜드)"
  },
  "몬스터탕수육": {
-  "url": "",
-  "domain": "www.jumpoline.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "xn--z52bu9k8lj2m2soupa.kr",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/b45e985194f1e36a.png",
+  "rejected": "도메인 공유(27개 브랜드)",
   "pruned": "shared"
  },
  "틈새라면": {
@@ -3541,10 +3548,11 @@
   "file": ""
  },
  "브레댄코(bread&amp;co.DAILY-NEW)": {
-  "url": "https://www.businesskorea.co.kr/image/logo/snslogo_20230426040837.jpg",
+  "url": "",
   "domain": "www.businesskorea.co.kr",
   "px": 200,
-  "file": "data/raw/naver/logo_img/94e00de9999c96fe.png"
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "번쩍피자": {
   "url": "",
@@ -3566,15 +3574,15 @@
  },
  "부뚜막김치찜": {
   "url": "",
-  "domain": "www.jumpoline.com",
+  "domain": "carmap.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "브런치빈": {
   "url": "",
-  "domain": "www.kihoilbo.co.kr",
+  "domain": "dating-magic.mplkd.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
@@ -3593,11 +3601,11 @@
   "file": "data/raw/naver/logo_img/3db3fc9c7429ae1a.png"
  },
  "배부장찌개": {
-  "url": "",
-  "domain": "startuplus.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.baebujang.co.kr",
+  "px": 400,
+  "file": "data/raw/naver/logo_img/d4c704529f909f86.png",
+  "rejected": "도메인 공유(25개 브랜드)",
   "pruned": "shared"
  },
  "메가혼밥": {
@@ -3607,19 +3615,19 @@
   "file": "data/raw/naver/logo_img/811c1e22fdffdba2.png"
  },
  "가마솥순대국밥": {
-  "url": "",
-  "domain": "linkareer.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.kamasot.co.kr",
+  "px": 64,
+  "file": "data/raw/naver/logo_img/55fa5aa03822727b.png",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "군자대한곱창": {
   "url": "",
-  "domain": "pf.kakao.com",
-  "px": 0,
+  "domain": "www.epnc.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(7개 브랜드)"
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "금화왕돈까스": {
   "url": "https://kumhwaking.co.kr/img/common/bi.png",
@@ -3629,7 +3637,7 @@
  },
  "홍짜장": {
   "url": "",
-  "domain": "story.kakao.com",
+  "domain": "hongjjajang.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(5개 브랜드)",
@@ -3640,7 +3648,7 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "라사천마라탕": {
   "url": "https://lasichuan.co.kr/wp-content/uploads/2024/09/siteicon-300x300.jpg",
@@ -3650,10 +3658,10 @@
  },
  "송주불냉면앤칼국수": {
   "url": "",
-  "domain": "startuplus.kr",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "유캔두잇": {
@@ -3664,10 +3672,10 @@
  },
  "버무리떡볶이": {
   "url": "",
-  "domain": "card.kbcard.com",
-  "px": 0,
+  "domain": "isplus.com",
+  "px": 226,
   "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "누리마을감자탕": {
@@ -3681,15 +3689,15 @@
   "domain": "card.kbcard.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "나드리김밥": {
   "url": "",
-  "domain": "card.kbcard.com",
+  "domain": "xn--4k0bl8bvxf24fqpd.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "남썬치킨": {
@@ -3705,11 +3713,11 @@
   "file": "data/raw/naver/logo_img/539bb91c5dc667cc.png"
  },
  "오븐에 빠진 막창": {
-  "url": "",
-  "domain": "infosori.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.seoul.co.kr",
+  "px": 629,
+  "file": "data/raw/naver/logo_img/a46987baf698c073.png",
+  "rejected": "도메인 공유(21개 브랜드)",
   "pruned": "shared"
  },
  "만족오향족발": {
@@ -3720,10 +3728,10 @@
  },
  "국제통닭": {
   "url": "",
-  "domain": "www.gimhae.go.kr",
+  "domain": "se.expopia.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(12개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "호밀호두": {
   "url": "",
@@ -3748,7 +3756,7 @@
   "domain": "duli.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(7개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "오븐에빠진닭": {
   "url": "https://ecimg.cafe24img.com/pg2696b65764996061/etang3651/web/upload/share-image-2-3157b10fc5fb98497bca7df018ebc834.jpg",
@@ -3770,10 +3778,10 @@
  },
  "성북당 십원빵": {
   "url": "",
-  "domain": "startuplus.kr",
+  "domain": "sungbukdang.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(25개 브랜드)",
   "pruned": "shared"
  },
  "계계속속": {
@@ -3799,16 +3807,17 @@
  "바나타이거": {
   "url": "",
   "domain": "www.mhns.co.kr",
-  "px": 0,
+  "px": 200,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "죽도령": {
-  "url": "https://cdn.imweb.me/thumbnail/20250811/22bac7031180a.png",
+  "url": "",
   "domain": "smartworld.co.kr",
   "px": 196,
-  "file": "data/raw/naver/logo_img/8d009a6690b1943e.png"
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "더맛있는족발보쌈": {
   "url": "https://cdn.imweb.me/thumbnail/20230818/07a03750c04bd.png",
@@ -3824,10 +3833,10 @@
  },
  "광안천지식당": {
   "url": "",
-  "domain": "startuplus.kr",
-  "px": 0,
+  "domain": "jobs.daangn.com",
+  "px": 100,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "신마포갈매기": {
@@ -3835,7 +3844,7 @@
   "domain": "store114.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "남다른감자탕": {
@@ -3855,7 +3864,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "강순자옛맛김치찌개": {
@@ -3881,7 +3890,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "국제시장 돼지국밥": {
@@ -3889,12 +3898,12 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "마실커피": {
   "url": "",
-  "domain": "www.ksilbo.co.kr",
+  "domain": "www.masilcoffee.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(5개 브랜드)",
@@ -3903,7 +3912,7 @@
  "은화수식당": {
   "url": "",
   "domain": "www.openfood.kr",
-  "px": 0,
+  "px": 192,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -3913,7 +3922,7 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "피굽남피자": {
@@ -3927,7 +3936,7 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "이바돔감자탕": {
@@ -3938,10 +3947,10 @@
  },
  "윤검푸드 봉수아피자": {
   "url": "",
-  "domain": "fchalab.com",
-  "px": 0,
+  "domain": "jumjuhub.com",
+  "px": 256,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "영계소문옛날통닭": {
@@ -3949,7 +3958,7 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "5.5닭갈비": {
@@ -3969,7 +3978,7 @@
   "domain": "easyjeju.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)"
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "제줏간": {
   "url": "https://cdn.imweb.me/thumbnail/20260701/8d8f605997413.png",
@@ -3982,15 +3991,15 @@
   "domain": "jejal.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "오백국수": {
   "url": "",
-  "domain": "infosori.com",
+  "domain": "www.oback.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(21개 브랜드)",
   "pruned": "shared"
  },
  "국밥은이거지": {
@@ -3998,7 +4007,7 @@
   "domain": "www.placeview.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "세광양대창": {
@@ -4015,10 +4024,10 @@
  },
  "벤티프레소": {
   "url": "",
-  "domain": "yesexpo.co.kr",
+  "domain": "ventipresso.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(10개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "찌개공방": {
@@ -4028,10 +4037,10 @@
   "file": ""
  },
  "바나프레소": {
-  "url": "",
-  "domain": "www.gpkorea.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.banapresso.com",
+  "px": 64,
+  "file": "data/raw/naver/logo_img/95604eaa721f4f55.png",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
@@ -4040,7 +4049,7 @@
   "domain": "iamdubu.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "뽁당": {
@@ -4048,7 +4057,7 @@
   "domain": "weseb.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "전설의치킨": {
@@ -4056,7 +4065,7 @@
   "domain": "infosori.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(8개 브랜드)",
   "pruned": "shared"
  },
  "2피자1치킨상회": {
@@ -4067,10 +4076,10 @@
  },
  "김충기꽃삼겹": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "www.dailysecu.com",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "본래순대": {
@@ -4081,8 +4090,8 @@
  },
  "요거트퍼플": {
   "url": "",
-  "domain": "www.suto.co.kr",
-  "px": 0,
+  "domain": "www.siminilbo.co.kr",
+  "px": 350,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
@@ -4096,17 +4105,17 @@
  "이태리양조장": {
   "url": "",
   "domain": "buza.biz",
-  "px": 0,
+  "px": 512,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "아이엠도넛(IamDonut)": {
-  "url": "",
-  "domain": "imweb.me",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "iamdonut.co.kr",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/9847998b09b600f4.png",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "미쳐버린파닭": {
@@ -4117,7 +4126,7 @@
  },
  "한옥마을": {
   "url": "https://hanok.seoul.go.kr/favicon.ico",
-  "domain": "hanok.seoul.go.kr",
+  "domain": "gohd.co.kr",
   "px": 16,
   "file": ""
  },
@@ -4141,25 +4150,26 @@
  },
  "김순덕원조부안집": {
   "url": "",
-  "domain": "startuplus.kr",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "카츠백": {
   "url": "",
-  "domain": "www.suto.co.kr",
-  "px": 0,
+  "domain": "ayo.pe.kr",
+  "px": 642,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "봉이치킨": {
   "url": "",
   "domain": "maps.openers.ai",
   "px": 0,
-  "file": ""
+  "file": "",
+  "rejected": "도메인 공유(7개 브랜드)"
  },
  "손큰할매순대국": {
   "url": "https://sonkun.co.kr/images/favi.ico",
@@ -4169,10 +4179,10 @@
  },
  "보돌미역": {
   "url": "",
-  "domain": "bizk.co.kr",
+  "domain": "bodolfood.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(19개 브랜드)"
  },
  "안주가": {
   "url": "",
@@ -4185,7 +4195,7 @@
   "domain": "card.kbcard.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "뽕뜨락피자": {
@@ -4211,7 +4221,7 @@
   "domain": "www.seouldanurim.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "하노이맥주밤거리": {
@@ -4229,7 +4239,7 @@
  "복고다방": {
   "url": "",
   "domain": "www.asiaa.co.kr",
-  "px": 0,
+  "px": 200,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -4239,7 +4249,7 @@
   "domain": "fms.purpleo.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "상무초밥": {
@@ -4256,25 +4266,25 @@
  },
  "테트리스찜닭": {
   "url": "",
-  "domain": "www.mokpo.go.kr",
+  "domain": "www.dioaro.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "육장갈비": {
   "url": "",
-  "domain": "www.fctime.net",
+  "domain": "www.610galbi.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "굴세상": {
   "url": "",
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "이라이타코야끼": {
@@ -4314,19 +4324,19 @@
   "file": ""
  },
  "조선부뚜막": {
-  "url": "",
-  "domain": "weseb.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.xn--9b2b73dq4dbweozl.com",
+  "px": 192,
+  "file": "data/raw/naver/logo_img/77fc447173f7497e.png",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "바빈스": {
   "url": "",
-  "domain": "litt.ly",
-  "px": 0,
+  "domain": "www.wowtv.co.kr",
+  "px": 403,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "마시그래이": {
@@ -4336,10 +4346,10 @@
   "file": ""
  },
  "네오피자": {
-  "url": "",
-  "domain": "www.slist.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.neopizza.net",
+  "px": 128,
+  "file": "data/raw/naver/logo_img/0c5b9e2dc01b97d2.png",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
@@ -4350,18 +4360,18 @@
   "file": ""
  },
  "정성순대": {
-  "url": "",
-  "domain": "www.gimhae.go.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(12개 브랜드)"
+  "url": "(재탐색)",
+  "domain": "woorimatnam.co.kr",
+  "px": 192,
+  "file": "data/raw/naver/logo_img/409b470c275432cd.png",
+  "rejected": "도메인 공유(11개 브랜드)"
  },
  "소코아": {
   "url": "",
-  "domain": "duli.co.kr",
+  "domain": "sokoa.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(7개 브랜드)"
+  "rejected": "도메인 공유(6개 브랜드)"
  },
  "돈기부여": {
   "url": "https://biz.sbs.co.kr/img/cnbc_logo.jpg",
@@ -4378,9 +4388,9 @@
  "김영희아구찜&코다리냉면": {
   "url": "",
   "domain": "platformdodam.com",
-  "px": 0,
+  "px": 1010,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "이우철한방누룽지삼계탕": {
@@ -4394,7 +4404,7 @@
   "domain": "www.tabling.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "아덴블랑제리": {
@@ -4411,18 +4421,18 @@
  },
  "집밥e선생": {
   "url": "",
-  "domain": "www.kbsm.net",
+  "domain": "carmap.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "청년고기장수": {
   "url": "",
-  "domain": "www.job-post.co.kr",
-  "px": 0,
+  "domain": "www.businesskorea.co.kr",
+  "px": 200,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "청담곱떡": {
@@ -4430,7 +4440,7 @@
   "domain": "www.placeview.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "갯벌의 조개": {
@@ -4447,10 +4457,10 @@
  },
  "입큰아구알곤이찜": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "www.ibkeun.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "돈통마늘보쌈": {
@@ -4460,19 +4470,19 @@
   "file": ""
  },
  "샤브보트": {
-  "url": "",
-  "domain": "www.changupdo.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.sbroad.co.kr",
+  "px": 630,
+  "file": "data/raw/naver/logo_img/8c5f6f147ecca108.png",
+  "rejected": "도메인 공유(43개 브랜드)",
   "pruned": "shared"
  },
  "빵위에 치즈 피자앰플러": {
   "url": "",
-  "domain": "modoo.io",
-  "px": 0,
+  "domain": "jumpo.shop",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
  "탐나는피자": {
@@ -4495,10 +4505,10 @@
  },
  "파란만잔": {
   "url": "",
-  "domain": "infosori.com",
+  "domain": "knucoop.or.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(21개 브랜드)",
   "pruned": "shared"
  },
  "한식밥상": {
@@ -4521,65 +4531,65 @@
  },
  "나능이": {
   "url": "",
-  "domain": "fclh.purpleo.co.kr",
-  "px": 0,
+  "domain": "slco.co.kr",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "동일 이미지가 다른 브랜드에도 사용됨",
   "pruned": "shared"
  },
  "필라프에빠지다": {
-  "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "i-shalom.or.kr",
+  "px": 114,
+  "file": "data/raw/naver/logo_img/4da5daa2e135d58c.png",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "경성한우국밥": {
-  "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "food.hrkcr.com",
+  "px": 180,
+  "file": "data/raw/naver/logo_img/67f40a86de12b088.png",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "타코아찌 타코야끼전문점": {
   "url": "",
-  "domain": "www.jumpoline.com",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "마녀김밥": {
-  "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(16개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.ebn.co.kr",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/3b9973b23198f5a5.png",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "달인의찜닭": {
   "url": "",
-  "domain": "www.changupdo.com",
+  "domain": "xn--bk1bc497mwdn1w.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(43개 브랜드)",
   "pruned": "shared"
  },
  "여우애(愛)": {
-  "url": "",
-  "domain": "www.mimint.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "foxgimbab.co.kr",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/c1b034d0e23cbcbc.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "오태식해바라기치킨": {
-  "url": "",
-  "domain": "fctier.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "golmoksijang.kr",
+  "px": 630,
+  "file": "data/raw/naver/logo_img/46e2314c620c2388.png",
   "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
@@ -4591,10 +4601,10 @@
  },
  "커피마마퀸": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "cookiedeal.io",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "코지하우스": {
@@ -4612,7 +4622,7 @@
  "카페보스(CAFE BOSS)": {
   "url": "",
   "domain": "apps.apple.com",
-  "px": 0,
+  "px": 180,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -4632,10 +4642,10 @@
   "pruned": "shared"
  },
  "소소떡볶이": {
-  "url": "",
-  "domain": "www.slist.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.idaegu.com",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/8ca4a616abd893a4.png",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
@@ -4644,7 +4654,7 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "청년치킨": {
@@ -4655,10 +4665,10 @@
  },
  "토리아에즈": {
   "url": "",
-  "domain": "tabelog.com",
-  "px": 0,
+  "domain": "incheonation.kr",
+  "px": 114,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "자연임실치즈피자": {
@@ -4672,7 +4682,7 @@
   "domain": "www.gimhae.go.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(12개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "임실N치즈피자": {
   "url": "https://imsilncheesepizza.co.kr/theme/responsive_thejg/include/img/sns_logo.png",
@@ -4691,15 +4701,15 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "미스터국수왕": {
   "url": "",
-  "domain": "jusogo.kr",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)"
+  "rejected": "도메인 공유(28개 브랜드)"
  },
  "파스타예요": {
   "url": "https://cdn.imweb.me/thumbnail/20231106/d719a9fdd8647.png",
@@ -4721,10 +4731,10 @@
  },
  "88켄터키치킨&떡볶이": {
   "url": "",
-  "domain": "fchalab.com",
-  "px": 0,
+  "domain": "www.jemin.com",
+  "px": 200,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "조선볶음밥": {
@@ -4741,17 +4751,17 @@
  },
  "메이크어딜리버리": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "sj.hospitalk.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "피자덕": {
-  "url": "",
-  "domain": "fclh.purpleo.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "pizzaduck.kr",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/5c4dcd8846928e53.png",
   "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
@@ -4781,7 +4791,7 @@
  },
  "풍국면": {
   "url": "",
-  "domain": "www.daegufood.go.kr",
+  "domain": "www.dmax.kr",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
@@ -4798,7 +4808,7 @@
   "domain": "fchalab.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "토마토도시락": {
@@ -4823,10 +4833,10 @@
  },
  "밥스틸러 김치찜": {
   "url": "",
-  "domain": "fctier.kr",
-  "px": 0,
+  "domain": "bigvalue.ai",
+  "px": 100,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "닭장수후라이드和": {
@@ -4844,24 +4854,24 @@
  "뜨돈(DD'DON)": {
   "url": "",
   "domain": "www.siminilbo.co.kr",
-  "px": 0,
+  "px": 350,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "제이델링": {
-  "url": "",
-  "domain": "pf.kakao.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(7개 브랜드)"
+  "url": "(재탐색)",
+  "domain": "app.jdeling.com",
+  "px": 709,
+  "file": "data/raw/naver/logo_img/4b3e6fcfe57134ef.png",
+  "rejected": "도메인 공유(4개 브랜드)"
  },
  "원조설악칡냉면": {
   "url": "",
-  "domain": "pchanet.kr",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)"
+  "rejected": "도메인 공유(17개 브랜드)"
  },
  "오봉도시락": {
   "url": "http://www.iobong.com/dob_comm_img/mysiteimg.jpg",
@@ -4874,14 +4884,14 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "NAN갈비장터": {
   "url": "",
-  "domain": "duli.co.kr",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(7개 브랜드)"
+  "rejected": "도메인 공유(17개 브랜드)"
  },
  "잔잔": {
   "url": "https://www.izanzan.kr/landing/img/thumb.jpg",
@@ -4918,13 +4928,13 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "마장동김씨": {
   "url": "",
   "domain": "www.contestkorea.com",
-  "px": 0,
+  "px": 152,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -4943,7 +4953,7 @@
  },
  "잭슨피자": {
   "url": "",
-  "domain": "iamdubu.com",
+  "domain": "hypebeast.kr",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(5개 브랜드)",
@@ -4951,32 +4961,32 @@
  },
  "종로김밥": {
   "url": "",
-  "domain": "weseb.com",
+  "domain": "www.jongrokimbap.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "제비파스타&리조또": {
-  "url": "",
-  "domain": "www.tabling.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.jebipasta.co.kr",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/250aa5ad22fcdf69.png",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "리얼안심탕수육": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "규카츠정": {
   "url": "",
   "domain": "talk.naver.com",
-  "px": 0,
+  "px": 180,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -4984,17 +4994,17 @@
  "이찌방라멘& 카츠카레": {
   "url": "",
   "domain": "polle.com",
-  "px": 0,
+  "px": 180,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "카레세끼 매운숙성카레": {
   "url": "",
-  "domain": "fctier.kr",
-  "px": 0,
+  "domain": "jumpo.shop",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
  "야미마라탕": {
@@ -5006,9 +5016,9 @@
  "월미당": {
   "url": "",
   "domain": "local.114-service.co.kr",
-  "px": 0,
+  "px": 150,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "버텍스(VERTEX)": {
@@ -5019,17 +5029,18 @@
  },
  "남도술상": {
   "url": "",
-  "domain": "www.store114.net",
-  "px": 0,
+  "domain": "www.safetv.co.kr",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "동일 이미지가 다른 브랜드에도 사용됨",
   "pruned": "shared"
  },
  "전국3대춘천닭갈비": {
-  "url": "https://bigvalue.ai/favicon.ico?favicon.18u5h1zf-9ke_.ico",
+  "url": "",
   "domain": "bigvalue.ai",
   "px": 100,
-  "file": "data/raw/naver/logo_img/4504b8b8445cff7e.png"
+  "file": "",
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "챙길,밥": {
   "url": "",
@@ -5038,11 +5049,11 @@
   "file": ""
  },
  "해쉬커피": {
-  "url": "",
-  "domain": "yesexpo.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(10개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "hashcoffee.co.kr",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/271cfeec5bbc0ce2.png",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "양계장집아들": {
@@ -5052,10 +5063,11 @@
   "file": ""
  },
  "어부김호권의청년어부": {
-  "url": "https://cdn.imweb.me/thumbnail/20220307/be672fd795a9c.png",
+  "url": "",
   "domain": "f-cha.co.kr",
   "px": 196,
-  "file": "data/raw/naver/logo_img/9bf094f537d82da5.png"
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "전일맥주": {
   "url": "",
@@ -5080,14 +5092,14 @@
   "domain": "www.ludgi.ai",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "짜글이미식회": {
   "url": "",
-  "domain": "weseb.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "종로맥가": {
@@ -5098,18 +5110,18 @@
  },
  "타코이찌 타코야끼 전문점": {
   "url": "",
-  "domain": "fctier.kr",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "참토스트": {
-  "url": "",
-  "domain": "imweb.me",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "charmtoast.com",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/b7b7c6b19684bfea.png",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "테그42(TEgg.42)": {
@@ -5120,10 +5132,10 @@
  },
  "짱닭치킨": {
   "url": "",
-  "domain": "infosori.com",
-  "px": 0,
+  "domain": "thinkyou.co.kr",
+  "px": 126,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "미미관마라탕": {
@@ -5134,10 +5146,10 @@
  },
  "찐이야숯불치킨": {
   "url": "",
-  "domain": "fchalab.com",
+  "domain": "coffeetimes.oglesbypm.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(13개 브랜드)",
   "pruned": "shared"
  },
  "경아두마리치킨": {
@@ -5171,11 +5183,11 @@
   "file": ""
  },
  "추닭집": {
-  "url": "",
-  "domain": "card.kbcard.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.sportsseoul.com",
+  "px": 64,
+  "file": "data/raw/naver/logo_img/a1f9a178a7c2131c.png",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "라바게트": {
@@ -5189,7 +5201,7 @@
   "domain": "fchalab.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "돈돈김치찌개&찜": {
@@ -5207,7 +5219,7 @@
  "오유미당": {
   "url": "",
   "domain": "www.openfood.kr",
-  "px": 0,
+  "px": 192,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -5221,9 +5233,9 @@
  "2도맥주 (2°C BEER)": {
   "url": "",
   "domain": "www.ggilbo.com",
-  "px": 0,
+  "px": 200,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "순대실록": {
@@ -5241,17 +5253,17 @@
  "부엉이산장": {
   "url": "",
   "domain": "www.tiktok.com",
-  "px": 0,
+  "px": 400,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "대한국밥만세": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "jumjuhub.com",
+  "px": 256,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "돈가네김치찌개": {
@@ -5259,7 +5271,7 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "투사랑": {
@@ -5270,24 +5282,24 @@
  },
  "구이구이쪽갈비": {
   "url": "",
-  "domain": "www.geumsan.go.kr",
+  "domain": "thefestival.co.kr",
   "px": 0,
   "file": ""
  },
  "제주스": {
-  "url": "",
-  "domain": "triple.guide",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.footballist.co.kr",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/15d846a9dabbc761.png",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "생생돈까스": {
   "url": "",
-  "domain": "xn--hu1b83jnmp41b93b.com",
+  "domain": "freshdon.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(21개 브랜드)"
  },
  "맛찜랭킹": {
   "url": "https://cdn.imweb.me/thumbnail/20230918/44ccb00ca673e.png",
@@ -5298,7 +5310,7 @@
  "요녀석": {
   "url": "",
   "domain": "forum.nexon.com",
-  "px": 0,
+  "px": 144,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -5314,7 +5326,7 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "소플러스": {
@@ -5324,24 +5336,24 @@
   "file": ""
  },
  "98도씨 국밥": {
-  "url": "",
-  "domain": "weseb.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "98dossi.com",
+  "px": 512,
+  "file": "data/raw/naver/logo_img/6bce8dca31ecf023.png",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "밥깨비": {
   "url": "",
-  "domain": "www.fctime.net",
-  "px": 0,
+  "domain": "smartworld.co.kr",
+  "px": 196,
   "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "꼬치의품격": {
   "url": "",
-  "domain": "www.kihoilbo.co.kr",
-  "px": 0,
+  "domain": "www.epnc.co.kr",
+  "px": 630,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
@@ -5378,10 +5390,10 @@
  },
  "사이공본가": {
   "url": "",
-  "domain": "weseb.com",
+  "domain": "saigonbonga.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "탄광맥주": {
@@ -5391,25 +5403,25 @@
   "file": ""
  },
  "아띠몽": {
-  "url": "",
-  "domain": "pervsi.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.solfood.co.kr",
+  "px": 145,
+  "file": "data/raw/naver/logo_img/82dc923326425c82.png",
   "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
  "달토끼의 떡볶이 흡입구역": {
-  "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(16개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.mediadale.com",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/444d8add8c087e54.png",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "탐나종합어시장": {
   "url": "https://tamnafishmarket.co.kr/favicons/favicon.png",
   "domain": "tamnafishmarket.co.kr",
-  "px": 50,
+  "px": 100,
   "file": "data/raw/naver/logo_img/8cd880d85cef5d83.png"
  },
  "1943": {
@@ -5420,10 +5432,10 @@
  },
  "쪽갈비전문점 예감": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "www.jjokgalbi.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "샐러드박스(SaladBox)": {
@@ -5433,11 +5445,11 @@
   "file": ""
  },
  "꽈백최선생": {
-  "url": "",
-  "domain": "weseb.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "masterchoi.co.kr",
+  "px": 400,
+  "file": "data/raw/naver/logo_img/a3d48f0a20ff3a7e.png",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "담솥": {
@@ -5448,10 +5460,10 @@
  },
  "김밥일번지": {
   "url": "",
-  "domain": "www.gimhae.go.kr",
+  "domain": "gimbap1.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(12개 브랜드)"
+  "rejected": "도메인 공유(11개 브랜드)"
  },
  "강경불고기": {
   "url": "https://cdn.imweb.me/thumbnail/20250722/bcda763e64a54.png",
@@ -5461,17 +5473,18 @@
  },
  "시카고부대찌개": {
   "url": "",
-  "domain": "startuplus.kr",
+  "domain": "www.chicagobuzzi.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(25개 브랜드)",
   "pruned": "shared"
  },
  "경양카츠": {
-  "url": "https://t1.daumcdn.net/tistory_admin/top_v2/tistory-apple-touch-favicon.png",
+  "url": "",
   "domain": "mukmap.com",
   "px": 180,
-  "file": "data/raw/naver/logo_img/a96b7777cc68caf7.png"
+  "file": "",
+  "rejected": "동일 이미지가 다른 브랜드에도 사용됨"
  },
  "덮밥장사장": {
   "url": "https://cdn.imweb.me/thumbnail/20241011/bc44f400aadb4.png",
@@ -5490,7 +5503,7 @@
   "domain": "fchalab.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "철뚝집": {
@@ -5498,7 +5511,7 @@
   "domain": "infosori.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(8개 브랜드)",
   "pruned": "shared"
  },
  "치킨뱅이": {
@@ -5515,10 +5528,10 @@
  },
  "제주고세호해장국": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "cookiedeal.io",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "용호동낙지": {
@@ -5538,23 +5551,23 @@
   "domain": "www.mt.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(16개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "제육집막내아들": {
   "url": "",
-  "domain": "fchalab.com",
-  "px": 0,
+  "domain": "bigvalue.ai",
+  "px": 100,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "마몽로제떡볶이": {
   "url": "",
-  "domain": "infosori.com",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "매스커피": {
@@ -5564,11 +5577,11 @@
   "file": "data/raw/naver/logo_img/11b4c376696f9f37.png"
  },
  "내조국국밥": {
-  "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "m.tripinfo.co.kr",
+  "px": 240,
+  "file": "data/raw/naver/logo_img/ceaa406fe23c02b7.png",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "커피명가": {
@@ -5588,7 +5601,7 @@
   "domain": "duli.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(7개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "CAFE CANBUS(카페캔버스)": {
   "url": "",
@@ -5616,10 +5629,10 @@
  },
  "석봉토스트": {
   "url": "",
-  "domain": "store114.net",
-  "px": 0,
+  "domain": "ochangup.co.kr",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "송촌꼬마김밥": {
@@ -5627,21 +5640,21 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "솥고집": {
   "url": "",
   "domain": "www.fctime.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "rejected": "도메인 공유(5개 브랜드)"
  },
  "스파게티스토리": {
   "url": "",
   "domain": "weseb.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "철인7호": {
@@ -5655,7 +5668,7 @@
   "domain": "iamdubu.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "NiceCaffeinClub(NCC)": {
@@ -5663,7 +5676,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "금복주류": {
@@ -5673,10 +5686,10 @@
   "file": "data/raw/naver/logo_img/e40eb6321d429cd3.png"
  },
  "탄탄면공방": {
-  "url": "",
-  "domain": "www.gpkorea.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "tantanmyun.com",
+  "px": 85,
+  "file": "data/raw/naver/logo_img/a8f50a92590dd563.png",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
@@ -5685,31 +5698,31 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "꺼꾸잽이 초장집": {
-  "url": "",
+  "url": "(재탐색)",
   "domain": "triple.guide",
-  "px": 0,
-  "file": "",
+  "px": 1020,
+  "file": "data/raw/naver/logo_img/68fce03f4ca7210b.png",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "꽃피는곱도리탕": {
   "url": "",
-  "domain": "pervsi.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "면식당": {
   "url": "",
   "domain": "www.goodnovel.com",
-  "px": 0,
+  "px": 72,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "김영희강남동태찜": {
@@ -5750,10 +5763,10 @@
  },
  "왕손피자": {
   "url": "",
-  "domain": "iamdubu.com",
+  "domain": "maps.openers.ai",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "한가네숯불닭갈비": {
@@ -5769,11 +5782,11 @@
   "file": "data/raw/naver/logo_img/32264ec262d3a866.png"
  },
  "다다하다": {
-  "url": "",
-  "domain": "yesexpo.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(10개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "xn--2j1baa3936a.com",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/f8a8c8033f8f2b1f.png",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "화포식당": {
@@ -5802,18 +5815,18 @@
  },
  "프랭크커핀바": {
   "url": "",
-  "domain": "www.jumpoline.com",
-  "px": 0,
+  "domain": "www.bluer.co.kr",
+  "px": 315,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "명동칼국수샤브샤브": {
   "url": "",
-  "domain": "weseb.com",
-  "px": 0,
+  "domain": "homepage.id",
+  "px": 300,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "히노아지": {
@@ -5823,17 +5836,18 @@
   "file": "data/raw/naver/logo_img/74fbf14fe60c30b0.png"
  },
  "오사이초밥": {
-  "url": "https://incheonation.kr/files/attach/xeicon/favicon.ico?t=1611024194",
+  "url": "",
   "domain": "incheonation.kr",
   "px": 114,
-  "file": "data/raw/naver/logo_img/78e0a50bbec253cc.png"
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "맘스케익": {
   "url": "",
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "우규": {
@@ -5861,11 +5875,11 @@
   "file": "data/raw/naver/logo_img/4d011ba0bf3295c8.png"
  },
  "킹스꼬마김밥": {
-  "url": "",
-  "domain": "www.gimhae.go.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(12개 브랜드)"
+  "url": "(재탐색)",
+  "domain": "www.startfair.net",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/51e10daa368e686a.png",
+  "rejected": "도메인 공유(11개 브랜드)"
  },
  "히스피(HISFFEE)": {
   "url": "https://cdn.imweb.me/thumbnail/20260120/391cf2f65b42d.png",
@@ -5884,7 +5898,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "이가네양꼬치": {
@@ -5906,18 +5920,18 @@
   "file": "data/raw/naver/logo_img/7d08551274d74a63.png"
  },
  "보승회관": {
-  "url": "",
-  "domain": "www.fctime.net",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "url": "(재탐색)",
+  "domain": "www.boseunghall.com",
+  "px": 180,
+  "file": "data/raw/naver/logo_img/c85ac304222fed8e.png",
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "밥꼬찜닭": {
   "url": "",
   "domain": "www.placeview.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "감탄계숯불치킨": {
@@ -5925,7 +5939,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "짐키친(GYM KITCHEN)": {
@@ -5935,11 +5949,11 @@
   "file": "data/raw/naver/logo_img/719661ef0f15db4a.png"
  },
  "밥구정로데오": {
-  "url": "",
-  "domain": "weseb.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "bapgujung.co.kr",
+  "px": 400,
+  "file": "data/raw/naver/logo_img/543d7b7558a67c2c.png",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "순남시래기": {
@@ -5950,10 +5964,10 @@
  },
  "요하마라21": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "덮밥집이야": {
@@ -5970,10 +5984,10 @@
  },
  "경원해물찜0427": {
   "url": "",
-  "domain": "modoo.io",
-  "px": 0,
+  "domain": "jumpo.shop",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
  "덮밥.ZIP": {
@@ -5985,7 +5999,7 @@
  "사랑해베이글": {
   "url": "",
   "domain": "www.daangn.com",
-  "px": 0,
+  "px": 100,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -5995,7 +6009,7 @@
   "domain": "card.kbcard.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "공룡닭발": {
@@ -6006,7 +6020,7 @@
  },
  "징기스": {
   "url": "",
-  "domain": "tabelog.com",
+  "domain": "czk.co.kr",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(4개 브랜드)",
@@ -6041,7 +6055,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "마마쿡(MAMA COOK)": {
@@ -6064,10 +6078,10 @@
  },
  "본가집안동국밥곰탕": {
   "url": "",
-  "domain": "autoreserve.com",
+  "domain": "localmap.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
  "행컵": {
@@ -6105,15 +6119,15 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "본초맘죽": {
-  "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.dtoday.co.kr",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/5b60ef6716f176ce.png",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "쿼드커피(QUAD COFFEE)": {
@@ -6127,37 +6141,37 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "오르새피자": {
   "url": "",
-  "domain": "bizk.co.kr",
+  "domain": "www.orsaepizza.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(19개 브랜드)"
  },
  "동백카츠": {
   "url": "",
-  "domain": "card.kbcard.com",
-  "px": 0,
+  "domain": "m.siminilbo.co.kr",
+  "px": 350,
   "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "가얏골감자탕": {
   "url": "",
-  "domain": "www.gimhae.go.kr",
-  "px": 0,
+  "domain": "www.bluer.co.kr",
+  "px": 315,
   "file": "",
-  "rejected": "도메인 공유(12개 브랜드)"
+  "rejected": "도메인 공유(4개 브랜드)"
  },
  "SSOJA(쏘자)": {
   "url": "",
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "멘야마쯔리": {
@@ -6168,10 +6182,10 @@
  },
  "청록미나리식당": {
   "url": "",
-  "domain": "weseb.com",
-  "px": 0,
+  "domain": "www.dailian.co.kr",
+  "px": 283,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "카츠루와": {
@@ -6179,14 +6193,15 @@
   "domain": "infosori.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(8개 브랜드)",
   "pruned": "shared"
  },
  "후토루": {
-  "url": "https://glucofit.co.kr/images/og/og_img_title.png",
+  "url": "",
   "domain": "www.glucofit.co.kr",
   "px": 630,
-  "file": "data/raw/naver/logo_img/b615a46b0eb6f19c.png"
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "쿡1015": {
   "url": "",
@@ -6195,19 +6210,19 @@
   "file": ""
  },
  "일월육일": {
-  "url": "",
-  "domain": "weseb.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.badaon.or.kr",
+  "px": 384,
+  "file": "data/raw/naver/logo_img/a033970ca59071e7.png",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "밤하늘포차 연어육회": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "1인자감자탕": {
@@ -6215,15 +6230,15 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "도스마스": {
   "url": "",
-  "domain": "thewiki.kr",
+  "domain": "dosmas.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "디에떼에스프레소": {
@@ -6231,7 +6246,7 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "엘리팝": {
   "url": "",
@@ -6259,26 +6274,26 @@
  },
  "광명대창집": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "xn--hc0bo6i86gu5qt0c.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "김태연국민동태탕찜": {
-  "url": "",
-  "domain": "startuplus.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "korean.visitkorea.or.kr",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/2fa8f8551f975781.png",
+  "rejected": "도메인 공유(25개 브랜드)",
   "pruned": "shared"
  },
  "만년닭강정": {
-  "url": "",
-  "domain": "card.kbcard.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "22st.net",
+  "px": 121,
+  "file": "data/raw/naver/logo_img/aaf1f9d805521d4c.png",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "포베이": {
@@ -6289,17 +6304,17 @@
  },
  "촌댁맥주": {
   "url": "",
-  "domain": "bizk.co.kr",
+  "domain": "maps.openers.ai",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(7개 브랜드)"
  },
  "육회야문연어": {
-  "url": "",
-  "domain": "yesexpo.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(10개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "surffing.net",
+  "px": 512,
+  "file": "data/raw/naver/logo_img/edb3783de3920d9e.png",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "채선당도시락&샐러드": {
@@ -6313,22 +6328,22 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "인생김치찌개": {
   "url": "",
   "domain": "weseb.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "입술에 설렌다 빙수당": {
   "url": "",
-  "domain": "modoo.io",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "전통맛집 할매순대국": {
@@ -6345,10 +6360,10 @@
  },
  "어벤더치커피": {
   "url": "",
-  "domain": "linkareer.com",
+  "domain": "www.avendutch.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "지랄닭발": {
@@ -6356,7 +6371,7 @@
   "domain": "infosori.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(8개 브랜드)",
   "pruned": "shared"
  },
  "하노이별": {
@@ -6386,7 +6401,7 @@
  "연돈튀김덮밥": {
   "url": "",
   "domain": "www.theborn.co.kr",
-  "px": 0,
+  "px": 192,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
@@ -6398,17 +6413,18 @@
   "file": ""
  },
  "쌈촌": {
-  "url": "https://ayo.pe.kr/resources/images/ayo.png",
+  "url": "",
   "domain": "ayo.pe.kr",
   "px": 642,
-  "file": "data/raw/naver/logo_img/71e931f60a0b069c.png"
+  "file": "",
+  "rejected": "도메인 공유(4개 브랜드)"
  },
  "누들보쌈배달만족": {
   "url": "",
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "순수빙떡": {
@@ -6426,7 +6442,7 @@
  "꾸아(Qua)": {
   "url": "",
   "domain": "www.vietnam.vn",
-  "px": 0,
+  "px": 1210,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -6434,7 +6450,7 @@
  "배통": {
   "url": "",
   "domain": "wordrow.kr",
-  "px": 0,
+  "px": 70,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -6444,7 +6460,7 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "후라토식당": {
@@ -6458,7 +6474,7 @@
   "domain": "card.kbcard.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "고깃리88번지": {
@@ -6478,7 +6494,7 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "올리앤(Ollien)": {
   "url": "https://oliandcarol.co.kr/web/upload/share-image-1-28e3ba0f2dae77bc88df03f7c1395da7.jpg",
@@ -6491,7 +6507,7 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "빚은": {
@@ -6550,10 +6566,10 @@
  },
  "파이널나인": {
   "url": "",
-  "domain": "linkareer.com",
-  "px": 0,
+  "domain": "www.incruit.com",
+  "px": 400,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "진성아구찜": {
@@ -6593,10 +6609,10 @@
   "file": ""
  },
  "청주본가": {
-  "url": "",
-  "domain": "tour.chungbuk.go.kr",
-  "px": 0,
-  "file": ""
+  "url": "(재탐색)",
+  "domain": "www.korearank.com",
+  "px": 350,
+  "file": "data/raw/naver/logo_img/3b26a7e8a89c7a4d.png"
  },
  "종국이두마리치킨": {
   "url": "",
@@ -6609,22 +6625,22 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "반포식스": {
-  "url": "",
-  "domain": "weseb.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "banhpho6.com",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/cd098835be1d54db.png",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "찜꽁찜닭": {
-  "url": "",
-  "domain": "fms.purpleo.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "xn--hs0br3et43aba.com",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/256125565f5651b6.png",
   "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
@@ -6648,10 +6664,10 @@
  },
  "효자동설렁탕": {
   "url": "",
-  "domain": "www.jumpoline.com",
+  "domain": "www.vsfood.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(27개 브랜드)",
   "pruned": "shared"
  },
  "푸드모바일": {
@@ -6662,15 +6678,15 @@
  },
  "샤브쌈주머니": {
   "url": "",
-  "domain": "autoreserve.com",
-  "px": 0,
+  "domain": "platformdodam.com",
+  "px": 1010,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "차돌풍": {
   "url": "",
-  "domain": "check.kkuda.kr",
+  "domain": "www.chadolpoong.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
@@ -6681,7 +6697,7 @@
   "domain": "yesexpo.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(10개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "장수본가해장국": {
@@ -6693,16 +6709,16 @@
  "삼환축산": {
   "url": "",
   "domain": "ddak.disco.re",
-  "px": 0,
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "범맥주": {
-  "url": "",
-  "domain": "story.kakao.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "xn--b02b32cj6q.kr",
+  "px": 420,
+  "file": "data/raw/naver/logo_img/902abb108bf0c1ed.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
@@ -6714,18 +6730,18 @@
  },
  "고기궁전": {
   "url": "",
-  "domain": "pervsi.com",
-  "px": 0,
+  "domain": "cookiedeal.io",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "BT버거앤타코 (BURGER&TACO)": {
   "url": "",
-  "domain": "startuplus.kr",
-  "px": 0,
+  "domain": "www.joongang.co.kr",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "얼맥당": {
@@ -6742,10 +6758,10 @@
  },
  "갓잇": {
   "url": "",
-  "domain": "story.kakao.com",
-  "px": 0,
+  "domain": "korean.visitseoul.net",
+  "px": 292,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "깨봉이국물떡볶이": {
@@ -6753,7 +6769,7 @@
   "domain": "fctier.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "밥통령": {
@@ -6769,10 +6785,10 @@
   "file": ""
  },
  "피자애": {
-  "url": "",
-  "domain": "www.placeview.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "pizzalove.co.kr",
+  "px": 370,
+  "file": "data/raw/naver/logo_img/4854eab2f304a811.png",
   "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
@@ -6817,13 +6833,13 @@
   "domain": "store114.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "마요네즈 (mayonnaise)": {
   "url": "",
   "domain": "www.contestkorea.com",
-  "px": 0,
+  "px": 152,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -6833,7 +6849,7 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "닭이봉춘천닭갈비": {
@@ -6841,22 +6857,22 @@
   "domain": "jejal.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "깐깐한족발": {
   "url": "",
-  "domain": "www.fctime.net",
-  "px": 0,
+  "domain": "cookiedeal.io",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "rejected": "도메인 공유(9개 브랜드)"
  },
  "포슈아": {
   "url": "",
   "domain": "www.placeview.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "짬뽕10101": {
@@ -6864,7 +6880,7 @@
   "domain": "store114.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "마케집": {
@@ -6872,7 +6888,7 @@
   "domain": "card.kbcard.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "교동전선생": {
@@ -6889,17 +6905,17 @@
  },
  "눈꽃대패": {
   "url": "",
-  "domain": "bizk.co.kr",
+  "domain": "localmap.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(6개 브랜드)"
  },
  "크레이저커피(C.Razer Coffee)": {
-  "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(16개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "ilovecon.com",
+  "px": 192,
+  "file": "data/raw/naver/logo_img/ca1e074b5b3b61bf.png",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "덮밥90도씨": {
@@ -6928,10 +6944,10 @@
  },
  "김삼구": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "www.haebyeong.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "백금당": {
@@ -6941,35 +6957,35 @@
   "file": "data/raw/naver/logo_img/f1a564fa2f820d54.png"
  },
  "산쪼메": {
-  "url": "",
-  "domain": "infosori.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.sanchome.co.kr",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/44d59b820228407f.png",
+  "rejected": "도메인 공유(21개 브랜드)",
   "pruned": "shared"
  },
  "반미362": {
-  "url": "",
-  "domain": "www.changupdo.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "banhmi362korea.co.kr",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/031ffc4b0df565ce.png",
+  "rejected": "도메인 공유(43개 브랜드)",
   "pruned": "shared"
  },
  "덕수파스타 딜리버리": {
   "url": "",
-  "domain": "autoreserve.com",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "진미대왕통닭": {
   "url": "",
-  "domain": "jejal.net",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "목우촌웰빙마을": {
@@ -6981,9 +6997,9 @@
  "허갈닭강정": {
   "url": "",
   "domain": "isplus.com",
-  "px": 0,
+  "px": 226,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "아이벗 치킨": {
@@ -6991,23 +7007,23 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "김용덕의 소문난 부자국밥": {
   "url": "",
-  "domain": "fctier.kr",
-  "px": 0,
+  "domain": "jumjuhub.com",
+  "px": 256,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "리김밥": {
   "url": "",
-  "domain": "bizk.co.kr",
-  "px": 0,
+  "domain": "m.siminilbo.co.kr",
+  "px": 350,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "장미맨숀": {
   "url": "https://rosamansion.com/web/upload/share-image-1-acfe9aec24e7e071d16046c173ffdd94.jpg",
@@ -7029,49 +7045,49 @@
  },
  "가르텐호프앤레스트": {
   "url": "",
-  "domain": "jejal.net",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "시루향기": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "zerousn6150.fordining.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "김명자낙지마당": {
   "url": "",
-  "domain": "store114.net",
-  "px": 0,
+  "domain": "cookiedeal.io",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "전주남문조춘자토종피순대국": {
   "url": "",
-  "domain": "fctier.kr",
-  "px": 0,
+  "domain": "jumpo.shop",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
  "JBD 본 종로빈대떡": {
   "url": "",
-  "domain": "pchanet.kr",
-  "px": 0,
+  "domain": "ochangup.co.kr",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "엘에이치씨피자탑(LHC PIZZA TOP)": {
   "url": "",
-  "domain": "fctier.kr",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "피슈 마라홍탕": {
@@ -7082,7 +7098,7 @@
  },
  "파주닭국수": {
   "url": "",
-  "domain": "www.ksilbo.co.kr",
+  "domain": "www.pajunoodle.co.kr",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(5개 브랜드)",
@@ -7110,10 +7126,10 @@
  },
  "볶찜": {
   "url": "",
-  "domain": "litt.ly",
+  "domain": "www.bokjjim.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "풍덕천 두꺼비집": {
@@ -7121,7 +7137,7 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "당신은지금치킨이땡긴다": {
@@ -7138,26 +7154,26 @@
  },
  "장혁민의 부대찌개": {
   "url": "",
-  "domain": "www.changupdo.com",
+  "domain": "www.triplestreet.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(43개 브랜드)",
   "pruned": "shared"
  },
  "치킨더홈": {
   "url": "",
   "domain": "www.asiaa.co.kr",
-  "px": 0,
+  "px": 200,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "투고샐러드 (TOGOSALAD)": {
   "url": "",
-  "domain": "bizk.co.kr",
-  "px": 0,
+  "domain": "www.glucofit.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "오가다": {
   "url": "",
@@ -7166,18 +7182,18 @@
   "file": ""
  },
  "무봤나촌닭": {
-  "url": "",
-  "domain": "bizk.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "url": "(재탐색)",
+  "domain": "www.mubannachondak.com",
+  "px": 98,
+  "file": "data/raw/naver/logo_img/7b3f1086e45441f4.png",
+  "rejected": "도메인 공유(19개 브랜드)"
  },
  "화르화르": {
   "url": "",
   "domain": "www.placeview.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "한방전주콩나물국밥": {
@@ -7194,10 +7210,10 @@
  },
  "목촌사골돼지국밥": {
   "url": "",
-  "domain": "startuplus.kr",
+  "domain": "mokchonsm.fordining.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(25개 브랜드)",
   "pruned": "shared"
  },
  "청년순대국": {
@@ -7208,10 +7224,10 @@
  },
  "원조의령소바": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "uiryeongsoba.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "700비어": {
@@ -7233,17 +7249,18 @@
   "file": ""
  },
  "샐러바웃": {
-  "url": "https://thevc.kr/icons/android-icon-192x192.png",
+  "url": "",
   "domain": "thevc.kr",
   "px": 192,
-  "file": "data/raw/naver/logo_img/66421fc2cce4e8f8.png"
+  "file": "",
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "기소야": {
   "url": "",
   "domain": "korean.visitseoul.net",
-  "px": 0,
+  "px": 292,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "밥장인": {
@@ -7260,24 +7277,25 @@
  },
  "킹스타피자": {
   "url": "",
-  "domain": "infosori.com",
+  "domain": "www.starpizza.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(21개 브랜드)",
   "pruned": "shared"
  },
  "쏭스클럽핫도그": {
   "url": "",
   "domain": "carmap.co.kr",
   "px": 0,
-  "file": ""
+  "file": "",
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "힘난다버거": {
   "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
+  "domain": "thevc.kr",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(16개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "메콩타이": {
@@ -7294,7 +7312,7 @@
  },
  "치교치킨": {
   "url": "",
-  "domain": "www.kihoilbo.co.kr",
+  "domain": "www.chikyo.kr",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
@@ -7303,8 +7321,8 @@
  "랑데자뷰(RENDEJAVOUS)": {
   "url": "",
   "domain": "www.yakup.com",
-  "px": 0,
-  "file": ""
+  "px": 100,
+  "file": "data/raw/naver/logo_img/745b1b71bea34c72.png"
  },
  "경성양꼬치": {
   "url": "",
@@ -7315,9 +7333,10 @@
  "오름순돼국밥": {
   "url": "",
   "domain": "jobs.daangn.com",
-  "px": 0,
+  "px": 100,
   "file": "",
-  "pruned": "shared"
+  "pruned": "shared",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "돼지팥빙수": {
   "url": "",
@@ -7328,7 +7347,7 @@
  "진탱 불곱창&불닭발": {
   "url": "",
   "domain": "polle.com",
-  "px": 0,
+  "px": 180,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -7344,7 +7363,7 @@
   "domain": "weseb.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "부엉이돈가스": {
@@ -7364,7 +7383,7 @@
   "domain": "card.kbcard.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "알촌": {
@@ -7380,27 +7399,27 @@
   "file": ""
  },
  "리틀하노이(LittleHANOI)": {
-  "url": "",
-  "domain": "weseb.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.littlehanoi.kr",
+  "px": 76,
+  "file": "data/raw/naver/logo_img/a34372aae92b60a4.png",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "인생설렁탕": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "koreahana.or.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "정가대박집": {
   "url": "",
   "domain": "platformdodam.com",
-  "px": 0,
+  "px": 1010,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "꾸꾸삼겹": {
@@ -7408,7 +7427,7 @@
   "domain": "www.job-post.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "청양일초": {
@@ -7416,22 +7435,22 @@
   "domain": "card.kbcard.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(18개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "엉터리생고기 두번째이야기 무한삼겹": {
-  "url": "",
-  "domain": "www.ungteori.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.loud.kr",
+  "px": 180,
+  "file": "data/raw/naver/logo_img/fb99b8227411eb58.png",
   "rejected": "도메인 공유(3개 브랜드)"
  },
  "꼬꼬아찌": {
   "url": "",
-  "domain": "xn--hu1b83jnmp41b93b.com",
+  "domain": "kokoazzi.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(21개 브랜드)"
  },
  "정정아식당": {
   "url": "",
@@ -7456,7 +7475,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "잭아저씨족발&보쌈": {
@@ -7473,34 +7492,34 @@
  },
  "경아식당": {
   "url": "",
-  "domain": "pervsi.com",
+  "domain": "www.kyunga.co.kr",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
  "청춘당 찹쌀 꽈배기": {
-  "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "breadly.udadada.com",
+  "px": 192,
+  "file": "data/raw/naver/logo_img/140e0b6c3c352ffa.png",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "피자스웨그": {
   "url": "",
-  "domain": "www.jumpoline.com",
+  "domain": "xn--o39aj1b1z2ao3d99fy2aca23ib20f.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(27개 브랜드)",
   "pruned": "shared"
  },
  "문토스트": {
   "url": "",
-  "domain": "www.gimhae.go.kr",
-  "px": 0,
+  "domain": "www.ktourmap.com",
+  "px": 400,
   "file": "",
-  "rejected": "도메인 공유(12개 브랜드)"
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "고품격커피공장": {
   "url": "https://cdn.udanax.org/icon/place-favicon.ico",
@@ -7519,14 +7538,14 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "하우돈곱창": {
-  "url": "",
-  "domain": "weseb.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.cstimes.com",
+  "px": 250,
+  "file": "data/raw/naver/logo_img/341425b9cd171377.png",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "국밥대장": {
@@ -7549,48 +7568,49 @@
  },
  "탕수육주는육군짬뽕": {
   "url": "",
-  "domain": "fctier.kr",
-  "px": 0,
+  "domain": "jumjuhub.com",
+  "px": 256,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "못말리는파닭": {
-  "url": "",
-  "domain": "iamdubu.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.koreapas.com",
+  "px": 320,
+  "file": "data/raw/naver/logo_img/7ae81976bd5b0e57.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "타타스베이글": {
-  "url": "",
-  "domain": "www.jumpoline.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "gmplaces.co.kr",
+  "px": 300,
+  "file": "data/raw/naver/logo_img/a75c8cc805576bf9.png",
+  "rejected": "도메인 공유(27개 브랜드)",
   "pruned": "shared"
  },
  "바베큐통족구이": {
-  "url": "https://jumjuhub.com/favicon.ico?favicon.2vob68tjqpejf.ico",
+  "url": "",
   "domain": "jumjuhub.com",
   "px": 256,
-  "file": "data/raw/naver/logo_img/cc3edc78020c90cd.png"
+  "file": "",
+  "rejected": "도메인 공유(7개 브랜드)"
  },
  "남도복국": {
   "url": "",
-  "domain": "weseb.com",
+  "domain": "www.xn--3e0b74di8c6vn.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "두리아": {
   "url": "",
-  "domain": "weseb.com",
+  "domain": "www.duria.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "삼겹파티": {
@@ -7598,7 +7618,7 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "아이러브피자": {
   "url": "",
@@ -7611,7 +7631,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "엉터리 해장국": {
@@ -7619,29 +7639,29 @@
   "domain": "www.ungteori.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "내담해물찜탕": {
   "url": "",
   "domain": "check.kkuda.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "땡초우동": {
   "url": "",
-  "domain": "xn--hu1b83jnmp41b93b.com",
+  "domain": "m.xn--2q1b12a239au4f.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(21개 브랜드)"
  },
  "조선의 옛날통닭": {
   "url": "",
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "바푸리": {
@@ -7655,14 +7675,14 @@
   "domain": "weseb.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "사쿠사쿠": {
-  "url": "",
-  "domain": "tabelog.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "wiki.onul.works",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/58a1012910e6a0e4.png",
   "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
@@ -7681,9 +7701,9 @@
  "신나게쌈빠찹쌀강정": {
   "url": "",
   "domain": "frandoor.co.kr",
-  "px": 0,
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "수북국밥": {
@@ -7700,17 +7720,17 @@
  },
  "치킨678": {
   "url": "",
-  "domain": "xn--hu1b83jnmp41b93b.com",
-  "px": 0,
+  "domain": "www.wowtv.co.kr",
+  "px": 403,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(7개 브랜드)"
  },
  "붐비어": {
   "url": "",
   "domain": "infosori.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(8개 브랜드)",
   "pruned": "shared"
  },
  "그램그램": {
@@ -7730,30 +7750,30 @@
   "domain": "www.store114.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "샤오바오우육면": {
-  "url": "",
-  "domain": "infosori.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.kyeongin.com",
+  "px": 630,
+  "file": "data/raw/naver/logo_img/44397be936a12318.png",
+  "rejected": "도메인 공유(21개 브랜드)",
   "pruned": "shared"
  },
  "오복미역": {
   "url": "",
-  "domain": "xn--hu1b83jnmp41b93b.com",
+  "domain": "obokhm.itrocks.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(21개 브랜드)"
  },
  "저스트텐동": {
   "url": "",
-  "domain": "bizk.co.kr",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(28개 브랜드)"
  },
  "무쇠김치삼겹": {
   "url": "https://shinganeofficial.com/theme/business/extend/sections/header/shingane_header/img/logo.png?v=231018",
@@ -7772,7 +7792,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "상상짬뽕": {
@@ -7780,21 +7800,21 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "산카이 이자카야": {
-  "url": "",
-  "domain": "bizk.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "url": "(재탐색)",
+  "domain": "sankai.co.kr",
+  "px": 96,
+  "file": "data/raw/naver/logo_img/8844330f22ba9b12.png",
+  "rejected": "도메인 공유(19개 브랜드)"
  },
  "동복리 제주갈치조림": {
   "url": "",
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "소노야": {
@@ -7802,15 +7822,15 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "옛날장터치킨": {
   "url": "",
-  "domain": "weseb.com",
+  "domain": "www.jang-teo.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "에그셀런트": {
@@ -7830,14 +7850,15 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "선식당": {
-  "url": "https://www.ktourmap.com/image/icon/ktourmapW.png",
+  "url": "",
   "domain": "www.ktourmap.com",
   "px": 400,
-  "file": "data/raw/naver/logo_img/ebe890d6e3487dbd.png"
+  "file": "",
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "매머드커피(Mammoth coffee)": {
   "url": "https://www.mmthcoffee.com/img/common/n_thumb.jpg",
@@ -7847,10 +7868,10 @@
  },
  "치킨주막": {
   "url": "",
-  "domain": "weseb.com",
-  "px": 0,
+  "domain": "cookiedeal.io",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "에그박스": {
@@ -7858,15 +7879,15 @@
   "domain": "weseb.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "그린브라우니(green brownie)": {
-  "url": "",
-  "domain": "infosori.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "myfactory.co.kr",
+  "px": 180,
+  "file": "data/raw/naver/logo_img/ba8d976a8c27e52b.png",
+  "rejected": "도메인 공유(21개 브랜드)",
   "pruned": "shared"
  },
  "조선CH.S치킨": {
@@ -7880,15 +7901,15 @@
   "domain": "infosori.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(8개 브랜드)",
   "pruned": "shared"
  },
  "막이오름": {
-  "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(16개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "theviewers.co.kr",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/a863016bfbd6590f.png",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "돼지영농후계자": {
@@ -7899,17 +7920,17 @@
  },
  "행복가마솥밥&알솥밥": {
   "url": "",
-  "domain": "bizk.co.kr",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(28개 브랜드)"
  },
  "순곱이네": {
   "url": "",
-  "domain": "www.changupdo.com",
+  "domain": "www.xn--kb0br3fk4sn6e.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(43개 브랜드)",
   "pruned": "shared"
  },
  "크로앙쥬": {
@@ -7917,7 +7938,7 @@
   "domain": "www.job-post.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "밀회관": {
@@ -7934,10 +7955,10 @@
  },
  "뽕잎사랑샤브칼국수보쌈냉면": {
   "url": "",
-  "domain": "fchalab.com",
+  "domain": "plaza.codethetrack.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "오늘은카레": {
@@ -7945,7 +7966,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "666 BURGER": {
@@ -7959,7 +7980,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "피자웨이브": {
@@ -7993,7 +8014,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "커피왕": {
@@ -8048,7 +8069,8 @@
   "url": "",
   "domain": "www.sanapocha.co.kr",
   "px": 0,
-  "file": ""
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "더만족": {
   "url": "https://carelink.im/favicon.ico?favicon.00txbmez5z6ve.ico",
@@ -8058,10 +8080,10 @@
  },
  "곱창이야기": {
   "url": "",
-  "domain": "www.mt.co.kr",
-  "px": 0,
+  "domain": "www.wowtv.co.kr",
+  "px": 403,
   "file": "",
-  "rejected": "도메인 공유(16개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "국대떡볶이": {
@@ -8075,13 +8097,13 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "바른국밥": {
-  "url": "",
-  "domain": "www.ludgi.ai",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.wikileaks-kr.org",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/b6e6200092d688a4.png",
   "rejected": "도메인 공유(5개 브랜드)"
  },
  "토대력": {
@@ -8089,7 +8111,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "오춘자비어": {
@@ -8112,10 +8134,10 @@
  },
  "계경순대국": {
   "url": "",
-  "domain": "www.ksilbo.co.kr",
-  "px": 0,
+  "domain": "www.epnc.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "선굼터": {
@@ -8123,20 +8145,20 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "교동짬뽕": {
-  "url": "",
-  "domain": "www.changupdo.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "jeongiga.dothome.co.kr",
+  "px": 620,
+  "file": "data/raw/naver/logo_img/1cf5fe221707ad20.png",
+  "rejected": "도메인 공유(43개 브랜드)",
   "pruned": "shared"
  },
  "육풍": {
   "url": "",
   "domain": "talk.naver.com",
-  "px": 0,
+  "px": 180,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -8155,10 +8177,10 @@
  },
  "수라섬 장칼국수": {
   "url": "",
-  "domain": "fctier.kr",
+  "domain": "maps.openers.ai",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "조타코": {
@@ -8170,8 +8192,8 @@
  "투존치킨": {
   "url": "",
   "domain": "enolja.com",
-  "px": 0,
-  "file": ""
+  "px": 80,
+  "file": "data/raw/naver/logo_img/4a09e049d81a73a1.png"
  },
  "행진푸드": {
   "url": "https://www.bsseogu.go.kr/img/seogu.ico",
@@ -8190,7 +8212,7 @@
   "domain": "startuplus.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(14개 브랜드)",
   "pruned": "shared"
  },
  "카페미뇽": {
@@ -8198,7 +8220,7 @@
   "domain": "weseb.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(9개 브랜드)",
   "pruned": "shared"
  },
  "콩불": {
@@ -8209,7 +8231,7 @@
  },
  "박봉구가래떡볶이": {
   "url": "",
-  "domain": "jshj.net",
+  "domain": "bonggu.co.kr",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(4개 브랜드)",
@@ -8229,24 +8251,24 @@
  },
  "아딸": {
   "url": "",
-  "domain": "thewiki.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
-  "pruned": "shared"
- },
- "봉대박스파게티": {
-  "url": "",
-  "domain": "cookiedeal.io",
+  "domain": "addalmall.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
+ "봉대박스파게티": {
+  "url": "",
+  "domain": "cookiedeal.io",
+  "px": 180,
+  "file": "",
+  "rejected": "도메인 공유(9개 브랜드)",
+  "pruned": "shared"
+ },
  "빌리엔젤": {
   "url": "",
   "domain": "www.yna.co.kr",
-  "px": 0,
+  "px": 180,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -8254,7 +8276,7 @@
  "커피홀 베이커리": {
   "url": "",
   "domain": "www.coffeehole.co.kr",
-  "px": 0,
+  "px": 400,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -8267,17 +8289,17 @@
  },
  "뚱보집": {
   "url": "",
-  "domain": "xn--hu1b83jnmp41b93b.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(28개 브랜드)"
  },
  "아마떼": {
   "url": "",
-  "domain": "www.ludgi.ai",
+  "domain": "www.sanapocha.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "미정국수0410": {
   "url": "https://www.0410noodle.com/wp-content/uploads/2021/12/cropped-미정국수_파비콘-192x192.png",
@@ -8309,7 +8331,7 @@
   "domain": "fchalab.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "토스트카페마리": {
@@ -8320,10 +8342,10 @@
  },
  "육회지존": {
   "url": "",
-  "domain": "bizk.co.kr",
+  "domain": "jijonfood.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(19개 브랜드)"
  },
  "만나고쪽갈비가": {
   "url": "",
@@ -8332,10 +8354,10 @@
   "file": ""
  },
  "오산조은참치": {
-  "url": "",
-  "domain": "autoreserve.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.osangoodtuna.com",
+  "px": 400,
+  "file": "data/raw/naver/logo_img/7948aee9b2bd987d.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
@@ -8365,18 +8387,18 @@
  },
  "VFC치킨파티": {
   "url": "",
-  "domain": "infosori.com",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "이웃집소녀떡볶이": {
   "url": "",
-  "domain": "www.jumpoline.com",
-  "px": 0,
+  "domain": "www.jobplanet.co.kr",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "은하별": {
@@ -8393,10 +8415,10 @@
  },
  "옥탑방오봉자싸롱": {
   "url": "",
-  "domain": "startuplus.kr",
+  "domain": "plaza.codethetrack.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(27개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "별법동태탕왕해물찜": {
@@ -8425,17 +8447,17 @@
  },
  "화통삼": {
   "url": "",
-  "domain": "www.fctime.net",
+  "domain": "www.ezday.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "위드치킨": {
   "url": "",
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "개성집": {
@@ -8452,7 +8474,7 @@
  },
  "오떡": {
   "url": "",
-  "domain": "www.widedaily.com",
+  "domain": "kakaotteok.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
@@ -8475,7 +8497,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "카페보니또": {
@@ -8508,7 +8530,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "디오니스": {
@@ -8516,15 +8538,15 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "비어첸": {
   "url": "",
-  "domain": "www.changupdo.com",
+  "domain": "www.xn--pr3b01hla999b.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(43개 브랜드)",
   "pruned": "shared"
  },
  "아틀리에빈": {
@@ -8532,22 +8554,22 @@
   "domain": "fms.purpleo.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "쌀똑핫도그": {
   "url": "",
-  "domain": "bizk.co.kr",
-  "px": 0,
+  "domain": "local.114-service.co.kr",
+  "px": 150,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(4개 브랜드)"
  },
  "피자플래넷": {
   "url": "",
   "domain": "infosori.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "rejected": "도메인 공유(8개 브랜드)",
   "pruned": "shared"
  },
  "엉터리생고기": {
@@ -8555,7 +8577,7 @@
   "domain": "www.ungteori.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "다기야": {
   "url": "https://www.dagiya.co.kr/upload/siteset/파비콘.ico",
@@ -8574,31 +8596,31 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "커피홀(coffee hole)": {
   "url": "",
   "domain": "www.coffeehole.co.kr",
-  "px": 0,
+  "px": 400,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "대칠성포차": {
   "url": "",
-  "domain": "www.jumpoline.com",
-  "px": 0,
+  "domain": "www.jobplanet.co.kr",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "남다른대구막창": {
-  "url": "",
-  "domain": "www.mokpo.go.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "dgmakchang.co.kr",
+  "px": 315,
+  "file": "data/raw/naver/logo_img/ed0064772ec8f226.png",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "조선화로집": {
@@ -8609,10 +8631,10 @@
  },
  "원조전통명가 통큰할매순대국": {
   "url": "",
-  "domain": "modoo.io",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "아리랑수제핫도그": {
@@ -8632,7 +8654,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "홍대돈부리": {
@@ -8658,15 +8680,15 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "아그집쭈꾸미": {
-  "url": "",
-  "domain": "www.jumpoline.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "031-8003-8500.ezbuilder.co.kr",
+  "px": 396,
+  "file": "data/raw/naver/logo_img/d064f415c032d76f.png",
+  "rejected": "도메인 공유(27개 브랜드)",
   "pruned": "shared"
  },
  "아리가또맘마": {
@@ -8674,29 +8696,29 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "3883 팔도실비집": {
   "url": "",
-  "domain": "bizk.co.kr",
+  "domain": "maps.openers.ai",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(7개 브랜드)"
  },
  "연안식당": {
   "url": "",
-  "domain": "xn--hu1b83jnmp41b93b.com",
-  "px": 0,
+  "domain": "homepage.id",
+  "px": 300,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "서래갈매기": {
   "url": "",
-  "domain": "weseb.com",
+  "domain": "www.seoraester.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "베스트빈": {
@@ -8712,10 +8734,10 @@
   "file": ""
  },
  "피자쿠치나": {
-  "url": "",
-  "domain": "www.gpkorea.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.2coffee.co.kr",
+  "px": 512,
+  "file": "data/raw/naver/logo_img/23af6c5b8d6f6f8d.png",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
@@ -8724,15 +8746,15 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "킹콩쥬스엔커피": {
-  "url": "",
-  "domain": "weseb.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.webify.kr",
+  "px": 180,
+  "file": "data/raw/naver/logo_img/c3087e16944bcbde.png",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "유떡": {
@@ -8758,23 +8780,23 @@
   "domain": "www.job-post.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "79파운야드(79 FOUNYARD)": {
   "url": "",
   "domain": "www.sentv.co.kr",
-  "px": 0,
+  "px": 512,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "미쓰족발": {
   "url": "",
-  "domain": "www.ludgi.ai",
-  "px": 0,
+  "domain": "www.jejuswc.kr",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)"
+  "rejected": "동일 이미지가 다른 브랜드에도 사용됨"
  },
  "혼다라멘": {
   "url": "",
@@ -8787,13 +8809,13 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "호아빈": {
   "url": "",
   "domain": "www.vietnam.vn",
-  "px": 0,
+  "px": 1210,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -8806,17 +8828,17 @@
  },
  "커피온리": {
   "url": "",
-  "domain": "weseb.com",
-  "px": 0,
+  "domain": "thevc.kr",
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "리춘시장": {
-  "url": "",
-  "domain": "www.mimint.co.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.wikitree.co.kr",
+  "px": 512,
+  "file": "data/raw/naver/logo_img/4885657c78ab30eb.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
@@ -8828,10 +8850,10 @@
  },
  "마미쿡": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "www.mommycook.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "툴스돈카츠": {
@@ -8845,15 +8867,15 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "착한쭝식": {
-  "url": "",
-  "domain": "www.fctime.net",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "url": "(재탐색)",
+  "domain": "www.gokorea.kr",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/ed7b3bc49b3c069b.png",
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "생어거스틴": {
   "url": "",
@@ -8866,36 +8888,37 @@
   "domain": "www.fctime.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "rejected": "도메인 공유(5개 브랜드)"
  },
  "호수꼬치": {
-  "url": "",
-  "domain": "www.widedaily.com",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "www.woodkorea.co.kr",
+  "px": 200,
+  "file": "data/raw/naver/logo_img/8ce47699b6b9c618.png",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "삼백집": {
-  "url": "https://cgeimage.commutil.kr/defaultimg/law_defaultimg.jpg.png",
+  "url": "",
   "domain": "www.lawissue.co.kr",
   "px": 617,
-  "file": "data/raw/naver/logo_img/ebce3b2d2a512511.png"
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "한끼삼계탕": {
   "url": "",
   "domain": "frandoor.co.kr",
-  "px": 0,
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "분식이더치킨": {
-  "url": "",
-  "domain": "fchalab.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "undercov.kr",
+  "px": 180,
+  "file": "data/raw/naver/logo_img/b6b07352cca2bf7b.png",
+  "rejected": "도메인 공유(13개 브랜드)",
   "pruned": "shared"
  },
  "통통회": {
@@ -8918,10 +8941,10 @@
  },
  "피자헤븐": {
   "url": "",
-  "domain": "pf.kakao.com",
-  "px": 0,
+  "domain": "www.incruit.com",
+  "px": 400,
   "file": "",
-  "rejected": "도메인 공유(7개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "샤이바나": {
   "url": "",
@@ -8943,10 +8966,10 @@
  },
  "양가네고기듬뿍김치찜": {
   "url": "",
-  "domain": "duli.co.kr",
+  "domain": "localmap.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(7개 브랜드)"
+  "rejected": "도메인 공유(6개 브랜드)"
  },
  "치킨퐁": {
   "url": "https://cdn.imweb.me/upload/S20241118874bd0db189b7/0b44c2c60e921.png",
@@ -8975,7 +8998,7 @@
  "이십센치": {
   "url": "",
   "domain": "forum.nexon.com",
-  "px": 0,
+  "px": 144,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -8985,21 +9008,21 @@
   "domain": "www.fctime.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "rejected": "도메인 공유(5개 브랜드)"
  },
  "양호실떡볶이": {
   "url": "",
-  "domain": "jshj.net",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(17개 브랜드)",
   "pruned": "shared"
  },
  "브라더탕수": {
-  "url": "",
-  "domain": "www.wonju.go.kr",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "namsieon.com",
+  "px": 800,
+  "file": "data/raw/naver/logo_img/ecf346076ba39cc0.png",
   "rejected": "도메인 공유(2개 브랜드)"
  },
  "에센스커피": {
@@ -9015,17 +9038,18 @@
   "file": ""
  },
  "라떼킹(Latteking)": {
-  "url": "https://thinkyou.co.kr/images/sns_link.png",
+  "url": "",
   "domain": "thinkyou.co.kr",
   "px": 126,
-  "file": "data/raw/naver/logo_img/c46d10edfac1141e.png"
+  "file": "",
+  "rejected": "도메인 공유(4개 브랜드)"
  },
  "권사부 순대국": {
   "url": "",
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "군산오징어&군오부대찌개": {
@@ -9036,10 +9060,10 @@
  },
  "수철이네왕새우튀김": {
   "url": "",
-  "domain": "bizk.co.kr",
-  "px": 0,
+  "domain": "www.joongdo.co.kr",
+  "px": 325,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "라떼떼": {
   "url": "https://in.naver.com/android-icon-192x192.png",
@@ -9064,7 +9088,7 @@
   "domain": "bizk.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "경성주막1929": {
   "url": "https://ks1929.co.kr/img/common/bi.png",
@@ -9073,11 +9097,11 @@
   "file": "data/raw/naver/logo_img/d409aee69f94f7c9.png"
  },
  "빵사부식빵공방": {
-  "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.gnmaeil.com",
+  "px": 256,
+  "file": "data/raw/naver/logo_img/28648e534cdffcc1.png",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "서래왕차돌": {
@@ -9091,7 +9115,7 @@
   "domain": "fchamall.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(22개 브랜드)",
   "pruned": "shared"
  },
  "떼루와": {
@@ -9114,16 +9138,17 @@
  },
  "사랑관": {
   "url": "",
-  "domain": "school.cbe.go.kr",
-  "px": 0,
-  "file": ""
+  "domain": "www.urimal.org",
+  "px": 180,
+  "file": "",
+  "rejected": "동일 이미지가 다른 브랜드에도 사용됨"
  },
  "두돈까스": {
   "url": "",
-  "domain": "fctier.kr",
+  "domain": "maps.openers.ai",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "미스터파파임실치즈피자": {
@@ -9131,31 +9156,31 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "하코야": {
   "url": "",
-  "domain": "www.suto.co.kr",
-  "px": 0,
+  "domain": "www.wowtv.co.kr",
+  "px": 403,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "공수간": {
   "url": "",
-  "domain": "www.mk.co.kr",
-  "px": 0,
+  "domain": "www.wowtv.co.kr",
+  "px": 403,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "찐곱도리식당": {
   "url": "",
-  "domain": "weseb.com",
-  "px": 0,
+  "domain": "ayo.pe.kr",
+  "px": 642,
   "file": "",
-  "rejected": "도메인 공유(37개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "옐로우스푼": {
@@ -9163,7 +9188,7 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "더기발한치킨(The기발한치킨)": {
@@ -9183,7 +9208,7 @@
   "domain": "www.jumpoline.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(29개 브랜드)",
+  "rejected": "도메인 공유(15개 브랜드)",
   "pruned": "shared"
  },
  "전설의짬뽕": {
@@ -9194,34 +9219,34 @@
  },
  "돌배기집": {
   "url": "",
-  "domain": "www.seouldanurim.net",
+  "domain": "dolbaegi.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "1인삼겹 오빠삼": {
   "url": "",
-  "domain": "fctier.kr",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "포차어게인": {
   "url": "",
   "domain": "www.sedaily.com",
-  "px": 0,
+  "px": 228,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "대독장": {
   "url": "",
-  "domain": "xn--hu1b83jnmp41b93b.com",
+  "domain": "easyjeju.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "죽선생": {
   "url": "",
@@ -9250,9 +9275,9 @@
  "스푼필라프": {
   "url": "",
   "domain": "local.114-service.co.kr",
-  "px": 0,
+  "px": 150,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "조커닭 (Jokerdark)": {
@@ -9266,15 +9291,15 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "마루샤브": {
   "url": "",
-  "domain": "xn--hu1b83jnmp41b93b.com",
-  "px": 0,
+  "domain": "www.ktourmap.com",
+  "px": 400,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(3개 브랜드)"
  },
  "인정국물떡볶이": {
   "url": "",
@@ -9314,16 +9339,16 @@
  },
  "꾼노리": {
   "url": "",
-  "domain": "www.store114.net",
+  "domain": "www.ikkun.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "얌샘": {
   "url": "",
   "domain": "yumsem.com",
-  "px": 0,
+  "px": 192,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
@@ -9337,21 +9362,21 @@
  },
  "김진철동래통닭": {
   "url": "",
-  "domain": "bizk.co.kr",
-  "px": 0,
+  "domain": "frandoor.co.kr",
+  "px": 630,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(17개 브랜드)"
  },
  "치르치르": {
   "url": "",
-  "domain": "www.richfood.net",
+  "domain": "www.chirchir.net",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)"
  },
  "킹오브떡볶이": {
   "url": "",
-  "domain": "www.ksilbo.co.kr",
+  "domain": "www.bigkingkong.com",
   "px": 0,
   "file": "",
   "rejected": "도메인 공유(5개 브랜드)",
@@ -9371,26 +9396,26 @@
   "file": ""
  },
  "램플러스": {
-  "url": "",
-  "domain": "www.fctime.net",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "url": "(재탐색)",
+  "domain": "ko.aliexpress.com",
+  "px": 1080,
+  "file": "data/raw/naver/logo_img/fbf6caafc72f0a40.png",
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "돈도니 석쇠한판불고기": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "www.dondoni.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "생고기제작소": {
   "url": "",
-  "domain": "fchamall.com",
+  "domain": "www.bike-on.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(56개 브랜드)",
   "pruned": "shared"
  },
  "정성찬": {
@@ -9416,7 +9441,7 @@
   "domain": "fms.purpleo.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "닭갈비클라쓰": {
@@ -9430,7 +9455,7 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "밀방떡": {
@@ -9447,10 +9472,10 @@
  },
  "코페아커피(COFFEA COFFEE)": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "범프리카인생치킨": {
@@ -9458,22 +9483,22 @@
   "domain": "xn--hu1b83jnmp41b93b.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(22개 브랜드)"
+  "rejected": "도메인 공유(12개 브랜드)"
  },
  "팔팔핫도그": {
   "url": "",
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "제육폭식": {
   "url": "",
-  "domain": "fchamall.com",
-  "px": 0,
+  "domain": "www.lawissue.co.kr",
+  "px": 617,
   "file": "",
-  "rejected": "도메인 공유(62개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "아빠곰탕": {
@@ -9483,48 +9508,49 @@
   "file": ""
  },
  "돈갓": {
-  "url": "",
-  "domain": "infosori.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(23개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.dongod.co.kr",
+  "px": 196,
+  "file": "data/raw/naver/logo_img/1844ab175d0d81b2.png",
+  "rejected": "도메인 공유(21개 브랜드)",
   "pruned": "shared"
  },
  "일백집 서울포장마차": {
-  "url": "",
-  "domain": "modoo.io",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "conyplace.com",
+  "px": 512,
+  "file": "data/raw/naver/logo_img/08206fdf8804b25c.png",
   "rejected": "도메인 공유(5개 브랜드)",
   "pruned": "shared"
  },
  "코코샤브": {
-  "url": "https://www.linktoplace.com/assets/icon/apple-icon-180x180.png",
+  "url": "",
   "domain": "www.linktoplace.com",
   "px": 180,
-  "file": "data/raw/naver/logo_img/19ed9a3161d2b51a.png"
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "대마족발": {
   "url": "",
   "domain": "www.fctime.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "rejected": "도메인 공유(5개 브랜드)"
  },
  "오늘술집 주다방": {
   "url": "",
-  "domain": "www.widedaily.com",
-  "px": 0,
+  "domain": "www.thepublic.kr",
+  "px": 200,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "사바사바치킨&비어": {
   "url": "",
-  "domain": "autoreserve.com",
-  "px": 0,
+  "domain": "ddak.disco.re",
+  "px": 512,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)",
+  "rejected": "도메인 공유(28개 브랜드)",
   "pruned": "shared"
  },
  "꽃찬찜닭": {
@@ -9536,17 +9562,17 @@
  "두뽂스": {
   "url": "",
   "domain": "www.sedaily.com",
-  "px": 0,
+  "px": 228,
   "file": "",
   "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "도쿄스테이크": {
-  "url": "",
-  "domain": "www.insight.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "sports.hankooki.com",
+  "px": 80,
+  "file": "data/raw/naver/logo_img/92e045eb3357a6ce.png",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "맛나슈퍼": {
@@ -9554,21 +9580,21 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "꽉찬쌀통닭": {
-  "url": "",
-  "domain": "fchalab.com",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(14개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "bizpickapp.com",
+  "px": 279,
+  "file": "data/raw/naver/logo_img/7d08b700894a5018.png",
+  "rejected": "도메인 공유(13개 브랜드)",
   "pruned": "shared"
  },
  "타이거슈가(TIGER SUGAR)": {
   "url": "",
-  "domain": "www.insight.co.kr",
-  "px": 0,
+  "domain": "m.ekn.kr",
+  "px": 128,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
@@ -9578,7 +9604,7 @@
   "domain": "www.fctime.net",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(13개 브랜드)"
+  "rejected": "도메인 공유(5개 브랜드)"
  },
  "로봇김밥": {
   "url": "",
@@ -9597,31 +9623,31 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "놀부옛날통닭": {
   "url": "",
-  "domain": "www.dt.co.kr",
-  "px": 0,
+  "domain": "www.wowtv.co.kr",
+  "px": 403,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "rejected": "도메인 공유(7개 브랜드)",
   "pruned": "shared"
  },
  "바푸리pho베트남쌀국수": {
   "url": "",
   "domain": "jumpo.shop",
-  "px": 0,
+  "px": 192,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(6개 브랜드)",
   "pruned": "shared"
  },
  "커핀그루나루": {
   "url": "",
   "domain": "m.ekn.kr",
-  "px": 0,
+  "px": 128,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "흑화당": {
@@ -9631,11 +9657,11 @@
   "file": "data/raw/naver/logo_img/6dc9882b3618d7c5.png"
  },
  "육봉달": {
-  "url": "",
-  "domain": "www.store114.net",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(6개 브랜드)",
+  "url": "(재탐색)",
+  "domain": "www.stnsports.co.kr",
+  "px": 630,
+  "file": "data/raw/naver/logo_img/8ca229aaa7f9fcbd.png",
+  "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
  "동경야시장": {
@@ -9646,18 +9672,18 @@
  },
  "열정분식소": {
   "url": "",
-  "domain": "www.dt.co.kr",
-  "px": 0,
+  "domain": "www.ggilbo.com",
+  "px": 200,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "브라보치킨피자": {
-  "url": "",
-  "domain": "bizk.co.kr",
-  "px": 0,
-  "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "url": "(재탐색)",
+  "domain": "www.nc.press",
+  "px": 630,
+  "file": "data/raw/naver/logo_img/14fef00aacd0549d.png",
+  "rejected": "도메인 공유(19개 브랜드)"
  },
  "일계양득": {
   "url": "",
@@ -9668,29 +9694,31 @@
  "몬떡": {
   "url": "",
   "domain": "isplus.com",
-  "px": 0,
+  "px": 226,
   "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
+  "rejected": "도메인 공유(3개 브랜드)",
   "pruned": "shared"
  },
  "홍베이팡": {
-  "url": "https://www.joongdo.co.kr/mnt/images/logo/joongdo_og.jpg?v=2",
+  "url": "",
   "domain": "www.joongdo.co.kr",
   "px": 325,
-  "file": "data/raw/naver/logo_img/06b9a2b6555dbbd2.png"
+  "file": "",
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "밀포유": {
   "url": "",
   "domain": "www.ludgi.ai",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(5개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "용범이네인계동껍데기": {
-  "url": "https://www.bluer.co.kr/og-image.jpg",
+  "url": "",
   "domain": "www.bluer.co.kr",
   "px": 315,
-  "file": "data/raw/naver/logo_img/a767f2a1822d51ab.png"
+  "file": "",
+  "rejected": "도메인 공유(4개 브랜드)"
  },
  "갈통삼": {
   "url": "https://www.nbntv.kr/image/logo/snslogo_20241011012459.png",
@@ -9706,10 +9734,10 @@
  },
  "어머나생고기": {
   "url": "",
-  "domain": "www.changupdo.com",
-  "px": 0,
+  "domain": "www.kmsys.co.kr",
+  "px": 180,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "동일 이미지가 다른 브랜드에도 사용됨",
   "pruned": "shared"
  },
  "무한사케무사": {
@@ -9717,22 +9745,22 @@
   "domain": "www.changupdo.com",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(45개 브랜드)",
+  "rejected": "도메인 공유(34개 브랜드)",
   "pruned": "shared"
  },
  "김바삭군의 볼카츠마켙": {
   "url": "",
-  "domain": "pchanet.kr",
-  "px": 0,
+  "domain": "jumjuhub.com",
+  "px": 256,
   "file": "",
-  "rejected": "도메인 공유(4개 브랜드)"
+  "rejected": "도메인 공유(7개 브랜드)"
  },
  "우리동네서민한우": {
   "url": "",
-  "domain": "duli.co.kr",
+  "domain": "localmap.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(7개 브랜드)"
+  "rejected": "도메인 공유(6개 브랜드)"
  },
  "피쉬앤그릴too": {
   "url": "",
@@ -9754,10 +9782,10 @@
   "file": ""
  },
  "9찬김치찌개": {
-  "url": "",
-  "domain": "jshj.net",
-  "px": 0,
-  "file": "",
+  "url": "(재탐색)",
+  "domain": "drinkmap.org",
+  "px": 180,
+  "file": "data/raw/naver/logo_img/3e6f6f5014b39da6.png",
   "rejected": "도메인 공유(4개 브랜드)",
   "pruned": "shared"
  },
@@ -9766,7 +9794,7 @@
   "domain": "bizk.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(20개 브랜드)"
+  "rejected": "도메인 공유(2개 브랜드)"
  },
  "꼬육꼬밥": {
   "url": "",
@@ -9779,7 +9807,7 @@
   "domain": "www.tabling.co.kr",
   "px": 0,
   "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
+  "rejected": "도메인 공유(2개 브랜드)",
   "pruned": "shared"
  },
  "보글지글": {

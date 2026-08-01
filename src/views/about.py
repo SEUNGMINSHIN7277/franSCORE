@@ -43,8 +43,8 @@ def render() -> None:
 
     # ── 한 문단 요약 ──────────────────────────────────────────────
     st.markdown(
-        f"<div style='padding:16px 18px;border-radius:10px;background:{theme.YELLOW_SOFT};"
-        f"border:1px solid #F2E3A8;font-size:1.04rem;line-height:1.75;color:{theme.TEXT}'>"
+        f"<div style='padding:16px 18px;border-radius:{theme.RADIUS_LG};background:{theme.YELLOW_SOFT};"
+        f"border:1px solid #F2E3A8;font-size:{theme.FS_LG};line-height:1.75;color:{theme.TEXT}'>"
         f"은행이 가맹점주에게 대출할 때 보는 것은 <b>그 사람의 상환능력</b>입니다. "
         f"그런데 손실은 개인이 아니라 <b>브랜드가 꺾일 때 그 브랜드 가맹점이 한꺼번에</b> "
         f"어려워지는 형태로 옵니다. 차주 심사로는 이 축이 보이지 않습니다. "
@@ -70,10 +70,10 @@ def render() -> None:
         with st.container(border=True):
             st.markdown(
                 f"<div style='display:flex;gap:14px;align-items:flex-start'>"
-                f"<div style='flex:0 0 34px;height:34px;border-radius:9px;"
+                f"<div style='flex:0 0 34px;height:34px;border-radius:{theme.RADIUS_MD};"
                 f"background:{theme.YELLOW};color:#26221E;font-weight:800;"
                 f"display:flex;align-items:center;justify-content:center'>{no}</div>"
-                f"<div><div style='font-weight:700;font-size:1.08rem;color:{theme.INK};"
+                f"<div><div style='font-weight:700;font-size:{theme.FS_LG};color:{theme.INK};"
                 f"margin-bottom:3px'>{title}</div>"
                 f"<div style='color:{theme.TEXT};line-height:1.7'>{body}</div></div></div>",
                 unsafe_allow_html=True)
@@ -140,8 +140,7 @@ def _validation_block() -> None:
     """검증 산출물이 있으면 실측치를, 없으면 없다고 말한다."""
     p = C.out_dir() / "validation" / "summary.json"
     if not p.exists():
-        st.caption("검증 산출물이 아직 생성되지 않았습니다 "
-                   "(`python run_pipeline.py --step validate`).")
+        st.caption("검증 실적이 아직 집계되지 않았습니다.")
         return
     try:
         s = json.loads(p.read_text(encoding="utf-8"))

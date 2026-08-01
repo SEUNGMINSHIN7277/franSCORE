@@ -80,8 +80,7 @@ def render() -> None:
             f"창업비용이 공시된 **{int(a.get('n_brands', 0))}개 브랜드**만 담겨 있습니다.\n\n"
             f"→ **금액 자체가 아니라 '구조'를 보십시오** — 어느 브랜드에 쏠렸는지, "
             f"신규 실행이 집중도를 얼마나 움직이는지가 이 화면의 쓸모입니다. "
-            f"실제 여신 CSV(`brand_id` 또는 `brand_name`, `exposure_mkrw`)를 "
-            f"`config.yaml` 의 `portfolio.exposure_source` 에 연결하면 전부 실측으로 바뀝니다.")
+            f"행내 여신 잔액을 연결하면 같은 화면이 그대로 실측 기준으로 바뀝니다.")
 
     port = _recompute(base, pcfg)
     _kpis(port, summary, adj)
@@ -274,7 +273,7 @@ def _concentration(port: pd.DataFrame) -> None:
     with c1:
         st.markdown("##### 여신 상위 브랜드")
         top = port.nlargest(12, "exposure_mkrw").sort_values("exposure_mkrw")
-        colors = [theme.GRADE_COLOR.get(str(g), theme.YELLOW_DEEP)
+        colors = [theme.GRADE_FILL.get(str(g), theme.YELLOW_DEEP)
                   for g in top["risk_grade"]]
         fig = C.bar_chart(top["brand_name"].astype(str).tolist(),
                           (top["exposure_mkrw"] / 100).round(1).tolist(),
@@ -293,7 +292,7 @@ def _concentration(port: pd.DataFrame) -> None:
                 x=port.loc[m, "pd_1y"] * 100,
                 y=port.loc[m, "exposure_mkrw"] / 100,
                 mode="markers", name=C.GRADE_KR.get(g, g),
-                marker={"size": 11, "color": theme.GRADE_COLOR[g], "opacity": .78,
+                marker={"size": 11, "color": theme.GRADE_FILL[g], "opacity": .78,
                         "line": {"width": 1, "color": "#FFFFFF"}},
                 text=port.loc[m, "brand_name"],
                 hovertemplate="<b>%{text}</b><br>브랜드 리스크 %{x:.1f}%<br>"
@@ -319,7 +318,7 @@ def _expected_loss(port: pd.DataFrame, pcfg: dict) -> None:
                          marker_color=theme.YELLOW_DEEP,
                          hovertemplate="%{x}<br>기본 <b>%{y:,.1f}</b>억원<extra></extra>"))
     fig.add_trace(go.Bar(x=labels, y=strs, name="스트레스",
-                         marker_color=theme.DANGER,
+                         marker_color=theme.DANGER_FILL,
                          hovertemplate="%{x}<br>스트레스 <b>%{y:,.1f}</b>억원<extra></extra>"))
     fig.update_layout(barmode="group", height=300, yaxis_title="예상손실 (억원)",
                       margin={"l": 4, "r": 4, "t": 30, "b": 20})

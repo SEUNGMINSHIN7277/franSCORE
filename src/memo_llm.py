@@ -107,7 +107,7 @@ def _fallback_memo(context: dict) -> str:
                 sv = item.get("shap_value")
                 fv = item.get("feature_value")
                 direction = ""
-                if isinstance(sv, (int, float)):
+                if isinstance(sv, int | float):
                     direction = " (위험 상승 기여)" if sv > 0 else " (위험 하락 기여)"
                 L.append(
                     f"- `{feat}`: SHAP={_fmt(sv)}{direction}, 피처값={_fmt(fv)}"

@@ -384,6 +384,31 @@ _NOT_OFFICIAL = (
     "startuptoday", "mangoplate", "yogiyo", "baemin", "wingeat", "menupan",
     "creatoplus", "bizinfo", "nicebizinfo", "saramin", "catchtable", "katchup",
     "storelink", "openad", "atable", "foodbank", "thinkfood", "yeogi",
+    # ── 2차 적발 (수집 결과를 역추적해 찾음) ────────────────────────────────
+    # 판정 방법: 수집이 끝난 색인에서 **한 도메인에 3개 이상 브랜드**가 붙은
+    # 것을 전부 뽑았다. 공식 홈페이지는 브랜드마다 다르므로 이는 정의상 오탐이다.
+    # 58개 도메인이 545개 브랜드를 차지하고 있었다.
+    #   창업 포털  fchamall 62 · changupdo 45 · weseb 37 · jumpoline 29 ·
+    #              startuplus 27 · infosori 23 · 창업오뜨야 22 · bizk 20 ·
+    #              fctier 15 · fchalab 14 · fctime 13 · yesexpo 10
+    #   언론        mt.co.kr 16 · shinailbo · ksilbo · mk.co.kr · insight ·
+    #              kihoilbo · dt.co.kr · widedaily · kbsm · slist · mimint
+    #   카드·지자체 card.kbcard 18 · gimhae.go.kr 12 · mokpo.go.kr
+    #   빌더·링크   pf.kakao · story.kakao · modoo.io · imweb.me · litt.ly
+    #   예약·리뷰   tabelog · autoreserve · tabling · placeview
+    # ⚠️ theborn.co.kr(더본코리아) 처럼 **진짜** 가맹본부가 여러 브랜드를 한
+    #    사이트에서 운영하는 경우는 넣지 않는다. 공식 홈페이지가 맞기 때문이다.
+    #    그런 경우의 로고 중복은 prune_shared_logos() 가 결과를 보고 처리한다.
+    "fchamall", "changupdo", "weseb.com", "jumpoline", "startuplus",
+    "infosori", "xn--hu1b83jnmp41b93b", "bizk.co.kr", "fctier", "fchalab",
+    "fctime", "yesexpo", "duli.co.kr", "pervsi", "jejal.net", "iamdubu",
+    "store114", "placeview", "pchanet", "jshj.net", "jusogo", "localbiz.kr",
+    "ludgi.ai", "purpleo.co.kr", "kkuda.kr", "richfood", "ungteori", "suto.co.kr",
+    "card.kbcard", ".go.kr", "seouldanurim",
+    "mt.co.kr", "shinailbo", "ksilbo", "mk.co.kr", "insight.co.kr", "kihoilbo",
+    "dt.co.kr", "widedaily", "kbsm.net", "slist.kr", "mimint", "gpkorea",
+    "pf.kakao", "story.kakao", "modoo.io", "imweb.me", "litt.ly",
+    "tabelog", "autoreserve", "tabling", "linkareer", "job-post", "thewiki.kr",
 )
 _UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                      "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
@@ -876,7 +901,12 @@ def collect_logos(cfg: dict | None = None, limit: int | None = None,
             continue
         try:
             domain = official_domain(name, cfg)
-            url, px = site_icon(domain, name) if domain else ("", 0)
+            # ⚠️ verify=False 를 반드시 넘긴다. official_domain() 이 이미 브랜드
+            #    소유를 확인했고, 여기서 또 확인하면 페이지를 직접 받아 텍스트를
+            #    보는 2차 관문이 걸린다 — JS 렌더링 사이트가 통째로 탈락한다.
+            #    이 인자를 빼먹어서 **도메인은 찾았는데 아이콘이 없는 브랜드가
+            #    867개(60.3%)** 였다. brand_logo() 만 고치고 여기를 놓쳤다.
+            url, px = site_icon(domain, name, verify=False) if domain else ("", 0)
         except NaverError as exc:
             log.warning("로고 수집 중단 (%s): %s", name, exc)
             break

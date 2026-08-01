@@ -64,15 +64,19 @@ def _sidebar() -> str:
     _, meta = C.load_scores()
     if meta:
         st.sidebar.markdown(
-            f"<div style='padding:14px 12px 4px 12px;font-size:.74rem;"
-            f"color:#8C8378;line-height:1.7;border-top:1px solid #453F39;"
+            f"<div style='padding:14px 12px 4px 12px;font-size:{theme.FS_XS};"
+            f"color:{theme.NAV_SUB};line-height:1.7;border-top:1px solid #453F39;"
             f"margin-top:14px'>"
-            f"기준 공시연도 <b style='color:#CFC8BE'>{meta.get('scored_year', '-')}년</b><br>"
-            f"평가 대상 <b style='color:#CFC8BE'>{meta.get('n_scored', 0):,}개</b> 브랜드"
+            f"기준 공시연도 <b style='color:{theme.NAV_TEXT}'>"
+            f"{meta.get('scored_year', '-')}년</b><br>"
+            f"평가 대상 <b style='color:{theme.NAV_TEXT}'>"
+            f"{meta.get('n_scored', 0):,}개</b> 브랜드"
             f"</div>", unsafe_allow_html=True)
+    # ⚠️ 고지문은 법적 성격이라 '작게 흘려두는' 문구가 아니다. 예전엔 11.2px·
+    #    명도대비 2.78 로 사실상 안 읽히게 두었는데, 안 읽히는 고지는 고지가 아니다.
     st.sidebar.markdown(
-        f"<div style='padding:16px 12px;font-size:.7rem;color:#7A7168;line-height:1.6'>"
-        f"{DISCLAIMER}</div>", unsafe_allow_html=True)
+        f"<div style='padding:16px 12px;font-size:{theme.FS_XS};color:{theme.NAV_SUB};"
+        f"line-height:1.6'>{DISCLAIMER}</div>", unsafe_allow_html=True)
     return view
 
 

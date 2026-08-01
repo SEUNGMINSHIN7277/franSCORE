@@ -487,7 +487,7 @@ def section_cards_html(brand_id: str, industry_mid: str | None = None) -> str:
             if pd.isna(v):
                 lines.append(
                     f"<div style='display:flex;padding:6px 0;border-bottom:1px solid "
-                    f"{theme.BORDER};font-size:.95rem'><span style='color:{theme.TEXT_SUB}'>"
+                    f"{theme.BORDER};font-size:{theme.FS_MD}'><span style='color:{theme.TEXT_SUB}'>"
                     f"{label}</span><span style='margin-left:auto;color:{theme.TEXT_MUTED}'>"
                     f"공시에 없음</span></div>")
                 continue
@@ -509,19 +509,19 @@ def section_cards_html(brand_id: str, industry_mid: str | None = None) -> str:
                    f"업종 상위 {100 - pct:.0f}%" if pct >= 50 else f"업종 하위 {pct:.0f}%")
             lines.append(
                 f"<div style='display:flex;align-items:baseline;gap:8px;padding:6px 0;"
-                f"border-bottom:1px solid {theme.BORDER};font-size:.95rem'>"
+                f"border-bottom:1px solid {theme.BORDER};font-size:{theme.FS_MD}'>"
                 f"<span style='color:{theme.TEXT_SUB}'>{label}</span>"
                 f"<span style='margin-left:auto;font-weight:700;color:{col_c};"
                 f"font-variant-numeric:tabular-nums'>{v:,.1f}{unit}</span>"
-                f"<span style='color:{theme.TEXT_MUTED};font-size:.85rem;min-width:92px;"
+                f"<span style='color:{theme.TEXT_MUTED};font-size:{theme.FS_XS};min-width:92px;"
                 f"text-align:right'>{pos}</span></div>")
         blocks.append(
             f"<div style='margin-bottom:16px'>"
-            f"<div style='font-weight:700;color:{theme.INK};font-size:1.05rem'>{title}</div>"
-            f"<div style='color:{theme.TEXT_MUTED};font-size:.87rem;margin-bottom:4px'>"
+            f"<div style='font-weight:700;color:{theme.INK};font-size:{theme.FS_LG}'>{title}</div>"
+            f"<div style='color:{theme.TEXT_MUTED};font-size:{theme.FS_SM};margin-bottom:4px'>"
             f"{sub}</div>{''.join(lines)}</div>")
     return ("".join(blocks) +
-            f"<div style='color:{theme.TEXT_MUTED};font-size:.85rem;margin-top:4px'>"
+            f"<div style='color:{theme.TEXT_MUTED};font-size:{theme.FS_XS};margin-top:4px'>"
             f"비교 기준: {peer_label} · {year}년 공시. 부문에 점수를 매기지 않습니다 — "
             f"여러 지표를 하나로 합치려면 가중치가 필요한데 그 가중치를 정당화할 근거가 "
             f"없습니다. 관측값과 업종 내 위치만 보여드립니다.</div>")
@@ -552,20 +552,20 @@ def risk_summary_html(row, findings: pd.DataFrame | None) -> str:
         soft = {"High": theme.DANGER_SOFT, "Medium": theme.WARN_SOFT}.get(sev, theme.BG)
         chips.append(
             f"<div style='display:flex;gap:10px;align-items:baseline;padding:7px 0'>"
-            f"<span style='flex:0 0 auto;font-size:.76rem;font-weight:700;color:{col};"
-            f"background:{soft};padding:2px 7px;border-radius:5px'>{f['category']}</span>"
+            f"<span style='flex:0 0 auto;font-size:{theme.FS_XS};font-weight:700;color:{col};"
+            f"background:{soft};padding:2px 7px;border-radius:{theme.RADIUS_SM}'>{f['category']}</span>"
             f"<span style='color:{theme.INK};font-weight:600'>{f['title']}</span></div>")
 
     n_risk = len(risk)
     n_high = int((risk["severity"] == "High").sum())
     cats = " · ".join(dict.fromkeys(risk["category"].astype(str)))
-    return (f"<div style='padding:14px 16px;border-radius:10px;background:{theme.SURFACE};"
+    return (f"<div style='padding:14px 16px;border-radius:{theme.RADIUS_LG};background:{theme.SURFACE};"
             f"border:1px solid {theme.BORDER};box-shadow:var(--shadow-1)'>"
-            f"<div style='font-size:.8rem;font-weight:700;letter-spacing:.06em;"
+            f"<div style='font-size:{theme.FS_XS};font-weight:700;letter-spacing:.06em;"
             f"color:{theme.TEXT_MUTED};margin-bottom:6px'>이 등급이 나온 이유</div>"
             f"{''.join(chips)}"
             f"<div style='margin-top:8px;padding-top:8px;border-top:1px solid {theme.BORDER};"
-            f"font-size:.88rem;color:{theme.TEXT_SUB}'>"
+            f"font-size:{theme.FS_SM};color:{theme.TEXT_SUB}'>"
             f"위험 소견 <b>{n_risk}건</b>"
             f"{f' (중대 {n_high}건)' if n_high else ''} · 걸린 부문 {cats}</div></div>")
 
@@ -645,19 +645,19 @@ def population_note(row) -> str:
     """
     state = str(row.get("brand_state") or "") if hasattr(row, "get") else ""
     if state == "건전":
-        return (f"<div style='margin-top:8px;font-size:.86rem;color:{theme.TEXT_MUTED}'>"
+        return (f"<div style='margin-top:8px;font-size:{theme.FS_SM};color:{theme.TEXT_MUTED}'>"
                 f"✓ <b>건전</b> — 올해 공시에 악화 사건이 없습니다. "
                 f"이 구간에서 모델 성능이 백테스트로 측정됐습니다.</div>")
     if state == "요주의":
-        return (f"<div style='margin-top:8px;padding:7px 10px;border-radius:7px;"
-                f"background:{theme.WARN_SOFT};border:1px solid #F0DFB8;font-size:.88rem;"
+        return (f"<div style='margin-top:8px;padding:7px 10px;border-radius:{theme.RADIUS_MD};"
+                f"background:{theme.WARN_SOFT};border:1px solid #F0DFB8;font-size:{theme.FS_SM};"
                 f"color:{theme.TEXT};line-height:1.5'>"
                 f"<b>요주의</b> — 올해 공시에 이미 악화 사건이 발동했습니다. 이 구간은 "
                 f"학습·평가 표본에 포함되지 않아 <b>확률값의 성능 근거가 없습니다.</b> "
                 f"순위 참고용으로만 쓰고, 판단은 아래 진단 소견으로 하십시오.</div>")
     if state == "평가불가":
-        return (f"<div style='margin-top:8px;padding:7px 10px;border-radius:7px;"
-                f"background:{theme.BG};border:1px solid {theme.BORDER};font-size:.88rem;"
+        return (f"<div style='margin-top:8px;padding:7px 10px;border-radius:{theme.RADIUS_MD};"
+                f"background:{theme.BG};border:1px solid {theme.BORDER};font-size:{theme.FS_SM};"
                 f"color:{theme.TEXT_SUB};line-height:1.5'>"
                 f"<b>평가불가</b> — 올해 공시에서 판정 지표가 관측되지 않았습니다. "
                 f"등급을 신뢰할 수 없습니다.</div>")
@@ -676,18 +676,18 @@ def signal_html(grade: str, pd_1y: float | None = None, *, size: int = 13,
     on = str(grade) if str(grade) in order else "Low"
     dots = "".join(
         f"<span style='width:{size}px;height:{size}px;border-radius:50%;"
-        f"background:{theme.GRADE_COLOR[g] if g == on else '#D8D3CC'};"
+        f"background:{theme.GRADE_FILL[g] if g == on else '#D8D3CC'};"
         f"box-shadow:{f'0 0 0 3px {theme.GRADE_SOFT[g]}' if g == on else 'none'};"
         f"display:inline-block'></span>" for g in order)
-    label = (f"<div style='font-size:.92rem;font-weight:700;color:{theme.GRADE_COLOR[on]};"
+    label = (f"<div style='font-size:{theme.FS_MD};font-weight:700;color:{theme.GRADE_COLOR[on]};"
              f"margin-top:6px;letter-spacing:-.01em'>{theme.GRADE_KR[on]}</div>")
     val = ""
     if show_value and pd_1y is not None and pd.notna(pd_1y):
-        val = (f"<div style='font-size:.82rem;color:{theme.TEXT_MUTED};margin-top:1px'>"
+        val = (f"<div style='font-size:{theme.FS_XS};color:{theme.TEXT_MUTED};margin-top:1px'>"
                f"{RISK_LABEL} {float(pd_1y) * 100:.1f}%</div>")
     return (f"<div style='display:inline-flex;flex-direction:column;align-items:center'>"
             f"<div style='display:flex;gap:7px;align-items:center;padding:7px 10px;"
-            f"border-radius:999px;background:{theme.SURFACE};"
+            f"border-radius:{theme.RADIUS_PILL};background:{theme.SURFACE};"
             f"border:1px solid {theme.BORDER}'>{dots}</div>{label}{val}</div>")
 
 
@@ -703,24 +703,26 @@ def grade_legend_html(bounds: dict) -> str:
         rng = {"FS1": f"{cuts[0] * 100:.1f}% 미만",
                "FS2": f"{cuts[0] * 100:.1f} ~ {cuts[1] * 100:.1f}%",
                "FS3": f"{cuts[1] * 100:.1f}% 이상"}
+        # 점(도형)과 숫자(글자)는 기준이 달라 색도 다르다 — theme 의 주석 참고
         color = {"FS1": theme.SAFE, "FS2": theme.WARN, "FS3": theme.DANGER}
+        fill = {"FS1": theme.SAFE_FILL, "FS2": theme.WARN_FILL, "FS3": theme.DANGER_FILL}
         soft = {"FS1": theme.SAFE_SOFT, "FS2": theme.WARN_SOFT, "FS3": theme.DANGER_SOFT}
         rows = "".join(
             f"<div style='display:flex;align-items:center;gap:10px;padding:9px 2px;"
             f"border-bottom:1px solid {theme.BORDER}'>"
             f"<span style='width:11px;height:11px;border-radius:50%;flex:0 0 auto;"
-            f"background:{color[r['grade']]};box-shadow:0 0 0 3px {soft[r['grade']]}'></span>"
+            f"background:{fill[r['grade']]};box-shadow:0 0 0 3px {soft[r['grade']]}'></span>"
             f"<span style='font-weight:700;color:{theme.INK};min-width:74px'>"
             f"{r['grade']} {r['grade_kr']}</span>"
             f"<span style='color:{theme.TEXT};font-variant-numeric:tabular-nums;"
             f"min-width:104px'>{rng[r['grade']]}</span>"
-            f"<span style='margin-left:auto;color:{theme.TEXT_SUB};font-size:.92rem'>"
+            f"<span style='margin-left:auto;color:{theme.TEXT_SUB};font-size:{theme.FS_MD}'>"
             f"실제 악화 <b style='color:{color[r['grade']]}'>{r['rate'] * 100:.1f}%</b> "
             f"<span style='color:{theme.TEXT_MUTED}'>(n={r['n']:,})</span></span></div>"
             for r in b["pooled"])
         yrs = "·".join(str(y) for y in b.get("validation_years", []))
-        return (f"<div style='font-size:.97rem;line-height:1.5'>{rows}"
-                f"<div style='color:{theme.TEXT_MUTED};font-size:.86rem;margin-top:9px'>"
+        return (f"<div style='font-size:{theme.FS_BASE};line-height:1.5'>{rows}"
+                f"<div style='color:{theme.TEXT_MUTED};font-size:{theme.FS_SM};margin-top:9px'>"
                 f"구간은 <b>고정</b>입니다 — 순위가 아니라 확률 기준이라, 업계 전체가 "
                 f"나빠지면 하위 등급이 늘어납니다. 오른쪽은 그 등급을 받은 브랜드가 "
                 f"실제로 다음 해에 악화한 비율입니다({yrs}년 검증, 총 {b['n_validation']:,}건). "
@@ -741,15 +743,15 @@ def grade_legend_html(bounds: dict) -> str:
         f"<div style='display:flex;align-items:center;gap:10px;padding:9px 2px;"
         f"border-bottom:1px solid {theme.BORDER}'>"
         f"<span style='width:11px;height:11px;border-radius:50%;flex:0 0 auto;"
-        f"background:{theme.GRADE_COLOR[g]};box-shadow:0 0 0 3px {theme.GRADE_SOFT[g]}'></span>"
+        f"background:{theme.GRADE_FILL[g]};box-shadow:0 0 0 3px {theme.GRADE_SOFT[g]}'></span>"
         f"<span style='font-weight:700;color:{theme.INK};min-width:32px'>{theme.GRADE_KR[g]}</span>"
         f"<span style='color:{theme.TEXT};font-variant-numeric:tabular-nums'>{rng}</span>"
-        f"<span style='color:{theme.TEXT_MUTED};font-size:.88rem'>({rank})</span>"
-        f"<span style='margin-left:auto;color:{theme.TEXT_SUB};font-size:.9rem'>"
+        f"<span style='color:{theme.TEXT_MUTED};font-size:{theme.FS_SM}'>({rank})</span>"
+        f"<span style='margin-left:auto;color:{theme.TEXT_SUB};font-size:{theme.FS_SM}'>"
         f"{cnt.get(g, 0):,}개 · {act}</span></div>"
         for g, rng, rank, act in rows)
-    return (f"<div style='font-size:.97rem;line-height:1.5'>{cells}"
-            f"<div style='color:{theme.TEXT_MUTED};font-size:.86rem;margin-top:9px'>"
+    return (f"<div style='font-size:{theme.FS_BASE};line-height:1.5'>{cells}"
+            f"<div style='color:{theme.TEXT_MUTED};font-size:{theme.FS_SM};margin-top:9px'>"
             f"등급은 <b>순위 기준</b>으로 나눕니다 — 매 산출 시점의 상위 10%가 주의, "
             f"상위 30%까지가 관찰입니다. 위 퍼센트는 이번 산출에서 그 순위 경계가 "
             f"실제로 몇 %였는지를 환산한 값입니다.</div></div>")
@@ -765,7 +767,8 @@ def risk_gauge(pd_1y: float, rank_pct: float | None = None) -> go.Figure:
     b = grade_bounds(_mtime(out_dir() / "scores_latest.csv"))
     hi = b.get("high_cut", 25.0)
     mid = b.get("medium_cut", 10.0)
-    color = (theme.DANGER if v >= hi else theme.WARN if v >= mid else theme.SAFE)
+    color = (theme.DANGER_FILL if v >= hi else
+             theme.WARN_FILL if v >= mid else theme.SAFE_FILL)
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=v,
@@ -773,7 +776,7 @@ def risk_gauge(pd_1y: float, rank_pct: float | None = None) -> go.Figure:
         gauge={
             "axis": {"range": [0, 100], "tickwidth": 0, "dtick": 25,
                      "ticksuffix": "%",
-                     "tickfont": {"size": 10, "color": theme.TEXT_MUTED}},
+                     "tickfont": {"size": 13, "color": theme.TEXT_SUB}},
             "bar": {"color": color, "thickness": 0.7},
             "bgcolor": "#F0EEEA",
             "borderwidth": 0,

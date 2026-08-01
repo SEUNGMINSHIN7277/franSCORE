@@ -25,7 +25,7 @@ def render() -> None:
     df, meta = C.load_scores()
     if df is None:
         theme.page_header("FRANSCORE", "아직 평가 결과가 없습니다.", eyebrow="브랜드 리스크")
-        st.warning("`python run_pipeline.py --step score` 를 먼저 실행하십시오.")
+        st.warning("평가가 아직 산출되지 않았습니다. 잠시 후 다시 확인해 주십시오.")
         return
 
     sel = st.session_state.get(_SEL)
@@ -173,9 +173,9 @@ def _watchlist(df: pd.DataFrame) -> None:
                 st.markdown(
                     f"<div style='display:flex;gap:12px;align-items:center'>"
                     f"{C.brand_mark_html(str(r['brand_name']), 62)}"
-                    f"<div><div style='font-size:1.26rem;font-weight:700;"
+                    f"<div><div style='font-size:{theme.FS_XL};font-weight:700;"
                     f"color:{theme.INK};line-height:1.3'>{r['brand_name']}</div>"
-                    f"<div style='font-size:.9rem;color:{theme.TEXT_SUB}'>"
+                    f"<div style='font-size:{theme.FS_SM};color:{theme.TEXT_SUB}'>"
                     f"{r.get('industry_mid') or r.get('industry_major') or '-'} · "
                     f"가맹점 {int(r['n_stores']):,}개</div></div></div>",
                     unsafe_allow_html=True)
@@ -187,7 +187,7 @@ def _watchlist(df: pd.DataFrame) -> None:
             d = dmap.get(bid)
             if d is not None:
                 st.markdown(
-                    f"<div style='font-size:.99rem;color:{theme.TEXT};margin-top:8px;"
+                    f"<div style='font-size:{theme.FS_BASE};color:{theme.TEXT};margin-top:8px;"
                     f"line-height:1.6'>{d['headline_detail']}</div>",
                     unsafe_allow_html=True)
                 if str(d.get("categories") or ""):
@@ -195,7 +195,7 @@ def _watchlist(df: pd.DataFrame) -> None:
                                     for c in str(d["categories"]).split("·") if c)
                     st.markdown(
                         f"<div style='margin-top:8px'>{cats}"
-                        f"<span style='font-size:.88rem;color:{theme.TEXT_MUTED};"
+                        f"<span style='font-size:{theme.FS_SM};color:{theme.TEXT_MUTED};"
                         f"margin-left:8px'>소견 {int(d['n_risk'])}건</span></div>",
                         unsafe_allow_html=True)
             st.markdown(C.population_note(r), unsafe_allow_html=True)
@@ -211,10 +211,10 @@ def _brand_card(r: pd.Series, *, key: str) -> None:
         st.markdown(
             f"<div style='display:flex;gap:10px;align-items:center'>"
             f"{C.brand_mark_html(str(r['brand_name']), 54)}"
-            f"<div style='min-width:0'><div style='font-weight:700;font-size:1.06rem;"
+            f"<div style='min-width:0'><div style='font-weight:700;font-size:{theme.FS_LG};"
             f"color:{theme.INK};overflow:hidden;text-overflow:ellipsis;"
             f"white-space:nowrap'>{r['brand_name']}</div>"
-            f"<div style='font-size:.88rem;color:{theme.TEXT_SUB}'>"
+            f"<div style='font-size:{theme.FS_SM};color:{theme.TEXT_SUB}'>"
             f"가맹점 {int(pd.to_numeric(r['n_stores'], errors='coerce') or 0):,}개</div>"
             f"</div></div>"
             f"<div style='margin-top:8px'>"
@@ -237,13 +237,13 @@ def _distribution(df: pd.DataFrame) -> None:
         fig.add_trace(go.Histogram(
             x=p, name=f"{theme.GRADE_KR[g]} {len(p):,}개",
             xbins={"start": 0, "end": 100, "size": 2},
-            marker={"color": theme.GRADE_COLOR[g], "line": {"width": 0}},
+            marker={"color": theme.GRADE_FILL[g], "line": {"width": 0}},
             hovertemplate=(f"{theme.GRADE_KR[g]}<br>{C.RISK_LABEL} "
                            "%{x:.0f}%대<br>브랜드 <b>%{y}</b>개<extra></extra>")))
     fig.update_layout(barmode="stack", height=225, bargap=0.03,
                       xaxis_title=None, yaxis_title=None,
                       legend={"orientation": "h", "y": 1.16, "x": 0,
-                              "font": {"size": 11}},
+                              "font": {"size": 13}},
                       margin={"l": 4, "r": 4, "t": 30, "b": 4})
     fig.update_xaxes(range=[0, 100], dtick=25, ticksuffix="%")
     theme.plot(fig, key="fs_hist")
@@ -271,13 +271,13 @@ def _industry(df: pd.DataFrame) -> None:
     for g in ("High", "Medium", "Low"):
         fig.add_trace(go.Bar(
             y=tab.index, x=(tab[g] / tab["합계"] * 100), orientation="h",
-            name=theme.GRADE_KR[g], marker={"color": theme.GRADE_COLOR[g]},
+            name=theme.GRADE_KR[g], marker={"color": theme.GRADE_FILL[g]},
             customdata=tab[g],
             hovertemplate=(f"%{{y}}<br>{theme.GRADE_KR[g]} <b>%{{customdata}}</b>개 "
                            "(%{x:.0f}%)<extra></extra>")))
     fig.update_layout(barmode="stack", height=max(230, 30 * len(tab)),
                       legend={"orientation": "h", "y": 1.1, "x": 0,
-                              "font": {"size": 11}},
+                              "font": {"size": 13}},
                       margin={"l": 4, "r": 4, "t": 26, "b": 4},
                       xaxis_title=None, yaxis_title=None)
     fig.update_xaxes(range=[0, 100], dtick=25, ticksuffix="%")
@@ -306,7 +306,7 @@ def _detail_screen(r: pd.Series) -> None:
             st.session_state[_SEL] = None
             st.rerun()
     st.markdown(
-        f"<div style='font-size:.86rem;color:{theme.TEXT_MUTED};margin:-6px 0 10px 2px'>"
+        f"<div style='font-size:{theme.FS_SM};color:{theme.TEXT_MUTED};margin:-6px 0 10px 2px'>"
         f"FRANSCORE › <b style='color:{theme.TEXT_SUB}'>{name}</b></div>",
         unsafe_allow_html=True)
 
@@ -315,17 +315,17 @@ def _detail_screen(r: pd.Series) -> None:
         st.markdown(
             f"<div style='display:flex;gap:16px;align-items:center'>"
             f"{C.brand_mark_html(name, 84)}"
-            f"<div><div style='font-size:1.75rem;font-weight:700;color:{theme.INK};"
+            f"<div><div style='font-size:{theme.FS_2XL};font-weight:700;color:{theme.INK};"
             f"line-height:1.25;letter-spacing:-.02em'>{name} "
             f"{theme.grade_chip(grade)}</div>"
-            f"<div style='font-size:.97rem;color:{theme.TEXT_SUB};margin-top:3px'>"
+            f"<div style='font-size:{theme.FS_BASE};color:{theme.TEXT_SUB};margin-top:3px'>"
             f"{r.get('industry_major', '-')} · {r.get('industry_mid', '-')} · "
             f"가맹점 {int(r['n_stores']):,}개</div></div></div>",
             unsafe_allow_html=True)
         st.markdown(
-            f"<div style='margin-top:14px;padding:11px 14px;border-radius:9px;"
+            f"<div style='margin-top:14px;padding:11px 14px;border-radius:{theme.RADIUS_MD};"
             f"background:{theme.GRADE_SOFT.get(grade, theme.YELLOW_SOFT)};"
-            f"font-size:.99rem;line-height:1.6'>"
+            f"font-size:{theme.FS_BASE};line-height:1.6'>"
             f"{C.GRADE_ACTION.get(grade, '')}</div>", unsafe_allow_html=True)
         st.markdown(_summary_sentence(r), unsafe_allow_html=True)
         st.markdown(C.population_note(r), unsafe_allow_html=True)
@@ -336,7 +336,7 @@ def _detail_screen(r: pd.Series) -> None:
                f"상위 {(1 - float(rank)) * 100:.1f}%" if pd.notna(rank) else "")
         st.markdown(
             f"<div style='text-align:center;margin-top:-14px'>"
-            f"<div style='font-size:.9rem;color:{theme.TEXT_SUB}'>"
+            f"<div style='font-size:{theme.FS_SM};color:{theme.TEXT_SUB}'>"
             f"{C.RISK_LABEL} · {sub}</div>"
             f"<div style='margin-top:10px'>{C.signal_html(grade, None, show_value=False)}"
             f"</div></div>", unsafe_allow_html=True)
@@ -376,7 +376,7 @@ def _summary_sentence(r: pd.Series) -> str:
     b = C.grade_bounds(C._mtime(C.out_dir() / "scores_latest.csv"))
     cut = (f"주의 경계는 {b['high_cut']:.1f}%, 관찰 경계는 {b['medium_cut']:.1f}%입니다."
            if b else "")
-    return (f"<div style='margin-top:10px;font-size:.97rem;color:{theme.TEXT_SUB};"
+    return (f"<div style='margin-top:10px;font-size:{theme.FS_BASE};color:{theme.TEXT_SUB};"
             f"line-height:1.65'>이 브랜드의 {C.RISK_LABEL}는 <b>{p:.1f}%</b>로 "
             f"<b>{theme.GRADE_KR.get(grade, grade)}</b> 등급이며, {rank_txt}입니다. "
             f"가맹점은 {n:,}개입니다. {cut}</div>")
@@ -447,12 +447,12 @@ def _tab_trend(brand_id: str) -> None:
         st.markdown("**개점 · 종료**")
         fig = go.Figure()
         fig.add_trace(go.Bar(x=bp["year"], y=bp["n_new"], name="신규 개점",
-                             marker_color=theme.SAFE,
+                             marker_color=theme.SAFE_FILL,
                              hovertemplate="%{x}년<br>신규 <b>%{y:,.0f}</b>개<extra></extra>"))
         out = (pd.to_numeric(bp["n_contract_end"], errors="coerce").fillna(0)
                + pd.to_numeric(bp["n_contract_cancel"], errors="coerce").fillna(0))
         fig.add_trace(go.Bar(x=bp["year"], y=-out, name="종료·해지",
-                             marker_color=theme.DANGER,
+                             marker_color=theme.DANGER_FILL,
                              hovertemplate="%{x}년<br>종료·해지 <b>%{customdata:,.0f}</b>개"
                                            "<extra></extra>", customdata=out))
         fig.update_layout(barmode="relative", height=210,
@@ -505,7 +505,7 @@ def _tab_hq(brand_id: str) -> None:
                              marker_color=theme.YELLOW_DEEP))
         fig.add_trace(go.Scatter(x=show["결산연도"], y=show["영업이익"], name="영업이익",
                                  mode="lines+markers",
-                                 line={"color": theme.INFO, "width": 2.5}, yaxis="y2"))
+                                 line={"color": theme.INFO_FILL, "width": 2.5}, yaxis="y2"))
         fig.update_layout(height=214, yaxis={"title": None, "ticksuffix": "억"},
                           yaxis2={"overlaying": "y", "side": "right",
                                   "showgrid": False, "ticksuffix": "억"},
