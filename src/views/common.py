@@ -13,6 +13,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -20,7 +21,7 @@ import streamlit as st
 from src import theme
 from src.common import load_config
 
-GRADE_KR = {"High": "주의", "Medium": "관찰", "Low": "양호"}
+GRADE_KR = {"High": "주의", "Medium": "관찰", "Low": "안정"}
 GRADE_ACTION = {
     "High": "신규 취급 전 최근 공시와 본부 재무를 함께 확인하고, "
             "이 브랜드에 나간 여신 총액이 한도 안인지 점검합니다.",
@@ -413,6 +414,117 @@ def grade_bounds(m: float) -> dict:
         "min": float(p.min()) * 100, "max": float(p.max()) * 100,
         "counts": {k: int(v) for k, v in df["risk_grade"].value_counts().items()},
     }
+
+
+# 부문별 진단 — 반증에서 **성립이 확인된 3부문만** 쓴다.
+#   본부재무(브랜드 커버리지 11.4%)와 시장수요(지표가 전부 평탄한 순위값, 뉴스 23건)는
+#   부문으로 세우면 자료 없는 브랜드가 좋아 보이거나 나빠 보이는 왜곡이 생긴다.
+#   창업비용은 2024 공시에 한 건도 없다.
+# 점수를 매기지 않는다. 여러 지표를 하나의 숫자로 합치려면 가중치가 필요한데,
+#   그 가중치를 정당화할 근거가 우리에게 없다. 관측값과 업종 내 위치만 보여준다.
+_SECTIONS: tuple[tuple[str, str, tuple[tuple[str, str, str, str], ...]], ...] = (
+    ("존속성", "브랜드가 점포망을 유지·확장하고 있는가", (
+        ("n_stores", "가맹점 수", "개", "high_good"),
+        ("_growth", "전년 대비 증감률", "%", "high_good"),
+        ("_new_rate", "신규 개점률", "%", "neutral"),
+        ("_direct_ratio", "직영점 비중", "%", "high_good"),
+        ("_age", "업력", "년", "high_good"))),
+    ("계약 안정성", "가맹점이 계약을 끝내고 나가는가", (
+        ("_end_rate", "계약종료율", "%", "low_good"),
+        ("_cancel_rate", "중도해지율", "%", "low_good"),
+        ("_change_rate", "명의변경률", "%", "neutral"),
+        ("_net_flow", "순증감 (신규−이탈)", "개", "high_good"))),
+    ("집중도", "특정 지역에 쏠려 있는가", (
+        ("n_regions", "진출 시도 수", "곳", "high_good"),
+        ("top_region_share", "최대 지역 비중", "%", "low_good"),
+        ("region_hhi", "지역 집중도 (HHI)", "", "low_good"))),
+)
+
+
+def _section_frame(panel: pd.DataFrame, year: int) -> pd.DataFrame:
+    """부문 지표를 그 해 코호트 전체에 대해 계산 (업종 내 위치 산출용)."""
+    cur = panel[panel["year"] == year].copy()
+    prev = panel[panel["year"] == year - 1].set_index("brand_id")["n_stores"]
+    base = cur["brand_id"].map(prev)
+    num = lambda c: pd.to_numeric(cur.get(c), errors="coerce")     # noqa: E731
+    cur["_growth"] = (num("n_stores") / base - 1.0) * 100
+    cur["_new_rate"] = num("n_new") / base * 100
+    cur["_direct_ratio"] = num("n_direct") / (num("n_direct") + num("n_stores")) * 100
+    cur["_age"] = year - pd.to_numeric(cur.get("biz_start_year"), errors="coerce")
+    cur["_end_rate"] = num("n_contract_end") / base * 100
+    cur["_cancel_rate"] = num("n_contract_cancel") / base * 100
+    cur["_change_rate"] = num("n_name_change") / base * 100
+    cur["_net_flow"] = (num("n_new") - num("n_contract_end").fillna(0)
+                        - num("n_contract_cancel").fillna(0))
+    cur["top_region_share"] = num("top_region_share") * 100
+    return cur
+
+
+def section_cards_html(brand_id: str, industry_mid: str | None = None) -> str:
+    """부문별 진단 카드. 점수 없이 **관측값 + 업종 내 위치**만."""
+    panel = load_panel()
+    if panel is None or panel.empty:
+        return ""
+    year = int(panel["year"].max())
+    frame = _section_frame(panel, year)
+    row = frame[frame["brand_id"].astype(str) == str(brand_id)]
+    if row.empty:
+        return ""
+    row = row.iloc[0]
+    peer = frame
+    if industry_mid and "industry_mid" in frame.columns:
+        same = frame[frame["industry_mid"] == industry_mid]
+        if len(same) >= 20:                       # 표본이 얇으면 업종 비교가 흔들린다
+            peer = same
+    peer_label = (f"{industry_mid} {len(peer):,}개"
+                  if peer is not frame else f"전체 {len(peer):,}개")
+
+    blocks = []
+    for title, sub, items in _SECTIONS:
+        lines = []
+        for col, label, unit, direction in items:
+            v = pd.to_numeric(pd.Series([row.get(col)]), errors="coerce").iloc[0]
+            if pd.isna(v):
+                lines.append(
+                    f"<div style='display:flex;padding:6px 0;border-bottom:1px solid "
+                    f"{theme.BORDER};font-size:.95rem'><span style='color:{theme.TEXT_SUB}'>"
+                    f"{label}</span><span style='margin-left:auto;color:{theme.TEXT_MUTED}'>"
+                    f"공시에 없음</span></div>")
+                continue
+            s = pd.to_numeric(peer[col], errors="coerce").dropna()
+            # 동점을 중간순위로 처리한다. 직영점 0개처럼 같은 값이 몰린 지표에서
+            # `(s < v)` 만 쓰면 백분위가 0 으로 찍혀 "하위 0%" 같은 표기가 나온다.
+            pct = (float(((s < v).mean() + (s <= v).mean()) / 2 * 100)
+                   if len(s) >= 20 else float("nan"))
+            good = (direction == "high_good" and pct >= 70) or \
+                   (direction == "low_good" and pct <= 30)
+            bad = (direction == "high_good" and pct <= 30) or \
+                  (direction == "low_good" and pct >= 70)
+            col_c = theme.SAFE if good else (theme.DANGER if bad else theme.TEXT)
+            # ⚠️ 위치는 **값이 큰 쪽/작은 쪽**으로만 말한다. 예전에는 항상
+            #    "상위 {100−pct}%" 로 찍어서, 성장률 −46.1%(하위 11%)가
+            #    "업종 내 상위 89%" 로 나와 좋아 보였다. 절반을 기준으로 표현을 바꾼다.
+            #    좋고 나쁨은 색이 전달한다 — 지표마다 방향이 달라 문구로 섞으면 오독된다.
+            pos = ("—" if not np.isfinite(pct) else
+                   f"업종 상위 {100 - pct:.0f}%" if pct >= 50 else f"업종 하위 {pct:.0f}%")
+            lines.append(
+                f"<div style='display:flex;align-items:baseline;gap:8px;padding:6px 0;"
+                f"border-bottom:1px solid {theme.BORDER};font-size:.95rem'>"
+                f"<span style='color:{theme.TEXT_SUB}'>{label}</span>"
+                f"<span style='margin-left:auto;font-weight:700;color:{col_c};"
+                f"font-variant-numeric:tabular-nums'>{v:,.1f}{unit}</span>"
+                f"<span style='color:{theme.TEXT_MUTED};font-size:.85rem;min-width:92px;"
+                f"text-align:right'>{pos}</span></div>")
+        blocks.append(
+            f"<div style='margin-bottom:16px'>"
+            f"<div style='font-weight:700;color:{theme.INK};font-size:1.05rem'>{title}</div>"
+            f"<div style='color:{theme.TEXT_MUTED};font-size:.87rem;margin-bottom:4px'>"
+            f"{sub}</div>{''.join(lines)}</div>")
+    return ("".join(blocks) +
+            f"<div style='color:{theme.TEXT_MUTED};font-size:.85rem;margin-top:4px'>"
+            f"비교 기준: {peer_label} · {year}년 공시. 부문에 점수를 매기지 않습니다 — "
+            f"여러 지표를 하나로 합치려면 가중치가 필요한데 그 가중치를 정당화할 근거가 "
+            f"없습니다. 관측값과 업종 내 위치만 보여드립니다.</div>")
 
 
 def population_note(row) -> str:

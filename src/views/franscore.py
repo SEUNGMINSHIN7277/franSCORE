@@ -333,14 +333,20 @@ def _detail_screen(r: pd.Series) -> None:
             f"</div></div>", unsafe_allow_html=True)
 
     st.write("")
-    tabs = st.tabs(["진단 소견", "공시 추이", "가맹본부 재무", "검색 수요"])
+    tabs = st.tabs(["진단 소견", "부문별 점검", "공시 추이", "가맹본부 재무", "검색 수요"])
     with tabs[0]:
         _tab_findings(C.load_findings(bid))
     with tabs[1]:
-        _tab_trend(bid)
+        html = C.section_cards_html(bid, r.get("industry_mid"))
+        if html:
+            st.markdown(html, unsafe_allow_html=True)
+        else:
+            st.info("이 브랜드의 부문 지표를 계산할 공시가 없습니다.")
     with tabs[2]:
-        _tab_hq(bid)
+        _tab_trend(bid)
     with tabs[3]:
+        _tab_hq(bid)
+    with tabs[4]:
         _tab_demand(bid, name)
     C.refresh_footer()
 

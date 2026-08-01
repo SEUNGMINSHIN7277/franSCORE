@@ -57,7 +57,7 @@ INFO_SOFT = "#EDF3FA"
 
 GRADE_COLOR = {"High": DANGER, "Medium": WARN, "Low": SAFE}
 GRADE_SOFT = {"High": DANGER_SOFT, "Medium": WARN_SOFT, "Low": SAFE_SOFT}
-GRADE_KR = {"High": "주의", "Medium": "관찰", "Low": "양호"}
+GRADE_KR = {"High": "주의", "Medium": "관찰", "Low": "안정"}
 
 # 차트 계열색 — 옐로를 1순위로 두되 인접색이 서로 구분되게 배열
 SERIES = [YELLOW_DEEP, "#4E473F", INFO, SAFE, "#B07CC6", WARN, "#5FA8A0", DANGER]

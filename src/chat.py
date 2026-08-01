@@ -283,7 +283,7 @@ def brand_facts(cfg: dict, brand_name: str) -> dict:
         "업종": f"{r.get('industry_major', '')} / {r.get('industry_mid', '')}",
         "가맹점수": int(r["n_stores"]) if pd.notna(r["n_stores"]) else None,
         "1년내_악화_가능성": f"{float(r['pd_1y']) * 100:.1f}%",
-        "위험등급": {"High": "주의", "Medium": "관찰", "Low": "양호"}.get(
+        "위험등급": {"High": "주의", "Medium": "관찰", "Low": "안정"}.get(
             str(r["risk_grade"]), str(r["risk_grade"])),
         "전체중_상위": f"{(1 - float(r['pd_rank_pct'])) * 100:.1f}%"
         if pd.notna(r.get("pd_rank_pct")) else None,
@@ -379,7 +379,7 @@ def industry_facts(cfg: dict, question: str, top_n: int = 8) -> dict | None:
         "위험_상위_브랜드": [
             {"브랜드": str(r["brand_name"]), "가맹점수": _i(r["n_stores"]),
              "악화_가능성": f"{float(r['pd_1y']) * 100:.1f}%",
-             "등급": {"High": "주의", "Medium": "관찰", "Low": "양호"}.get(
+             "등급": {"High": "주의", "Medium": "관찰", "Low": "안정"}.get(
                  str(r["risk_grade"]), str(r["risk_grade"]))}
             for _, r in top.iterrows()],
     }
