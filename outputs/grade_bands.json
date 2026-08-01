@@ -1,7 +1,7 @@
 {
   "cuts": [
-    0.05,
-    0.105
+    0.045,
+    0.16
   ],
   "grades": [
     "FS1",
@@ -13,43 +13,108 @@
     "FS2": "관찰",
     "FS3": "주의"
   },
-  "anchored_on": "walkforward OOS, fold별 선행 fold 보정 (시점 정합)",
-  "validation_years": [
+  "anchored_on": "운영 모형 점수(학습 연도 제외) + 등온회귀·계단별 축소 보정. 컷은 배포 보정기 척도에서 도출 — 보정 in-sample 이므로 시점 밖 확인(out_of_time)을 함께 본다.",
+  "calibration_years": [
     2022,
     2023
   ],
-  "excluded_years": [
-    2021
-  ],
+  "out_of_time": {
+    "fit_years": [
+      2022
+    ],
+    "test_years": [
+      2023
+    ],
+    "n": 740,
+    "events": 60,
+    "by_grade": [
+      {
+        "grade": "FS1",
+        "grade_kr": "안정",
+        "n": 259,
+        "events": 6,
+        "rate": 0.023166,
+        "ci_lo": 0.008548,
+        "ci_hi": 0.049738
+      },
+      {
+        "grade": "FS2",
+        "grade_kr": "관찰",
+        "n": 369,
+        "events": 32,
+        "rate": 0.086721,
+        "ci_lo": 0.060073,
+        "ci_hi": 0.120218
+      },
+      {
+        "grade": "FS3",
+        "grade_kr": "주의",
+        "n": 112,
+        "events": 22,
+        "rate": 0.196429,
+        "ci_lo": 0.127386,
+        "ci_hi": 0.282152
+      }
+    ]
+  },
+  "calibrators": {
+    "2023": {
+      "method": "isotonic+eb_shrinkage",
+      "alpha": 10.0,
+      "fitted_on": "[np.int64(2022)]",
+      "n": 689,
+      "events": 81,
+      "base_rate": 0.117562,
+      "n_levels": 12,
+      "cv_logloss": {
+        "0.0": 0.335162,
+        "2.0": 0.32203,
+        "5.0": 0.320028,
+        "10.0": 0.319466,
+        "20.0": 0.321033,
+        "40.0": 0.325729,
+        "80.0": 0.333295
+      }
+    }
+  },
+  "deploy_calibrator_detail": {
+    "method": "isotonic+eb_shrinkage",
+    "alpha": 10.0,
+    "fitted_on": "[np.int64(2022), np.int64(2023)]",
+    "n": 1429,
+    "events": 141,
+    "base_rate": 0.09867,
+    "n_levels": 11
+  },
   "n_validation": 1429,
   "n_events": 141,
-  "min_ci_separation": 0.041304,
+  "min_ci_separation": 0.05564,
   "pooled": [
     {
       "grade": "FS1",
-      "n": 396,
-      "events": 9,
-      "rate": 0.022727,
-      "ci_lo": 0.010444,
-      "ci_hi": 0.042704,
+      "n": 631,
+      "events": 14,
+      "rate": 0.022187,
+      "ci_lo": 0.012182,
+      "ci_hi": 0.036946,
       "grade_kr": "안정"
     },
     {
       "grade": "FS2",
-      "n": 870,
-      "events": 90,
-      "rate": 0.103448,
-      "ci_lo": 0.084007,
-      "ci_hi": 0.125621,
+      "n": 616,
+      "events": 72,
+      "rate": 0.116883,
+      "ci_lo": 0.092587,
+      "ci_hi": 0.144921,
       "grade_kr": "관찰"
     },
     {
       "grade": "FS3",
-      "n": 163,
-      "events": 42,
-      "rate": 0.257669,
-      "ci_lo": 0.192446,
-      "ci_hi": 0.331923,
+      "n": 182,
+      "events": 55,
+      "rate": 0.302198,
+      "ci_lo": 0.236464,
+      "ci_hi": 0.374505,
       "grade_kr": "주의"
     }
   ],

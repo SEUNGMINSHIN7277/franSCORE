@@ -53,12 +53,19 @@ def cp_interval(k: int, n: int) -> tuple[float, float]:
 
 
 def build_panel(cfg: dict, cuts: list[float]) -> pd.DataFrame:
-    """연도별 운영 모형 점수 + 두 체계의 등급 + 실제 라벨."""
-    from sklearn.isotonic import IsotonicRegression
+    """연도별 운영 모형 점수 + 두 체계의 등급 + 실제 라벨.
+
+    ⚠️ 보정기는 **배포에 실제로 쓰는 것**을 그대로 쓴다. 다른 보정기로 확률을 만들면
+       그 척도에서 도출된 컷이 맞지 않아 최상위 등급이 통째로 비어 버린다(실측).
+    """
+    import joblib
     out_dir = Path(cfg["paths"]["outputs"])
     wf = pd.read_parquet(out_dir / "walkforward_predictions.parquet")
-    iso = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0)
-    iso.fit(wf["p_lgbm"].to_numpy(), wf["y_true"].to_numpy())
+    cal_p = out_dir / "calibrator_deploy.joblib"
+    if not cal_p.exists():
+        raise SystemExit("calibrator_deploy.joblib 없음 — "
+                         "`python run_pipeline.py --step bands` 를 먼저 실행")
+    deploy = joblib.load(cal_p)["model"]
     truth = wf.set_index(["brand_id", "year"])["y_true"]
 
     frames = []
@@ -66,7 +73,7 @@ def build_panel(cfg: dict, cuts: list[float]) -> pd.DataFrame:
         ids, raw = _production_scores_with_ids(cfg, yr)
         if raw is None:
             continue
-        p = np.clip(iso.predict(raw), 0.0, 1.0)
+        p = np.clip(deploy.predict(raw), 0.0, 1.0)
         d = pd.DataFrame({"brand_id": ids, "year": yr, "p": p})
         d["new_grade"] = np.array(NEW, dtype=object)[np.digitize(p, cuts)]
         # 구 체계: 그 해 코호트 안에서의 순위 백분위

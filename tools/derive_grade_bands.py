@@ -10,12 +10,14 @@
     공표하고, 그 표가 등급의 의미가 된다. 여기서도 같은 방식을 쓴다.
     컷은 한 번 도출해 고정하고, 등급별 실현 악화율을 함께 공표한다.
 
-시점 정합 (오염 방지)
-    fold t 의 확률은 **t 이전 fold 의 OOS 로만** 보정한다. 미래를 보고 보정한 확률로
-    컷을 정하면 그 컷은 재현되지 않는다. 그래서 2021 fold 는 보정 재료가 없어
-    검증표에서 빠진다 — 표본이 줄지만 그게 정직하다.
-    배포용 보정기는 워크포워드 OOS 전체(2021~2023)로 적합한다. 모든 fold 가 자기
-    학습구간 이후 시점이므로 out-of-time 이고, valid 한 해(689행)보다 3배 두껍다.
+보정 자료 (src/calibration.py 참조)
+    **운영 모형 점수**를 쓰고 **학습 연도는 뺀다**. 워크포워드 예측은 fold 마다
+    재학습해 원점수 척도가 다르고(실측 평균 0.2826/0.3306/0.1698), 그 위에서 보정하면
+    체계적 과소예측이 난다(Z=+3.41, HL p=0.00027 기각). 학습 연도 점수는 in-sample
+    이라 더 나쁘다(Z=+17.8).
+    검증은 **선행 연도로 적합해 후행 연도에 적용**한다. 가장 이른 연도는 적합에만
+    쓰이고 채점되지 않는다. 배포용은 학습 연도 밖 전부로 적합하므로 검증치가
+    배포 성능의 보수적 하한이 된다.
 
 컷 선택 규칙 (사후 조정 없이 재현 가능해야 한다)
     격자 탐색으로 아래를 **모두** 만족하는 후보 중 인접 등급 신뢰구간 분리폭이
@@ -40,7 +42,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.stats import beta
-from sklearn.isotonic import IsotonicRegression
 
 _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
@@ -70,25 +71,69 @@ def wilson(k: int, n: int) -> tuple[float, float]:
     return lo, hi
 
 
-def time_consistent_oos(wf: pd.DataFrame) -> pd.DataFrame:
-    """fold 별로 **선행 fold 만으로** 보정한 OOS 확률을 만든다."""
-    out = []
-    for y in sorted(wf["year"].unique()):
-        prior = wf[wf["year"] < y]
-        if len(prior) < MIN_CAL_N:
-            log.info("fold %s: 선행 보정표본 %d행 (< %d) → 검증표 제외",
-                     y, len(prior), MIN_CAL_N)
+def calibration_frame(cfg: dict) -> pd.DataFrame:
+    """**운영 모형 점수 + 라벨**, 학습 연도를 제외하고 모은다.
+
+    왜 워크포워드 예측을 쓰지 않는가: fold 마다 재학습해 원점수 척도가 다르다
+    (실측 평균 0.2826 / 0.3306 / 0.1698). 그 위에서 보정하면 체계적 과소예측이 난다.
+    왜 학습 연도를 빼는가: 그 해 점수는 in-sample 이라 분리력이 과장돼 있다
+    (써 봤더니 Spiegelhalter Z=+17.8 로 훨씬 나빠졌다).
+    """
+    from src.validation import _production_scores_with_ids
+    out_dir = Path(cfg["paths"]["outputs"])
+    wf = pd.read_parquet(out_dir / "walkforward_predictions.parquet")
+    truth = wf.set_index(["brand_id", "year"])["y_true"]
+    train_years = set(json.loads(
+        (out_dir / "split_years.json").read_text(encoding="utf-8")).get("train_years", []))
+
+    rows = []
+    for yr in sorted({int(v) for v in wf["year"].unique()}):
+        if yr in train_years:
+            log.info("%s년: 학습 연도 — 보정에서 제외 (in-sample)", yr)
             continue
-        iso = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0)
-        iso.fit(prior["p_lgbm"].to_numpy(), prior["y_true"].to_numpy())
-        cur = wf[wf["year"] == y].copy()
-        cur["p_cal"] = iso.predict(cur["p_lgbm"].to_numpy())
+        ids, raw = _production_scores_with_ids(cfg, yr)
+        if raw is None:
+            continue
+        d = pd.DataFrame({"brand_id": ids, "year": yr, "p_prod": raw})
+        d["y_true"] = [truth.get((b, yr), np.nan) for b in ids]
+        d = d.dropna(subset=["y_true"])
+        rows.append(d)
+        log.info("%s년: 보정 가능 %d행 · 악화 %d건 (%.2f%%) · 원점수 평균 %.4f",
+                 yr, len(d), int(d["y_true"].sum()), d["y_true"].mean() * 100,
+                 d["p_prod"].mean())
+    if not rows:
+        raise SystemExit("보정에 쓸 수 있는 연도가 없습니다 (학습 연도만 존재)")
+    return pd.concat(rows, ignore_index=True)
+
+
+def time_consistent_oos(cfg: dict, frame: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """**선행 연도로 적합해 후행 연도에 적용**한 확률. 검증용.
+
+    가장 이른 연도는 적합에만 쓰이고 검증표에는 들어가지 않는다 — 자기 자신을
+    채점하지 않기 위해서다.
+    """
+    from src import calibration
+    years = sorted(frame["year"].unique())
+    if len(years) < 2:
+        raise SystemExit(f"검증하려면 학습 연도 밖 관측이 2개 이상 필요합니다 (현재 {years})")
+    out, meta = [], {}
+    for y in years[1:]:
+        prior = frame[frame["year"] < y]
+        if len(prior) < MIN_CAL_N:
+            log.info("%s년: 선행 보정표본 %d행 (< %d) → 검증표 제외", y, len(prior), MIN_CAL_N)
+            continue
+        cal, cv = calibration.fit(prior["p_prod"], prior["y_true"],
+                                  fitted_on=f"{sorted(prior['year'].unique())}")
+        cur = frame[frame["year"] == y].copy()
+        cur["p_cal"] = cal.predict(cur["p_prod"])
         out.append(cur)
-        log.info("fold %s: 선행 %d행으로 보정 → 적용 %d행 (예측평균 %.4f, 실제 %.4f)",
-                 y, len(prior), len(cur), cur["p_cal"].mean(), cur["y_true"].mean())
+        meta[str(y)] = {**cal.describe(), "cv_logloss": cv}
+        log.info("%s년: 선행 %d행으로 보정(α=%g) → 적용 %d행 (예측평균 %.4f, 실제 %.4f)",
+                 y, len(prior), cal.alpha, len(cur), cur["p_cal"].mean(),
+                 cur["y_true"].mean())
     if not out:
-        raise SystemExit("검증 가능한 fold 가 없습니다 — 워크포워드 산출물을 확인하세요")
-    return pd.concat(out, ignore_index=True)
+        raise SystemExit("검증 가능한 연도가 없습니다")
+    return pd.concat(out, ignore_index=True), meta
 
 
 def search_cuts(oos: pd.DataFrame) -> tuple[list[float], list[dict], float]:
@@ -149,43 +194,72 @@ def per_year_table(oos: pd.DataFrame, cuts: list[float]) -> pd.DataFrame:
 def main() -> None:
     cfg = load_config()
     out_dir = Path(cfg["paths"]["outputs"])
-    wf_p = out_dir / "walkforward_predictions.parquet"
-    if not wf_p.exists():
-        raise SystemExit(f"{wf_p} 없음 — `python run_pipeline.py --step evaluate` 를 먼저 실행")
-    wf = pd.read_parquet(wf_p)
+    if not (out_dir / "walkforward_predictions.parquet").exists():
+        raise SystemExit("walkforward_predictions.parquet 없음 — "
+                         "`python run_pipeline.py --step evaluate` 를 먼저 실행")
+    from src import calibration
+    frame = calibration_frame(cfg)
 
-    oos = time_consistent_oos(wf)
-    log.info("검증용 OOS: %d행 · 악화 %d건 (%.2f%%)",
-             len(oos), int(oos["y_true"].sum()), oos["y_true"].mean() * 100)
+    # 배포용 보정기 — 학습 연도 밖 관측 **전부**로 적합한다.
+    deploy, deploy_cv = calibration.fit(frame["p_prod"], frame["y_true"],
+                                        fitted_on=f"{sorted(frame['year'].unique())}")
+    import joblib
+    joblib.dump({"model": deploy, "method": "isotonic+eb_shrinkage",
+                 "fitted_on": deploy.fitted_on, "alpha": deploy.alpha,
+                 "n": deploy.n, "events": deploy.events, "cv_logloss": deploy_cv},
+                out_dir / "calibrator_deploy.joblib")
+    log.info("배포용 보정기: %s", deploy.describe())
 
-    cuts, rows, sep = search_cuts(oos)
+    # 컷은 **배포 보정기 척도 위에서** 도출한다. 화면에 뜨는 확률이 그 척도이므로
+    # 다른 척도에서 뽑은 컷을 얹으면 공표 실현율과 화면이 어긋난다.
+    # ⚠️ 이 표는 보정기가 적합된 자료 위에서 계산되므로 **보정 in-sample** 이다.
+    #    그 사실을 산출물에 적고, 아래에서 시점 밖 확인을 따로 붙인다.
+    scored = frame.copy()
+    scored["p_cal"] = deploy.predict(scored["p_prod"])
+    cuts, rows, sep = search_cuts(scored)
     log.info("채택 컷 %s · 인접 신뢰구간 최소 분리 %.2f%%p", cuts, sep * 100)
     for r in rows:
         log.info("  %s %s  n=%d  악화 %d건  실현율 %.2f%%  95%%CI [%.1f, %.1f]",
                  r["grade"], GRADE_KR[r["grade"]], r["n"], r["events"],
                  r["rate"] * 100, r["ci_lo"] * 100, r["ci_hi"] * 100)
 
-    # 배포용 보정기 — 워크포워드 OOS 전체로 적합 (모든 fold 가 out-of-time)
-    deploy = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0)
-    deploy.fit(wf["p_lgbm"].to_numpy(), wf["y_true"].to_numpy())
-    import joblib
-    joblib.dump({"model": deploy, "method": "isotonic",
-                 "fitted_on": "walkforward_oos_2021_2023", "n": len(wf)},
-                out_dir / "calibrator_deploy.joblib")
+    # 시점 밖 확인 — 앞 연도로만 적합한 보정기로 뒤 연도를 매겨 **같은 컷**의
+    # 등급별 실현율이 유지되는지 본다. 이것이 컷의 진짜 검증이다.
+    oot, cal_meta = time_consistent_oos(cfg, frame)
+    oot_rows = []
+    gi = np.digitize(oot["p_cal"].to_numpy(), cuts)
+    yv = oot["y_true"].to_numpy()
+    for i, g in enumerate(GRADES):
+        m = gi == i
+        n, k = int(m.sum()), int(yv[m].sum())
+        lo, hi = wilson(k, n)
+        oot_rows.append({"grade": g, "grade_kr": GRADE_KR[g], "n": n, "events": k,
+                         "rate": round(k / n, 6) if n else None,
+                         "ci_lo": round(lo, 6), "ci_hi": round(hi, 6)})
+    log.info("시점 밖 확인 (%s → %s): %s",
+             sorted(set(frame["year"]) - set(oot["year"])), sorted(set(oot["year"])),
+             " / ".join(f"{r['grade']} {(r['rate'] or 0) * 100:.2f}%(n={r['n']})"
+                        for r in oot_rows))
 
-    per_year = per_year_table(oos, cuts)
+    per_year = per_year_table(scored, cuts)
     per_year.to_csv(out_dir / "grade_validation.csv", index=False, encoding="utf-8-sig")
 
     bands = {
         "cuts": cuts,
         "grades": GRADES,
         "grade_kr": GRADE_KR,
-        "anchored_on": "walkforward OOS, fold별 선행 fold 보정 (시점 정합)",
-        "validation_years": [int(y) for y in sorted(oos["year"].unique())],
-        "excluded_years": [int(y) for y in sorted(wf["year"].unique())
-                           if y not in set(oos["year"].unique())],
-        "n_validation": len(oos),
-        "n_events": int(oos["y_true"].sum()),
+        "anchored_on": ("운영 모형 점수(학습 연도 제외) + 등온회귀·계단별 축소 보정. "
+                        "컷은 배포 보정기 척도에서 도출 — 보정 in-sample 이므로 "
+                        "시점 밖 확인(out_of_time)을 함께 본다."),
+        "calibration_years": [int(y) for y in sorted(frame["year"].unique())],
+        "out_of_time": {
+            "fit_years": [int(y) for y in sorted(set(frame["year"]) - set(oot["year"]))],
+            "test_years": [int(y) for y in sorted(oot["year"].unique())],
+            "n": len(oot), "events": int(oot["y_true"].sum()), "by_grade": oot_rows},
+        "calibrators": cal_meta,
+        "deploy_calibrator_detail": deploy.describe(),
+        "n_validation": len(scored),
+        "n_events": int(scored["y_true"].sum()),
         "min_ci_separation": round(sep, 6),
         "pooled": [{**r, "grade_kr": GRADE_KR[r["grade"]],
                     "rate": round(r["rate"], 6),

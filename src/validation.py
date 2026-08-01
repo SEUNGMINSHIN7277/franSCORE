@@ -143,13 +143,19 @@ def discrimination(y: np.ndarray, p: np.ndarray, *, seed: int = 42) -> dict:
 # ---------------------------------------------------------------------------
 
 def hosmer_lemeshow(y: np.ndarray, p: np.ndarray, bins: int = HL_BINS) -> dict:
-    """예측확률 분위 구간별 관측/기대 비교. 유의(p<0.05)하면 보정이 깨진 것."""
-    q = np.unique(np.quantile(p, np.linspace(0, 1, bins + 1)))
-    if len(q) < 4:
-        return {"statistic": None, "df": None, "p_value": None, "bins": len(q) - 1,
+    """예측확률 구간별 관측/기대 비교. 유의(p<0.05)하면 보정이 깨진 것.
+
+    ⚠️ 구간을 **순위 등분할**로 만든다. 등온회귀 산출은 계단이라 같은 값이 대량으로
+       묶이는데, 값 분위로 자르면 경계가 계단값과 겹쳐 그룹 크기가 극단적으로
+       불균등해지고 통계량이 왜곡된다. 실측으로 같은 자료에서 값 분위 p=0.00000 vs
+       순위 등분할 p=0.018 — 세 자릿수 차이가 오직 구간 방식에서 나왔다.
+       동점이 많은 예측에 대한 표준 처리다.
+    """
+    if len(np.unique(p)) < 3:
+        return {"statistic": None, "df": None, "p_value": None, "bins": 0,
                 "note": "예측확률의 서로 다른 값이 적어 산출 불가"}
-    q[0], q[-1] = -np.inf, np.inf
-    idx = np.digitize(p, q[1:-1])
+    idx = pd.qcut(pd.Series(p).rank(method="first"), bins,
+                  labels=False, duplicates="drop").to_numpy()
     stat, used = 0.0, 0
     for b in np.unique(idx):
         m = idx == b
@@ -263,16 +269,20 @@ def _graded_history(cfg: dict, wf: pd.DataFrame, cuts: list[float],
     모형을 고정해야 브랜드의 이동만 남는다. 성능은 grade_bands.json 의 시점 정합
     검증표가 담당한다.
     """
-    from sklearn.isotonic import IsotonicRegression
-    iso = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0)
-    iso.fit(wf["p_lgbm"].to_numpy(), wf["y_true"].to_numpy())
+    # ⚠️ 반드시 **배포 보정기**를 쓴다. 다른 보정기로 확률을 만들면 그 척도에서 도출된
+    #    컷이 맞지 않아 최상위 등급이 통째로 비어 버린다(실측: FS3 행이 사라졌다).
+    import joblib
+    cal_p = Path(cfg["paths"]["outputs"]) / "calibrator_deploy.joblib"
+    if not cal_p.exists():
+        return pd.DataFrame(columns=["brand_id", "year", "grade", "p_cal"])
+    deploy = joblib.load(cal_p)["model"]
 
     rows = []
     for yr in sorted({int(v) for v in wf["year"].unique()}):
         ids, raw = _production_scores_with_ids(cfg, yr)
         if raw is None:
             continue
-        p = np.clip(iso.predict(raw), 0.0, 1.0)
+        p = np.clip(deploy.predict(raw), 0.0, 1.0)
         rows.append(pd.DataFrame({
             "brand_id": ids, "year": yr,
             "grade": np.array(grades, dtype=object)[np.digitize(p, cuts)], "p_cal": p}))
@@ -370,14 +380,15 @@ def run(cfg: dict | None = None) -> dict:
              rows[0]["ks"], rows[0]["lift_at_10"])
 
     # ── 정확성 ────────────────────────────────────────────────────────
-    # ⚠️ 보정 검정은 반드시 **시점 정합 확률**로 해야 한다. 배포 보정기는 이 OOS 로
+    # ⚠️ 보정 검정은 반드시 **시점 밖 확률**로 해야 한다. 배포 보정기는 이 자료로
     #    적합됐으므로 같은 데이터에 검정을 걸면 HL p=1.0, ECE=0.0000 처럼 완벽하게
     #    나온다(실측). 그건 보정이 좋다는 뜻이 아니라 자기 자신을 채점한 결과다.
-    from tools.derive_grade_bands import time_consistent_oos
-    tc = time_consistent_oos(wf)
+    from tools.derive_grade_bands import calibration_frame, time_consistent_oos
+    tc, _ = time_consistent_oos(cfg, calibration_frame(cfg))
     tc["grade"] = np.array(grades, dtype=object)[np.digitize(tc["p_cal"].to_numpy(), cuts)]
     y, p = tc["y_true"].to_numpy(), tc["p_cal"].to_numpy()
-    cal = {"basis": "시점 정합 보정 (fold t 는 선행 fold 로만 보정)",
+    cal = {"basis": ("시점 밖 보정 — 운영 모형 점수(학습 연도 제외)를 선행 연도로 "
+                     "적합해 후행 연도에 적용"),
            "years": [int(v) for v in sorted(tc["year"].unique())],
            "n": len(tc), "events": int(y.sum()),
            "hosmer_lemeshow": hosmer_lemeshow(y, p),

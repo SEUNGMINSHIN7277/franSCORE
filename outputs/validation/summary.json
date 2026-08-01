@@ -7,8 +7,8 @@
     2023
   ],
   "cuts": [
-    0.05,
-    0.105
+    0.045,
+    0.16
   ],
   "grades": [
     "FS1",
@@ -34,28 +34,27 @@
     "lift_at_10_hi": 3.109874
   },
   "calibration": {
-    "basis": "시점 정합 보정 (fold t 는 선행 fold 로만 보정)",
+    "basis": "시점 밖 보정 — 운영 모형 점수(학습 연도 제외)를 선행 연도로 적합해 후행 연도에 적용",
     "years": [
-      2022,
       2023
     ],
-    "n": 1429,
-    "events": 141,
+    "n": 740,
+    "events": 60,
     "hosmer_lemeshow": {
-      "statistic": 25.5234,
-      "df": 6,
-      "p_value": 0.000273,
-      "bins": 8,
-      "verdict": "보정 부적정(기각)"
+      "statistic": 11.8511,
+      "df": 8,
+      "p_value": 0.157972,
+      "bins": 10,
+      "verdict": "보정 적정(기각 못함)"
     },
     "spiegelhalter": {
-      "z": 3.4054,
-      "p_value": 0.000661,
-      "verdict": "과소예측"
+      "z": -1.1091,
+      "p_value": 0.267385,
+      "verdict": "보정 적정"
     },
-    "ece": 0.031374,
-    "mean_predicted": 0.074701,
-    "observed": 0.09867
+    "ece": 0.03433,
+    "mean_predicted": 0.099976,
+    "observed": 0.081081
   },
   "transition_pairs": 2,
   "mean_exit_rate": 0.1097,
