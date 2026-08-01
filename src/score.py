@@ -62,6 +62,31 @@ def _load_artifacts(out_dir: Path) -> tuple[lgb.Booster, dict, dict]:
     return booster, cal, name_map
 
 
+def _in_model_population(cfg: dict, brand_ids: pd.Series, target_year: int) -> pd.Series:
+    """이 브랜드가 모델이 실제로 학습·검증한 모집단에 속하는가.
+
+    왜 이 표시가 필요한가 (실측 근거)
+        라벨은 `healthy_gate_at_t=true` 로 만들어진다 — 즉 학습·보정·평가 표본은
+        **그 해에 악화사건이 하나도 없던 브랜드만**이다(labels.parquet 3,635행 전부
+        healthy_at_t=True). 그런데 점수 산출은 `eligible_t` 만 걸고 게이트를 걸지 않는다.
+        그 결과 2024 코호트 1,442개 중 708개(49.1%)가 모델이 한 번도 본 적 없는
+        모집단이고, **주의 등급 145개 중 116개(80.0%)가 거기서 나온다**.
+        평균 확률도 21.5% 대 10.6%로 두 배 넘게 갈린다.
+
+        이들에 대한 성능 근거는 원리적으로 만들 수 없다 — labels.parquet 에 행 자체가
+        없어 어떤 백테스트도 불가능하다. 보고된 Lift@10·AUC 는 전부 게이트 통과분에서만
+        측정된 값이다. 그러면 최소한 **어느 쪽인지는 화면과 CSV 에 밝혀야** 한다.
+        숨기면 심사역은 두 트랙을 같은 근거를 가진 하나의 '주의 등급'으로 읽게 된다.
+    """
+    labels_p = Path(cfg["paths"]["processed"]) / "labels.parquet"
+    if not labels_p.exists():
+        log.warning("labels.parquet 없음 — 모델 모집단 표시를 생략합니다")
+        return pd.Series(False, index=brand_ids.index)
+    lab = pd.read_parquet(labels_p, columns=["brand_id", "year"])
+    seen = set(lab.loc[lab["year"] == target_year - 1, "brand_id"].astype(str))
+    return brand_ids.astype(str).isin(seen)
+
+
 def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
     """최신(또는 지정) 연도의 자격 브랜드를 점수화해 outputs/scores_latest.csv 로 저장."""
     set_seed(cfg["seed"])
@@ -76,6 +101,7 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
 
     target_year = int(year if year is not None else df["year"].max())
     cohort = df[df["year"] == target_year].copy()
+    # (아래 _in_model_population 이 이 target_year 를 기준으로 모집단 소속을 표시한다)
     if "eligible_t" in cohort.columns:
         n0 = len(cohort)
         cohort = cohort[cohort["eligible_t"].fillna(False).astype(bool)]
@@ -107,10 +133,25 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
     # (실측: 2,510개 중 216개가 42.86%). 계단 내부를 원점수로 선형 보간해 편다.
     # 1e-5 짜리 미세 tie-break 는 소수점 첫째 자리에서 여전히 같은 값이라 소용이 없었다.
     p_cal = smooth_calibrated(p_raw, p_cal_step)
+    # ⚠️ 보간은 계단 **양끝을 넘어설 수 있다**. 실측: 설정 하한 pd_floor(0.0003) 미만
+    #    27행(정확히 0.0 이 1행). 확률 0.0 은 "절대 악화하지 않는다"는 뜻이라 어떤
+    #    통계 모형도 주장할 수 없는 값이다 — 설정 한계 안으로 되돌린다.
+    #
+    #    상한은 **일부러 건드리지 않는다.** 최상위 계단의 수준값이 곧 보정기 최댓값
+    #    (0.45283)이라, 평균을 보존하며 펴면 그 위로 나가는 것이 수학적으로 불가피하다.
+    #    상한을 계단 최댓값으로 자르면 최상위 100개가 다시 한 값으로 뭉쳐(실측) 계단
+    #    문제가 되살아난다. 초과폭은 최대 2.74%p 이며, 이 값은 '보정된 확률'이 아니라
+    #    **계단 안에서의 표시 순서를 만든 값**이다 — 그 사실을 문서와 화면에 밝힌다.
+    #    (계단 내부 순서의 판별력은 검증 결과 out-of-sample 로 유의하지 않다.)
+    ecfg = cfg.get("evaluate") or {}
+    lo, hi = float(ecfg.get("pd_floor", 0.0)), float(ecfg.get("pd_cap", 1.0))
+    n_viol = int(((p_cal < lo - 1e-12) | (p_cal > hi + 1e-12)).sum())
+    p_cal = np.clip(p_cal, lo, hi)
     n_before = int(pd.Series(p_cal_step).round(4).nunique())
     n_after = int(pd.Series(p_cal).round(4).nunique())
-    log.info("보정확률 계단 보간: 서로 다른 값 %d → %d개 (소수점 4자리 기준, n=%d)",
-             n_before, n_after, len(p_cal))
+    log.info("보정확률 계단 보간: 서로 다른 값 %d → %d개 (소수점 4자리 기준, n=%d) "
+             "· 범위 [%.4f, %.4f] 로 클립 (위반 %d행)",
+             n_before, n_after, len(p_cal), lo, hi, n_viol)
 
     res = cohort[["brand_id", "year"]].copy()
     for c in ("brand_name", "industry_major", "industry_mid", "n_stores"):
@@ -118,7 +159,11 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
             res[c] = cohort[c].to_numpy()
     res["pd_1y"] = p_cal
     res["pd_raw"] = p_raw
+    # 보정기가 실제로 산출한 계단값. pd_1y 는 이 값을 계단 안에서 편 결과이므로,
+    # **감사 가능한 원본**을 함께 실어 둘을 대조할 수 있게 한다.
+    res["pd_calibrated_step"] = p_cal_step
     res["pd_rank_pct"] = res["pd_1y"].rank(method="first", pct=True)
+    res["in_model_population"] = _in_model_population(cfg, res["brand_id"], target_year)
 
     # 등급: 학습·평가와 동일한 **순위 기반** 규칙 (값 임계 컷은 동률에 취약 — 기존 결함 수정 유지)
     g = cfg["portfolio"]["risk_grades"]
@@ -140,6 +185,13 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
             res[f"factor{i + 1}_shap"] = np.round(contrib[np.arange(len(idx)), idx], 5)
     except Exception as exc:
         log.warning("SHAP 기여도 산출 생략: %s", exc)
+
+    n_in = int(res["in_model_population"].sum())
+    high_mask = res["pd_rank_pct"] >= float(cfg["portfolio"]["risk_grades"]["high"])
+    log.info("모델 모집단 소속: %d/%d (%.1f%%) · 주의 등급 중 소속 %d/%d (%.1f%%)",
+             n_in, len(res), n_in / len(res) * 100,
+             int(res.loc[high_mask, "in_model_population"].sum()), int(high_mask.sum()),
+             res.loc[high_mask, "in_model_population"].mean() * 100)
 
     res = res.sort_values("pd_1y", ascending=False).reset_index(drop=True)
     dest = out_dir / "scores_latest.csv"

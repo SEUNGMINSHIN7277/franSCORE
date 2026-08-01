@@ -24,7 +24,9 @@ import json
 import sys
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
+from scipy import stats
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "outputs"
@@ -129,11 +131,20 @@ def main() -> int:
     need("WF 표본수(풀링 OOS)", thou(macro["n"].max()), "README")
     for m in ("persistence", "single", "logistic", "lgbm"):
         need(f"WF fold평균 {m} Lift@10", f"{macro.loc[m, 'lift_at_10']:.3f}", "README")
-    ci = pd.read_csv(OUT / "walkforward_delta_ci.csv").set_index("comparison")
-    for comp in ci.index:
-        r = ci.loc[comp]
-        need(f"{comp} Δ", f"{r['mean_delta_lift']:.3f}", "README")
-        need(f"{comp} CI", f"[{r['ci_lo']:.3f}, {r['ci_hi']:.3f}]", "README")
+    # ⚠️ 예전에는 walkforward_delta_ci.csv(bootstrap_unit=year_block, 블록 3개)를
+    #    기준으로 삼았다. 블록이 3개뿐인 백분위 부트스트랩은 t-구간의 약 1/3.4 폭밖에
+    #    나오지 않아 없는 유의성을 만들어낸다 — 같은 저장소의 lift_delta_bootstrap.csv
+    #    는 같은 비교를 비유의로 낸다. 두 산출물이 모순되므로, fold 값에서 직접 계산한
+    #    t-구간을 문서 기준으로 삼는다.
+    folds = wm[wm["valid_year"] > 0].pivot_table(
+        index="valid_year", columns="model", values="lift_at_10")
+    for base in ("persistence", "single", "logistic"):
+        d = (folds["lgbm"] - folds[base]).to_numpy()
+        m, n = float(d.mean()), len(d)
+        se = float(d.std(ddof=1) / np.sqrt(n))
+        t = float(stats.t.ppf(0.975, n - 1))
+        need(f"lgbm - {base} Δ(t)", f"{m:+.3f}", "README")
+        need(f"lgbm - {base} CI(t)", f"[{m - t * se:+.3f}, {m + t * se:+.3f}]", "README")
     bias = pd.read_csv(OUT / "walkforward_pool_bias.csv")
     worst = bias.loc[bias["bias_ratio"].sub(1.0).abs().idxmax()]
     need("원점수 풀링 최대 편향배수", f"{worst['bias_ratio']:.2f}", "IMPL")

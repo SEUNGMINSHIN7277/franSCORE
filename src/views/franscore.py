@@ -198,6 +198,7 @@ def _watchlist(df: pd.DataFrame) -> None:
                         f"<span style='font-size:.88rem;color:{theme.TEXT_MUTED};"
                         f"margin-left:8px'>소견 {int(d['n_risk'])}건</span></div>",
                         unsafe_allow_html=True)
+            st.markdown(C.population_note(r), unsafe_allow_html=True)
             if st.button("진단 근거 보기", key=f"w{i}_{bid}", use_container_width=True):
                 select_brand(bid)
                 st.rerun()
@@ -318,6 +319,7 @@ def _detail_screen(r: pd.Series) -> None:
             f"font-size:.99rem;line-height:1.6'>"
             f"{C.GRADE_ACTION.get(grade, '')}</div>", unsafe_allow_html=True)
         st.markdown(_summary_sentence(r), unsafe_allow_html=True)
+        st.markdown(C.population_note(r), unsafe_allow_html=True)
     with h2:
         theme.plot(C.risk_gauge(float(r["pd_1y"])), key=f"g_{bid}")
         rank = r.get("pd_rank_pct")

@@ -399,6 +399,28 @@ def grade_bounds(m: float) -> dict:
     }
 
 
+def population_note(row) -> str:
+    """이 브랜드의 확률이 **모델이 검증된 구간에서 나온 것인지** 밝힌다.
+
+    학습·보정·평가 표본은 '그 해 악화사건이 없던 브랜드'만으로 만들어졌는데
+    점수는 그 게이트 없이 전체에 매겨진다. 실측하면 주의 등급 145개 중 116개(80%)가
+    모델이 본 적 없는 구간에서 나온다. 두 트랙을 같은 '주의'로 합쳐 보여주면
+    심사역은 같은 근거를 가진 것으로 읽는다 — 그건 사실이 아니다.
+    """
+    v = row.get("in_model_population") if hasattr(row, "get") else None
+    if v is None or pd.isna(v):
+        return ""
+    if bool(v):
+        return (f"<div style='margin-top:8px;font-size:.86rem;color:{theme.TEXT_MUTED}'>"
+                f"✓ 모델 검증 구간 — 백테스트로 성능이 측정된 모집단입니다.</div>")
+    return (f"<div style='margin-top:8px;padding:7px 10px;border-radius:7px;"
+            f"background:{theme.WARN_SOFT};border:1px solid #F0DFB8;font-size:.88rem;"
+            f"color:{theme.TEXT};line-height:1.5'>"
+            f"<b>모델 검증 구간 밖</b> — 이미 악화 신호가 관측된 브랜드라 학습·평가 "
+            f"표본에 포함되지 않았습니다. 확률값의 성능 근거가 없으므로 <b>순위 참고용</b>"
+            f"으로만 쓰고, 판단은 아래 진단 소견으로 하십시오.</div>")
+
+
 def signal_html(grade: str, pd_1y: float | None = None, *, size: int = 13,
                 show_value: bool = True) -> str:
     """신호등 — 위험도를 '빨간 숫자'가 아니라 **켜진 등**으로 보여준다.
