@@ -39,8 +39,17 @@ log = get_logger("llm")
 
 # 주 키 외에 받아들일 예비 키 개수 (GEMINI_API_KEY_2 … _5).
 MAX_BACKUP_KEYS = 4
-# Generative Language API 키 형식. 'AQ.' 로 시작하는 OAuth 토큰과 구분하기 위한 것.
-_KEY_RE = re.compile(r"^AIza[0-9A-Za-z_\-]{30,45}$")
+
+# Generative Language API 키로 알려진 형식.
+#   AIza… (39자)  — 오래 쓰인 형식
+#   AQ.…          — Google AI Studio 가 현재 발급하는 형식
+#
+# ⚠️ 한때 `AQ.` 를 OAuth 액세스 토큰으로 보고 **거부**했다. 근거는 그 접두를 가진 키가
+#    401 을 낸 실측이었는데, 원인은 형식이 아니라 **그 키가 무효였던 것**이다. 새로
+#    발급한 `AQ.` 키는 gemini-2.5-flash·gemini-flash-latest 모두 200 을 받는다(실측).
+#    형식만 보고 막으면 멀쩡한 키를 우리가 차단한다 — 판정은 API 에 맡기고,
+#    여기서는 **알려진 형식을 앞에 세우는 정렬**에만 쓴다.
+_KEY_RE = re.compile(r"^(AIza[0-9A-Za-z_\-]{30,45}|AQ\.[0-9A-Za-z_\-]{20,})$")
 # 이 키로는 더 못 쓴다 — 다음 키로 넘어가야 하는 HTTP 상태(한도 초과·인증·권한).
 _SWITCH_KEY_STATUS = {401, 403, 429}
 
@@ -106,13 +115,11 @@ def api_key_envs(cfg: dict) -> list[str]:
 
 
 def _well_formed(key: str) -> bool:
-    """Generative Language API 키 형식인가.
+    """알려진 Gemini API 키 형식인가 — **거부 기준이 아니라 시도 순서** 기준이다.
 
-    실측 근거: `AQ.` 로 시작하는 값(OAuth 액세스 토큰)을 이 API에 보내면 토큰 소비가
-    없는 모델 목록 조회에서조차 401 `ACCESS_TOKEN_TYPE_UNSUPPORTED` 가 돌아온다.
-    콘솔에 'API 키'로 표시돼 있어도 형식이 다르면 쓸 수 없으므로, 형식으로 미리
-    가려 **정상 키를 먼저 시도**한다(형식 미상 키도 버리지 않고 뒤로 돌린다 —
-    구글이 형식을 바꿀 가능성까지 우리가 단정할 수는 없다).
+    형식이 낯설어도 버리지 않고 뒤로 돌린다. 구글이 키 형식을 바꾼 전례가 있고
+    (AIza… → AQ.…), 형식만 보고 막으면 멀쩡한 키를 우리가 차단하게 된다.
+    유효 여부는 API 가 판정한다.
     """
     return bool(_KEY_RE.match(key))
 
@@ -314,14 +321,13 @@ def _is_auth_failure(exc: BaseException) -> bool:
 
 
 def _malformed_key_error(cfg: dict) -> LLMFatal:
-    """형식이 잘못된 키만 등록됐을 때의 안내. 키 값은 담지 않는다."""
+    """등록된 키가 전부 인증에 실패했을 때의 안내. 키 값은 담지 않는다."""
     bad = ", ".join(f"{m['env']}(길이 {m['length']}, 접두 {m['prefix']}…)"
                     for m in key_health(cfg)["malformed"])
     return LLMFatal(
-        f"등록된 Gemini 키가 모두 형식에 맞지 않습니다 — {bad}. "
-        f"Gemini API 키는 'AIza' 로 시작합니다. 'AQ.' 로 시작하는 값은 OAuth "
-        f"액세스 토큰이라 이 API에 쓸 수 없습니다. "
-        f"aistudio.google.com/apikey 에서 발급해 주십시오.")
+        f"등록된 Gemini 키가 인증을 통과하지 못했습니다 — {bad}. "
+        f"키가 폐기·만료됐거나 값이 잘못 복사됐을 수 있습니다. "
+        f"aistudio.google.com/apikey 에서 키를 다시 확인하거나 새로 발급해 주십시오.")
 
 
 class _SwitchKey(LLMError):

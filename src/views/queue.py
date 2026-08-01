@@ -151,7 +151,7 @@ def _worklist(work: pd.DataFrame) -> None:
                     f"</div>"
                     f"<div style='font-size:.9rem;color:{theme.TEXT_SUB}'>"
                     f"{r.get('industry_mid', '-')} · 가맹점 {int(r['n_stores']):,}개 · "
-                    f"1년 내 악화 가능성 {float(r['pd_1y']) * 100:.1f}%</div></div></div>",
+                    f"브랜드 리스크 {float(r['pd_1y']) * 100:.1f}%</div></div></div>",
                     unsafe_allow_html=True)
                 detail = str(r.get("headline_detail") or "")
                 if detail and detail != "nan":
@@ -196,7 +196,7 @@ def _fulltable(work: pd.DataFrame, yr) -> None:
             "industry_major": st.column_config.TextColumn("업종"),
             "industry_mid": st.column_config.TextColumn("세부 업종"),
             "n_stores": st.column_config.NumberColumn("가맹점", format="%d"),
-            "pd_1y": st.column_config.NumberColumn("악화 가능성", format="%.1f%%"),
+            "pd_1y": st.column_config.NumberColumn("브랜드 리스크", format="%.1f%%"),
             "risk_grade": st.column_config.TextColumn("등급"),
             "watch_score": st.column_config.ProgressColumn(
                 "감시 우선순위", format="%.0f", min_value=0, max_value=100),

@@ -282,7 +282,7 @@ def brand_facts(cfg: dict, brand_name: str) -> dict:
         "평가연도": int(r["year"]),
         "업종": f"{r.get('industry_major', '')} / {r.get('industry_mid', '')}",
         "가맹점수": int(r["n_stores"]) if pd.notna(r["n_stores"]) else None,
-        "1년내_악화_가능성": f"{float(r['pd_1y']) * 100:.1f}%",
+        "브랜드_리스크": f"{float(r['pd_1y']) * 100:.1f}%",
         "위험등급": {"High": "주의", "Medium": "관찰", "Low": "안정"}.get(
             str(r["risk_grade"]), str(r["risk_grade"])),
         "전체중_상위": f"{(1 - float(r['pd_rank_pct'])) * 100:.1f}%"
@@ -375,10 +375,10 @@ def industry_facts(cfg: dict, question: str, top_n: int = 8) -> dict | None:
         "평가_브랜드수": len(sub),
         "주의등급_브랜드수": int((sub["risk_grade"] == "High").sum()),
         "가맹점_중간값": _i(sub["_n"].median()),
-        "악화가능성_중간값": f"{float(sub['pd_1y'].median()) * 100:.1f}%",
+        "브랜드_리스크_중간값": f"{float(sub['pd_1y'].median()) * 100:.1f}%",
         "위험_상위_브랜드": [
             {"브랜드": str(r["brand_name"]), "가맹점수": _i(r["n_stores"]),
-             "악화_가능성": f"{float(r['pd_1y']) * 100:.1f}%",
+             "브랜드_리스크": f"{float(r['pd_1y']) * 100:.1f}%",
              "등급": {"High": "주의", "Medium": "관찰", "Low": "안정"}.get(
                  str(r["risk_grade"]), str(r["risk_grade"]))}
             for _, r in top.iterrows()],
@@ -472,7 +472,7 @@ def _drop_offtopic_news(evidence: list[dict], brands: list[str]) -> list[dict]:
 # 답변
 # ---------------------------------------------------------------------------
 
-_ALWAYS = ("brand_name", "평가연도", "업종", "가맹점수", "1년내_악화_가능성",
+_ALWAYS = ("brand_name", "평가연도", "업종", "가맹점수", "브랜드_리스크",
            "위험등급", "전체중_상위", "가맹본부")
 
 
@@ -537,8 +537,8 @@ def _fallback(facts: list[dict], evidence: list[dict], question: str) -> str:
         parts.append(f"### {f.get('brand_name')}")
         if f.get("위험등급"):
             parts.append(
-                f"- 위험등급 **{f['위험등급']}** · 1년 내 악화 가능성 "
-                f"{f.get('1년내_악화_가능성')} ({f.get('평가연도')}년 공시 기준)")
+                f"- 위험등급 **{f['위험등급']}** · 브랜드 리스크 "
+                f"{f.get('브랜드_리스크')} ({f.get('평가연도')}년 공시 기준)")
             parts.append(f"- 업종 {f.get('업종')} · 가맹점 {f.get('가맹점수'):,}개")
         for s in (f.get("진단소견") or [])[:6]:
             if s["구분"] == "risk":
@@ -648,10 +648,9 @@ def _no_llm_notice(reason: str, facts: list[dict], evidence: list[dict],
                        "**1~2분 뒤 다시 물어보시면 정상 동작합니다.** "
                        "예비 키를 `GEMINI_API_KEY_2` 로 등록해 두면 자동으로 넘어갑니다. "
                        "아래는 수집된 사실입니다."),
-        "bad_key": ("등록된 키가 Gemini API 키 형식이 아닙니다. Gemini 키는 `AIza` 로 "
-                    "시작합니다 — `AQ.` 로 시작하는 값은 OAuth 액세스 토큰이라 쓸 수 "
-                    "없습니다. aistudio.google.com/apikey 에서 발급해 주십시오. "
-                    "아래는 수집된 사실입니다."),
+        "bad_key": ("등록된 키가 인증을 통과하지 못했습니다. 키가 폐기·만료됐거나 값이 "
+                    "잘못 복사됐을 수 있습니다. aistudio.google.com/apikey 에서 확인하거나 "
+                    "새로 발급해 주십시오. 아래는 수집된 사실입니다."),
         "auth": ("등록된 키가 인증을 통과하지 못했습니다(만료·폐기·권한 없음). "
                  "키를 다시 발급해 등록해 주십시오. 아래는 수집된 사실입니다."),
     }.get(reason, "답변 생성 중 문제가 발생했습니다. 아래는 수집된 사실입니다.")

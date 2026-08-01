@@ -296,9 +296,9 @@ def _concentration(port: pd.DataFrame) -> None:
                 marker={"size": 11, "color": theme.GRADE_COLOR[g], "opacity": .78,
                         "line": {"width": 1, "color": "#FFFFFF"}},
                 text=port.loc[m, "brand_name"],
-                hovertemplate="<b>%{text}</b><br>악화 가능성 %{x:.1f}%<br>"
+                hovertemplate="<b>%{text}</b><br>브랜드 리스크 %{x:.1f}%<br>"
                               "여신 %{y:,.1f}억원<extra></extra>"))
-        fig.update_layout(height=330, xaxis_title="1년 내 악화 가능성",
+        fig.update_layout(height=330, xaxis_title="브랜드 리스크",
                           yaxis_title="여신 (억원)",
                           margin={"l": 4, "r": 4, "t": 30, "b": 30})
         fig.update_xaxes(ticksuffix="%")
@@ -325,9 +325,9 @@ def _expected_loss(port: pd.DataFrame, pcfg: dict) -> None:
                       margin={"l": 4, "r": 4, "t": 30, "b": 20})
     theme.plot(fig, key="pf_el")
     st.caption(
-        f"예상손실 = 여신 × 1년 내 악화 가능성 × 손실률(LGD). "
+        f"예상손실 = 여신 × 브랜드 리스크 × 손실률(LGD). "
         f"스트레스는 위험 상위 {float(pcfg['stress_top_pct']) * 100:.0f}% 브랜드의 "
-        f"악화 가능성에 {pcfg['stress_pd_multiplier']}배를 적용해 동시 악화를 가정한 값입니다.")
+        f"브랜드 리스크에 {pcfg['stress_pd_multiplier']}배를 적용해 동시 악화를 가정한 값입니다.")
 
     imp = C.out_dir() / "correlation_impact.json"
     if imp.exists():
@@ -380,7 +380,7 @@ def _detail_table(port: pd.DataFrame) -> None:
             "brand_name": st.column_config.TextColumn("브랜드", width="medium"),
             "industry_mid": st.column_config.TextColumn("업종"),
             "n_stores": st.column_config.NumberColumn("가맹점", format="%d"),
-            "pd_1y": st.column_config.NumberColumn("악화 가능성", format="%.1f%%"),
+            "pd_1y": st.column_config.NumberColumn("브랜드 리스크", format="%.1f%%"),
             "risk_grade": st.column_config.TextColumn("등급"),
             "exposure_mkrw": st.column_config.NumberColumn("여신", format="%.1f 억"),
             "exposure_share": st.column_config.ProgressColumn(
