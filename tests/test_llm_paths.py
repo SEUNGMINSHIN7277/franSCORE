@@ -131,14 +131,37 @@ def _tmp_cfg(tmp: Path) -> dict:
 # 테스트
 # ---------------------------------------------------------------------------
 
+
+# ⚠️ 예비 키(GEMINI_API_KEY_2 … _5)가 도입되면서 테스트가 환경에 오염되기 시작했다.
+#    주 키만 지우고 예비 키를 남겨 두면 "키 없음" 검사가 통과해 버리고, 재시도 횟수도
+#    키 개수만큼 곱해진다(실측: 4회 기대 → 12회). 테스트는 **모든 키 슬롯**을 격리한다.
+class _IsolatedKeys:
+    """테스트 동안 Gemini 키 환경변수를 전부 치우고, 끝나면 원래대로 돌린다."""
+
+    def __init__(self, cfg: dict, value: str | None = None):
+        self.envs = src_llm.api_key_envs(cfg)
+        self.value = value
+        self.saved: dict[str, str] = {}
+
+    def __enter__(self):
+        for e in self.envs:
+            if e in os.environ:
+                self.saved[e] = os.environ.pop(e)
+        if self.value is not None:
+            os.environ[self.envs[0]] = self.value
+        return self
+
+    def __exit__(self, *exc):
+        for e in self.envs:
+            os.environ.pop(e, None)
+        os.environ.update(self.saved)
+        return False
+
 def test_llm_client(cfg: dict) -> str:
     """src.llm 클라이언트 자체: 스키마 정제·사고파트 제거·차단/절단/재시도 분기."""
     env = src_llm.api_key_env(cfg)
-    os.environ[env] = "mock-key-for-test"
-    try:
+    with _IsolatedKeys(cfg, "mock-key-for-test"):
         return _test_llm_client_body(cfg, env)
-    finally:
-        os.environ.pop(env, None)
 
 
 def _test_llm_client_body(cfg: dict, env: str) -> str:
@@ -196,7 +219,8 @@ def _test_llm_client_body(cfg: dict, env: str) -> str:
     print("    (4) 일시 오류: 재시도 후 성공 확인 (attempts=2)")
 
     # (5) 키 미설정 → 즉시 LLMError (호출 시도 자체를 하지 않음)
-    saved = os.environ.pop(env, None)
+    _iso_none = _IsolatedKeys(cfg, None)
+    _iso_none.__enter__()
     try:
         MockTransport.install(_ok("불려선 안 됨"))
         try:
@@ -206,8 +230,7 @@ def _test_llm_client_body(cfg: dict, env: str) -> str:
             pass
         assert not MockTransport.calls, "키가 없는데 HTTP 호출을 시도함"
     finally:
-        if saved is not None:
-            os.environ[env] = saved
+        _iso_none.__exit__(None, None, None)
     print("    (5) 키 미설정: 호출 시도 없이 즉시 예외 확인")
     return PASS
 
@@ -222,8 +245,8 @@ def test_news_llm_path(cfg: dict) -> str:
         {"title": "테스트브랜드 운영사 자금난 심화", "link": "http://b",
          "published": "Tue, 02 Jul 2024 00:00:00 GMT", "source": "테스트경제"},
     ]}
-    env = src_llm.api_key_env(cfg)
-    os.environ[env] = "mock-key-for-test"
+    _iso = _IsolatedKeys(cfg, "mock-key-for-test")
+    _iso.__enter__()
     try:
         # (1) 정상 응답 — LLM 경로가 실제로 사용되고 신호가 파싱되는지
         payload = json.dumps({"signals": [
@@ -283,7 +306,7 @@ def test_news_llm_path(cfg: dict) -> str:
         assert all(not s.get("llm_used") for s in sigs_b), "파싱 실패인데 llm_used=True"
         print("    (5) 비JSON 응답 처리: 폴백 전환 확인")
     finally:
-        os.environ.pop(env, None)
+        _iso.__exit__(None, None, None)
     return PASS
 
 
@@ -300,8 +323,8 @@ def test_memo_llm_path(cfg: dict) -> str:
                   "source_url": "http://a", "published": "2024-07-01"}],
         "portfolio": {"exposure_ekw": 120.5},
     }
-    env = src_llm.api_key_env(cfg)
-    os.environ[env] = "mock-key-for-test"
+    _iso = _IsolatedKeys(cfg, "mock-key-for-test")
+    _iso.__enter__()
     try:
         # (1) 정상 — LLM 텍스트가 사용되고 고지문이 보장되는지
         MockTransport.install(_ok("## 심사메모\n브랜드 위험도가 높습니다.",
@@ -360,7 +383,7 @@ def test_memo_llm_path(cfg: dict) -> str:
         assert "자동 근거 검증 경고" in memo6, "환각 수치가 경고 없이 메모에 실림"
         print(f"    (6) 환각 검증: 정상 통과 + 지어낸 수치 {halluc['unsupported']} 검출·경고 부착 확인")
     finally:
-        os.environ.pop(env, None)
+        _iso.__exit__(None, None, None)
     return PASS
 
 

@@ -115,7 +115,7 @@ https://github.com/SEUNGMINSHIN7277/franSCORE/blob/main/src/app.py
 
 | 키 | 없을 때 화면 | 발급처 |
 |---|---|---|
-| `GEMINI_API_KEY` | AI 상담이 답변을 만들지 않고 **수집된 사실만 정리**해 보여줍니다 | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — `AIza…` 형식 |
+| `GEMINI_API_KEY`<br>`GEMINI_API_KEY_2` | AI 상담이 답변을 만들지 않고 **수집된 사실만 정리**해 보여줍니다 | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
 | `NCP_API_KEY_ID`<br>`NCP_API_KEY` | 이미 수집된 292개 브랜드의 검색수요는 **그대로 보입니다**. 갱신만 안 됩니다 | NCP 콘솔 → NAVER API HUB → Application |
 | `DART_API_KEY` | 이미 수집된 본부 재무는 그대로 보입니다. 갱신만 안 됩니다 | [opendart.fss.or.kr](https://opendart.fss.or.kr) |
 
@@ -123,6 +123,7 @@ https://github.com/SEUNGMINSHIN7277/franSCORE/blob/main/src/app.py
 
 ```toml
 GEMINI_API_KEY = "여기에-키"
+GEMINI_API_KEY_2 = "예비-키 (선택)"
 NCP_API_KEY_ID = "여기에-아이디"
 NCP_API_KEY = "여기에-시크릿"
 DART_API_KEY = "여기에-키"
@@ -130,6 +131,13 @@ DART_API_KEY = "여기에-키"
 
 저장하면 앱이 자동 재시작합니다. `src/common.load_secrets()` 가 이 값을 환경변수로
 올리므로 코드 수정은 필요 없습니다.
+
+**예비 키를 `GEMINI_API_KEY_2` ~ `_5` 로 넣어 두면 자동으로 돌려씁니다.** 주 키가
+무료 한도(429)에 걸리거나 인증에 실패하면 백오프 없이 즉시 다음 키로 넘어갑니다
+(400·안전차단·토큰절단은 키를 바꿔도 같으므로 전환하지 않습니다).
+
+> Gemini 키 형식은 `AIza…` 와 `AQ.…` 두 가지가 있습니다. AI Studio 가 현재 발급하는
+> 것은 `AQ.` 이며 둘 다 정상입니다 — 형식으로 키를 판단하지 마십시오.
 
 > ⚠️ **키를 저장소에 커밋하지 마십시오.** `.env` 는 `.gitignore` 에 있고, 배포는
 > 플랫폼 Secrets 로만 전달합니다. 이 대화에 붙여넣은 키들은 제출 전 재발급을 권합니다.
