@@ -1,232 +1,452 @@
 [
   {
-    "brand": "인생냉면",
-    "event_type": "무관",
-    "date": "2025-09-18",
-    "evidence_sentence": "더보이즈 영훈, 인생 첫 중국냉면에 “저는 불호” 소신 발언(홈즈) - 뉴스엔",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1LUUZoVGJxVlFHNmJWYmtITUoyMFNFbGQzeDBxVl9xSERSVW5zbWJ5b2htYld6d2V6YnNscmFYNUk1M3d0d18wT0RFMGg0ZWZwenRSQ3dBZTNtRlBYRk03MFhVeFhDcDZ3?oc=5",
-    "published": "Thu, 18 Sep 2025 07:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "일미리금계찜닭",
-    "event_type": "기타",
-    "date": "2025-03-25",
-    "evidence_sentence": "[기획] 찜닭 프랜차이즈 브랜드, 일미리금계찜닭",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1yRTRWVW5YRkZCTmZ1T29xQ1V0bEl4QnNYSTRwUGQ1bjlIRDZCczBTQVlIS3JnMmE1T3FVVHBKd2dXUUYwSFVqcnBVTWI0LWRmNGl5Z2ZLcnVaZHZVQnE5N2xFQ2gyTkJj?oc=5",
-    "published": "Tue, 25 Mar 2025 07:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "일미리금계찜닭",
-    "event_type": "기타",
-    "date": "2024-08-10",
-    "evidence_sentence": "SNS에서 인정받은 대구 현풍 테크노폴리스 맛집, ‘일미리금계찜닭’",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE12WGt1eGd2ZkNTN3RHaDNYbXhJYlNOenVQOVBLZTA5eW9uVXVndUQ3TEdNY3hyVF8xTkpocS1EM3ZhekpPeVNMb1FyUjE2bFIzLU8zbnphbm9POW5NdUpwaVNPT2pXTHNkbFg2MkQ1WQ?oc=5",
-    "published": "Sat, 10 Aug 2024 05:19:46 GMT",
-    "llm_used": true
-  },
-  {
     "brand": "밥풀릭스",
     "event_type": "기타",
     "date": "2026-06-05",
-    "evidence_sentence": "5월 역대 최고 월매출 달성",
-    "confidence": "상",
+    "evidence_sentence": "밥풀릭스, 5월 역대 최고 월매출 달성…신메뉴·방송 협찬 마케팅 효과 - 이코노미스트",
+    "confidence": "하",
     "source_url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE9WelpjSXRSM2trYk1feTJXc2xBY3haOHNvT1pQMjhYenczcUx6MWVIcVdpOHNLQUdMR2dxZGtqRVRmNnZQb3d6MXZCRXgxUUVzNzdLcWNybE9HdVZpdTdzQnJn?oc=5",
     "published": "Fri, 05 Jun 2026 07:00:00 GMT",
-    "llm_used": true
+    "llm_used": false
   },
   {
     "brand": "밥풀릭스",
     "event_type": "기타",
     "date": "2026-06-22",
-    "evidence_sentence": "매월 후원 도시락 나눔 실천",
-    "confidence": "상",
+    "evidence_sentence": "포항시 대이동 밥풀릭스, 매월 후원 도시락 나눔 실천 - hidomin.com",
+    "confidence": "하",
     "source_url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1VczJ4UUdJMFZYZzF6Qkc5QWRJREJFVjlEQ0t0dk1ES2lnQ3RUdUpCMVd3SDZ1QTRmVWJSeVREWm9TcFdjX3JmSy1OV3hHejVYcFdRUkFyR0JGNzJERHd5U1k2ZHQzcWswR1E?oc=5",
     "published": "Mon, 22 Jun 2026 07:00:00 GMT",
-    "llm_used": true
+    "llm_used": false
   },
   {
     "brand": "밥풀릭스",
     "event_type": "기타",
     "date": "2026-06-22",
-    "evidence_sentence": "매달 도시락 후원…대이동 취약계층에 전달",
-    "confidence": "상",
+    "evidence_sentence": "밥풀릭스 포항쌍사점, 매달 도시락 후원…대이동 취약계층에 전달 - 경북매일",
+    "confidence": "하",
     "source_url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBmaEQzVVRMMlp0bzB6cE9MV0VXam45el9zWVVuMU85dm9Gb3o2ZzFwM2NZOHpzV0hfUW1QMzdKa2ZoUC1vcG1xdm14Z3dSVHI4bWhmODY1YnRVQQ?oc=5",
     "published": "Mon, 22 Jun 2026 07:00:00 GMT",
-    "llm_used": true
+    "llm_used": false
   },
   {
     "brand": "밥풀릭스",
     "event_type": "기타",
     "date": "2026-01-28",
-    "evidence_sentence": "자체 매출 갱신",
-    "confidence": "상",
+    "evidence_sentence": "밥풀릭스 “자체 매출 갱신”…혼밥 수요 확대 속 매출 성과 - 빅데이터뉴스",
+    "confidence": "하",
     "source_url": "https://news.google.com/rss/articles/CBMifEFVX3lxTFBuYU9jMGh5RG5sVWR3NmNhZ3o0dms1MDhJNGNteEEwanFfczhxODFqdUhSQk5EWmp3LVlaX0dLakdDbGRGTXlDSHpKbW5uN29sUjZUQWtId0pYMHVmMnd0bDU1MU1Qc3lJUmZ0R0w5M2lQUTEzazJ6SWNWMjI?oc=5",
     "published": "Wed, 28 Jan 2026 08:00:00 GMT",
-    "llm_used": true
+    "llm_used": false
   },
   {
     "brand": "밥풀릭스",
     "event_type": "기타",
     "date": "2026-06-08",
-    "evidence_sentence": "인기 유튜브 채널 ‘워크맨’ PPL 진행",
-    "confidence": "상",
+    "evidence_sentence": "밥풀릭스, 인기 유튜브 채널 ‘워크맨’ PPL 진행… 브랜드 인지도 확대 나선다 - 피앤피뉴스",
+    "confidence": "하",
     "source_url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFBwYklRdE5MYXg2SG5xbktYdEVNZUg3ZTU5M3hhMkFSbG9rRnRSS0loYXByMld5QkwwWHQ3RHVRdFRRTFlBUHEwZWROXzlLMUFPcFFNZksxR3lPdENIaVHSAVZBVV95cUxPOE5JWTJHdnpLSmVtOUJhSHhreFpMbURZOUY0NWdWRGNud1c4bWhWSTVUbVRBbGIwYXF1enJYSTUtMHBQcnJ1YnhNU1J5RWZRTXU3RWNBQQ?oc=5",
     "published": "Mon, 08 Jun 2026 07:00:00 GMT",
-    "llm_used": true
+    "llm_used": false
   },
   {
     "brand": "밥풀릭스",
     "event_type": "기타",
     "date": "2026-03-30",
-    "evidence_sentence": "1억 원 규모 상생 캠페인 진행",
-    "confidence": "상",
+    "evidence_sentence": "밥풀릭스, 론칭 4주년 기념 1억 원 규모 상생 캠페인 진행 - 글로벌에픽",
+    "confidence": "하",
     "source_url": "https://news.google.com/rss/articles/CBMie0FVX3lxTFBKUFB4NzNMcFloa0hNRGIyeXNfLVAxZzNpRjYxejB3TjMxb185anN2UUZ4TWVfNTl0cjh2MjAwRGZGVW94anUwT1lRYWpXTUhDUVhfT0JWcHJrclhCWmFMMXJ2RjlKQjZTVjMxcXltWmczeUJDd1d5c0E5OA?oc=5",
     "published": "Mon, 30 Mar 2026 07:00:00 GMT",
-    "llm_used": true
+    "llm_used": false
   },
   {
-    "brand": "기대만족",
-    "event_type": "무관",
-    "date": "2026-07-03",
-    "evidence_sentence": "아이도 부모도 만족하는 건강한 방학 기대",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1yelpscTkyTHVHS3dYQlBSWURMVXZxOG1FZllELXJUUkIwUUtqY3o3RWN1U1BPMUVyLVBkNjRIRll5MHE5R040WnhoeWVLNzkxN3RXTlE4YlVUd9IBWEFVX3lxTE5CaXNlRWc1cHV0czNPcUpURzdRUG8tVTByd3NGNWZaTFFtb2ZJbE9nbWRieUtDMjYxRVFOZ3JQSlBraDQteDFkMmNMSkM1cHI4UzZ2QzNub3M?oc=5",
-    "published": "Fri, 03 Jul 2026 07:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "기대만족",
-    "event_type": "무관",
-    "date": "2026-07-13",
-    "evidence_sentence": "기대 이상으로 만족시켜 드릴 작품이라 확신",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE55REtBdldfUWZqcWlqN0pORWgxbTcyVTRpZVYwaENzRTNwaXhMTmtYLWNCaTNGUjhON3lrR09DMWlPeHNVOGpvUnhRY29DZGF3NEhDcEJ5azluUnB6cGQ2TWJiNFgwNHQ3cTJCVlU0ZFpSR29H0gF4QVVfeXFMT1BXT2hCbGlhWFhOUUx0dU5FMThVV1p0bEVKZFpQTkVqSG5yOHFGS1VYWGV2a2pGOVhHZU4wMmpETnhrLXVSb2lsakxDMnhzNXpmeVJ2TkhsaTg4Nmo2SnBra1FycmVTc1BCNHBta0YtUHVZR1FWSG1R?oc=5",
-    "published": "Mon, 13 Jul 2026 07:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "기대만족",
-    "event_type": "무관",
-    "date": "2024-09-02",
-    "evidence_sentence": "고객의 기대를 뛰어넘는",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5OQVVQTjZkeFJPMG1aT2dLMmFpRGNpMW9GTlZQUFhlYXFyVlUwNXVaV3gxZGpvT0FFZUIybm9qS1pYQ0hFcldGZVpqNmo0Zm9Yem40YmVCemlzaVVkanJ0UkJ2cU1Na3ZIa2Y4amVWcVk?oc=5",
-    "published": "Mon, 02 Sep 2024 07:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "달콤왕가탕후루",
+    "brand": "밥풀릭스",
     "event_type": "기타",
-    "date": "2026-01-18",
-    "evidence_sentence": "세븐일레븐, 달콤왕가탕후루 ‘아이스 탕후루’ 2종 출시",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5ZVTN0c2k2YVA2azRZUnhjNDRRU0h5djFKM0VDaFlCdS1JTGtFNUlMZ3cweUNqTHdzZHh2SUNXOTZqMWhTZk92VlBCV2dPb0luckIzeDhWLV9iQnVuSnNpeWRCMjdCZUnSAWtBVV95cUxNdmNTbzVoRDlkRHJ3NXRqQm9RVkJraXdBajVjcHR5T18xUGhpWDdwNWV6RUhhUFVJMGVTRHMxMGR3LWVIdm1kWjI2bF9DTkZMTEhyYjZMMFVqWGdlX0hYTUFjc2dhdGV6M0Fwbw?oc=5",
-    "published": "Sun, 18 Jan 2026 08:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "달콤왕가탕후루",
-    "event_type": "기타",
-    "date": "2026-01-17",
-    "evidence_sentence": "세븐일레븐·달콤왕가탕후루, ‘아이스 탕후루’ 2종 출시",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBtV19fNi1pVEF0b2ZwdkFTMmhYcHJpd2VKU2pNXzZSNHlLZnRSOVc3MnZUZ2wySkg4RWdpT2F0ME1LcWpHbmt4aWQ4dHVHS1A4SEJOWW9zckxNSG51UTRzZ0tjVEROYWctVDNn?oc=5",
-    "published": "Sat, 17 Jan 2026 08:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "달콤왕가탕후루",
-    "event_type": "기타",
-    "date": "2026-01-16",
-    "evidence_sentence": "달콤왕가탕후루와 협업한 ‘아이스 탕후루’ 2종 출시",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE40YVpxbDZyNHVwYldyQmo4SzZDaTlpV09UcF94UmRkVDYyQWZWUl82UDVyMzJoSkhhekNjb2FFZ2lvX24xYUdMMXEteUxlY041OXd1VlRNd1U4QUgwVENxcWMxd3JGYTFr?oc=5",
-    "published": "Fri, 16 Jan 2026 08:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "달콤왕가탕후루",
-    "event_type": "기타",
-    "date": "2025-11-03",
-    "evidence_sentence": "인도네시아 1호점 오픈에 이어 2호점, 3호점 성황리 오픈",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBJTmxwU1RlbGY1WXNxRFlfN2Mwc2R5R3Eyb2FpcGxRcUxXdlJVOTZsU2ppdFMzV196aEJNNGVMRGZtRGY1bzlLQ0t6Ri04V2dSNFVHeDhHUFpFYVdqNzF1U0d6RlhMdw?oc=5",
-    "published": "Mon, 03 Nov 2025 08:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "달콤왕가탕후루",
-    "event_type": "기타",
-    "date": "2025-10-28",
-    "evidence_sentence": "‘달콤왕가탕후루’ 중앙아시아 데뷔",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBOTEpTeTVESXB6ZG9rYndlaXN5YjFraFZOTzV6MGJMWmNxN3ZTUl9MZWdUc0ZPSk5QSF9RUHZLYnBadUJ5ay1tVjdvdURhaUYxMVVUZnZqTHV2czYtalNUZEs2Q0YxVWxP0gFsQVVfeXFMTmJmSjgxZmxlSG9KeFVsRjJfaFpCOTRVM1dTbkt4RlI0U2ZUOE9JSk1ZaW9xUUNDaFlRS0lMX0x3U0JPeHI0c3J0NFEwS0tRNW5vMjdGUmRKVG9NUXI3NGlqQ0poc2ZXUno1VXEy?oc=5",
-    "published": "Tue, 28 Oct 2025 07:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "셀렉토커피",
-    "event_type": "기타",
-    "date": "2025-12-12",
-    "evidence_sentence": "디저트 감성 담은 겨울 신메뉴 4종 선봬",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBxX2JRVWUwRDBPYnZFeF92aXZiSWtuMGJUaXNSbEd6b2VKN2hiQ3pHbGRYQnJRX1VTeng5eFJERFZFTTRzbmFqMU4xaG1lWFBnbjFwX0xjdXhRQlAtVk9YWjlGOG0?oc=5",
-    "published": "Fri, 12 Dec 2025 08:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "셀렉토커피",
-    "event_type": "기타",
-    "date": "2025-11-24",
-    "evidence_sentence": "MZ세대 감각 더한 ‘취향 경험 마케팅’ 본격 시동… 마케팅 잡 프로젝트 4기 참여",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBzVndEV2FwUTJUZG4wV1REOFFjQ0w2d3BPWnVXVnBpd0I1WTBsb3hkRnhnVFpWc1gzVndCUmZPUTk1SXlHcGl5ckYtbFJSQnJBMEJqb2paRy1Bdw?oc=5",
-    "published": "Mon, 24 Nov 2025 08:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "셀렉토커피",
-    "event_type": "기타",
-    "date": "2026-02-04",
-    "evidence_sentence": "두바이 감성 담은 신메뉴 ‘두바이 모찌’ 출시",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE4xbGRjZmJRVGw0MUJKMzRDYWFIWm4wX2JhN1hlRkZKeEM5LUJBdVNPVWhXbGpwVmRIeG9WREc4RVVibnJHSGxEVDI0ZXg4MHVLUUpXMnhrNTBZelZrd3ZEYzVrY2xXWERDb09WeEM5bFF0MlBMV0s4WWxOZVQ?oc=5",
-    "published": "Wed, 04 Feb 2026 08:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "셀렉토커피",
-    "event_type": "기타",
-    "date": "2025-10-16",
-    "evidence_sentence": "‘기분을 고르세요’ 가을의 맛 담은 신메뉴 출시",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9hT0tENmhUeXd2RFZKU1pRSFF4S1VqOGJrMGVnNDNSTno4OXl2aFhZSVUtMkZZLXRVeEpjM2FJek1DcGZ5YzhqTjlBQzhjRGZwdGdOZWdzR0U5UnM2X3hiZENSVG8taVVXTTNSNWNn?oc=5",
-    "published": "Thu, 16 Oct 2025 07:00:00 GMT",
-    "llm_used": true
-  },
-  {
-    "brand": "셀렉토커피",
-    "event_type": "기타",
-    "date": "2026-01-15",
-    "evidence_sentence": "셀렉토커피·바나타이거도 놀란 'MZ 마케터' 기획력… 한경닷컴 마케팅 잡 4기 성료",
-    "confidence": "상",
-    "source_url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFA2bE4yMElYWFZkdmRzREpHSXVTMjZTYXRUdkYwUHV3emxuLXc0N1VRd1IzVkZLMFNBN2xxamIxcVFuRnk0Y2M0MmxmeTY1a3Q2N3pqRU9jT1Uzdw?oc=5",
-    "published": "Thu, 15 Jan 2026 08:00:00 GMT",
-    "llm_used": true
+    "date": "2024-10-17",
+    "evidence_sentence": "밥풀릭스·육회야문연어, 길병원 응급실 의료진에 도시락 200개 기부 - 시선뉴스",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1pUktpV2wyU1A3VGYteEJOUmQ1TktMRHJKOEZsWjR6NVkwUTJ5RzdkeHRncTlNcGxUdnc1eHBQd2RLVHFTeG95N1NmblhCTEVGM201cVpVZUhSSUhWTU5UaWNOaWdWaU9qQmZMQVpn0gFyQVVfeXFMTlMzWVBhYXQ2OHgwQUFmVjIxVTRKa2ZJS3hZdDM3eFNDbENkdVNYSmtmbVFRd25hYzdTd0d3Z1VxZlVWUGJkbG95eGdjeU56am9tQkxtREdkUXp6M1JNR1p1TVI5bXpXdThQN1g4dWVOem5B?oc=5",
+    "published": "Thu, 17 Oct 2024 07:00:00 GMT",
+    "llm_used": false
   },
   {
     "brand": "대박삼겹김치찜&초대박등갈비김치찜",
     "event_type": "기타",
     "date": "2025-04-14",
-    "evidence_sentence": "소자본 배달 샵인샵창업 지원 프로모션 진행",
-    "confidence": "상",
+    "evidence_sentence": "대박삼겹김치찜, 소자본 배달 샵인샵창업 지원 프로모션 진행 - 경상일보",
+    "confidence": "하",
     "source_url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1mNlU5QlpXYm1VMDdPWlR2RjUxdG9mQjdFdFcxRWNiLVBwMmNRSVZiVDQ3TWFJejNtZ1JvWUxPNEE0Q0dwaXpDc0VEVWh5MEhtb1NUOVhBSDRxSTVlWHN0dWN6bmJ4YVJtYk9oSg?oc=5",
     "published": "Mon, 14 Apr 2025 07:00:00 GMT",
-    "llm_used": true
+    "llm_used": false
+  },
+  {
+    "brand": "인생냉면",
+    "event_type": "기타",
+    "date": "2025-09-18",
+    "evidence_sentence": "더보이즈 영훈, 인생 첫 중국냉면에 “저는 불호” 소신 발언(홈즈) - 뉴스엔",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1LUUZoVGJxVlFHNmJWYmtITUoyMFNFbGQzeDBxVl9xSERSVW5zbWJ5b2htYld6d2V6YnNscmFYNUk1M3d0d18wT0RFMGg0ZWZwenRSQ3dBZTNtRlBYRk03MFhVeFhDcDZ3?oc=5",
+    "published": "Thu, 18 Sep 2025 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "기대만족",
+    "event_type": "기타",
+    "date": "2026-07-03",
+    "evidence_sentence": "광명도시공사 아이도 부모도 만족하는 건강한 방학 기대 - 아주경제",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1yelpscTkyTHVHS3dYQlBSWURMVXZxOG1FZllELXJUUkIwUUtqY3o3RWN1U1BPMUVyLVBkNjRIRll5MHE5R040WnhoeWVLNzkxN3RXTlE4YlVUd9IBWEFVX3lxTE5CaXNlRWc1cHV0czNPcUpURzdRUG8tVTByd3NGNWZaTFFtb2ZJbE9nbWRieUtDMjYxRVFOZ3JQSlBraDQteDFkMmNMSkM1cHI4UzZ2QzNub3M?oc=5",
+    "published": "Fri, 03 Jul 2026 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "기대만족",
+    "event_type": "기타",
+    "date": "2026-07-13",
+    "evidence_sentence": "정준원, “기대 이상으로 만족시켜 드릴 작품이라 확신”....'유부녀 킬러' - 스타데일리뉴스",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE55REtBdldfUWZqcWlqN0pORWgxbTcyVTRpZVYwaENzRTNwaXhMTmtYLWNCaTNGUjhON3lrR09DMWlPeHNVOGpvUnhRY29DZGF3NEhDcEJ5azluUnB6cGQ2TWJiNFgwNHQ3cTJCVlU0ZFpSR29H0gF4QVVfeXFMT1BXT2hCbGlhWFhOUUx0dU5FMThVV1p0bEVKZFpQTkVqSG5yOHFGS1VYWGV2a2pGOVhHZU4wMmpETnhrLXVSb2lsakxDMnhzNXpmeVJ2TkhsaTg4Nmo2SnBra1FycmVTc1BCNHBta0YtUHVZR1FWSG1R?oc=5",
+    "published": "Mon, 13 Jul 2026 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "기대만족",
+    "event_type": "기타",
+    "date": "2024-09-02",
+    "evidence_sentence": "[고객만족대상] 이트너스, 고객의 기대를 뛰어넘는 혁신적인 ‘경영지원솔루션’ 제공 - 아웃소싱타임스",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5OQVVQTjZkeFJPMG1aT2dLMmFpRGNpMW9GTlZQUFhlYXFyVlUwNXVaV3gxZGpvT0FFZUIybm9qS1pYQ0hFcldGZVpqNmo0Zm9Yem40YmVCemlzaVVkanJ0UkJ2cU1Na3ZIa2Y4amVWcVk?oc=5",
+    "published": "Mon, 02 Sep 2024 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "달리는커피",
+    "event_type": "기타",
+    "date": "2026-04-22",
+    "evidence_sentence": "스타벅스가 타스만으로 만든 '스:벅차', 달리는 커피 트레일러 띄운다 - autodaily.co.kr",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9ka3pRSTNhel85SmVfaFVIdjAzWWxnbTdoSGRIN2dnMHNZR2JWektvWU81Ni1DSnRoOVY3eGZaNlJUc0pNcUZBMWZ3NEdQTnBYNWc3OTlFTjlTRERJa1M1U2Rsd2lBZXplQmxOMzVMQdIBc0FVX3lxTE13Rzl6MGtxX0taUFF2WWF6VVJWX1FWa2hrUnd6ZFVHQVlDSjk0T05xVFJxUUFrZUJ0YlctZnRpNE9kUnNkSThlZWpuNTc0RDJlQWpYU1pLTklSU3JLa0huRUV1SXdzTXc1UTh3bWhLTEFQTkE?oc=5",
+    "published": "Wed, 22 Apr 2026 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "달리는커피",
+    "event_type": "기타",
+    "date": "2025-11-10",
+    "evidence_sentence": "카페 찍고 달리기, 서울 커피 러닝 코스 5 - 디에디트",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiQkFVX3lxTE1BakRobndzdk1sbkQ2N1JOLTJJMzE5NVJiZ2VZbVJYQk0tY2NHX2FvMUFSRVFjZE1fSDMxVkFNWl9yQQ?oc=5",
+    "published": "Mon, 10 Nov 2025 08:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "달리는커피",
+    "event_type": "기타",
+    "date": "2024-11-07",
+    "evidence_sentence": "달리는커피, 2024 겨울 신메뉴 ’누텔라 시리즈’ 선봬 - thepowernews.co.kr",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE92bjN1ZHRwSDFXWmlSNVVYVm03ZHlWWkgxemxoS0ZoZC04VXdWQ0pjdmdmYlluZDZNRTR5VXJHeXJ1bzZ1ck50VDNGdnVCWXRLdnFuTXlab2UzY3U3NzNIT1R2cFVaeWUtdWJtU29DaTJIR0Mt?oc=5",
+    "published": "Thu, 07 Nov 2024 08:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "달리는커피",
+    "event_type": "기타",
+    "date": "2024-10-04",
+    "evidence_sentence": "달리는커피, 유튜브 ‘정사장X창업’ 촬영 진행 - 더쎈뉴스",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE15WUpROG16MDlLR292MzNDSkY1Yjg4Q2E4dGc4aTNYUnBXSWxmMTBsa29uMVd4cWFyLW02YVg0VGtsY0FnS0V1UlN5N0hpMHV5X243b3JrZ2lzazIyWHNuaHR5dmNHeDhh?oc=5",
+    "published": "Fri, 04 Oct 2024 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "달리는커피",
+    "event_type": "기타",
+    "date": "2025-02-20",
+    "evidence_sentence": "달리는커피, 포케 신메뉴 ‘라볼’ 런칭으로 카테고리 확장 - 더쎈뉴스",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5UTDBacW1fdlVzcHdNeS1xdm5QX3laUVI4VDRSeVFfYXZFMUhLWTRxT05TOGVGWHV2Q0RsT1k0QVFzSVBQYVk1WF9vd05ZZnhjNHloUUx6S2xEMjh5X3hHZ2dObDZIVTRH?oc=5",
+    "published": "Thu, 20 Feb 2025 08:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "달리는커피",
+    "event_type": "기타",
+    "date": "2024-08-27",
+    "evidence_sentence": "달리는커피, 유튜브 ‘푸드파이터준’ 촬영 - 더쎈뉴스",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5vQ1pSSm1Zc0NqOUVDWFlic1JCUVZ3cDdmV1ZKcWlIQk0xaG5LOEx5ZmNWMkF1b2RFVzRzUnB4OExSSHFYaHpObUVHLXBBTkNNT0dkMUpUNkYtVnlwTWxrSXkxY3pYMnZn?oc=5",
+    "published": "Tue, 27 Aug 2024 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "달리는커피",
+    "event_type": "기타",
+    "date": "2024-08-30",
+    "evidence_sentence": "달리는커피, 가을 시즌 신메뉴 6종 새롭게 선보여 - 더쎈뉴스",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1VSVNoTm9lZGVFNWNNRkhxM1hDRnRGMkxzLUNwM0FnQTJvMzZjWFZrOWpfZTJEdlpZRThINDNoMWNUNnU0bkh1YVFYMVl0YWxsWmxReExzN3ZVX29tN1lEMFk1ZTZ0TVlM?oc=5",
+    "published": "Fri, 30 Aug 2024 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "소림마라",
+    "event_type": "기타",
+    "date": "2026-04-17",
+    "evidence_sentence": "‘식중독균 검출’ 춘리마라탕·샹츠마라, 공식 사과…소림마라는 프로모션 이벤트 - 녹색경제신문",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE1PY21QV0JRY29jRFVxRU9BbGN0a3ZOZ0t0YVFhaFMzYmpiM1BrVnJHLTVCZ2pXSHdjR3F5cDh2b1JrRXFOLTlqSlkxdWU5UDN6NkJ5WjY2WEwzOUhXdkxhSC0xTQ?oc=5",
+    "published": "Fri, 17 Apr 2026 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "소림마라",
+    "event_type": "기타",
+    "date": "2026-04-17",
+    "evidence_sentence": "소림마라, 전용 소스 식약처 인증기관 정밀 검사 등 원료 투명성 및 안전성 확보 추진 - 전민일보",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE16VV95Y19kYWV0cVFyZU55THpqNXNSQTM5MFBJc244aFNVdXBtZVM0aVc3TExqdHVHeGExSllCWGJ4cHdNaUswLWlpdUJQb1NmNmN6S0xVSTMxR3BHNWJubTJ3Q0psdzJpaG9SbA?oc=5",
+    "published": "Fri, 17 Apr 2026 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "소림마라",
+    "event_type": "기타",
+    "date": "2026-04-13",
+    "evidence_sentence": "유명 마라탕서 식중독균 검출… ‘춘리·샹츠·소림마라’ 위생 비상 - v.daum.net",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5wbGZ0a2wzRnBwZlIyRWFIQS0xWjJjWFpZTG93SjhHNHhDU0dRUGNIR1puVWd0WlNWSWozck0weEg4X1ZyYXhiLTNPdXpIZ2M?oc=5",
+    "published": "Mon, 13 Apr 2026 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "소림마라",
+    "event_type": "기타",
+    "date": "2026-04-28",
+    "evidence_sentence": "소림마라, 전용 소스 검사 결과 '이상 없음'...매장 위생 관리 점검 - 한경매거진&북",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBwTndZdEZYQXFqTXNaeHIyT3hlOUVKUjJRVloyNnBMN2k2Z3dPN3NYNlFDcUlEMVlVcVI0dlBBSmMxT2t4d1VSUVJ0WmVGWjMxS3IxMUFQeTZQcDVkMjM5SHFWVTJxR3JF?oc=5",
+    "published": "Tue, 28 Apr 2026 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "소림마라",
+    "event_type": "기타",
+    "date": "2026-04-14",
+    "evidence_sentence": "춘리마라탕·샹츠마라·소림마라서 식중독균 검출 - 파이낸셜투데이",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBjenBKeHp1N1RqVE9ZSlRuTUpKTjVobHZnYnpNZGJMOWZqeDZfc3ZsS29vS1pHNFk5b00taFZYRWRJc2g0NllhOExPYkVKU3FuUU9WTFhxQ1JXYzFUYXEyTGNYUlFqeTM2ZXfSAW5BVV95cUxQdVhjbGI0b2dkalhIdUd2TnZVRU04bEtUSHNhMmNIV3JyU3BnU041V0tTV0RZLVpxZ1ptX3JxQi1hNVp2dEVJb1VuaVJFSnY5V2R2XzVMZUhPWEpfZUNDS29nS2xVUk1oUDdMZGJIZw?oc=5",
+    "published": "Tue, 14 Apr 2026 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "소림마라",
+    "event_type": "기타",
+    "date": "2026-04-13",
+    "evidence_sentence": "소비자원 “춘리마라탕 식중독균 검출…샹츠·소림마라 땅콩소스엔 대장균” [현장영상] - 채널A",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFBWMUFyUy1SYXJMQ0NIVng1Rl9oU1ZfZXpVRmVYLWJnQU5RMkdMYUYtUDFoUVBJSFdMZEplNUhCblN1QkF4X0prWmVEelB2QTRqenJhQVJ6T0NSeHlWTlHSAWNBVV95cUxNSE91bS1mamVONWw4S3V6ejhVVlhPeFM4MTZ0RFptZVFJTEZ3aTJtVXZZaWhNWWdPN1FWVnYzenBuQkFYdkc0ek1sMFNQSlk0S1puS01kcE4wTzREQ0pHM1AyZnc?oc=5",
+    "published": "Mon, 13 Apr 2026 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "소림마라",
+    "event_type": "기타",
+    "date": "2026-04-29",
+    "evidence_sentence": "소림마라, 전용 소스 전수조사 ‘이상 없음’…위생 관리 체계 강화 - e2news.com",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBnRVJTdGIzM3FaYVlQMmpiWnozQUl1YjVvdkpNdzZZYUx4QklTNmVwU0FYUXlGOTBBcl96MThzdGdvZ2diR2h5SDYxRUdiUElTTWVQdXQ4NUtyWWR3YkZsR1hyc3NtU0HSAWtBVV95cUxOcHdvMjllaGNkQU1pZmVIZU55NlJpb3ZTRjVGbUVCVHNROGtJT2thQkxJOXBTdDRYeDBhUXpkSXNSMmVpR0hYZVhUQ0JQX2RkVU00enJpeFgxeVRjeTIwZ0lScHh5RUF1ZzgySQ?oc=5",
+    "published": "Wed, 29 Apr 2026 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "소림마라",
+    "event_type": "기타",
+    "date": "2026-04-27",
+    "evidence_sentence": "소림마라 \" 전용소스 ‘식약처 인증기관 전수조사’ 이상 없음···전 매장 세스코 위생점검으로 안전 만전” - 이넷뉴스",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBONzFYMS1XTnJzbElSZ05FVS0wS0FGNTFqYlNNZ2lmOEU1dHc0M3F0TkhsdEVQZXJRSU1qLVNadGQ2Q3U2N2RETGxSTVlyeHFkWEYwSXBsVlM3UE1xaWhqams3d3VOcW83UXJJa9IBcEFVX3lxTE9kVkd2Vkd0OXVaY1VBQjBPZTdkX000WWh3a1BYRExRcXdLeTllVU9VN0ZsYTBLbEN0QWdOX05SX3Vva0VPOW85aFNSNjVtVmZFM2s2aWlqSlNMWHIzV3VVWE16NFdTa3plNS1tUHktS3A?oc=5",
+    "published": "Mon, 27 Apr 2026 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "감성커피",
+    "event_type": "기타",
+    "date": "2026-02-12",
+    "evidence_sentence": "감성커피, 자동커피머신 무상 지원 창업 혜택으로 창업자 부담 낮춰 - 머니투데이 - 머니투데이",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMibEFVX3lxTFB5OUdBNndEUnU2UmdHMGczYmNua3RMSXVraWk0alJ2Z0VpZlVkQnZNd2JPbzdnUVU5M3dYbTBKcGZBNnJXbHZHRTlTb21aNVpNT21UN1B4eGRMVDlKYVA0RmlSSXFvM09JSGUxedIBckFVX3lxTE9FZnFlVHp4UVFaR08tdVlsZDlZbHlCTVpLQ2R3UWc2ZmpIYUpENl82TzM5NFpMclVLWEVXRVlFb1plSU5MdFZCc1VaRnpGN3VCRkhLMTVtQkFMT254VDlHc0tIZHA2TlFlLWQwUTVPb0tkUQ?oc=5",
+    "published": "Thu, 12 Feb 2026 08:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "감성커피",
+    "event_type": "기타",
+    "date": "2026-02-11",
+    "evidence_sentence": "캐나다 감성 커피 '팀홀튼'… 베이커리·디저트 강화 - v.daum.net",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5vdFlaZHVrdjNuTXZzQ3ZKQUZmSF9WSUpxdnFKeDZWNUpFeVplNDYyeUlaYWNGcFF1Qlo3SXdVUTNYdGtJSUs0eFg0MzIwMHM?oc=5",
+    "published": "Wed, 11 Feb 2026 08:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "감성커피",
+    "event_type": "기타",
+    "date": "2025-08-19",
+    "evidence_sentence": "CJ제일제당 ‘크레잇’, 커피 전문 브랜드 ‘감성커피’와 콜라보 메뉴 출시 - CJ 뉴스룸",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMinAJBVV95cUxQb2NzRG9OWk95N3I4TXU1RDRuUzgwcW9MUVlicmFVR256aG4ySkVTZ2c3S2hsaFM0S3Bua3ZhN0pJMWx5SnpTQmpXVjJ3QWdFYTB0NVhyUS13S25GYnFCeVA2SzQ1MmFKS1BkTW94NnlGUC1qMEtRYnpWVm5UVG5LZHNOaEtIRS03ZmZVQUZTS2QybmNoWlNHVjROMmFxMVB5RmRnMmtzOWotMF93TUNUT0ctbU02dWVESURrNWQ1N3FSbDlPX29fdmhZNlBWX0JVN293TmdLMkNwb2stN3dJaXpDWmhMTVlVMHU1a3NHQUJQdjdHMWtQSXVYbWRydG9wYmNMajBESmJhWC16bHVhamh4VlpNRWUtTm9pWQ?oc=5",
+    "published": "Tue, 19 Aug 2025 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "감성커피",
+    "event_type": "기타",
+    "date": "2025-10-05",
+    "evidence_sentence": "'K감성 커피'… 한글 브랜드 활용 카페들 인기몰이 - koreadaily.com",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE0tRzl6MDNqUTRzc245N05ycXB4enRSNkdBNjBTckhZcWNXdzFQS0xFQ0luMGhmenllSjBSQWdyV29VVVhqVEQ2QUtLVGN0OU11MjFIN1M4OFBBY1JpT0o5anVn?oc=5",
+    "published": "Sun, 05 Oct 2025 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "감성커피",
+    "event_type": "기타",
+    "date": "2025-11-13",
+    "evidence_sentence": "감성커피, '겨울디저트모음전' 출시…신메뉴 '붕어빵 2종' 선봬 - 네이트",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE1oZ0dBUVNFN2Y4Wms1YlNpRFZaWkxGQmk3VGNRb05MUGl5Q1JPMXB6c0Y2VVRjN3JUOHVFSWJOZ28zNk1KdDEyYXVueWpmN2xLMHlr?oc=5",
+    "published": "Thu, 13 Nov 2025 08:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "감성커피",
+    "event_type": "기타",
+    "date": "2026-02-10",
+    "evidence_sentence": "감성커피, 청정목초지100% 산양유라떼 2종 출시 - 머니투데이 - 머니투데이",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE00eGZoTGNxZ3BfYXJaY21iS0lOYVhoMHRhenRBeWwwWVBSZlV2cnNYWTB1WnJuQ28zS1hLLUFUU1pUa1VxUFJvMEtidDNUTnNsVGN2Vk8xSm5lWk9PRDBVbXJtTFFWZkxUYTdKVNIBckFVX3lxTE1EdzRHbDRJd3ctVE80OGFzNy1UVzlNWXJtdE1vcXJ0eTE1U3A1ZFcya0tmdm9IRlJDZmtZcFFUQnJiLXNpa09FWklJaXpGZk1vbmF3Z1p1cHp0Zk9abHZ0blRoUWthc2JWLUtyajRzYmp2Zw?oc=5",
+    "published": "Tue, 10 Feb 2026 08:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "감성커피",
+    "event_type": "기타",
+    "date": "2025-08-19",
+    "evidence_sentence": "CJ제일제당 '크레잇' 커피 브랜드 '감성커피'와 협업, 순살치킨·김말이 출시 - 비즈니스포스트",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE8wemhUdzFHSDJFRVJmaXhVNHgxVzdKbi1PNmE1Z3hUMXBSQ0Jvc0FzeklhT01LVnp6MWNaVmYxVWpKSG5GekhSV0NxbFBycDExV2ozZUhxSUQyRWZuQ0EwR1VmNGJzNG91Y2ZRaGJJSVFpNEU?oc=5",
+    "published": "Tue, 19 Aug 2025 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "감성커피",
+    "event_type": "기타",
+    "date": "2025-12-30",
+    "evidence_sentence": "감성커피, 555호점 돌파 기념 파격 창업 혜택 공개 - 네이트",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTFBqX2tGVWcxMTI3d2Q5NlliODBqUmxIX01VbTBsTmFQWTFzNTZidUFaVUpsQ1JVSXNaVGsyRTNCOGJyME9XR2MxcWdZZlF1TnBzbm5j?oc=5",
+    "published": "Tue, 30 Dec 2025 08:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "아라치",
+    "event_type": "기타",
+    "date": "2026-04-10",
+    "evidence_sentence": "서울 | 루키백 레지던시 투어: 오로라 아라치 | Seoul | Lookey Baik Residency Tour: Aurora Arazzi - frieze.com",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOU2g1RGdyWGJrYXRwRy1waFJCUVEwQ2pjTXozSW1Bb09zWDFiZWVsMnBjdTdWb0VzVFp4Mk5VaGtlZng5R3YwVElaRDZFMUJJVHM1R1VJUU5ERXRHSnZkTEo4U2RyWjA4TlZjOWZUZGFIQUpiWDVSeFo5LWJjbEkzOEVFVEprT2t5OFFDaTFFZkpubmE5RU93WTdrU1hnWlhhODlPN2RLMnFhWDNvZTBGdW1rWVFhUkY2VHc?oc=5",
+    "published": "Fri, 10 Apr 2026 15:35:56 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "아라치",
+    "event_type": "기타",
+    "date": "2026-02-10",
+    "evidence_sentence": "행정 통합 : 거북이가 토끼를 이긴다 [유상조의 마루치아라치 인문학] - 서울경제",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE42OW8zdXFDUkJHdmFub2NEOXd6VlJjWHV1ZjMyWjVydmZBbDFTQW1HTnBTbEg2cEtiYkdZaHZBVnZCdWNBcTgyYUduMHFxVlA2V0HSAVNBVV95cUxPU3NCbEpLX2xlNkx3U3UwTldEVWpjQ3BCQWtBNWZoM29TQk9rcDhlcVlUVUo2dFF5cjA3V05BdkdTQm12QXhfak1jRUYzY1pnSGozVQ?oc=5",
+    "published": "Tue, 10 Feb 2026 08:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "아라치",
+    "event_type": "기타",
+    "date": "2026-07-27",
+    "evidence_sentence": "아라치 외무장관, 카스피해에서 우크라이나가 이란 선박을 공격하면 대응할 것이라고 경고 - VOI.id",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiRkFVX3lxTE1PMzRPZFJGTFMtOXRKVEZvOWltSU1NcFdBWFlERW53ZEs3aThoWkNjbG1IZGs4ZmJTbGpCX010eDY4S05iZVHSAUJBVV95cUxPeVhWcHdvM250d2xtY2wtTVVMMVVIeXNWMnF0UVI5a0RPU0NKN1luQUFfNXhJQUt6c0c3OHFKOTlDN0E?oc=5",
+    "published": "Mon, 27 Jul 2026 04:07:14 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "아라치",
+    "event_type": "기타",
+    "date": "2025-11-05",
+    "evidence_sentence": "아라치치킨, 신메뉴 '강정파튀' 출시…\"치킨과 파·고추·떡 튀김을 한번에\" - 파이낸셜뉴스",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBzdGhpdGFNNWVaY3k0OHB5ZC1saHZmWlg3ZnFrRmdCNGhEVDN1cGlSaDBHOUxaNUVxTGd3R1l3V0t0dG5UOE1GX2ROQ2RjYmpBaGJ0YlZyd19LZw?oc=5",
+    "published": "Wed, 05 Nov 2025 08:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "아라치",
+    "event_type": "기타",
+    "date": "2024-09-20",
+    "evidence_sentence": "아라치치킨, 5개점 우수 가맹점 표창 및 포상 실시…품질, 청결 등 다각도 평가 - 에너지경제신문",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE9NM0VleldPV296QWJ4OXhzZS1pdnpXZ21zTWtrbjFTRk15NjNwN1M3ei1QMTZod3hBM0lILXZSdnpfSVJ1cWNmb2Jwbm1vaGozRTFNZ05Kb09QNk0?oc=5",
+    "published": "Fri, 20 Sep 2024 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "아라치",
+    "event_type": "기타",
+    "date": "2026-06-24",
+    "evidence_sentence": "아라치 외무장관, 하마스 관리들과의 이란-미 회담 논의 - VOI.id",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiRkFVX3lxTE5xbFhKbEN5ZUFRV3ZWUDFGSEo2M3ZXYVFsYlc4NGYzWTFPd2ZGWE5KdVQ0VFoyZUlUWnYzUWZYdksyMmNqLXfSAUJBVV95cUxOcE1mVlBoa3JKYkEyeHhDZk5rSGZzd3EzSTctYVJ2S3BJaEQ0Q0JET3lIMnFNazNKbU1RVU16Rlo0eGc?oc=5",
+    "published": "Wed, 24 Jun 2026 09:40:16 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "아라치",
+    "event_type": "기타",
+    "date": "2024-09-13",
+    "evidence_sentence": "'아라치' 치킨 1호점 오픈 - 캐나다 한국일보",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFA0cUxVNks3cmF0LWRZMkY2a1RCb3N3dkxUUUhNYXozS3dyQm9WQUpjTjZONHprWXkyRHZmMDFzVVAzY3FOcV81YVFYRDVPZ25fT003OFFuR1U5Rm1uNDZndQ?oc=5",
+    "published": "Fri, 13 Sep 2024 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "아라치",
+    "event_type": "기타",
+    "date": "2024-11-21",
+    "evidence_sentence": "\"간장치킨과 떡볶이를 함께\" 아라치 치킨, 신제품 간치떡 출시 - 뉴시스",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE80emlNT3J6V3R5ZkJ6ZmJNNmE2VUt4VmVKeXRwM2ZvUnlWOV9mNFBOYU5tNjM2RG9PLXhhOEtxTlNLTXR5TlZLY0I5TVhIQnhBNUpKdXNrdzlIdFItbzBTQdIBeEFVX3lxTE45WGxPUXUxX3dZVDg2YVh4c0thMEZmU3FIMWNoUDJ4aDNvbnBwRnk1c3hZdFlJUU96NHBYdFktRzdhT19VUjY1SklDaWdBbTV4ZkstcWc2OUNFZ1Boc1lEYmlmZGhBTEJoT3JJdEZ4cDlxelFVbXhlQw?oc=5",
+    "published": "Thu, 21 Nov 2024 08:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "순살만공격",
+    "event_type": "기타",
+    "date": "2024-08-14",
+    "evidence_sentence": "순살만공격, 말복 기념 치킨 교환권 증정 이벤트 실시 - 테크월드",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1xMTNqeXJqNjlCaDFjT1Y2M29HSDJuVW5BTkhjZGlTcWFnUGNFQ2pwcGFCNV9lczdUU1ctTEc5d0xORS16UFRCbWp0WEd2bWVWaXFhM2lrWTlQbWllSi13dmVsNWdicjFa?oc=5",
+    "published": "Wed, 14 Aug 2024 07:00:00 GMT",
+    "llm_used": false
+  },
+  {
+    "brand": "순살만공격",
+    "event_type": "기타",
+    "date": "2024-08-28",
+    "evidence_sentence": "순살치킨 전문 브랜드 순살만공격, ‘청양 쉬림프 바베큐’ 신메뉴 출시 - thefairnews.co.kr",
+    "confidence": "하",
+    "source_url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE50czBrMldvU2RjQnBKZGZJS2ZXNzFyMk5FdGlTQlMtZ0pjWkt6TnJWYXpteEQyTnFaYzIzc1ZYM0hfRl9UaDhqakZGRmNXMS1vUE5MeUtkUmpnSU1pY3VzVktlNVRBNm96ZWk5UF81aVrSAXRBVV95cUxNSUZHQzVvOExQS2NhMkMwU3FxZTQ4TF9MOVl1VUhlVS1TYUxfc0pHaHN3dkk3WGREVmlxSTNQRDFnNmpkajBuamdWdDg0RXRBR2J1bk9GZW95NHVjbXBGQ1dGVENrNVpVSDcxcUxBbjc3aGZnbw?oc=5",
+    "published": "Wed, 28 Aug 2024 07:00:00 GMT",
+    "llm_used": false
   }
 ]
