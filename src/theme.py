@@ -119,6 +119,48 @@ html, body, [class*="st-"], button, input, textarea, select {{
     font-family: {FONT_STACK};
     -webkit-font-smoothing: antialiased;
 }}
+/* ⚠️ 위 규칙의 `[class*="st-"]` 는 Streamlit 의 **아이콘 span 까지** 잡는다
+   (클래스가 st-emotion-cache-… 라서). 그러면 Material Symbols 글리프가 폰트를
+   못 찾아 'keyboard_double_arrow_right' 라는 **글자 이름 그대로** 화면에 찍힌다.
+   실제로 사이드바 접기 버튼이 그렇게 보였다. 아이콘 요소만 되돌린다. */
+[data-testid="stIconMaterial"], .material-symbols-rounded, .material-symbols-outlined,
+.material-icons, span[class*="material-symbols"], span[class*="material-icons"] {{
+    font-family: 'Material Symbols Rounded', 'Material Symbols Outlined',
+                 'Material Icons' !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+}}
+
+/* ── 타이포 스케일 ───────────────────────────────────────────
+   Streamlit 기본값(본문 14px 상당)은 1440px 이상 화면에서 너무 작아 가독성이
+   떨어진다. 루트를 17px 로 올리고 전 요소를 rem 으로 잡아 한 곳에서 조절한다. */
+/* Streamlit 이 `[data-testid=stMarkdownContainer] p {{font-size:.9rem}}` 처럼 자체
+   규칙을 갖고 있어 같은 선택자로는 밀린다(실측: 1rem 지정 → 15.3px 렌더).
+   테마 계층이므로 !important 로 확정한다. */
+html {{ font-size: 17px; }}
+body, .stMarkdown p, .stMarkdown li,
+[data-testid="stMarkdownContainer"] p, [data-testid="stMarkdownContainer"] li {{
+    font-size: 1.06rem !important; line-height: 1.7; color: {TEXT};
+}}
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p,
+[data-testid="stCaptionContainer"] div, .stCaption, small {{
+    font-size: .92rem !important; line-height: 1.62; color: {TEXT_SUB} !important;
+}}
+label, [data-testid="stWidgetLabel"] p, [data-testid="stWidgetLabel"] label {{
+    font-size: .96rem !important; font-weight: 600; color: {TEXT};
+}}
+/* 표·선택지 안의 글씨도 함께 (기본값이 12~13px 로 작다) */
+[data-testid="stDataFrame"], [data-baseweb="select"], [role="option"],
+[data-testid="stTextInput"] input, [data-testid="stNumberInput"] input {{
+    font-size: .98rem !important;
+}}
 
 /* ── 페이지 셸 ───────────────────────────────────────────── */
 [data-testid="stAppViewContainer"] {{ background: {BG}; }}
@@ -129,7 +171,7 @@ html, body, [class*="st-"], button, input, textarea, select {{
     display: none !important;
 }}
 [data-testid="stMainBlockContainer"] {{
-    padding: 1.6rem 2.4rem 4rem 2.4rem; max-width: 1480px;
+    padding: 1.8rem 2.6rem 4rem 2.6rem; max-width: 1560px;
 }}
 #MainMenu, footer {{ visibility: hidden; }}
 
@@ -142,13 +184,13 @@ h1, h2, h3, h4,
 [data-testid="stHeading"] h1, [data-testid="stHeading"] h2, [data-testid="stHeading"] h3 {{
     color: {INK}; letter-spacing: -0.02em; font-weight: 700; padding: 0;
 }}
-h1, [data-testid="stMarkdownContainer"] h1, [data-testid="stHeading"] h1 {{ font-size: 1.72rem; }}
-h2, [data-testid="stMarkdownContainer"] h2, [data-testid="stHeading"] h2 {{ font-size: 1.26rem; }}
-h3, [data-testid="stMarkdownContainer"] h3, [data-testid="stHeading"] h3 {{ font-size: 1.05rem; }}
-h4, [data-testid="stMarkdownContainer"] h4 {{ font-size: .93rem; }}
+h1, [data-testid="stMarkdownContainer"] h1, [data-testid="stHeading"] h1 {{ font-size: 1.9rem; }}
+h2, [data-testid="stMarkdownContainer"] h2, [data-testid="stHeading"] h2 {{ font-size: 1.4rem; }}
+h3, [data-testid="stMarkdownContainer"] h3, [data-testid="stHeading"] h3 {{ font-size: 1.18rem; }}
+h4, [data-testid="stMarkdownContainer"] h4 {{ font-size: 1.04rem; }}
 h5, [data-testid="stMarkdownContainer"] h5 {{
-    font-size: .84rem; font-weight: 700; color: {TEXT_SUB};
-    letter-spacing: .02em; margin-bottom: .4rem;
+    font-size: .95rem; font-weight: 700; color: {TEXT_SUB};
+    letter-spacing: .01em; margin-bottom: .5rem;
 }}
 p, li, label, span, div {{ color: {TEXT}; }}
 a {{ color: {INFO}; text-decoration: none; }}
@@ -159,7 +201,7 @@ hr {{ border-color: {BORDER}; margin: 1.4rem 0; }}
 [data-testid="stSidebar"] {{
     background: {NAV_BG};
     border-right: 1px solid #241F1B;
-    width: 268px !important;
+    width: 286px !important;
 }}
 [data-testid="stSidebar"] * {{ color: {NAV_TEXT}; }}
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] {{ padding-top: 0.6rem; }}
@@ -171,13 +213,13 @@ hr {{ border-color: {BORDER}; margin: 1.4rem 0; }}
 /* 사이드바 라디오를 네비게이션 항목처럼 */
 [data-testid="stSidebar"] [role="radiogroup"] {{ gap: 2px; }}
 [data-testid="stSidebar"] [role="radiogroup"] > label {{
-    padding: 10px 12px; border-radius: 8px; margin: 0; cursor: pointer;
+    padding: 12px 14px; border-radius: 9px; margin: 0; cursor: pointer;
     transition: background .12s ease;
 }}
 [data-testid="stSidebar"] [role="radiogroup"] > label:hover {{ background: #423D37; }}
 [data-testid="stSidebar"] [role="radiogroup"] > label > div:first-child {{ display: none; }}
 [data-testid="stSidebar"] [role="radiogroup"] > label p {{
-    font-size: 0.94rem; font-weight: 500; color: {NAV_TEXT};
+    font-size: 1.02rem; font-weight: 500; color: {NAV_TEXT};
 }}
 [data-testid="stSidebar"] [role="radiogroup"] > label:has(input:checked) {{
     background: {NAV_ACTIVE_BG};
@@ -193,28 +235,28 @@ hr {{ border-color: {BORDER}; margin: 1.4rem 0; }}
     border-bottom: 1px solid #453F39;
 }}
 .kb-brand .mark {{
-    width: 34px; height: 34px; border-radius: 9px; background: {YELLOW};
+    width: 38px; height: 38px; border-radius: 10px; background: {YELLOW};
     display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 0.92rem; color: #26221E; letter-spacing: -0.04em;
-    flex: 0 0 34px;
+    font-weight: 800; font-size: 1rem; color: #26221E; letter-spacing: -0.04em;
+    flex: 0 0 38px;
 }}
 .kb-brand .txt {{ line-height: 1.25; }}
-.kb-brand .txt .t1 {{ font-size: 1.02rem; font-weight: 700; color: #FFFFFF; }}
-.kb-brand .txt .t2 {{ font-size: 0.72rem; color: #A79E93; }}
+.kb-brand .txt .t1 {{ font-size: 1.14rem; font-weight: 700; color: #FFFFFF; }}
+.kb-brand .txt .t2 {{ font-size: 0.82rem; color: #A79E93; }}
 .kb-navlabel {{
-    padding: 14px 12px 6px 12px; font-size: 0.7rem; font-weight: 700;
+    padding: 16px 14px 7px 14px; font-size: 0.78rem; font-weight: 700;
     letter-spacing: .08em; color: #8C8378;
 }}
 
 /* ── 페이지 헤더 ─────────────────────────────────────────── */
 .kb-page {{ margin-bottom: 1.1rem; }}
 .kb-page .eyebrow {{
-    display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .08em;
+    display: inline-block; font-size: .78rem; font-weight: 700; letter-spacing: .07em;
     color: {TEXT_SUB}; background: {SURFACE}; border: 1px solid {BORDER};
-    padding: 3px 9px; border-radius: 999px; margin-bottom: 9px;
+    padding: 4px 11px; border-radius: 999px; margin-bottom: 10px;
 }}
 .kb-page h1 {{ margin: 0 0 4px 0; }}
-.kb-page .sub {{ color: {TEXT_SUB}; font-size: .92rem; margin: 0; }}
+.kb-page .sub {{ color: {TEXT_SUB}; font-size: 1.02rem; margin: 0; line-height: 1.6; }}
 .kb-rule {{ height: 3px; width: 42px; background: {YELLOW}; border-radius: 2px; margin: 10px 0 0 0; }}
 
 /* ── 카드 / 컨테이너 ─────────────────────────────────────── */
@@ -233,21 +275,21 @@ div[data-testid="stVerticalBlockBorderWrapper"] {{
 /* ── 지표(metric) ────────────────────────────────────────── */
 [data-testid="stMetric"] {{
     background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 12px;
-    padding: 14px 16px; box-shadow: 0 1px 2px rgba(38,34,30,.04);
+    padding: 17px 19px; box-shadow: 0 1px 2px rgba(38,34,30,.04);
 }}
 [data-testid="stMetricLabel"] p {{
-    font-size: .78rem !important; color: {TEXT_SUB} !important; font-weight: 600;
+    font-size: .92rem !important; color: {TEXT_SUB} !important; font-weight: 600;
 }}
 [data-testid="stMetricValue"] {{
-    font-size: 1.6rem !important; font-weight: 700; color: {INK};
+    font-size: 2rem !important; font-weight: 700; color: {INK};
     letter-spacing: -0.02em;
 }}
-[data-testid="stMetricDelta"] {{ font-size: .78rem; }}
+[data-testid="stMetricDelta"] {{ font-size: .88rem; }}
 
 /* ── 배지 ────────────────────────────────────────────────── */
 .kb-chip {{
-    display: inline-flex; align-items: center; gap: 5px; font-size: .76rem;
-    font-weight: 700; padding: 3px 10px; border-radius: 999px; line-height: 1.5;
+    display: inline-flex; align-items: center; gap: 5px; font-size: .84rem;
+    font-weight: 700; padding: 4px 12px; border-radius: 999px; line-height: 1.5;
     border: 1px solid transparent; white-space: nowrap;
 }}
 .kb-chip.g-High   {{ background: {DANGER_SOFT}; color: {DANGER}; border-color: #F0CFCB; }}
@@ -258,20 +300,20 @@ div[data-testid="stVerticalBlockBorderWrapper"] {{
 
 /* ── 소견 항목 ───────────────────────────────────────────── */
 .kb-finding {{
-    display: flex; gap: 11px; padding: 11px 0;
+    display: flex; gap: 13px; padding: 14px 0;
     border-bottom: 1px dashed {BORDER};
 }}
 .kb-finding:last-child {{ border-bottom: none; }}
 .kb-finding .bar {{ width: 3px; border-radius: 2px; flex: 0 0 3px; }}
 .kb-finding .body {{ flex: 1; }}
-.kb-finding .head {{ font-weight: 700; font-size: .93rem; color: {INK}; margin-bottom: 2px; }}
-.kb-finding .desc {{ font-size: .87rem; color: {TEXT}; line-height: 1.55; }}
-.kb-finding .src  {{ font-size: .74rem; color: {TEXT_MUTED}; margin-top: 3px; }}
+.kb-finding .head {{ font-weight: 700; font-size: 1.04rem; color: {INK}; margin-bottom: 4px; }}
+.kb-finding .desc {{ font-size: .97rem; color: {TEXT}; line-height: 1.68; }}
+.kb-finding .src  {{ font-size: .82rem; color: {TEXT_MUTED}; margin-top: 5px; }}
 
 /* ── 버튼 ────────────────────────────────────────────────── */
 .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {{
     border-radius: 8px; border: 1px solid {BORDER_STRONG}; background: {SURFACE};
-    color: {TEXT}; font-weight: 600; font-size: .88rem; padding: .42rem 1rem;
+    color: {TEXT}; font-weight: 600; font-size: .95rem; padding: .5rem 1.15rem;
     transition: all .12s ease;
 }}
 .stButton > button:hover, .stDownloadButton > button:hover {{
@@ -296,7 +338,7 @@ div[data-testid="stVerticalBlockBorderWrapper"] {{
 /* ── 탭 ──────────────────────────────────────────────────── */
 [data-baseweb="tab-list"] {{ gap: 2px; border-bottom: 1px solid {BORDER}; }}
 [data-baseweb="tab"] {{
-    padding: 9px 16px; font-weight: 600; font-size: .9rem; color: {TEXT_SUB};
+    padding: 11px 19px; font-weight: 600; font-size: 1rem; color: {TEXT_SUB};
     border-radius: 8px 8px 0 0;
 }}
 [data-baseweb="tab"][aria-selected="true"] {{ color: {INK}; background: {SURFACE}; }}
@@ -313,7 +355,7 @@ div[data-testid="stVerticalBlockBorderWrapper"] {{
 [data-testid="stExpander"] {{
     border: 1px solid {BORDER}; border-radius: 10px; background: {SURFACE};
 }}
-[data-testid="stExpander"] summary {{ font-weight: 600; font-size: .9rem; color: {TEXT}; }}
+[data-testid="stExpander"] summary {{ font-weight: 600; font-size: 1rem; color: {TEXT}; }}
 
 /* ── 채팅 ────────────────────────────────────────────────── */
 [data-testid="stChatMessage"] {{

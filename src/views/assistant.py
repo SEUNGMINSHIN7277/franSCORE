@@ -91,11 +91,11 @@ def _evidence_block(evidence: list[dict], idx: int) -> None:
             url = str(e.get("url") or "")
             head = f"{chip} <b>{e.get('출처', '')}</b>"
             if e.get("발행"):
-                head += (f"<span style='color:{theme.TEXT_MUTED};font-size:.76rem'>"
+                head += (f"<span style='color:{theme.TEXT_MUTED};font-size:.88rem'>"
                          f" · {e['발행']}</span>")
             st.markdown(head, unsafe_allow_html=True)
             st.markdown(
-                f"<div style='font-size:.83rem;color:{theme.TEXT_SUB};line-height:1.55;"
+                f"<div style='font-size:.95rem;color:{theme.TEXT_SUB};line-height:1.55;"
                 f"margin:2px 0 10px 0'>{str(e.get('내용', ''))[:400]}…</div>",
                 unsafe_allow_html=True)
             if url and url.startswith("http"):

@@ -293,36 +293,126 @@ def news(query: str, cfg: dict | None = None, display: int = 20,
 
 _IMAGE_URL = "https://openapi.naver.com/v1/search/image"
 
+# 로고 후보 질의 — 앞에서부터 시도한다. '로고'만 붙이면 간판·인테리어 사진이
+# 섞이므로 CI/BI 같은 정확한 용어를 먼저 넣어 심볼이 걸릴 확률을 높인다.
+_LOGO_QUERIES = ("{q} 로고 CI", "{q} 브랜드 로고", "{q} 로고")
+# 로고로 보기 어려운 결과를 거른다 (메뉴판·매장 사진·인물)
+_LOGO_STOPWORDS = ("메뉴", "인테리어", "매장", "간판", "창업설명회", "채용", "알바")
+
+
+def _score_logo(item: dict) -> float:
+    """이미지 1건의 '로고다움' 점수. 클수록 좋다. 0 이하면 후보 제외.
+
+    정사각형에 가깝고, 너무 크지 않고, 제목에 로고/CI 가 있으면 가점.
+    """
+    try:
+        w, h = float(item.get("sizewidth", 0)), float(item.get("sizeheight", 0))
+    except (TypeError, ValueError):
+        return 0.0
+    if w <= 0 or h <= 0:
+        return 0.0
+    title = _clean(item.get("title", ""))
+    if any(s in title for s in _LOGO_STOPWORDS):
+        return 0.0
+    ratio = min(w, h) / max(w, h)
+    if ratio < 0.55:                            # 가로로 길쭉하면 배너·간판일 확률이 높다
+        return 0.0
+    score = ratio
+    if any(k in title for k in ("로고", "CI", "BI", "심볼", "logo")):
+        score += 0.45
+    if 80 <= max(w, h) <= 800:                  # 로고 이미지의 통상 크기대
+        score += 0.25
+    return score
+
 
 def brand_logo(brand_name: str, cfg: dict | None = None) -> str:
     """브랜드 로고 이미지 URL 1개. 못 찾으면 빈 문자열.
 
-    '로고' 를 붙여 검색하고 정사각형에 가까운 소형 이미지를 고른다 —
-    간판 사진이나 매장 내부 사진이 아니라 심볼이 걸리게 하기 위해서다.
+    ⚠️ 이미지 검색 결과는 제3자가 올린 것이라 브랜드 공식 자산이라는 보장이 없다.
+       그래서 화면에는 **표시용 썸네일**로만 쓰고, 실패하면 글자 마크로 내려앉는다.
+       로고를 못 구했다고 카드가 비어 보이는 일은 없어야 한다.
     """
     q = search_term(brand_name)
     if not q:
         return ""
-    try:
-        data = _request("GET", _IMAGE_URL, cfg, headers=_headers(cfg),
-                        params={"query": f"{q} 로고", "display": 10,
-                                "sort": "sim", "filter": "small"})
-    except NaverError:
-        return ""
-    best, best_score = "", -1.0
-    for it in data.get("items", []):
+    for tpl in _LOGO_QUERIES:
         try:
-            w, h = float(it.get("sizewidth", 0)), float(it.get("sizeheight", 0))
-        except (TypeError, ValueError):
+            data = _request("GET", _IMAGE_URL, cfg, headers=_headers(cfg),
+                            params={"query": tpl.format(q=q), "display": 20,
+                                    "sort": "sim", "filter": "all"})
+        except NaverError as exc:
+            if "재시도 무의미" in str(exc):      # 인증·권한 오류면 다음 질의도 실패한다
+                raise
+            return ""
+        best, best_score = "", 0.0
+        for it in data.get("items", []):
+            s = _score_logo(it)
+            if s > best_score:
+                best, best_score = str(it.get("thumbnail") or it.get("link") or ""), s
+        if best and best_score >= 0.9:          # 확신이 설 때만 채택
+            return best
+    return ""
+
+
+def collect_logos(cfg: dict | None = None, limit: int | None = None,
+                  sleep_sec: float = 0.1) -> dict:
+    """점수 코호트 브랜드의 로고를 한꺼번에 찾아 캐시에 저장한다.
+
+    화면에서 브랜드를 볼 때마다 API를 때리면 느리고 한도를 잡아먹는다.
+    미리 채워 두면 화면은 캐시만 읽는다. 이미 찾은 브랜드는 건너뛴다.
+    """
+    cfg = cfg or load_config()
+    dest = Path(cfg["_root"]) / "data/raw/naver/logos.json"
+    cache: dict = {}
+    if dest.exists():
+        try:
+            cache = json.loads(dest.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            cache = {}
+
+    if not is_enabled(cfg):
+        log.warning("네이버 자격증명이 없어 로고를 수집하지 않는다 — "
+                    "developers.naver.com 에서 발급 후 %s/%s 설정", ID_ENV, SECRET_ENV)
+        return {"enabled": False, "n_cached": len(cache)}
+
+    spath = Path(cfg["paths"]["outputs"]) / "scores_latest.csv"
+    if not spath.exists():
+        raise FileNotFoundError(f"{spath} 없음 — 먼저 `--step score` 실행")
+    scores = pd.read_csv(spath, encoding="utf-8-sig")
+    scores = scores.assign(
+        _n=pd.to_numeric(scores["n_stores"], errors="coerce").fillna(0))
+    todo = scores.sort_values("_n", ascending=False)
+    if limit:
+        todo = todo.head(int(limit))
+
+    found, missing = 0, 0
+    for _, r in todo.iterrows():
+        name = str(r["brand_name"])
+        if name in cache:
             continue
-        if w <= 0 or h <= 0:
-            continue
-        ratio = min(w, h) / max(w, h)          # 1에 가까울수록 정사각형
-        if ratio < 0.6:
-            continue
-        if ratio > best_score:
-            best, best_score = str(it.get("thumbnail") or it.get("link") or ""), ratio
-    return best
+        try:
+            url = brand_logo(name, cfg)
+        except NaverError as exc:
+            log.warning("로고 조회 중단 (%s): %s", name, exc)
+            break
+        cache[name] = url or ""
+        found += bool(url)
+        missing += (not url)
+        if (found + missing) % 50 == 0:
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(json.dumps(cache, ensure_ascii=False, indent=1),
+                            encoding="utf-8")
+            log.info("로고 수집 진행: 확보 %d · 미확보 %d", found, missing)
+        time.sleep(sleep_sec)
+
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8")
+    n_ok = sum(1 for v in cache.values() if v)
+    log.info("로고 수집 완료: 이번 실행 확보 %d · 미확보 %d · 누적 확보 %d/%d (%.0f%%) → %s",
+             found, missing, n_ok, len(cache),
+             100 * n_ok / max(len(cache), 1), dest.name)
+    return {"enabled": True, "n_found": found, "n_missing": missing,
+            "n_cached": len(cache), "n_with_logo": n_ok}
 
 
 # ---------------------------------------------------------------------------

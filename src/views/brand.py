@@ -99,17 +99,17 @@ def _landing(df: pd.DataFrame, meta: dict) -> None:
             st.markdown(
                 f"<div style='display:flex;gap:10px;align-items:center'>"
                 f"{C.brand_mark_html(str(r['brand_name']), 38)}"
-                f"<div style='min-width:0'><div style='font-weight:700;font-size:.94rem;"
+                f"<div style='min-width:0'><div style='font-weight:700;font-size:1.06rem;"
                 f"color:{theme.INK};overflow:hidden;text-overflow:ellipsis;"
                 f"white-space:nowrap'>{r['brand_name']}</div>"
-                f"<div style='font-size:.76rem;color:{theme.TEXT_SUB}'>"
+                f"<div style='font-size:.88rem;color:{theme.TEXT_SUB}'>"
                 f"가맹점 {int(r['n_stores']):,}개 · "
                 f"{theme.GRADE_KR.get(str(r['risk_grade']), '')}</div></div></div>",
                 unsafe_allow_html=True)
             d = dmap.get(str(r["brand_id"]))
             if d is not None:
                 st.markdown(
-                    f"<div style='font-size:.79rem;color:{theme.TEXT_SUB};margin-top:6px;"
+                    f"<div style='font-size:.9rem;color:{theme.TEXT_SUB};margin-top:6px;"
                     f"line-height:1.5;height:2.9em;overflow:hidden'>"
                     f"{str(d['headline_detail'])[:78]}…</div>", unsafe_allow_html=True)
 
@@ -149,24 +149,24 @@ def _brand_detail(r: pd.Series) -> None:
             st.markdown(
                 f"<div style='display:flex;gap:16px;align-items:center'>"
                 f"{C.brand_mark_html(name, 62)}"
-                f"<div><div style='font-size:1.5rem;font-weight:700;color:{theme.INK};"
+                f"<div><div style='font-size:1.75rem;font-weight:700;color:{theme.INK};"
                 f"line-height:1.25;letter-spacing:-.02em'>{name} "
                 f"{theme.grade_chip(grade)}</div>"
-                f"<div style='font-size:.86rem;color:{theme.TEXT_SUB};margin-top:3px'>"
+                f"<div style='font-size:.97rem;color:{theme.TEXT_SUB};margin-top:3px'>"
                 f"{r.get('industry_major', '-')} · {r.get('industry_mid', '-')} · "
                 f"가맹점 {int(r['n_stores']):,}개</div></div></div>",
                 unsafe_allow_html=True)
             st.markdown(
                 f"<div style='margin-top:14px;padding:11px 14px;border-radius:9px;"
                 f"background:{theme.GRADE_SOFT.get(grade, theme.YELLOW_SOFT)};"
-                f"font-size:.88rem;line-height:1.6'>"
+                f"font-size:.99rem;line-height:1.6'>"
                 f"{C.GRADE_ACTION.get(grade, '')}</div>", unsafe_allow_html=True)
         with h2:
             theme.plot(C.risk_gauge(float(r["pd_1y"])), key=f"g_{bid}")
             rank = r.get("pd_rank_pct")
             if pd.notna(rank):
                 st.markdown(
-                    f"<div style='text-align:center;font-size:.8rem;"
+                    f"<div style='text-align:center;font-size:.9rem;"
                     f"color:{theme.TEXT_SUB};margin-top:-14px'>1년 내 악화 가능성 · "
                     f"전체 중 상위 {(1 - float(rank)) * 100:.1f}%</div>",
                     unsafe_allow_html=True)

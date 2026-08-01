@@ -115,18 +115,18 @@ def _worklist(work: pd.DataFrame) -> None:
                 st.markdown(
                     f"<div style='display:flex;gap:11px;align-items:center'>"
                     f"{C.brand_mark_html(str(r['brand_name']), 40)}"
-                    f"<div><div style='font-weight:700;font-size:1.04rem;color:{theme.INK}'>"
+                    f"<div><div style='font-weight:700;font-size:1.14rem;color:{theme.INK}'>"
                     f"{r['brand_name']} {theme.grade_chip(str(r['risk_grade']))} "
                     f"{theme.chip(cur.get('status', '미착수'), STATUS_KIND[cur.get('status', '미착수')])}"
                     f"</div>"
-                    f"<div style='font-size:.79rem;color:{theme.TEXT_SUB}'>"
+                    f"<div style='font-size:.9rem;color:{theme.TEXT_SUB}'>"
                     f"{r.get('industry_mid', '-')} · 가맹점 {int(r['n_stores']):,}개 · "
                     f"1년 내 악화 가능성 {float(r['pd_1y']) * 100:.1f}%</div></div></div>",
                     unsafe_allow_html=True)
                 detail = str(r.get("headline_detail") or "")
                 if detail and detail != "nan":
                     st.markdown(
-                        f"<div style='font-size:.86rem;color:{theme.TEXT};margin-top:9px;"
+                        f"<div style='font-size:.97rem;color:{theme.TEXT};margin-top:9px;"
                         f"line-height:1.6'>{detail}</div>", unsafe_allow_html=True)
             with b:
                 owner = st.text_input("담당자", value=cur.get("owner", ""),

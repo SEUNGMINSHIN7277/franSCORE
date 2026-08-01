@@ -8,6 +8,7 @@ from __future__ import annotations
 import colorsys
 import hashlib
 import json
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -187,30 +188,56 @@ def logo_url(brand_name: str) -> str:
     return url or ""
 
 
-def _mark_colors(name: str) -> tuple[str, str]:
-    """브랜드명에서 결정적으로 색을 만든다 (같은 브랜드는 항상 같은 색)."""
+def _mark_colors(name: str) -> tuple[str, str, str]:
+    """브랜드명에서 결정적으로 색을 만든다 (같은 브랜드는 항상 같은 색).
+
+    같은 색조의 밝은 두 단계로 그라데이션을 만들고 글자는 진한 톤으로 둔다.
+    단색 사각형에 글자만 얹으면 '자리표시자'로 보이지만, 색조가 브랜드마다 다르고
+    질감이 있으면 목록에서 브랜드를 색으로 구분할 수 있다.
+    """
     h = int(hashlib.sha256(str(name).encode("utf-8")).hexdigest()[:8], 16)
     hue = (h % 360) / 360.0
-    r, g, b = colorsys.hls_to_rgb(hue, 0.86, 0.55)      # 배경: 밝고 부드럽게
-    r2, g2, b2 = colorsys.hls_to_rgb(hue, 0.30, 0.62)   # 글자: 어둡게 (대비 확보)
     to_hex = lambda t: "#" + "".join(f"{int(v * 255):02X}" for v in t)  # noqa: E731
-    return to_hex((r, g, b)), to_hex((r2, g2, b2))
+    return (to_hex(colorsys.hls_to_rgb(hue, 0.90, 0.62)),   # 배경 밝은 쪽
+            to_hex(colorsys.hls_to_rgb(hue, 0.80, 0.58)),   # 배경 어두운 쪽
+            to_hex(colorsys.hls_to_rgb(hue, 0.28, 0.66)))   # 글자
+
+
+def _mark_label(brand_name: str) -> str:
+    """마크에 넣을 글자 — 한글은 두 자, 영문은 이니셜."""
+    s = "".join(ch for ch in str(brand_name) if ch.strip())
+    if not s:
+        return "?"
+    kor = "".join(ch for ch in s if "가" <= ch <= "힣")
+    if len(kor) >= 2:
+        return kor[:2]
+    words = [w for w in re.split(r"[\s()（）\[\]]+", str(brand_name)) if w]
+    if len(words) >= 2 and all(w[0].isalpha() for w in words[:2]):
+        return (words[0][0] + words[1][0]).upper()
+    return s[:2].upper()
 
 
 def brand_mark_html(brand_name: str, size: int = 52) -> str:
-    """로고가 있으면 이미지, 없으면 브랜드명 앞 두 글자 마크."""
+    """로고가 있으면 이미지, 없으면 브랜드 색 마크.
+
+    로고 이미지는 `object-fit: contain` 으로 넣는다 — cover 로 채우면 정사각형이
+    아닌 로고의 좌우가 잘려 다른 브랜드처럼 보인다.
+    """
     url = logo_url(brand_name)
-    radius = int(size * 0.26)
+    radius = int(size * 0.24)
     if url:
-        return (f"<img src='{url}' alt='{brand_name}' "
+        return (f"<img src='{url}' alt='{brand_name}' loading='lazy' "
                 f"style='width:{size}px;height:{size}px;border-radius:{radius}px;"
-                f"object-fit:cover;border:1px solid {theme.BORDER};background:#fff'/>")
-    bg, fg = _mark_colors(brand_name)
-    label = "".join(ch for ch in str(brand_name) if ch.strip())[:2] or "?"
+                f"object-fit:contain;padding:{max(2, int(size * 0.08))}px;"
+                f"border:1px solid {theme.BORDER};background:#FFFFFF;"
+                f"flex:0 0 {size}px;box-sizing:border-box'/>")
+    c1, c2, fg = _mark_colors(brand_name)
     return (f"<div style='width:{size}px;height:{size}px;border-radius:{radius}px;"
-            f"background:{bg};color:{fg};display:flex;align-items:center;"
-            f"justify-content:center;font-weight:800;font-size:{int(size * 0.38)}px;"
-            f"letter-spacing:-0.03em;flex:0 0 {size}px'>{label}</div>")
+            f"background:linear-gradient(135deg,{c1} 0%,{c2} 100%);color:{fg};"
+            f"display:flex;align-items:center;justify-content:center;font-weight:800;"
+            f"font-size:{int(size * 0.36)}px;letter-spacing:-0.04em;"
+            f"flex:0 0 {size}px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)'>"
+            f"{_mark_label(brand_name)}</div>")
 
 
 # ---------------------------------------------------------------------------

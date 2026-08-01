@@ -68,22 +68,22 @@ def _watchlist(df: pd.DataFrame, diag: pd.DataFrame | None) -> None:
                 st.markdown(
                     f"<div style='display:flex;gap:12px;align-items:center'>"
                     f"{C.brand_mark_html(str(r['brand_name']), 46)}"
-                    f"<div><div style='font-size:1.12rem;font-weight:700;"
+                    f"<div><div style='font-size:1.26rem;font-weight:700;"
                     f"color:{theme.INK};line-height:1.3'>{r['brand_name']}</div>"
-                    f"<div style='font-size:.8rem;color:{theme.TEXT_SUB}'>"
+                    f"<div style='font-size:.9rem;color:{theme.TEXT_SUB}'>"
                     f"{r.get('industry_mid') or r.get('industry_major') or '-'} · "
                     f"가맹점 {int(r['n_stores']):,}개</div></div></div>",
                     unsafe_allow_html=True)
             with val:
                 st.markdown(
                     f"<div style='text-align:right'>"
-                    f"<div style='font-size:1.5rem;font-weight:700;color:{theme.DANGER}'>"
+                    f"<div style='font-size:1.75rem;font-weight:700;color:{theme.DANGER}'>"
                     f"{float(r['pd_1y']) * 100:.1f}%</div>"
-                    f"<div style='font-size:.74rem;color:{theme.TEXT_SUB}'>"
+                    f"<div style='font-size:.86rem;color:{theme.TEXT_SUB}'>"
                     f"1년 내 악화 가능성</div></div>", unsafe_allow_html=True)
             if d is not None:
                 st.markdown(
-                    f"<div style='font-size:.88rem;color:{theme.TEXT};margin-top:8px;"
+                    f"<div style='font-size:.99rem;color:{theme.TEXT};margin-top:8px;"
                     f"line-height:1.6'>{d['headline_detail']}</div>",
                     unsafe_allow_html=True)
                 if str(d.get("categories") or ""):
@@ -91,7 +91,7 @@ def _watchlist(df: pd.DataFrame, diag: pd.DataFrame | None) -> None:
                                     for c in str(d["categories"]).split("·") if c)
                     st.markdown(
                         f"<div style='margin-top:8px'>{cats}"
-                        f"<span style='font-size:.76rem;color:{theme.TEXT_MUTED};"
+                        f"<span style='font-size:.88rem;color:{theme.TEXT_MUTED};"
                         f"margin-left:8px'>소견 {int(d['n_risk'])}건</span></div>",
                         unsafe_allow_html=True)
             else:

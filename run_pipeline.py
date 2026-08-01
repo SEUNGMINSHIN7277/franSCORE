@@ -186,6 +186,7 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
             return
         from src import naver
         naver.collect_demand(cfg)
+        naver.collect_logos(cfg)          # 브랜드 로고도 같은 자격증명으로 함께 채운다
 
     elif step == "diagnose":
         # 브랜드 개별 진단 — 공시·본부재무·수요·보도를 규칙으로 훑어 소견을 만든다
