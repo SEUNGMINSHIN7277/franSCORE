@@ -332,20 +332,42 @@ def refresh_state() -> dict:
 
 
 def refresh_footer() -> None:
-    """화면 하단 갱신 표기 — 이 숫자가 언제 것인지 밝히지 않으면 신뢰할 수 없다."""
+    """화면 하단 갱신 표기.
+
+    이 숫자가 언제 것인지 밝히지 않으면 신뢰할 수 없다. 그리고 **무엇이 매일 바뀌고
+    무엇이 안 바뀌는지**를 함께 적는다 — 연 1회 공시로 정해지는 확률을 "실시간"이라
+    부르면 화면이 거짓말을 하는 것이 된다.
+    """
     st.write("")
     r = refresh_state()
-    when = r.get("finished_at") or "-"
-    bits = [f"마지막 갱신 **{when}**"]
+    bits = [f"마지막 갱신 **{r.get('finished_at') or '-'}**"]
     if r.get("news_added"):
         bits.append(f"신규 뉴스 {int(r['news_added']):,}건")
     if r.get("demand_updated"):
         bits.append(f"검색수요 {int(r['demand_updated']):,}개 브랜드")
     if r.get("rescored"):
-        bits.append(f"재산출 {int(r['rescored']):,}개 브랜드")
+        bits.append(f"진단 재산출 {int(r['rescored']):,}개 브랜드")
     if r.get("source") == "file_mtime":
         bits.append("자동 갱신 이력 없음 (산출물 파일 시각)")
-    st.caption(" · ".join(bits) + " · 갱신 주기 1일")
+    st.caption(" · ".join(bits))
+
+    with st.expander("갱신 주기와 자료 출처"):
+        yr = r.get("disclosure_year")
+        st.markdown(
+            "| 항목 | 주기 | 출처 |\n|---|---|---|\n"
+            "| 진단 소견 · 점검 우선순위 | **매일** | 뉴스 보도, 네이버 검색어트렌드 |\n"
+            f"| 브랜드 리스크 확률 | **연 1회** | 공정거래위원회 가맹사업 공시"
+            f"{f' ({yr}년 기준)' if yr else ''} |\n"
+            "| 가맹본부 재무 | 연 1회 | 금융감독원 전자공시(DART) 감사보고서 |\n")
+        st.caption(
+            "리스크 확률은 공시에서 나온 점포 수·계약종료·매출·본부재무로 계산합니다. "
+            "그 공시가 1년에 한 번 나오므로 확률도 그때 움직입니다. 매일 갱신되는 것은 "
+            "뉴스·검색수요에서 나오는 진단 소견과 그 소견으로 매기는 점검 순서입니다.")
+        st.caption(
+            "뉴스는 가맹점 100개 이상 브랜드를 대상으로 브랜드명에 "
+            "`가맹점`·`본사 분쟁`·`폐점`·`가맹 갈등` 을 붙여 최근 24개월 안에서 "
+            "브랜드당 최대 8건까지 모읍니다. 검색수요는 가맹점이 많은 브랜드부터 "
+            "차례로 넓혀 갑니다.")
 
 
 RISK_LABEL = "브랜드 리스크"

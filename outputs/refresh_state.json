@@ -1,0 +1,23 @@
+{
+  "started_at": "2026-08-01 20:13",
+  "finished_at": "2026-08-01 20:13",
+  "elapsed_sec": 4.0,
+  "news_total": 36,
+  "news_added": 0,
+  "demand_total": 300,
+  "demand_updated": 0,
+  "rescored": 1442,
+  "disclosure_year": 2024,
+  "daily_scope": "뉴스·검색수요 기반 진단 소견과 점검 우선순위",
+  "annual_scope": "공시 기반 리스크 확률(pd_1y) — 2024년 공시 기준, 새 공시 공표 시 재학습 필요",
+  "next_due": "2026-08-02 20:13",
+  "steps": [
+    {
+      "name": "diagnose",
+      "ok": true,
+      "detail": "1,442개 브랜드 진단 재산출",
+      "seconds": 4.0
+    }
+  ],
+  "source": "daily_refresh"
+}
