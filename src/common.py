@@ -24,6 +24,8 @@ SECRET_KEYS = (
     "GEMINI_API_KEY", "DART_API_KEY", "DATA_GO_KR_KEY", "IFRMP_SERVICE_KEY",
     "NAVER_CLIENT_ID", "NAVER_CLIENT_SECRET",   # 구 개발자센터 (검색만)
     "NCP_API_KEY_ID", "NCP_API_KEY",            # NAVER API HUB (검색 + 검색어트렌드)
+    # 예비 Gemini 키. 주 키가 무료 한도(429)에 걸리면 src/llm.py 가 순서대로 갈아탄다.
+    "GEMINI_API_KEY_2", "GEMINI_API_KEY_3", "GEMINI_API_KEY_4", "GEMINI_API_KEY_5",
 )
 
 

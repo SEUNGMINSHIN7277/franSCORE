@@ -26,8 +26,9 @@ from src import theme
 from src.common import load_config, set_seed
 
 MENU = {
-    "한눈에 보기": ("overview", "전체 현황과 우선 점검 대상"),
-    "브랜드 조회": ("brand", "브랜드별 위험도와 진단 소견"),
+    # '한눈에 보기'와 '브랜드 조회'는 같은 일의 두 단계여서 하나로 합쳤다 —
+    # 목록에서 고르고, 고른 것을 자세히 본다. 화면을 오가며 이름을 다시 칠 이유가 없다.
+    "FRANSCORE": ("franscore", "브랜드 리스크 현황과 상세 진단"),
     "점검 큐": ("queue", "담당자 배정과 확인 결과 기록"),
     "여신 포트폴리오": ("portfolio", "쏠림·예상손실 실시간 점검"),
     "AI 상담": ("assistant", "자연어 질의와 근거 인용"),
@@ -66,8 +67,8 @@ def main() -> None:
     view = _sidebar()
     module_name = MENU[view][0]
 
-    from src.views import assistant, brand, overview, portfolio, queue
-    modules = {"overview": overview, "brand": brand, "queue": queue,
+    from src.views import assistant, franscore, portfolio, queue
+    modules = {"franscore": franscore, "queue": queue,
                "portfolio": portfolio, "assistant": assistant}
     modules[module_name].render()
 

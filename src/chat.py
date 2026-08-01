@@ -580,7 +580,9 @@ def answer(cfg: dict, question: str, history: list[dict] | None = None) -> dict:
     system = build_system(intent, needs_facts)
 
     if not llm.is_enabled(cfg):
-        return {"text": _no_llm_notice(intent, sel, evidence, question),
+        # ⚠️ 여기에 intent 를 넘기던 버그가 있었다. reason 자리에 'greeting' 같은 값이
+        #    들어가면 사전 조회가 빗나가 원인과 무관한 기본 문구가 나간다.
+        return {"text": _no_llm_notice("no_key", sel, evidence, question),
                 "brands": brands, "facts": facts, "intent": intent,
                 "evidence": evidence, "llm_used": False, "reason": "no_key"}
 
@@ -614,7 +616,15 @@ def answer(cfg: dict, question: str, history: list[dict] | None = None) -> dict:
                 "industry": industry, "evidence": evidence,
                 "llm_used": True, "model": meta.get("model")}
     except llm.LLMError as exc:
-        reason = "rate_limit" if "429" in str(exc) else "error"
+        msg = str(exc)
+        if "형식에 맞지 않" in msg:
+            reason = "bad_key"          # 키가 있긴 한데 Gemini API 키가 아님
+        elif "429" in msg:
+            reason = "rate_limit"       # 등록된 키를 모두 시도했는데 전부 한도 초과
+        elif "401" in msg or "403" in msg:
+            reason = "auth"
+        else:
+            reason = "error"
         log.warning("상담 답변 생성 실패(%s): %s", reason, str(exc)[:200])
         return {"text": _no_llm_notice(reason, sel, evidence, question),
                 "brands": brands, "facts": facts, "intent": intent,
@@ -634,9 +644,16 @@ def _no_llm_notice(reason: str, facts: list[dict], evidence: list[dict],
         "no_key": ("답변 생성 모델이 설정되지 않았습니다. "
                    "`GEMINI_API_KEY` 를 등록하면 대화형 답변을 받을 수 있습니다. "
                    "아래는 수집된 사실입니다."),
-        "rate_limit": ("무료 사용 한도에 걸려 지금은 답변을 생성하지 못했습니다. "
+        "rate_limit": ("등록된 키가 모두 무료 사용 한도에 걸렸습니다. "
                        "**1~2분 뒤 다시 물어보시면 정상 동작합니다.** "
+                       "예비 키를 `GEMINI_API_KEY_2` 로 등록해 두면 자동으로 넘어갑니다. "
                        "아래는 수집된 사실입니다."),
+        "bad_key": ("등록된 키가 Gemini API 키 형식이 아닙니다. Gemini 키는 `AIza` 로 "
+                    "시작합니다 — `AQ.` 로 시작하는 값은 OAuth 액세스 토큰이라 쓸 수 "
+                    "없습니다. aistudio.google.com/apikey 에서 발급해 주십시오. "
+                    "아래는 수집된 사실입니다."),
+        "auth": ("등록된 키가 인증을 통과하지 못했습니다(만료·폐기·권한 없음). "
+                 "키를 다시 발급해 등록해 주십시오. 아래는 수집된 사실입니다."),
     }.get(reason, "답변 생성 중 문제가 발생했습니다. 아래는 수집된 사실입니다.")
     body = _fallback(facts, evidence, question)
     # _fallback 의 첫 줄은 예전 안내문이므로 걷어내고 정확한 안내로 바꾼다

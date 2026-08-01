@@ -10,6 +10,7 @@ import colorsys
 import hashlib
 import json
 import re
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -42,17 +43,17 @@ def _mtime(p: Path) -> float:
 
 
 @st.cache_data(show_spinner=False)
-def _csv(path: str, _m: float) -> pd.DataFrame:
+def _csv(path: str, m: float) -> pd.DataFrame:
     return pd.read_csv(path, encoding="utf-8-sig")
 
 
 @st.cache_data(show_spinner=False)
-def _parquet(path: str, _m: float, columns: tuple[str, ...] | None = None) -> pd.DataFrame:
+def _parquet(path: str, m: float, columns: tuple[str, ...] | None = None) -> pd.DataFrame:
     return pd.read_parquet(path, columns=list(columns) if columns else None)
 
 
 @st.cache_data(show_spinner=False)
-def _json(path: str, _m: float):
+def _json(path: str, m: float):
     return json.loads(Path(path).read_text(encoding="utf-8-sig"))
 
 
@@ -157,7 +158,7 @@ _LOGO_CACHE = "data/raw/naver/logos.json"
 
 
 @st.cache_data(show_spinner=False, max_entries=4096)
-def _logo_data_uri(brand_name: str, _mtime: float) -> str:
+def _logo_data_uri(brand_name: str, m: float) -> str:
     """브랜드 로고 파일 → data URI. 없으면 빈 문자열.
 
     파일 경로는 브랜드명 해시로 **계산**한다 — 색인 파일(logos.json)을 거치지 않는다.
@@ -315,23 +316,150 @@ def bar_chart(labels, values, colors=None, unit: str = "",
     return fig
 
 
+def refresh_state() -> dict:
+    """마지막 갱신 이력. 없으면 산출물 파일 시각으로 대체한다."""
+    p = out_dir() / "refresh_state.json"
+    if p.exists():
+        try:
+            return _json(str(p), _mtime(p)) or {}
+        except (OSError, ValueError):
+            pass
+    s = out_dir() / "scores_latest.csv"
+    if not s.exists():
+        return {}
+    return {"finished_at": datetime.fromtimestamp(_mtime(s)).strftime("%Y-%m-%d %H:%M"),
+            "source": "file_mtime"}
+
+
+def refresh_footer() -> None:
+    """화면 하단 갱신 표기 — 이 숫자가 언제 것인지 밝히지 않으면 신뢰할 수 없다."""
+    st.write("")
+    r = refresh_state()
+    when = r.get("finished_at") or "-"
+    bits = [f"마지막 갱신 **{when}**"]
+    if r.get("news_added"):
+        bits.append(f"신규 뉴스 {int(r['news_added']):,}건")
+    if r.get("demand_updated"):
+        bits.append(f"검색수요 {int(r['demand_updated']):,}개 브랜드")
+    if r.get("rescored"):
+        bits.append(f"재산출 {int(r['rescored']):,}개 브랜드")
+    if r.get("source") == "file_mtime":
+        bits.append("자동 갱신 이력 없음 (산출물 파일 시각)")
+    st.caption(" · ".join(bits) + " · 갱신 주기 1일")
+
+
+RISK_LABEL = "브랜드 리스크"
+_RISK_HELP = ("공시·본부재무·검색수요를 학습한 모델이 산출한, 이 브랜드가 향후 1년 안에 "
+              "구조적으로 꺾일 가능성입니다. 개별 가맹점의 연체 확률이 아닙니다.")
+
+
+@st.cache_data(show_spinner=False)
+def grade_bounds(m: float) -> dict:
+    """등급 컷을 **실제 확률 경계**로 환산한다.
+
+    등급 규칙 자체는 순위 백분위(상위 10% = 주의)다. 그런데 화면에서 "어느 구간이면
+    어떤 마크가 붙는가"를 물으면, 사용자가 기대하는 답은 순위가 아니라 **퍼센트 경계**다.
+    그래서 이번 산출물에서 그 경계가 실제로 몇 %인지 계산해 함께 보여준다.
+    (두 표기를 나란히 두어야 '상위 10%' 라는 상대 기준도 숨기지 않는다.)
+    """
+    df, _ = load_scores()
+    if df is None or df.empty:
+        return {}
+    g = (cfg().get("portfolio") or {}).get("risk_grades") or {}
+    hi, mid = float(g.get("high", 0.90)), float(g.get("medium", 0.70))
+    p = pd.to_numeric(df["pd_1y"], errors="coerce").dropna()
+    return {
+        "high_pct": hi, "medium_pct": mid,
+        "high_cut": float(p.quantile(hi)) * 100,
+        "medium_cut": float(p.quantile(mid)) * 100,
+        "min": float(p.min()) * 100, "max": float(p.max()) * 100,
+        "counts": {k: int(v) for k, v in df["risk_grade"].value_counts().items()},
+    }
+
+
+def signal_html(grade: str, pd_1y: float | None = None, *, size: int = 13,
+                show_value: bool = True) -> str:
+    """신호등 — 위험도를 '빨간 숫자'가 아니라 **켜진 등**으로 보여준다.
+
+    빨간 글씨의 확률은 두 가지를 한꺼번에 요구한다: 숫자를 읽고, 그 숫자가 높은지
+    낮은지를 스스로 판단하기. 신호등은 판단을 이미 끝낸 상태로 전달한다.
+    숫자는 남기되(근거를 감추지 않는다) 보조 정보로 내린다.
+    """
+    order = ("High", "Medium", "Low")
+    on = str(grade) if str(grade) in order else "Low"
+    dots = "".join(
+        f"<span style='width:{size}px;height:{size}px;border-radius:50%;"
+        f"background:{theme.GRADE_COLOR[g] if g == on else '#D8D3CC'};"
+        f"box-shadow:{f'0 0 0 3px {theme.GRADE_SOFT[g]}' if g == on else 'none'};"
+        f"display:inline-block'></span>" for g in order)
+    label = (f"<div style='font-size:.92rem;font-weight:700;color:{theme.GRADE_COLOR[on]};"
+             f"margin-top:6px;letter-spacing:-.01em'>{theme.GRADE_KR[on]}</div>")
+    val = ""
+    if show_value and pd_1y is not None and pd.notna(pd_1y):
+        val = (f"<div style='font-size:.82rem;color:{theme.TEXT_MUTED};margin-top:1px'>"
+               f"{RISK_LABEL} {float(pd_1y) * 100:.1f}%</div>")
+    return (f"<div style='display:inline-flex;flex-direction:column;align-items:center'>"
+            f"<div style='display:flex;gap:7px;align-items:center;padding:7px 10px;"
+            f"border-radius:999px;background:{theme.SURFACE};"
+            f"border:1px solid {theme.BORDER}'>{dots}</div>{label}{val}</div>")
+
+
+def grade_legend_html(bounds: dict) -> str:
+    """등급 구간표 — 어떤 구간에 들어가면 어떤 마크가 붙는지."""
+    if not bounds:
+        return ""
+    rows = [
+        ("High", f"{bounds['high_cut']:.1f}% 이상",
+         f"상위 {(1 - bounds['high_pct']) * 100:.0f}%", "즉시 점검"),
+        ("Medium", f"{bounds['medium_cut']:.1f}% ~ {bounds['high_cut']:.1f}%",
+         f"상위 {(1 - bounds['medium_pct']) * 100:.0f}%", "추이 관찰"),
+        ("Low", f"{bounds['medium_cut']:.1f}% 미만",
+         f"하위 {bounds['medium_pct'] * 100:.0f}%", "정기 점검"),
+    ]
+    cnt = bounds.get("counts", {})
+    cells = "".join(
+        f"<div style='display:flex;align-items:center;gap:10px;padding:9px 2px;"
+        f"border-bottom:1px solid {theme.BORDER}'>"
+        f"<span style='width:11px;height:11px;border-radius:50%;flex:0 0 auto;"
+        f"background:{theme.GRADE_COLOR[g]};box-shadow:0 0 0 3px {theme.GRADE_SOFT[g]}'></span>"
+        f"<span style='font-weight:700;color:{theme.INK};min-width:32px'>{theme.GRADE_KR[g]}</span>"
+        f"<span style='color:{theme.TEXT};font-variant-numeric:tabular-nums'>{rng}</span>"
+        f"<span style='color:{theme.TEXT_MUTED};font-size:.88rem'>({rank})</span>"
+        f"<span style='margin-left:auto;color:{theme.TEXT_SUB};font-size:.9rem'>"
+        f"{cnt.get(g, 0):,}개 · {act}</span></div>"
+        for g, rng, rank, act in rows)
+    return (f"<div style='font-size:.97rem;line-height:1.5'>{cells}"
+            f"<div style='color:{theme.TEXT_MUTED};font-size:.86rem;margin-top:9px'>"
+            f"등급은 <b>순위 기준</b>으로 나눕니다 — 매 산출 시점의 상위 10%가 주의, "
+            f"상위 30%까지가 관찰입니다. 위 퍼센트는 이번 산출에서 그 순위 경계가 "
+            f"실제로 몇 %였는지를 환산한 값입니다.</div></div>")
+
+
 def risk_gauge(pd_1y: float, rank_pct: float | None = None) -> go.Figure:
-    """악화 가능성 게이지 — 숫자 하나를 크게, 위치를 색으로."""
+    """브랜드 리스크 게이지 — 0~100% 전 구간을 등급 색으로 나눠 보여준다.
+
+    축을 0~50 으로 자르면 '절반이 찼다'는 인상이 실제 위험보다 과장된다.
+    확률은 0~100% 가 정의역이므로 축도 그대로 0~100 을 쓴다.
+    """
     v = float(pd_1y) * 100
-    color = (theme.DANGER if v >= 25 else theme.WARN if v >= 10 else theme.SAFE)
+    b = grade_bounds(_mtime(out_dir() / "scores_latest.csv"))
+    hi = b.get("high_cut", 25.0)
+    mid = b.get("medium_cut", 10.0)
+    color = (theme.DANGER if v >= hi else theme.WARN if v >= mid else theme.SAFE)
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=v,
         number={"suffix": "%", "font": {"size": 34, "color": theme.INK}},
         gauge={
-            "axis": {"range": [0, 50], "tickwidth": 0,
+            "axis": {"range": [0, 100], "tickwidth": 0, "dtick": 25,
+                     "ticksuffix": "%",
                      "tickfont": {"size": 10, "color": theme.TEXT_MUTED}},
             "bar": {"color": color, "thickness": 0.7},
             "bgcolor": "#F0EEEA",
             "borderwidth": 0,
-            "steps": [{"range": [0, 10], "color": "#FAFAF8"},
-                      {"range": [10, 25], "color": "#F6F4F0"},
-                      {"range": [25, 50], "color": "#F1EEE9"}],
+            "steps": [{"range": [0, mid], "color": theme.SAFE_SOFT},
+                      {"range": [mid, hi], "color": theme.WARN_SOFT},
+                      {"range": [hi, 100], "color": theme.DANGER_SOFT}],
         }))
     fig.update_layout(height=170, margin={"l": 12, "r": 12, "t": 8, "b": 4})
     del rank_pct

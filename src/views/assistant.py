@@ -48,8 +48,10 @@ def render() -> None:
             # 일이 전혀 다르다 — 전자는 키 등록, 후자는 잠시 기다리기다.
             if turn["role"] == "assistant" and not turn.get("llm_used", True):
                 st.caption({
-                    "rate_limit": "무료 사용 한도에 걸렸습니다. 1~2분 뒤 다시 물어보세요.",
+                    "rate_limit": "등록된 키가 모두 무료 한도에 걸렸습니다. 1~2분 뒤 다시 물어보세요.",
                     "no_key": "답변 생성 모델이 설정되지 않아 수집된 사실만 정리했습니다.",
+                    "bad_key": "등록된 키가 Gemini API 키 형식(AIza…)이 아닙니다.",
+                    "auth": "등록된 키가 인증을 통과하지 못했습니다.",
                 }.get(turn.get("reason", ""), "답변 생성에 실패해 수집된 사실만 정리했습니다."))
 
     # ⚠️ 답을 만든 뒤에 질문까지 한꺼번에 그리면, 사용자가 엔터를 친 뒤 수십 초 동안

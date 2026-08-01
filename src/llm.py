@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 
 import requests
@@ -35,6 +36,13 @@ import requests
 from src.common import get_logger
 
 log = get_logger("llm")
+
+# 주 키 외에 받아들일 예비 키 개수 (GEMINI_API_KEY_2 … _5).
+MAX_BACKUP_KEYS = 4
+# Generative Language API 키 형식. 'AQ.' 로 시작하는 OAuth 토큰과 구분하기 위한 것.
+_KEY_RE = re.compile(r"^AIza[0-9A-Za-z_\-]{30,45}$")
+# 이 키로는 더 못 쓴다 — 다음 키로 넘어가야 하는 HTTP 상태(한도 초과·인증·권한).
+_SWITCH_KEY_STATUS = {401, 403, 429}
 
 # 안전정책상 차단된 응답 — 같은 입력으로 재시도해도 동일하므로 즉시 폴백시킨다.
 _BLOCKED_FINISH = {
@@ -91,14 +99,71 @@ def api_key_env(cfg: dict) -> str:
     return str(cfg.get("llm", {}).get("api_key_env", "GEMINI_API_KEY"))
 
 
+def api_key_envs(cfg: dict) -> list[str]:
+    """주 키 + 예비 키 환경변수 이름 (GEMINI_API_KEY, _2 … _5)."""
+    base = api_key_env(cfg)
+    return [base] + [f"{base}_{i}" for i in range(2, MAX_BACKUP_KEYS + 2)]
+
+
+def _well_formed(key: str) -> bool:
+    """Generative Language API 키 형식인가.
+
+    실측 근거: `AQ.` 로 시작하는 값(OAuth 액세스 토큰)을 이 API에 보내면 토큰 소비가
+    없는 모델 목록 조회에서조차 401 `ACCESS_TOKEN_TYPE_UNSUPPORTED` 가 돌아온다.
+    콘솔에 'API 키'로 표시돼 있어도 형식이 다르면 쓸 수 없으므로, 형식으로 미리
+    가려 **정상 키를 먼저 시도**한다(형식 미상 키도 버리지 않고 뒤로 돌린다 —
+    구글이 형식을 바꿀 가능성까지 우리가 단정할 수는 없다).
+    """
+    return bool(_KEY_RE.match(key))
+
+
+def key_inventory(cfg: dict) -> list[dict]:
+    """등록된 키 목록. 형식이 맞는 것을 앞에, 미상인 것을 뒤에 둔다.
+
+    각 항목: {env, key, well_formed, length, prefix}. `key` 외에는 로그·화면에
+    그대로 써도 안전한 정보만 담는다(값 자체는 절대 노출하지 않는다).
+    """
+    seen: set[str] = set()
+    items: list[dict] = []
+    for env in api_key_envs(cfg):
+        for part in os.environ.get(env, "").replace(";", ",").split(","):
+            k = part.strip()
+            if not k or k in seen:
+                continue
+            seen.add(k)
+            items.append({"env": env, "key": k, "well_formed": _well_formed(k),
+                          "length": len(k), "prefix": k[:4]})
+    items.sort(key=lambda d: not d["well_formed"])          # 형식 정상 우선
+    return items
+
+
+def api_keys(cfg: dict) -> list[str]:
+    """실제로 시도할 키 값들 (형식 정상 → 형식 미상 순)."""
+    return [d["key"] for d in key_inventory(cfg)]
+
+
 def api_key(cfg: dict) -> str:
-    """환경변수에서 API 키를 읽는다 (없으면 빈 문자열)."""
-    return os.environ.get(api_key_env(cfg), "").strip()
+    """첫 번째로 시도할 키 (없으면 빈 문자열)."""
+    keys = api_keys(cfg)
+    return keys[0] if keys else ""
 
 
 def is_enabled(cfg: dict) -> bool:
     """LLM 경로를 쓸 수 있는지 — 키 존재 여부만 본다(호출 가능 여부는 호출 시 판정)."""
-    return bool(api_key(cfg))
+    return bool(api_keys(cfg))
+
+
+def key_health(cfg: dict) -> dict:
+    """화면·로그용 키 상태 요약. 키 값은 담지 않는다."""
+    inv = key_inventory(cfg)
+    ok = [d for d in inv if d["well_formed"]]
+    bad = [d for d in inv if not d["well_formed"]]
+    return {
+        "n_total": len(inv), "n_valid": len(ok),
+        "envs_valid": [d["env"] for d in ok],
+        "malformed": [{"env": d["env"], "length": d["length"], "prefix": d["prefix"]}
+                      for d in bad],
+    }
 
 
 def model_name(cfg: dict) -> str:
@@ -181,8 +246,8 @@ def generate(cfg: dict, *, system: str, user: str,
         LLMError:   키 미설정, HTTP 오류, 응답 비어있음, 토큰 초과 절단 등.
     """
     lcfg = cfg["llm"]
-    key = api_key(cfg)
-    if not key:
+    inv = key_inventory(cfg)
+    if not inv:
         raise LLMError(f"환경변수 {api_key_env(cfg)} 미설정")
 
     model = model_name(cfg)
@@ -204,11 +269,70 @@ def generate(cfg: dict, *, system: str, user: str,
         "generationConfig": gen_cfg,
         "safetySettings": _SAFETY_SETTINGS,
     }
-    headers = {"Content-Type": "application/json", "X-goog-api-key": key}
     timeout = float(lcfg.get("timeout_sec", 90))
     max_retries = max(1, int(lcfg.get("max_retries", 4)))
     backoff = float(lcfg.get("retry_backoff_sec", 2.0))
 
+    # 여러 키를 순서대로 시도한다. 한도 초과(429)·인증 실패(401/403)는 **그 키의 문제**이지
+    # 요청의 문제가 아니므로, 남은 예비 키가 있으면 백오프 없이 즉시 갈아탄다.
+    # 등록된 키가 하나도 형식에 맞지 않으면, 인증 실패의 원인이 사실상 확정된다.
+    # 그때는 "HTTP 401" 같은 원문 대신 무엇을 고쳐야 하는지를 알려줘야 한다.
+    all_malformed = not any(d["well_formed"] for d in inv)
+
+    last_err: Exception | None = None
+    for ki, item in enumerate(inv, 1):
+        key, more = item["key"], ki < len(inv)
+        try:
+            return _generate_one_key(
+                url=url, key=key, body=body, timeout=timeout, model=model,
+                max_retries=max_retries, backoff=backoff,
+                budget=int(gen_cfg["maxOutputTokens"]), can_switch=more)
+        except _SwitchKey as exc:
+            last_err = exc
+            log.warning("키 %d/%d (%s) 사용 불가: %s → %s", ki, len(inv), item["env"],
+                        str(exc)[:160], "예비 키로 전환" if more else "남은 키 없음")
+        except LLMFatal as exc:
+            if all_malformed and _is_auth_failure(exc):
+                raise _malformed_key_error(cfg) from exc
+            raise                       # 그 밖의 치명 오류는 요청 자체의 문제 — 키를 바꿔도 같다
+        except LLMError as exc:
+            last_err = exc
+            if not more:
+                break
+            log.warning("키 %d/%d (%s) 호출 실패 → 예비 키로 전환: %s",
+                        ki, len(inv), item["env"], str(exc)[:160])
+
+    if all_malformed and (last_err is None or _is_auth_failure(last_err)):
+        raise _malformed_key_error(cfg) from last_err
+    raise LLMError(
+        f"LLM 호출 최종 실패 (model={model}, 키 {len(inv)}개 모두 시도): "
+        f"{_mask(str(last_err)[:300], inv[0]['key'])}") from last_err
+
+
+def _is_auth_failure(exc: BaseException) -> bool:
+    return any(code in str(exc) for code in ("401", "403"))
+
+
+def _malformed_key_error(cfg: dict) -> LLMFatal:
+    """형식이 잘못된 키만 등록됐을 때의 안내. 키 값은 담지 않는다."""
+    bad = ", ".join(f"{m['env']}(길이 {m['length']}, 접두 {m['prefix']}…)"
+                    for m in key_health(cfg)["malformed"])
+    return LLMFatal(
+        f"등록된 Gemini 키가 모두 형식에 맞지 않습니다 — {bad}. "
+        f"Gemini API 키는 'AIza' 로 시작합니다. 'AQ.' 로 시작하는 값은 OAuth "
+        f"액세스 토큰이라 이 API에 쓸 수 없습니다. "
+        f"aistudio.google.com/apikey 에서 발급해 주십시오.")
+
+
+class _SwitchKey(LLMError):
+    """이 키로는 더 진행할 수 없음 (한도 초과·인증 실패) — 예비 키로 전환한다."""
+
+
+def _generate_one_key(*, url: str, key: str, body: dict, timeout: float, model: str,
+                      max_retries: int, backoff: float, budget: int,
+                      can_switch: bool) -> tuple[str, dict]:
+    """키 하나로 재시도 루프까지 수행. 성공하면 (텍스트, 메타)."""
+    headers = {"Content-Type": "application/json", "X-goog-api-key": key}
     last_err: Exception | None = None
     for attempt in range(1, max_retries + 1):
         try:
@@ -216,6 +340,8 @@ def generate(cfg: dict, *, system: str, user: str,
             status = int(getattr(resp, "status_code", 0))
             if status != 200:
                 text = _mask(str(getattr(resp, "text", ""))[:500], key)
+                if status in _SWITCH_KEY_STATUS and can_switch:
+                    raise _SwitchKey(f"HTTP {status}: {text}")
                 if status in _RETRY_STATUS:
                     raise LLMError(f"HTTP {status} (일시적): {text}")
                 # 400/403 등 설정·권한 오류는 재시도해도 같다 — 즉시 실패시켜 원인을 드러낸다.
@@ -239,7 +365,7 @@ def generate(cfg: dict, *, system: str, user: str,
                 # 잘린 응답은 JSON이든 메모든 신뢰할 수 없다 → 폴백이 정직하다.
                 # 같은 입력·같은 예산이면 다시 잘리므로 재시도하지 않는다(LLMFatal).
                 raise LLMFatal(
-                    f"토큰 한도 초과로 응답 절단(maxOutputTokens={gen_cfg['maxOutputTokens']}, "
+                    f"토큰 한도 초과로 응답 절단(maxOutputTokens={budget}, "
                     f"수신 {len(text)}자). config llm.max_tokens 를 올리거나 입력을 줄이세요."
                 )
             if not text.strip():
@@ -259,8 +385,10 @@ def generate(cfg: dict, *, system: str, user: str,
             )
             return text, meta
 
-        except LLMFatal:
-            raise  # 재시도 무의미(차단·설정오류·절단) — 그대로 올려 호출자가 폴백하게 한다
+        except (LLMFatal, _SwitchKey):
+            # LLMFatal: 재시도 무의미(차단·설정오류·절단) — 호출자가 폴백한다.
+            # _SwitchKey: 이 키의 한도·인증 문제 — 백오프 없이 즉시 다음 키로 넘긴다.
+            raise
         except Exception as exc:
             last_err = exc
             if attempt >= max_retries:
