@@ -43,8 +43,13 @@ def render() -> None:
             st.markdown(turn["content"])
             if turn.get("evidence"):
                 _evidence_block(turn["evidence"], turn.get("idx", 0))
+            # 실패 원인을 정확히 알린다. 키 미설정과 무료 한도 초과는 사용자가 할
+            # 일이 전혀 다르다 — 전자는 키 등록, 후자는 잠시 기다리기다.
             if turn["role"] == "assistant" and not turn.get("llm_used", True):
-                st.caption("답변 생성 모델이 연결되지 않아 수집된 사실만 정리했습니다.")
+                st.caption({
+                    "rate_limit": "무료 사용 한도에 걸렸습니다. 1~2분 뒤 다시 물어보세요.",
+                    "no_key": "답변 생성 모델이 설정되지 않아 수집된 사실만 정리했습니다.",
+                }.get(turn.get("reason", ""), "답변 생성에 실패해 수집된 사실만 정리했습니다."))
 
     q = st.chat_input("무엇이든 물어보십시오")
     if q:
@@ -77,6 +82,8 @@ def _ask(question: str) -> None:
     history.append({"role": "assistant", "content": res["text"],
                     "evidence": res.get("evidence") or [],
                     "llm_used": bool(res.get("llm_used")),
+                    "reason": res.get("reason", ""),
+                    "intent": res.get("intent", ""),
                     "idx": len(history)})
 
 

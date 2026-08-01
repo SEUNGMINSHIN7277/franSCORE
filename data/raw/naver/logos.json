@@ -1,0 +1,5752 @@
+{
+ "메가엠지씨커피(MEGA MGC COFFEE)": {
+  "url": "https://www.mega-mgccoffee.com/thumbnail.png?ver=202508271045",
+  "domain": "www.mega-mgccoffee.com",
+  "px": 630
+ },
+ "컴포즈커피(COMPOSE COFFEE)": {
+  "url": "https://composecoffee.com/files/attach/xeicon/mobicon.png?t=1701247079",
+  "domain": "composecoffee.com",
+  "px": 476
+ },
+ "이디야커피": {
+  "url": "https://www.ediya.com/images/ico/favicon.ico",
+  "domain": "www.ediya.com",
+  "px": 256
+ },
+ "비에이치씨(BHC)": {
+  "url": "https://www.bhc.co.kr/favicon.ico?favicon.b0841bb4.ico",
+  "domain": "www.bhc.co.kr",
+  "px": 32
+ },
+ "빽다방": {
+  "url": "https://paikdabang.com/wp-content/uploads/2021/12/cropped-빽다방_파비콘-192x192.png",
+  "domain": "paikdabang.com",
+  "px": 192
+ },
+ "배스킨라빈스": {
+  "url": "https://www.baskinrobbins.co.kr/assets/images/common/img_share.png",
+  "domain": "www.baskinrobbins.co.kr",
+  "px": 300
+ },
+ "맘스터치": {
+  "url": "https://www.momstouch.co.kr/assets/images/common/apple-touch-icon.png",
+  "domain": "www.momstouch.co.kr",
+  "px": 180
+ },
+ "교촌치킨": {
+  "url": "https://www.kyochonfnb.com/resources/images/favicon-500x500.png",
+  "domain": "www.kyochonfnb.com",
+  "px": 512
+ },
+ "뚜레쥬르": {
+  "url": "https://www.tlj.co.kr/static/images/common/sns_tlj_logo.jpg",
+  "domain": "www.tlj.co.kr",
+  "px": 200
+ },
+ "투다리": {
+  "url": "https://tudari.co.kr/wp-content/uploads/2024/09/cropped-Logo_Circle01-192x192.png",
+  "domain": "tudari.co.kr",
+  "px": 192
+ },
+ "처갓집양념치킨": {
+  "url": "https://www.cheogajip.co.kr/favicon.ico",
+  "domain": "www.cheogajip.co.kr",
+  "px": 16
+ },
+ "더벤티": {
+  "url": "https://www.theventi.co.kr/favicon.ico?220119v1",
+  "domain": "www.theventi.co.kr",
+  "px": 16
+ },
+ "굽네치킨": {
+  "url": "https://www.goobne.co.kr/resources/images/favicon.png",
+  "domain": "www.goobne.co.kr",
+  "px": 60
+ },
+ "본죽&비빔밥": {
+  "url": "https://www.bonif.co.kr/static/assets/images/common/bi/p/ci.png",
+  "domain": "www.bonif.co.kr",
+  "px": 260
+ },
+ "페리카나": {
+  "url": "https://www.pelicana.co.kr/favicon.ico",
+  "domain": "www.pelicana.co.kr",
+  "px": 32
+ },
+ "역전할머니맥주1982": {
+  "url": "https://yeokjeonfnc.com/img/favicon.ico",
+  "domain": "yeokjeonfnc.com",
+  "px": 64
+ },
+ "이삭토스트": {
+  "url": "https://www.isaac-toast.co.kr/img/favicon.ico",
+  "domain": "www.isaac-toast.co.kr",
+  "px": 64
+ },
+ "네네치킨": {
+  "url": "https://nenechicken.com/images/favicon.ico",
+  "domain": "nenechicken.com",
+  "px": 32
+ },
+ "공차": {
+  "url": "https://www.gong-cha.co.kr/favicon/android-chrome-512x512.png",
+  "domain": "www.gong-cha.co.kr",
+  "px": 512
+ },
+ "텐퍼센트스페셜티커피": {
+  "url": "https://www.tenpercentcoffee.com/favicon.ico",
+  "domain": "www.tenpercentcoffee.com",
+  "px": 32
+ },
+ "한솥": {
+  "url": "https://www.hsd.co.kr/assets/images/common/favicon.ico",
+  "domain": "www.hsd.co.kr",
+  "px": 16
+ },
+ "가마치통닭": {
+  "url": "https://www.gamachi.co.kr/theme/gamachi3/assets/images/favicon.ico",
+  "domain": "www.gamachi.co.kr",
+  "px": 64
+ },
+ "노랑통닭": {
+  "url": "",
+  "domain": "www.norangtongdak.co.kr",
+  "px": 0
+ },
+ "지코바양념치킨": {
+  "url": "",
+  "domain": "www.gcova.co.kr",
+  "px": 0
+ },
+ "매머드익스프레스(Mammoth Express)": {
+  "url": "https://www.mmthcoffee.com/img/favicon.png",
+  "domain": "www.mmthcoffee.com",
+  "px": 50
+ },
+ "호식이두마리치킨": {
+  "url": "https://cdn.imweb.me/thumbnail/20260622/08a95063a4427.png",
+  "domain": "www.9922.co.kr",
+  "px": 196
+ },
+ "푸라닭": {
+  "url": "http://puradakchicken.com/images/puradak_og_img.png",
+  "domain": "www.puradakchicken.com",
+  "px": 200
+ },
+ "자담치킨": {
+  "url": "http://www.ejadam.co.kr/images/common/h1logo.png",
+  "domain": "www.ejadam.co.kr",
+  "px": 400
+ },
+ "PC토랑": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "신전떡볶이": {
+  "url": "",
+  "domain": "www.sinjeon.co.kr",
+  "px": 0
+ },
+ "60계": {
+  "url": "http://www.60chicken.com/img/logo.png",
+  "domain": "www.60chicken.com",
+  "px": 150
+ },
+ "불닭발땡초동대문엽기떡볶이": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "하삼동커피": {
+  "url": "",
+  "domain": "www.hasamdongcoffee.com",
+  "px": 0
+ },
+ "피자스쿨": {
+  "url": "",
+  "domain": "pizzaschool.net",
+  "px": 0
+ },
+ "프랭크버거": {
+  "url": "https://frankburger.co.kr/img/common/bi.png",
+  "domain": "frankburger.co.kr",
+  "px": 50
+ },
+ "던킨/던킨도너츠": {
+  "url": "https://www.dunkindonuts.co.kr/images/favicon_180x180.png",
+  "domain": "www.dunkindonuts.co.kr",
+  "px": 180
+ },
+ "명륜진사갈비": {
+  "url": "https://www.xn--w39at6wpzax3i7sdctt.kr/android-icon-192x192.png",
+  "domain": "www.xn--w39at6wpzax3i7sdctt.kr",
+  "px": 192
+ },
+ "두찜": {
+  "url": "https://www.twozzim.com/favicon.ico",
+  "domain": "www.twozzim.com",
+  "px": 165
+ },
+ "설빙": {
+  "url": "https://sulbing.com/new/data/shareimage.png",
+  "domain": "sulbing.com",
+  "px": 479
+ },
+ "본죽": {
+  "url": "https://www.bonif.co.kr/static/assets/images/common/bi/p/ci.png",
+  "domain": "www.bonif.co.kr",
+  "px": 260
+ },
+ "밥스토랑": {
+  "url": "https://pf.kakao.com/cdn/rocket/channel-home-web/production/187ca29/assets/favicon-CmO6ClOa.ico",
+  "domain": "pf.kakao.com",
+  "px": 48
+ },
+ "또래오래": {
+  "url": "",
+  "domain": "www.toreore.com",
+  "px": 0
+ },
+ "디저트39": {
+  "url": "https://cdn.dessert39.com/www/img/common/dessert39_og.png",
+  "domain": "www.dessert39.com",
+  "px": 630
+ },
+ "피자마루": {
+  "url": "https://ovenmaru.com/img/common/bi.png",
+  "domain": "ovenmaru.com",
+  "px": 40
+ },
+ "탕화쿵푸마라탕": {
+  "url": "https://tanghwakongfu515.cafe24.com/bizdemo162554/img/image/sns-thumbnail.png",
+  "domain": "tanghuokungfu.co.kr",
+  "px": 400
+ },
+ "명랑시대쌀핫도그": {
+  "url": "https://www.myungranghotdog.com/upload/siteset/og.jpg",
+  "domain": "www.myungranghotdog.com",
+  "px": 400
+ },
+ "봉구스밥버거": {
+  "url": "",
+  "domain": "www.bongousse.com",
+  "px": 0
+ },
+ "또봉이통닭": {
+  "url": "https://menu.mt.co.kr/common/favicons/favicon-180.ico",
+  "domain": "www.mt.co.kr",
+  "px": 180
+ },
+ "크라운호프보리장인": {
+  "url": "https://hbnpress.com/images/favicon.png?1961",
+  "domain": "hbnpress.com",
+  "px": 68
+ },
+ "맥시칸치킨": {
+  "url": "",
+  "domain": "www.mexican.co.kr",
+  "px": 0
+ },
+ "THE LITER (더리터)": {
+  "url": "https://cdn.imweb.me/thumbnail/20250317/cc0baa320b64f.png",
+  "domain": "the-liter.com",
+  "px": 196
+ },
+ "카페봄봄": {
+  "url": "https://cafebombom.co.kr/theme/nero/img/fav.ico",
+  "domain": "cafebombom.co.kr",
+  "px": 50
+ },
+ "본도시락": {
+  "url": "https://www.bonif.co.kr/static/assets/images/common/bi/p/ci.png",
+  "domain": "www.bonif.co.kr",
+  "px": 260
+ },
+ "일품양평해장국": {
+  "url": "https://www.jemin.com/image/logo/snslogo_20200707023821.png",
+  "domain": "www.jemin.com",
+  "px": 200
+ },
+ "가장맛있는족발": {
+  "url": "",
+  "domain": "www.gajok.kr",
+  "px": 0
+ },
+ "김가네": {
+  "url": "https://gimgane.co.kr/img/common/bi.png",
+  "domain": "gimgane.co.kr",
+  "px": 58
+ },
+ "도미노피자": {
+  "url": "",
+  "domain": "web.dominos.co.kr",
+  "px": 0
+ },
+ "카페요아정": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316002358",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "반올림피자": {
+  "url": "https://imagecdn.banolimpizza.com/pc/favicon/favicon-96x96.png",
+  "domain": "www.banolimpizza.com",
+  "px": 96
+ },
+ "오구피자": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011325",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "청년다방": {
+  "url": "https://www.youngdabang.com/favicon.ico",
+  "domain": "www.youngdabang.com",
+  "px": 48
+ },
+ "간이역": {
+  "url": "",
+  "domain": "www.bhgoo.com",
+  "px": 0
+ },
+ "카페만월경": {
+  "url": "https://www.cafewhale.com/images/favi.ico",
+  "domain": "www.cafewhale.com",
+  "px": 256
+ },
+ "바다양푼이동태탕찜": {
+  "url": "",
+  "domain": "www.badajini.co.kr",
+  "px": 0
+ },
+ "샐러디": {
+  "url": "https://salady.com:443/superboard/data/siteconfig/2022070113323616566499560070.png",
+  "domain": "salady.com",
+  "px": 67
+ },
+ "펀비어킹": {
+  "url": "http://funbeerking.com/fun_og.png",
+  "domain": "funbeerking.com",
+  "px": 234
+ },
+ "배떡": {
+  "url": "https://img.mbn.co.kr/mobile/2021/mbn_og.jpg",
+  "domain": "mbn.co.kr",
+  "px": 630
+ },
+ "우리할매 떡볶이": {
+  "url": "https://wehalmae.co.kr/images/wehalmaefavi.ico",
+  "domain": "wehalmae.co.kr",
+  "px": 256
+ },
+ "죽이야기": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "청년피자": {
+  "url": "https://www.youngmanpizza.co.kr/img/favicon.ico",
+  "domain": "www.youngmanpizza.co.kr",
+  "px": 48
+ },
+ "훌랄라": {
+  "url": "",
+  "domain": "www.hoolala.co.kr",
+  "px": 0
+ },
+ "홍콩반점0410": {
+  "url": "https://www.theborn.co.kr/wp-content/uploads/2017/07/cropped-theborn_favi-192x192.png",
+  "domain": "www.theborn.co.kr",
+  "px": 192
+ },
+ "커피베이": {
+  "url": "https://menu.mt.co.kr/common/favicons/favicon-180.ico",
+  "domain": "www.mt.co.kr",
+  "px": 180
+ },
+ "김밥천국": {
+  "url": "",
+  "domain": "www.kimbabcheongug.co.kr",
+  "px": 0
+ },
+ "감성커피": {
+  "url": "https://xn--439as41bv4jv9f.com/img/favicon.ico?v2",
+  "domain": "xn--439as41bv4jv9f.com",
+  "px": 48
+ },
+ "요거프레소": {
+  "url": "https://www.yogerpresso.co.kr/upload/siteset/220216_카카오채널_앱-로고_640x640.ico",
+  "domain": "www.yogerpresso.co.kr",
+  "px": 104
+ },
+ "후라이드 참 잘하는집": {
+  "url": "https://www.hoocham.com:443/superboard/data/siteconfig/2022071112471116575112316865.jpg",
+  "domain": "www.hoocham.com",
+  "px": 297
+ },
+ "철길부산집": {
+  "url": "https://cdn.imweb.me/thumbnail/20230213/af887ab77f16d.png",
+  "domain": "www.busanjib.com",
+  "px": 196
+ },
+ "치킨플러스": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "원할머니": {
+  "url": "https://wonandone.co.kr/images/ogthum/main.png",
+  "domain": "wonandone.co.kr",
+  "px": 400
+ },
+ "하이오커피": {
+  "url": "https://hiocoffee.com/og_image.png",
+  "domain": "hiocoffee.com",
+  "px": 412
+ },
+ "엑스오엑스오푸드카페": {
+  "url": "https://startuplus.kr/apple-touch-icon.png",
+  "domain": "startuplus.kr",
+  "px": 180
+ },
+ "담꾹": {
+  "url": "https://static.mk.co.kr/favicon_180180.png",
+  "domain": "www.mk.co.kr",
+  "px": 180
+ },
+ "누구나홀딱반한닭": {
+  "url": "https://www.nuguna-banhandak.co.kr:443/superboard/data/siteconfig/20260219110805_69967085c30a8_d9748ab1679aad6d4e10b9059adac6ba0a021199.jpg",
+  "domain": "www.nuguna-banhandak.co.kr",
+  "px": 630
+ },
+ "피자헛": {
+  "url": "https://www.pizzahut.co.kr/assets/web/img/common/favicon.ico",
+  "domain": "www.pizzahut.co.kr",
+  "px": 256
+ },
+ "부어치킨": {
+  "url": "",
+  "domain": "www.boor.co.kr",
+  "px": 0
+ },
+ "김복남맥주": {
+  "url": "https://kimboknam.com/layout/images/common/logo_og.png",
+  "domain": "kimboknam.com",
+  "px": 800
+ },
+ "파파존스피자": {
+  "url": "https://imgcdn4.pji.co.kr/pc/img/20220228_newFavicon.ico",
+  "domain": "pji.co.kr",
+  "px": 16
+ },
+ "피자알볼로": {
+  "url": "https://menu.mt.co.kr/common/favicons/favicon-180.ico",
+  "domain": "www.mt.co.kr",
+  "px": 180
+ },
+ "기영이숯불두마리치킨": {
+  "url": "https://menu.mt.co.kr/common/favicons/favicon-180.ico",
+  "domain": "www.mt.co.kr",
+  "px": 180
+ },
+ "선비꼬마김밥": {
+  "url": "https://cdn.imweb.me/thumbnail/20230314/5d4fe9938cde3.png",
+  "domain": "sunbikkoma.co.kr",
+  "px": 196
+ },
+ "빽보이피자": {
+  "url": "https://www.theborn.co.kr/wp-content/uploads/2017/07/cropped-theborn_favi-192x192.png",
+  "domain": "www.theborn.co.kr",
+  "px": 192
+ },
+ "달리는커피": {
+  "url": "http://www.siminilbo.co.kr/images/oglogo.jpg",
+  "domain": "www.siminilbo.co.kr",
+  "px": 350
+ },
+ "국수나무": {
+  "url": "https://www.namuya.co.kr/images/favicon.ico",
+  "domain": "www.namuya.co.kr",
+  "px": 48
+ },
+ "열정국밥": {
+  "url": "",
+  "domain": "www.passionkorea.co.kr",
+  "px": 0
+ },
+ "삼첩분식": {
+  "url": "https://samcheop.com/images/favi.ico",
+  "domain": "samcheop.com",
+  "px": 256
+ },
+ "오복 오봉집": {
+  "url": "https://t1.kakaocdn.net/story_static/public/web/story_icon_180x180_0203.png",
+  "domain": "story.kakao.com",
+  "px": 180
+ },
+ "마왕족발": {
+  "url": "https://mawangpork.com/img/common/mawang_og.png",
+  "domain": "mawangpork.com",
+  "px": 800
+ },
+ "카페051(cafe051)": {
+  "url": "",
+  "domain": "cafe051.com",
+  "px": 0
+ },
+ "얌샘김밥": {
+  "url": "https://yumsem.com/wp-content/uploads/2023/11/cropped-favi-min-192x192.png",
+  "domain": "yumsem.com",
+  "px": 192
+ },
+ "Blu Shaak(블루샥)": {
+  "url": "https://www.blushaak.co.kr/favicon.ico?favicon.0b3bf435.ico",
+  "domain": "www.blushaak.co.kr",
+  "px": 256
+ },
+ "족발야시장": {
+  "url": "https://www.xn--ih3bm7ju8bi1cb3a.com/img/favicon.ico",
+  "domain": "www.xn--ih3bm7ju8bi1cb3a.com",
+  "px": 48
+ },
+ "역전우동0410": {
+  "url": "https://udon0410.com/wp-content/uploads/2021/12/역전우동_파비콘-370x370.png",
+  "domain": "udon0410.com",
+  "px": 370
+ },
+ "인쌩맥주": {
+  "url": "https://img.khan.co.kr/spko/icon/apple-touch-icon-precomposed-web.png",
+  "domain": "sports.khan.co.kr",
+  "px": 114
+ },
+ "탐앤탐스커피(TOMNTOMS COFFEE)": {
+  "url": "",
+  "domain": "www.tomntoms.com",
+  "px": 0
+ },
+ "벌크커피(BULK COFFEE)": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011326",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "춘리마라탕": {
+  "url": "https://chunlimalatang.com/wp-content/uploads/2024/03/cropped-자산-14춘리마라탕-로고-512-192x192.png",
+  "domain": "chunlimalatang.com",
+  "px": 192
+ },
+ "유가네": {
+  "url": "",
+  "domain": "www.yoogane.co.kr",
+  "px": 0
+ },
+ "우지커피(OOZYCOFFEE)": {
+  "url": "https://cdn.imweb.me/thumbnail/20220214/f6125f8d094a4.png",
+  "domain": "oozycoffee.com",
+  "px": 196
+ },
+ "보배반점": {
+  "url": "https://www.bobaebanjum.co.kr/favicon.png",
+  "domain": "www.bobaebanjum.co.kr",
+  "px": 100
+ },
+ "앤티앤스": {
+  "url": "https://www.auntieannes.co.kr/myimage.jpg",
+  "domain": "www.auntieannes.co.kr",
+  "px": 200
+ },
+ "마장동 고기집": {
+  "url": "https://www.openfood.kr/wp-content/uploads/2024/11/cropped-openfood-로고-4-removebg-preview-192x192.png",
+  "domain": "www.openfood.kr",
+  "px": 192
+ },
+ "곤지암할매소머리국밥": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "7번가피자": {
+  "url": "https://www.7thpizza.com/img/android-icon-192x192.png",
+  "domain": "www.7thpizza.com",
+  "px": 192
+ },
+ "백채": {
+  "url": "https://100chae.co.kr/images/favi.ico",
+  "domain": "100chae.co.kr",
+  "px": 256
+ },
+ "노브랜드 버거(No Brand Burger)": {
+  "url": "https://www.shinsegaefood.com/images/favicon/shinsegae_ci16.ico",
+  "domain": "www.shinsegaefood.com",
+  "px": 256
+ },
+ "읍천리 382": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "덮덮밥": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "요거트아이스크림의 정석": {
+  "url": "https://yoajung.co.kr/images/yoajungfavi.ico",
+  "domain": "yoajung.co.kr",
+  "px": 256
+ },
+ "바른치킨": {
+  "url": "https://www.barunchicken.com/asset/img/og.jpg",
+  "domain": "www.barunchicken.com",
+  "px": 400
+ },
+ "설동궁찜닭": {
+  "url": "https://jusogo.kr/favicon.ico",
+  "domain": "jusogo.kr",
+  "px": 16
+ },
+ "33떡볶이": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "카페인중독": {
+  "url": "https://cdn.imweb.me/thumbnail/20250620/a7157c50162f0.png",
+  "domain": "xn--iq1bo78ac9at1k9mh.com",
+  "px": 196
+ },
+ "감탄떡볶이": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "압구정 봉구비어": {
+  "url": "",
+  "domain": "bonggubeer.com",
+  "px": 0
+ },
+ "생마차": {
+  "url": "https://cdn.shinailbo.co.kr/favicon.ico",
+  "domain": "www.shinailbo.co.kr",
+  "px": 48
+ },
+ "아구듬뿍&알곤마니": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "미소야": {
+  "url": "https://cdn.imweb.me/thumbnail/20231219/6a0dfdc8ad29b.png",
+  "domain": "misoya.co.kr",
+  "px": 196
+ },
+ "기떡찜": {
+  "url": "",
+  "domain": "",
+  "px": 0
+ },
+ "스텔라떡볶이": {
+  "url": "https://www.stellapick.com/apple-touch-icon.png",
+  "domain": "www.stellapick.com",
+  "px": 180
+ },
+ "생활맥주": {
+  "url": "https://dailybeer.co.kr/wp-content/uploads/2026/03/og-image.jpg",
+  "domain": "dailybeer.co.kr",
+  "px": 600
+ },
+ "현대옥": {
+  "url": "",
+  "domain": "www.hyundaiok.com",
+  "px": 0
+ },
+ "장호덕손만두": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "땅땅치킨": {
+  "url": "https://cdn.imweb.me/thumbnail/20240111/9e94e87f7c4f3.png",
+  "domain": "ttangttang.co.kr",
+  "px": 196
+ },
+ "대박삼겹김치찜&초대박등갈비김치찜": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "쥬씨(JUICY)": {
+  "url": "",
+  "domain": "www.no1juicy.com",
+  "px": 0
+ },
+ "인생아구찜": {
+  "url": "https://www.insaengaguzzim.com/images/agufavi.ico",
+  "domain": "www.insaengaguzzim.com",
+  "px": 256
+ },
+ "신의주찹쌀순대": {
+  "url": "https://bigsoondae.com/img/common/bi.png",
+  "domain": "bigsoondae.com",
+  "px": 56
+ },
+ "치킨신드롬": {
+  "url": "",
+  "domain": "xn--hu1b83jnmp41b93b.com",
+  "px": 0
+ },
+ "정직유부": {
+  "url": "http://www.jjub0524.com/favicon.ico",
+  "domain": "www.jjub0524.com",
+  "px": 64
+ },
+ "노모어피자": {
+  "url": "https://nomorepizza.co.kr/favicon-192x192.png",
+  "domain": "nomorepizza.co.kr",
+  "px": 192
+ },
+ "동근이숯불두마리치킨": {
+  "url": "https://cdn.job-post.co.kr/favicon.ico",
+  "domain": "www.job-post.co.kr",
+  "px": 48
+ },
+ "순수덮밥": {
+  "url": "http://www.itinsight.kr/_var/site/meta/h20240925111429.png",
+  "domain": "www.itinsight.kr",
+  "px": 200
+ },
+ "목구멍": {
+  "url": "https://korean.visitseoul.net/resources/theme/images/img/visitseoul_sns_20241127.png",
+  "domain": "korean.visitseoul.net",
+  "px": 292
+ },
+ "프레드피자": {
+  "url": "https://www.fredpizza.co.kr/asset/img/og.jpg",
+  "domain": "www.fredpizza.co.kr",
+  "px": 400
+ },
+ "코코호도": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "바른보쌈1990": {
+  "url": "https://weseb.com/SJB/skin_board/korea/sosangincon.ico",
+  "domain": "weseb.com",
+  "px": 64
+ },
+ "백억커피": {
+  "url": "https://cdn.shinailbo.co.kr/favicon.ico",
+  "domain": "www.shinailbo.co.kr",
+  "px": 48
+ },
+ "탕참탕수육참잘하는집": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "요거트월드": {
+  "url": "https://cdn.dailysecu.com/favicon.ico",
+  "domain": "www.dailysecu.com",
+  "px": 48
+ },
+ "한신우동": {
+  "url": "https://www.tiktok.com/apple-touch-icon.png",
+  "domain": "www.tiktok.com",
+  "px": 400
+ },
+ "뉴욕버거": {
+  "url": "https://www.newyorkburger.co.kr/includes/ttadmin_assets/images/favicon.ico",
+  "domain": "www.newyorkburger.co.kr",
+  "px": 64
+ },
+ "용우동": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "고기듬뿍국물두루치기": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "화락바베큐치킨": {
+  "url": "https://cdn.imweb.me/thumbnail/20230419/faa92b4a4571c.png",
+  "domain": "bbqchicken-sample.imweb.me",
+  "px": 196
+ },
+ "돼지게티": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "조마루감자탕": {
+  "url": "https://www.jomaru.co.kr/images/favicon-32.png",
+  "domain": "www.jomaru.co.kr",
+  "px": 32
+ },
+ "이화수전통육개장": {
+  "url": "https://www.ihwasoo.com/theme/ihwa/img/favicon1.ico",
+  "domain": "www.ihwasoo.com",
+  "px": 256
+ },
+ "놀부부대찌개": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "까투리": {
+  "url": "https://r.yna.co.kr/www/home_n/v03/favicon/favicon_180x180_01.png?v=20260710_0910",
+  "domain": "www.yna.co.kr",
+  "px": 180
+ },
+ "아라치": {
+  "url": "https://cdn.imweb.me/upload/S2022092655d305592b770/30beff7bb97a6.ico",
+  "domain": "www.alachi.co.kr",
+  "px": 256
+ },
+ "치킨마루": {
+  "url": "https://ovenmaru.com/img/common/bi.png",
+  "domain": "ovenmaru.com",
+  "px": 40
+ },
+ "깐부치킨": {
+  "url": "",
+  "domain": "www.kkanbu.co.kr",
+  "px": 0
+ },
+ "팔각도": {
+  "url": "https://cdn.shinailbo.co.kr/favicon.ico",
+  "domain": "www.shinailbo.co.kr",
+  "px": 48
+ },
+ "카페프리헷": {
+  "url": "https://www.cafefrihet.com/favicon.ico",
+  "domain": "www.cafefrihet.com",
+  "px": 32
+ },
+ "티바두마리치킨": {
+  "url": "https://cdn.imweb.me/thumbnail/20240823/8993495814ca6.png",
+  "domain": "www.tiba.co.kr",
+  "px": 196
+ },
+ "완미족발": {
+  "url": "https://cdn.buza.biz/w512/q100/f_png/configs/2026-05-28/d2642ecf-b1b1-4f98-83ee-232accff17b5.png",
+  "domain": "buza.biz",
+  "px": 512
+ },
+ "하남돼지집": {
+  "url": "https://hanampig.co.kr/img/favicon/apple-icon.png",
+  "domain": "hanampig.co.kr",
+  "px": 192
+ },
+ "달콤왕가탕후루": {
+  "url": "https://www.wgtanghulu.com/theme/basic/img/ci.png",
+  "domain": "wgtanghulu.com",
+  "px": 121
+ },
+ "오븐마루": {
+  "url": "https://ovenmaru.com/img/common/bi.png",
+  "domain": "ovenmaru.com",
+  "px": 40
+ },
+ "응급실국물떡볶이": {
+  "url": "",
+  "domain": "www.xn--3e0boln8q87fglcewot4hgi.kr",
+  "px": 0
+ },
+ "봉명동내커피": {
+  "url": "https://xn--220bq3dn1huxcd07aowi.com/favicon.ico",
+  "domain": "xn--220bq3dn1huxcd07aowi.com",
+  "px": 96
+ },
+ "귀한족발": {
+  "url": "https://cdn.eroun.net/image/logo/favicon.ico",
+  "domain": "www.eroun.net",
+  "px": 256
+ },
+ "카페게이트": {
+  "url": "https://cdn.imweb.me/thumbnail/20250410/a3328609595d0.png",
+  "domain": "cafegate.co.kr",
+  "px": 196
+ },
+ "채선당": {
+  "url": "https://www.chaesundang.co.kr/images/logo.png",
+  "domain": "www.chaesundang.co.kr",
+  "px": 31
+ },
+ "PLUS 82(플러스 82)": {
+  "url": "https://plus82project.com/web/upload/favicon-e8bb5dcaceafaa2a94c49bc10f42c83c.ico",
+  "domain": "plus82project.com",
+  "px": 256
+ },
+ "더카페": {
+  "url": "https://www.eland.co.kr/static/images/common/ico/favicon.ico",
+  "domain": "www.eland.co.kr",
+  "px": 48
+ },
+ "드롭탑(DROPTOP)": {
+  "url": "https://www.sportschosun.com/img/favicon.ico",
+  "domain": "www.sportschosun.com",
+  "px": 144
+ },
+ "북촌손만두": {
+  "url": "https://www.mandoo.so/images/common/favicon.ico",
+  "domain": "www.mandoo.so",
+  "px": 50
+ },
+ "한촌설렁탕": {
+  "url": "",
+  "domain": "www.hanchon.kr",
+  "px": 0
+ },
+ "신통치킨": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "돈치킨": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "육대장": {
+  "url": "https://yukdaejang.com/default/img/main/og_logo.png",
+  "domain": "www.yukdaejang.com",
+  "px": 315
+ },
+ "순살몬스터": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "죠스떡볶이": {
+  "url": "https://www.jawsfood.co.kr/images/common/logo_share.jpg",
+  "domain": "www.jawsfood.co.kr",
+  "px": 400
+ },
+ "육회바른연어": {
+  "url": "https://www.yby.co.kr/images/favicon/android-icon-192x192.png",
+  "domain": "www.yby.co.kr",
+  "px": 192
+ },
+ "피자에땅": {
+  "url": "https://weseb.com/SJB/skin_board/korea/sosangincon.ico",
+  "domain": "weseb.com",
+  "px": 64
+ },
+ "소림마라": {
+  "url": "https://sorimmara.co.kr/img/common/og_image.jpg",
+  "domain": "sorimmara.co.kr",
+  "px": 400
+ },
+ "최고당돈가스": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "황금코다리": {
+  "url": "https://goldkodari.com/images/link_logo2.png",
+  "domain": "www.goldkodari.com",
+  "px": 400
+ },
+ "한마음정육식당": {
+  "url": "https://hanmampork.co.kr/wp-content/uploads/2025/03/사이트-아이콘-300x300.jpg",
+  "domain": "hanmampork.co.kr",
+  "px": 300
+ },
+ "베러먼데이": {
+  "url": "https://cdn.imweb.me/thumbnail/20240710/abf0f4f3b2a9f.png",
+  "domain": "bettermonday.coffee",
+  "px": 196
+ },
+ "포케올데이": {
+  "url": "https://pokeallday.co.kr/files/attach/xeicon/507/default_image.png?t=1730884565",
+  "domain": "pokeallday.co.kr",
+  "px": 630
+ },
+ "이비가짬뽕": {
+  "url": "https://www.suto.co.kr/apple-touch-icon.png",
+  "domain": "www.suto.co.kr",
+  "px": 180
+ },
+ "버거킹(Burger King)": {
+  "url": "https://www.burgerking.co.kr/favicon.png",
+  "domain": "www.burgerking.co.kr",
+  "px": 34
+ },
+ "썬더치킨": {
+  "url": "https://mythunder.co.kr/img/og_img.jpg",
+  "domain": "www.mythunder.co.kr",
+  "px": 352
+ },
+ "주식회사포차천국": {
+  "url": "",
+  "domain": "pochaheaven.co.kr",
+  "px": 0
+ },
+ "코리엔탈깻잎두마리치킨": {
+  "url": "https://www.kketnypdak.com/theme/kketnypdak/img/main/mainVisual1.jpg",
+  "domain": "www.kketnypdak.com",
+  "px": 700
+ },
+ "복호두": {
+  "url": "https://bokhodu.com/assets/favicon/favicon-96x96.png",
+  "domain": "bokhodu.com",
+  "px": 96
+ },
+ "쑝쑝돈까스": {
+  "url": "https://cdn.imweb.me/thumbnail/20231228/0a6336795e0f1.png",
+  "domain": "sspc.co.kr",
+  "px": 196
+ },
+ "롤링파스타": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "맛닭꼬": {
+  "url": "https://www.mdcco.co.kr/img/favicon/favicon.ico",
+  "domain": "www.mdcco.co.kr",
+  "px": 48
+ },
+ "라홍방 마라탕": {
+  "url": "https://lahongbang.com/theme/business/extend/sections/header/lahongre_header/img/logo.png",
+  "domain": "www.lahongbang.com",
+  "px": 52
+ },
+ "코바코": {
+  "url": "https://www.brandbrief.co.kr/image/logo/android-icon-192x192.png",
+  "domain": "www.brandbrief.co.kr",
+  "px": 192
+ },
+ "푸줏간 고기도시락": {
+  "url": "",
+  "domain": "www.pujukan.co.kr",
+  "px": 0
+ },
+ "밥튜브": {
+  "url": "https://vendor-cdn.imweb.me/images/main/imweb-2309-favicon-192x192.png?v1",
+  "domain": "imweb.me",
+  "px": 192
+ },
+ "가마로강정": {
+  "url": "https://gamaro.co.kr/favicon.ico",
+  "domain": "gamaro.co.kr",
+  "px": 64
+ },
+ "호맥": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "김선생불닭발": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "김사부의곱창명가": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "79대포": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "일미리금계찜닭": {
+  "url": "",
+  "domain": "www.goldjjimdak.com",
+  "px": 0
+ },
+ "순살만공격": {
+  "url": "",
+  "domain": "www.xn--i89aqf629ab2goyb.com",
+  "px": 0
+ },
+ "청자다방": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "한신포차": {
+  "url": "https://hanshinpocha.com/wp-content/uploads/2022/02/cropped-한신포차_파비콘-192x192.png",
+  "domain": "hanshinpocha.com",
+  "px": 192
+ },
+ "1키로탕수육": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "치킨매니아": {
+  "url": "https://www.sportschosun.com/img/favicon.ico",
+  "domain": "www.sportschosun.com",
+  "px": 144
+ },
+ "라무진": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "알통떡강정": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "셀렉토커피": {
+  "url": "https://www.selecto.co.kr/assets/images/main/logo.png",
+  "domain": "www.selecto.co.kr",
+  "px": 90
+ },
+ "김종구식맛치킨ㆍ 전기바베큐 옛날통닭": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "봉추찜닭": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011327",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "홍루이젠": {
+  "url": "https://www.hongruizhen.com/data/common/snsRepresentImage.jpg",
+  "domain": "www.hongruizhen.com",
+  "px": 640
+ },
+ "시선": {
+  "url": "https://www.ifm.kr/favicon.ico?1783326333",
+  "domain": "www.ifm.kr",
+  "px": 865
+ },
+ "포트캔커피 PORT CAN COFFEE": {
+  "url": "https://cdn.imweb.me/thumbnail/20250326/8965ac05ab253.png",
+  "domain": "portcancoffee.kr",
+  "px": 196
+ },
+ "카페일리터": {
+  "url": "https://www.illycaffe.co.kr/images/ico/ico_illy.ico",
+  "domain": "www.illycaffe.co.kr",
+  "px": 16
+ },
+ "고기싸롱": {
+  "url": "https://static.parastorage.com/client/pfavico.ico",
+  "domain": "www.fctime.net",
+  "px": 16
+ },
+ "불막열삼": {
+  "url": "https://cdn.imweb.me/thumbnail/20240627/32cc83388ec64.png",
+  "domain": "xn--iz2bn2el8cxth.com",
+  "px": 196
+ },
+ "에그폭탄덮밥": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "이차돌": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "족발신선생": {
+  "url": "http://joksin.co.kr/logo_sns.jpg",
+  "domain": "joksin.co.kr",
+  "px": 211
+ },
+ "육칠이": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316004958",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "쏘시지요": {
+  "url": "https://dsso.kr/favicon.ico",
+  "domain": "dsso.kr",
+  "px": 48
+ },
+ "못난이꽈배기": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011328",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "올쿡24": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "닥엔돈스": {
+  "url": "https://www.dnds.kr/meta_img.jpg",
+  "domain": "www.dnds.kr",
+  "px": 400
+ },
+ "뚜선장 쭈꾸미호": {
+  "url": "https://fchamall.com/icon-192.png",
+  "domain": "fchamall.com",
+  "px": 192
+ },
+ "빅스타피자(Bigstar Pizza)": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011328",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "댄싱컵(DANCINGCUP)": {
+  "url": "https://dancingcup.co.kr/images/favi.ico",
+  "domain": "dancingcup.co.kr",
+  "px": 256
+ },
+ "곱분이곱창": {
+  "url": "http://www.gopbuni.co.kr/share/img/sub/img04_3_1.jpg",
+  "domain": "gopbuni.co.kr",
+  "px": 430
+ },
+ "호치킨": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "킹콩부대찌개": {
+  "url": "https://www.kingkongbudae.co.kr/kingkong_logo.png",
+  "domain": "www.kingkongbudae.co.kr",
+  "px": 210
+ },
+ "카페일분": {
+  "url": "https://storage.googleapis.com/cr-resource/image/95d8e808352c164ac680336f1dde7a47/cafeilboon/cafeilboon-favicon.ico?_1727245272",
+  "domain": "www.cafeilboon.com",
+  "px": 48
+ },
+ "불로만치킨바베큐": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "용용선생": {
+  "url": "",
+  "domain": "generalyongyong.com",
+  "px": 0
+ },
+ "더마니": {
+  "url": "https://cdn.imweb.me/thumbnail/20230430/e49baec6c020e.png",
+  "domain": "mani-g.com",
+  "px": 196
+ },
+ "미진축산": {
+  "url": "https://cdn.imweb.me/thumbnail/20240118/326056cb2282b.png",
+  "domain": "mijin2900.com",
+  "px": 196
+ },
+ "샤브마니아": {
+  "url": "",
+  "domain": "easyjeju.net",
+  "px": 0
+ },
+ "긴자료코": {
+  "url": "https://cp.mistore.jp/content/dam/isetan_mitsukoshi/ci/common/favicon.ico",
+  "domain": "cp.mistore.jp",
+  "px": 64
+ },
+ "천씨씨커피": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "본스치킨": {
+  "url": "https://vonschicken.co.kr/mobile/images/main.jpg",
+  "domain": "vonschicken.co.kr",
+  "px": 640
+ },
+ "장모님치킨": {
+  "url": "https://jangmonim.co.kr/appIcon/apple-touch-icon.png",
+  "domain": "jangmonim.co.kr",
+  "px": 180
+ },
+ "소담촌": {
+  "url": "https://sodamchon.com/data/apms/seo/seo_260604111910.jpg",
+  "domain": "www.sodamchon.com",
+  "px": 400
+ },
+ "죽~이요": {
+  "url": "https://vendor-cdn.imweb.me/images/main/imweb-2309-favicon-192x192.png?v1",
+  "domain": "imweb.me",
+  "px": 192
+ },
+ "고기극찬": {
+  "url": "",
+  "domain": "buanzip.com",
+  "px": 0
+ },
+ "삼산회관": {
+  "url": "",
+  "domain": "yes.ulsan.go.kr",
+  "px": 0
+ },
+ "다사랑": {
+  "url": "https://www.idasarang.com/images/favicon.ico",
+  "domain": "www.idasarang.com",
+  "px": 256
+ },
+ "수유리우동집": {
+  "url": "https://xn--2q1bl4i14hp0e7paj3k.com/images/thumbnail.png",
+  "domain": "xn--2q1bl4i14hp0e7paj3k.com",
+  "px": 630
+ },
+ "구구족": {
+  "url": "https://cdn.imweb.me/thumbnail/20200911/1587723d4b2c6.png",
+  "domain": "xn--2e0ba568r.com",
+  "px": 196
+ },
+ "아마스빈": {
+  "url": "https://www.changupdo.com/favicon_changupdo.ico",
+  "domain": "www.changupdo.com",
+  "px": 100
+ },
+ "핵밥": {
+  "url": "https://www.kbsm.net/favicon-192x192.png",
+  "domain": "www.kbsm.net",
+  "px": 192
+ },
+ "애플꼬마김밥": {
+  "url": "https://apple-food.co.kr/img/thumbnail.png?v=1",
+  "domain": "apple-food.co.kr",
+  "px": 400
+ },
+ "갓튀긴후라이드": {
+  "url": "https://godfnb.com/og.png",
+  "domain": "godfnb.com",
+  "px": 400
+ },
+ "국물에빠진두루치기": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "바우네나주곰탕": {
+  "url": "",
+  "domain": "www.najoo.kr",
+  "px": 0
+ },
+ "바르다김선생": {
+  "url": "https://www.teacherkim.co.kr/images/common/favicon.png",
+  "domain": "www.teacherkim.co.kr",
+  "px": 16
+ },
+ "맘스피자(MOM'S PIZZA)": {
+  "url": "https://www.donga.com/favicon.ico",
+  "domain": "www.donga.com",
+  "px": 32
+ },
+ "밥풀릭스": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "커스텀커피": {
+  "url": "https://cdn.beansmonth.com/images/meta-icon.png",
+  "domain": "www.beansmonth.com",
+  "px": 100
+ },
+ "기대만족": {
+  "url": "https://kidaemanjok.com:443/superboard/data/siteconfig/20250219130319_67b558077b07e_c52a851ee367834ee6f3a60ea195bf152c61d476.png",
+  "domain": "kidaemanjok.com",
+  "px": 168
+ },
+ "토마토김밥": {
+  "url": "https://www.tomatokimbab.com/images/common/logo.png",
+  "domain": "www.tomatokimbab.com",
+  "px": 86
+ },
+ "피자먹다": {
+  "url": "https://cdn.imweb.me/thumbnail/20260406/23fe3a2ddfb3f.png",
+  "domain": "eatpizza.co.kr",
+  "px": 196
+ },
+ "신포우리만두": {
+  "url": "",
+  "domain": "www.sinpomandoo.co.kr",
+  "px": 0
+ },
+ "인생냉면": {
+  "url": "",
+  "domain": "join.make24.kr",
+  "px": 0
+ },
+ "고기듬뿍 대왕비빔밥": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "제육대가": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "코리안바베큐": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011328",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "오븐에 꾸운 닭": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011328",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "노군꼬치": {
+  "url": "https://cdn.imweb.me/thumbnail/20230213/c22b71f429150.png",
+  "domain": "nokoonkkochi.com",
+  "px": 196
+ },
+ "미태리": {
+  "url": "https://framerusercontent.com/images/3RGPepc1ubcxM0OH0XdTPEJ0A2M.png",
+  "domain": "litt.ly",
+  "px": 128
+ },
+ "막창도둑": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011328",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "몬스터커피": {
+  "url": "https://www.monster-coffee.com/assets/site/img/common/favicon.ico",
+  "domain": "www.monster-coffee.com",
+  "px": 48
+ },
+ "인생극장": {
+  "url": "",
+  "domain": "www.kofair.kr",
+  "px": 0
+ },
+ "최강곱도리": {
+  "url": "",
+  "domain": "www.nadoweb.co.kr",
+  "px": 0
+ },
+ "토프레소": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "도야족발보쌈": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011328",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "담소 소사골 순대 육개장": {
+  "url": "",
+  "domain": "www.damso-story.com",
+  "px": 0
+ },
+ "아비꼬": {
+  "url": "https://abiko.kr/images/favicon.ico",
+  "domain": "abiko.kr",
+  "px": 32
+ },
+ "싸다김밥": {
+  "url": "https://ssadagb.com/web/upload/share-image-1-99ae2c91b76b352486dcba127a478b4d.jpg",
+  "domain": "ssadagb.com",
+  "px": 628
+ },
+ "신참떡볶이": {
+  "url": "https://pf.kakao.com/cdn/rocket/channel-home-web/production/187ca29/assets/favicon-CmO6ClOa.ico",
+  "domain": "pf.kakao.com",
+  "px": 48
+ },
+ "라화쿵부": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011329",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "카페베네": {
+  "url": "",
+  "domain": "www.caffebene.co.kr",
+  "px": 0
+ },
+ "그집곱닭도리탕": {
+  "url": "https://cdn.sisamagazine.co.kr/image/logo/favicon.png",
+  "domain": "www.sisamagazine.co.kr",
+  "px": 60
+ },
+ "설맥(SEOL MAC)": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "팔팔포장마차": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "대구반야월막창": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "로띠번": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011329",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "고피자(GOPIZZA)": {
+  "url": "https://gopizza.kr/images/seo/favicon3_120.png",
+  "domain": "gopizza.kr",
+  "px": 120
+ },
+ "박가부대": {
+  "url": "https://wonandone.co.kr/images/ogthum/main.png",
+  "domain": "www.wonandone.co.kr",
+  "px": 400
+ },
+ "우리집다음에맛있는집양평해장국": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "구름계란덮밥": {
+  "url": "https://gooruem.com/images/sns_link.png",
+  "domain": "gooruem.com",
+  "px": 400
+ },
+ "하루엔소쿠": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011329",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "피자스톰": {
+  "url": "https://pizzastorm.co.kr/img/favicon/favicon-96x96.png",
+  "domain": "pizzastorm.co.kr",
+  "px": 96
+ },
+ "더꼬치다": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "도로시파스타": {
+  "url": "https://weseb.com/SJB/skin_board/korea/sosangincon.ico",
+  "domain": "weseb.com",
+  "px": 64
+ },
+ "무지개맥주": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011329",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "송담추어탕": {
+  "url": "",
+  "domain": "www.songdam.co.kr",
+  "px": 0
+ },
+ "조선화로닭발": {
+  "url": "https://chosunhwarojib.com/img/common/bi.png",
+  "domain": "chosunhwarojib.com",
+  "px": 45
+ },
+ "길동우동": {
+  "url": "https://weseb.com/SJB/skin_board/korea/sosangincon.ico",
+  "domain": "weseb.com",
+  "px": 64
+ },
+ "고반식당": {
+  "url": "https://www.gimhae.go.kr/scms-static/img/inc/logo_h1.png",
+  "domain": "www.gimhae.go.kr",
+  "px": 60
+ },
+ "윤이불닭발": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "새마을식당": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011330",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "DK동키치킨": {
+  "url": "",
+  "domain": "www.dkchicken.co.kr",
+  "px": 0
+ },
+ "인생닭강정": {
+  "url": "",
+  "domain": "www.isck.co.kr",
+  "px": 0
+ },
+ "이백장 돈가스": {
+  "url": "",
+  "domain": "www.200jang.com",
+  "px": 0
+ },
+ "마라공방": {
+  "url": "https://assets.joongang.co.kr/images/favicon/apple-touch-icon.png",
+  "domain": "www.joongang.co.kr",
+  "px": 180
+ },
+ "커피마마": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011330",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "수유리혼밥왕": {
+  "url": "",
+  "domain": "xn--oy2b88br6hc2e62aez2d.com",
+  "px": 0
+ },
+ "요달의찜닭": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011330",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "발도스커피(valdos coffee)": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316093124",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "라라코스트(raracost)": {
+  "url": "https://raracost.com/images/og_img.png",
+  "domain": "www.raracost.com",
+  "px": 800
+ },
+ "국밥참맛있는집": {
+  "url": "https://www.gukcham.com/img/favicon/android-icon-192x192.png",
+  "domain": "www.gukcham.com",
+  "px": 192
+ },
+ "송사부고로케": {
+  "url": "https://www.songsabu.com/images/favicon.ico",
+  "domain": "www.songsabu.com",
+  "px": 256
+ },
+ "진이찬방": {
+  "url": "https://menu.mt.co.kr/common/favicons/favicon-180.ico",
+  "domain": "www.mt.co.kr",
+  "px": 180
+ },
+ "쿠우쿠우": {
+  "url": "",
+  "domain": "www.qooqoo.co.kr",
+  "px": 0
+ },
+ "팔공티": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "홍익돈까스": {
+  "url": "https://contents.sixshop.com/uploadedFiles/39154/default/image_1576722544028.png",
+  "domain": "www.hongikdonkatsu.com",
+  "px": 850
+ },
+ "싸다아구찜&탕": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "고돼지": {
+  "url": "",
+  "domain": "www.gomango.kr",
+  "px": 0
+ },
+ "노량진의 전설 미스사이공(miss420)": {
+  "url": "",
+  "domain": "www.miss420.net",
+  "px": 0
+ },
+ "명가통닭": {
+  "url": "https://mgchamfood.com/images/favicon.ico",
+  "domain": "mgchamfood.com",
+  "px": 256
+ },
+ "고래맥주창고": {
+  "url": "https://storage.googleapis.com/cr-resource/image/639af337333cd6bc90d341b8ab8cc35c/1180202/1180202-screen-thumb.png?_1785558629",
+  "domain": "whalebeerfactory.shop",
+  "px": 370
+ },
+ "자가제빵 선명희피자": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "명인만두": {
+  "url": "http://mi-mandoo.co.kr/images/sns_link.png",
+  "domain": "www.mi-mandoo.co.kr",
+  "px": 400
+ },
+ "이것이국밥이다": {
+  "url": "https://byeolhaexp.com/theme/kt001b/thumbnail.jpg",
+  "domain": "byeolhaexp.com",
+  "px": 400
+ },
+ "버거리(BURGERRY)": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316004958",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "난타5000피자": {
+  "url": "https://nanta5000.co.kr/images/favi.ico",
+  "domain": "nanta5000.co.kr",
+  "px": 256
+ },
+ "홍콩할매닭발명가": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "꼬지사께": {
+  "url": "http://kkojisakke.com/new/img/common/bi.png",
+  "domain": "www.kkojisakke.com",
+  "px": 80
+ },
+ "일품대패": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316004958",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "와플칸": {
+  "url": "",
+  "domain": "www.wafflekhan.com",
+  "px": 0
+ },
+ "봉명가닭도리탕": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "순수타코": {
+  "url": "https://d214w0arlvd25g.cloudfront.net/favicon/android-icon-192x192.png",
+  "domain": "tonymoly.com",
+  "px": 192
+ },
+ "대동집": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316004958",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "만복집": {
+  "url": "https://www.store114.net/favicon.ico",
+  "domain": "www.store114.net",
+  "px": 256
+ },
+ "타코비": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "맛찬들왕소금구이": {
+  "url": "",
+  "domain": "www.matwang.com",
+  "px": 0
+ },
+ "육만사": {
+  "url": "",
+  "domain": "www.nadoweb.co.kr",
+  "px": 0
+ },
+ "만랩커피": {
+  "url": "https://cdn.imweb.me/thumbnail/20240109/f6d47700b60e2.png",
+  "domain": "www.10000lab.com",
+  "px": 196
+ },
+ "태리로제떡볶이&닭강정": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "달롱도르요거트아이스크림": {
+  "url": "https://dallondor.com/images/favicon.ico",
+  "domain": "dallondor.com",
+  "px": 48
+ },
+ "청담동말자싸롱": {
+  "url": "https://www.malja.co.kr/resources/images/logo_300x300.png",
+  "domain": "www.malja.co.kr",
+  "px": 300
+ },
+ "육회왕자연어공주": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "인생건어물맥주": {
+  "url": "https://cdn.imweb.me/thumbnail/20220818/6b1cdd353609b.png",
+  "domain": "www.xn--z69a93zqhewvfroc.com",
+  "px": 196
+ },
+ "88제육": {
+  "url": "https://weseb.com/SJB/skin_board/korea/sosangincon.ico",
+  "domain": "weseb.com",
+  "px": 64
+ },
+ "디디치킨(DD치킨)": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011330",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "할머니가래떡볶이": {
+  "url": "",
+  "domain": "halgadduk.co.kr",
+  "px": 0
+ },
+ "김치찜은못참지": {
+  "url": "https://myfranchise.kr/apple-touch-icon.png",
+  "domain": "myfranchise.kr",
+  "px": 180
+ },
+ "리얼펍": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011330",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "감동까스": {
+  "url": "https://gamdongfc.com/thumbnail.jpg?v3",
+  "domain": "gamdongfc.com",
+  "px": 400
+ },
+ "롱쓰부대찌개": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "그놈포차": {
+  "url": "https://www.gnompocha.com/meta_img.jpg",
+  "domain": "www.gnompocha.com",
+  "px": 400
+ },
+ "떡볶이 참 잘하는 집, 떡참": {
+  "url": "https://www.tteokcham.com:443/superboard/data/siteconfig/2023062615035016877594303605.png",
+  "domain": "www.tteokcham.com",
+  "px": 1813
+ },
+ "담아내다": {
+  "url": "https://www.slist.kr/image/logo/snslogo_20211012100442.png",
+  "domain": "www.slist.kr",
+  "px": 200
+ },
+ "모리커피": {
+  "url": "https://www.illycaffe.co.kr/images/ico/ico_illy.ico",
+  "domain": "www.illycaffe.co.kr",
+  "px": 16
+ },
+ "택이네 조개전골": {
+  "url": "",
+  "domain": "www.xn--950b363bqug.com",
+  "px": 0
+ },
+ "포메인": {
+  "url": "",
+  "domain": "www.phomein.com",
+  "px": 0
+ },
+ "샐러리아 SALARIA": {
+  "url": "https://infosori.com/sori/skin_board/korea/icon/infosoricon.ico",
+  "domain": "infosori.com",
+  "px": 64
+ },
+ "행복한찜닭": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "오마뎅": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011330",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "볶음밥도사": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "물회&회덮밥9900원": {
+  "url": "https://frandoor.co.kr/opengraph-image?4d1673028d1c2630",
+  "domain": "frandoor.co.kr",
+  "px": 630
+ },
+ "도야짬뽕": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316002358",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "강다짐": {
+  "url": "https://www.gimhae.go.kr/scms-static/img/inc/logo_h1.png",
+  "domain": "www.gimhae.go.kr",
+  "px": 60
+ },
+ "무모한 초밥": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "둘둘치킨": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011331",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "다복향 마라탕": {
+  "url": "https://cdn.imweb.me/thumbnail/20210520/47161d1281126.png",
+  "domain": "dabokhyang.com",
+  "px": 196
+ },
+ "화평댁닭구이": {
+  "url": "https://fchamall.com/icon-192.png",
+  "domain": "fchamall.com",
+  "px": 192
+ },
+ "옥된장": {
+  "url": "https://kmong.com/apple-touch-icon.png",
+  "domain": "kmong.com",
+  "px": 181
+ },
+ "콩심": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011331",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "북창동순두부": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011331",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "걸작떡볶이치킨": {
+  "url": "https://www.eguljak.com/upload/siteset/BI_국영문_타이틀.png",
+  "domain": "www.eguljak.com",
+  "px": 1169
+ },
+ "편편집": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "내가닭도리탕이다": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011331",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "미카도스시": {
+  "url": "",
+  "domain": "www.mikadosushi.co.kr",
+  "px": 0
+ },
+ "병아리김밥": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "등뼈家": {
+  "url": "https://cdn.imweb.me/thumbnail/20220216/68cc252b2878d.png",
+  "domain": "www.ocenth.com",
+  "px": 196
+ },
+ "장충동왕족발보쌈": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011331",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "삼동소바": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "제육의 법칙": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "국민낙곱새": {
+  "url": "https://img1.kbcard.com/LT/images/common/ico/kb.ico",
+  "domain": "card.kbcard.com",
+  "px": 48
+ },
+ "씨네마얼음맥주": {
+  "url": "https://linktr.ee/_marketing/images/creators/link-in-bio-tool-everything-you-are-in-one-simple-link-f22b2ecd.png",
+  "domain": "linktr.ee",
+  "px": 256
+ },
+ "맛있는 고기에 솜씨를 더하다": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "배터지는생동까스": {
+  "url": "",
+  "domain": "www.jinjinpig.co.kr",
+  "px": 0
+ },
+ "커피사피엔스": {
+  "url": "https://kmong.com/apple-touch-icon.png",
+  "domain": "kmong.com",
+  "px": 181
+ },
+ "압구정화로구이": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "쌀통닭": {
+  "url": "https://www.ssaltongdak.com/data/file/seo/default.png",
+  "domain": "www.ssaltongdak.com",
+  "px": 336
+ },
+ "와우당 냉면": {
+  "url": "https://fchamall.com/icon-192.png",
+  "domain": "fchamall.com",
+  "px": 192
+ },
+ "구도로통닭": {
+  "url": "",
+  "domain": "gudoro.com",
+  "px": 0
+ },
+ "모락떡볶이": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "냠냠숯불두마리치킨": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "봉자막창": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316002358",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "혜화동 돈까스극장": {
+  "url": "https://cdn.imweb.me/thumbnail/20251128/b76e71664a293.png",
+  "domain": "www.cowboy2014.com",
+  "px": 196
+ },
+ "뉴욕야시장": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "국밥생각": {
+  "url": "",
+  "domain": "www.nongup.net",
+  "px": 0
+ },
+ "육쌈냉면": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011331",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "뿅가야채곱창": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "방가네소고기국밥수육": {
+  "url": "",
+  "domain": "bangga.kr",
+  "px": 0
+ },
+ "브라운돈까스": {
+  "url": "https://browntonkatsu.com/favicon.ico",
+  "domain": "www.browntonkatsu.com",
+  "px": 256
+ },
+ "현풍닭칼국수": {
+  "url": "",
+  "domain": "www.hyunpungkalguksu.com",
+  "px": 0
+ },
+ "자연정가 양평해장국": {
+  "url": "",
+  "domain": "www.woogayp.co.kr",
+  "px": 0
+ },
+ "원유로스페셜티커피": {
+  "url": "https://cdn.imweb.me/thumbnail/20220526/70420f83c9239.png",
+  "domain": "1eurocoffee.com",
+  "px": 196
+ },
+ "캠토토스트": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011331",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "맛깔참죽": {
+  "url": "http://www.yesjuk.com/_images/common/thumb_img.png",
+  "domain": "www.yesjuk.com",
+  "px": 400
+ },
+ "지호한방삼계탕": {
+  "url": "https://jihofood.com/wp-content/uploads/2025/06/fav.png",
+  "domain": "jihofood.com",
+  "px": 113
+ },
+ "참이맛감자탕": {
+  "url": "",
+  "domain": "www.chamimat.co.kr",
+  "px": 0
+ },
+ "청솔로9": {
+  "url": "https://cdn.imweb.me/thumbnail/20220224/14cc1f4ef2d09.png",
+  "domain": "cheongsolro9.com",
+  "px": 196
+ },
+ "정통집": {
+  "url": "https://weseb.com/SJB/skin_board/korea/sosangincon.ico",
+  "domain": "weseb.com",
+  "px": 64
+ },
+ "오늘통닭": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011331",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "대패가1900": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011331",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "고집센그집갈비탕": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011331",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "왓더버거": {
+  "url": "https://whattheburger.co.kr/theme/business/img/og_img.png",
+  "domain": "whattheburger.co.kr",
+  "px": 352
+ },
+ "이춘봉치킨": {
+  "url": "",
+  "domain": "xn--9n3b23etshra259e96ao8h.kr",
+  "px": 0
+ },
+ "무청감자탕": {
+  "url": "https://cdn.shinailbo.co.kr/favicon.ico",
+  "domain": "www.shinailbo.co.kr",
+  "px": 48
+ },
+ "웅이네 오돌뼈": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "계동치킨": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011331",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "맛나감자탕": {
+  "url": "",
+  "domain": "www.mattna.com",
+  "px": 0
+ },
+ "아부찌부대찌개": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "샐러디아": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "효자동솥뚜껑삼겹살감자탕순대국": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "충만치킨": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011332",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "부산아지매국밥": {
+  "url": "https://www.busanajimae.com/images/og.jpg",
+  "domain": "www.busanajimae.com",
+  "px": 340
+ },
+ "호시타코야끼": {
+  "url": "https://infosori.com/sori/skin_board/korea/icon/infosoricon.ico",
+  "domain": "infosori.com",
+  "px": 64
+ },
+ "이동규인왔따쪽갈비": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "백스비어": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011332",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "짝태&노가리": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011332",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "돈까스짱": {
+  "url": "",
+  "domain": "www.xn--9l0bk6jwzelwe938a.com",
+  "px": 0
+ },
+ "수내닭꼬치": {
+  "url": "https://xn--vr0b12a12cz10adoo.com/layouts/pc_main/_images/icon/homescreen.png",
+  "domain": "xn--vr0b12a12cz10adoo.com",
+  "px": 460
+ },
+ "모토이시": {
+  "url": "",
+  "domain": "motoishi.co.kr",
+  "px": 0
+ },
+ "고망고": {
+  "url": "",
+  "domain": "www.gomango.kr",
+  "px": 0
+ },
+ "만타스시31": {
+  "url": "https://www.gimhae.go.kr/scms-static/img/inc/logo_h1.png",
+  "domain": "www.gimhae.go.kr",
+  "px": 60
+ },
+ "아주커": {
+  "url": "https://www.ajuker.co.kr/upfiles/banner/903235219.jpg",
+  "domain": "www.ajuker.co.kr",
+  "px": 300
+ },
+ "비스트로피자": {
+  "url": "https://cdn.imweb.me/thumbnail/20260424/d686dcaeaded3.png",
+  "domain": "www.bistropizza.co.kr",
+  "px": 196
+ },
+ "별난아재맥주": {
+  "url": "https://xn--e20b39o7kcz6m95cwrc.com/meta_img.jpg",
+  "domain": "xn--e20b39o7kcz6m95cwrc.com",
+  "px": 400
+ },
+ "마선생마약국밥": {
+  "url": "https://www.masunsaeng.com/new_main_img.jpg",
+  "domain": "www.masunsaeng.com",
+  "px": 600
+ },
+ "상상오리": {
+  "url": "https://cdn.imweb.me/thumbnail/20250407/08989fb027b63.png",
+  "domain": "ss5292.com",
+  "px": 196
+ },
+ "두부만드는사람들": {
+  "url": "https://www.jumpoline.com/images/common/static/apple_touch_icon.png",
+  "domain": "www.jumpoline.com",
+  "px": 180
+ },
+ "스트릿츄러스": {
+  "url": "https://www.sonohotelsresorts.com/favicon114x114.png",
+  "domain": "www.sonohotelsresorts.com",
+  "px": 114
+ },
+ "카페인24": {
+  "url": "https://cdn.imweb.me/thumbnail/20251027/88b40e0bdd97c.png",
+  "domain": "cafein24.co.kr",
+  "px": 196
+ },
+ "림스치킨": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011442",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "짚신매운갈비찜": {
+  "url": "https://www.zipsinfood.co.kr/img/common/bi.png",
+  "domain": "www.zipsinfood.co.kr",
+  "px": 42
+ },
+ "백돈": {
+  "url": "",
+  "domain": "dk-on.com",
+  "px": 0
+ },
+ "유미카츠": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "싸움의고수": {
+  "url": "https://linkareer.com/images/ic-launcher-192.png",
+  "domain": "linkareer.com",
+  "px": 192
+ },
+ "언양닭칼국수": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "동경에서먹었던규동": {
+  "url": "https://cdn.imweb.me/thumbnail/20231007/0a13ab571c84f.png",
+  "domain": "tokyo-gyudong.com",
+  "px": 196
+ },
+ "COFFEE COOK (커피쿡)": {
+  "url": "https://www.ju.st/apple-icon.png?apple-icon.d5e23a05.png",
+  "domain": "www.ju.st",
+  "px": 512
+ },
+ "올떡": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "수백당": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316002358",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "명태어장": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011442",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "커피나인": {
+  "url": "https://comma9.co.kr/web/upload/favicon-2dff534f70eb8fee17db2767b1eb5210.ico",
+  "domain": "comma9.co.kr",
+  "px": 16
+ },
+ "정성카츠": {
+  "url": "https://assets.imginn.com/icons/180.png",
+  "domain": "imginn.com",
+  "px": 180
+ },
+ "숯불에닭": {
+  "url": "https://imdak.co.kr/favicon.ico",
+  "domain": "imdak.co.kr",
+  "px": 32
+ },
+ "퀴즈노스서브": {
+  "url": "",
+  "domain": "www.quiznos.co.kr",
+  "px": 0
+ },
+ "브라더한정식도시락": {
+  "url": "https://www.brotherfnh.com/favicon.ico",
+  "domain": "www.brotherfnh.com",
+  "px": 16
+ },
+ "영커피": {
+  "url": "https://cdn.imweb.me/thumbnail/20240204/5fdd07f38cb01.png",
+  "domain": "youngcoffee.co.kr",
+  "px": 196
+ },
+ "두레통닭": {
+  "url": "https://www.kbsm.net/favicon-192x192.png",
+  "domain": "www.kbsm.net",
+  "px": 192
+ },
+ "지지고(GGGO)": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "파스타에반하다": {
+  "url": "https://pastafallinlove.com:443/superboard/data/siteconfig/2023022111090916769453495611.ico",
+  "domain": "pastafallinlove.com",
+  "px": 256
+ },
+ "한양화로": {
+  "url": "https://www.skyedaily.com/images_v1/favicon192.png",
+  "domain": "www.skyedaily.com",
+  "px": 192
+ },
+ "유가네한우곰탕": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011442",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "박군치킨": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011442",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "과일담은 요거트 맛집 요맛": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "컬투치킨": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "달떡볶이": {
+  "url": "https://www.mimint.co.kr/favicon.ico",
+  "domain": "www.mimint.co.kr",
+  "px": 256
+ },
+ "일일수작": {
+  "url": "https://www.mimint.co.kr/favicon.ico",
+  "domain": "www.mimint.co.kr",
+  "px": 256
+ },
+ "치교치밥&치킨": {
+  "url": "https://www.changupdo.com/favicon_changupdo.ico",
+  "domain": "www.changupdo.com",
+  "px": 100
+ },
+ "서오릉피자": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011442",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "마포냉면 숯불구이": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "삼겹본능": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011442",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "칠봉통닭": {
+  "url": "https://ftmt.purpleo.co.kr:443/favicon.ico",
+  "domain": "ftmt.purpleo.co.kr",
+  "px": 64
+ },
+ "차얌": {
+  "url": "",
+  "domain": "www.chayam.co.kr",
+  "px": 0
+ },
+ "한끼한죽": {
+  "url": "https://cdn.imweb.me/thumbnail/20240523/b2a31aba288b1.png",
+  "domain": "modooz.com",
+  "px": 196
+ },
+ "동네커피": {
+  "url": "https://www.dongnae-coffee.com/etc_img/logo_sns.png",
+  "domain": "www.dongnae-coffee.com",
+  "px": 315
+ },
+ "배무치숯불두마리치킨": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "놀부보쌈족발": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "유로코피자(EUROKO PIZZA)": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011443",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "백남옥달인손만두": {
+  "url": "",
+  "domain": "www.wonmiga.com",
+  "px": 0
+ },
+ "명랑부대찌개&낙곱새": {
+  "url": "http://myungrangfood.com/img/sns.jpg",
+  "domain": "www.myungrangfood.com",
+  "px": 200
+ },
+ "교반": {
+  "url": "https://www.jeiotech.com/apple-touch-icon.png",
+  "domain": "www.jeiotech.com",
+  "px": 180
+ },
+ "솔솥": {
+  "url": "https://t1.kakaocdn.net/story_static/public/web/story_icon_180x180_0203.png",
+  "domain": "story.kakao.com",
+  "px": 180
+ },
+ "식사하세요": {
+  "url": "https://program-image.cloud.sbs.co.kr/og/2025/sbs_home.png",
+  "domain": "programs.sbs.co.kr",
+  "px": 420
+ },
+ "헤즈업": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316002358",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "홍대쌀국수": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "킹치찌개찜": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "오늘은전골": {
+  "url": "https://cdn.nc.press/favicon.ico",
+  "domain": "www.nc.press",
+  "px": 48
+ },
+ "돈카츠마켙": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "토리키치": {
+  "url": "https://tblg.k-img.com/images/smartphone/favicon.ico?20230727",
+  "domain": "tabelog.com",
+  "px": 180
+ },
+ "짬뽕관": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "스쿨푸드": {
+  "url": "",
+  "domain": "www.schoolfood.co.kr",
+  "px": 0
+ },
+ "한라맥주": {
+  "url": "https://www.visitjeju.net/favicon.ico",
+  "domain": "www.visitjeju.net",
+  "px": 16
+ },
+ "홍춘천": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011443",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "케이엠지엠홀덤앤이벤트펍(KMGM HOLD’EM & EVENT PUB)": {
+  "url": "https://www.hwasun.go.kr/favicon.ico",
+  "domain": "www.hwasun.go.kr",
+  "px": 16
+ },
+ "해탄": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316002358",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "더진국": {
+  "url": "https://thejincook.com/img/bi.jpg",
+  "domain": "thejincook.com",
+  "px": 420
+ },
+ "1도씨맥주(1℃ 맥주)": {
+  "url": "https://1doc.co.kr/img/common/bi.png",
+  "domain": "1doc.co.kr",
+  "px": 48
+ },
+ "제주옥탑": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "화화돼지왕갈비": {
+  "url": "https://cdn.imweb.me/upload/S20260516d17fa423d4836/0dca99c68f675.ico",
+  "domain": "www.xn--9x8ba.com",
+  "px": 16
+ },
+ "또띠아그램": {
+  "url": "https://t1.kakaocdn.net/story_static/public/web/story_icon_180x180_0203.png",
+  "domain": "story.kakao.com",
+  "px": 180
+ },
+ "찐하오 마라탕": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "아마스빈코리아": {
+  "url": "https://www.changupdo.com/favicon_changupdo.ico",
+  "domain": "www.changupdo.com",
+  "px": 100
+ },
+ "화로상회": {
+  "url": "https://hwarosanghoe.com/images/favi.ico",
+  "domain": "hwarosanghoe.com",
+  "px": 256
+ },
+ "아재불닭발": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "달빛경성술집": {
+  "url": "https://weseb.com/SJB/skin_board/korea/sosangincon.ico",
+  "domain": "weseb.com",
+  "px": 64
+ },
+ "어처구니없는두릉도원북촌순두부": {
+  "url": "https://www.changupdo.com/favicon_changupdo.ico",
+  "domain": "www.changupdo.com",
+  "px": 100
+ },
+ "월간맥주": {
+  "url": "https://www.monthlybeer.co.kr:443/superboard/data/siteconfig/2022051910533216529252123084.png",
+  "domain": "www.monthlybeer.co.kr",
+  "px": 50
+ },
+ "준코노래타운": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011443",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "우주라이크(WOULDULIKE)": {
+  "url": "https://zdnet.co.kr/favicon.ico?ver=20220902",
+  "domain": "zdnet.co.kr",
+  "px": 48
+ },
+ "파스타도 식사다": {
+  "url": "",
+  "domain": "galaxystar.co.kr",
+  "px": 0
+ },
+ "뜸들이다": {
+  "url": "https://dszw1qtcnsa5e.cloudfront.net/bin/live/console-community-view/assets/common/pc-favicon.ico",
+  "domain": "forum.nexon.com",
+  "px": 144
+ },
+ "피자와썹": {
+  "url": "https://infosori.com/sori/skin_board/korea/icon/infosoricon.ico",
+  "domain": "infosori.com",
+  "px": 64
+ },
+ "지정환피자": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011443",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "Egg2000": {
+  "url": "https://www.englishegg.com/favicon.ico",
+  "domain": "www.englishegg.com",
+  "px": 48
+ },
+ "하륜일만족발": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "한남동그집": {
+  "url": "https://cdn.ksilbo.co.kr/image/logo/favicon.png",
+  "domain": "www.ksilbo.co.kr",
+  "px": 48
+ },
+ "교동면옥": {
+  "url": "https://www.daegufood.go.kr/kor/images/kakao.gif",
+  "domain": "www.daegufood.go.kr",
+  "px": 200
+ },
+ "샤브20": {
+  "url": "https://shabu20.com/data/image/20260603/2887647742_mg4eVRl5_2cfd16a7de48dbfe72e42a3ec0a95b7bb6905e7a.png",
+  "domain": "shabu20.com",
+  "px": 500
+ },
+ "본가왕뼈 감자탕": {
+  "url": "",
+  "domain": "www.mjfood.net",
+  "px": 0
+ },
+ "153구포국수": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011443",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "무공돈까스": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "미스터빠삭": {
+  "url": "",
+  "domain": "www.wowtv.co.kr",
+  "px": 0
+ },
+ "몬스터탕수육": {
+  "url": "https://1kgtang.com/wp-content/uploads/2023/01/cropped-favicon-192x192.png",
+  "domain": "1kgtang.com",
+  "px": 192
+ },
+ "틈새라면": {
+  "url": "",
+  "domain": "www.teumsae.com",
+  "px": 0
+ },
+ "브레댄코(bread&amp;co.DAILY-NEW)": {
+  "url": "https://www.businesskorea.co.kr/image/logo/favicon.png",
+  "domain": "www.businesskorea.co.kr",
+  "px": 48
+ },
+ "번쩍피자": {
+  "url": "",
+  "domain": "1577-2595.co.kr",
+  "px": 0
+ },
+ "테라커피(TERA COFFEE)": {
+  "url": "",
+  "domain": "terabrew.com",
+  "px": 0
+ },
+ "모두의죽": {
+  "url": "https://cdn.imweb.me/thumbnail/20240523/b2a31aba288b1.png",
+  "domain": "modooz.com",
+  "px": 196
+ },
+ "부뚜막김치찜": {
+  "url": "https://www.jumpoline.com/images/common/static/apple_touch_icon.png",
+  "domain": "www.jumpoline.com",
+  "px": 180
+ },
+ "브런치빈": {
+  "url": "https://cdn.kihoilbo.co.kr/favicon.ico",
+  "domain": "www.kihoilbo.co.kr",
+  "px": 48
+ },
+ "핸즈커피 (HANDS COFFEE)": {
+  "url": "",
+  "domain": "www.handscoffee.com",
+  "px": 0
+ },
+ "스모프치킨": {
+  "url": "https://rereco.co/wp-content/uploads/2021/09/rereco-Thumbnail-for-Facebook_1200x630-1.jpg",
+  "domain": "rereco.co",
+  "px": 630
+ },
+ "배부장찌개": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011444",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "메가혼밥": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "가마솥순대국밥": {
+  "url": "https://polle.com/images/favicon/apple-touch-icon.png",
+  "domain": "polle.com",
+  "px": 180
+ },
+ "군자대한곱창": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "금화왕돈까스": {
+  "url": "https://kumhwaking.co.kr/img/common/bi.png",
+  "domain": "kumhwaking.co.kr",
+  "px": 41
+ },
+ "홍짜장": {
+  "url": "https://t1.kakaocdn.net/story_static/public/web/story_icon_180x180_0203.png",
+  "domain": "story.kakao.com",
+  "px": 180
+ },
+ "아웃닭": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011444",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "라사천마라탕": {
+  "url": "https://lasichuan.co.kr/wp-content/uploads/2024/09/siteicon-300x300.jpg",
+  "domain": "lasichuan.co.kr",
+  "px": 300
+ },
+ "송주불냉면앤칼국수": {
+  "url": "https://startuplus.kr/apple-touch-icon.png",
+  "domain": "startuplus.kr",
+  "px": 180
+ },
+ "유캔두잇": {
+  "url": "http://ucandoeat.com/images/sns_link_new.png",
+  "domain": "ucandoeat.com",
+  "px": 400
+ },
+ "버무리떡볶이": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "누리마을감자탕": {
+  "url": "https://www.nurinuri.com/assets/favicon/favicon-96x96.png",
+  "domain": "www.nurinuri.com",
+  "px": 96
+ },
+ "호두당": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "나드리김밥": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011444",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "남썬치킨": {
+  "url": "https://cdn.imweb.me/thumbnail/20260502/0df951ec0fa25.png",
+  "domain": "namsunchicken.co.kr",
+  "px": 196
+ },
+ "신떡순 신천할매떡볶이": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "오븐에 빠진 막창": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "만족오향족발": {
+  "url": "https://cdn.imweb.me/thumbnail/20230828/89e108a902ae9.png",
+  "domain": "www.manjok.net",
+  "px": 196
+ },
+ "국제통닭": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011444",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "호밀호두": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011444",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "브런치앤다이닝37.5(Brunch&Dining37.5)": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "이바우국밥": {
+  "url": "",
+  "domain": "income24.hera04946.com",
+  "px": 0
+ },
+ "엑스오엑스오핫도그앤커피": {
+  "url": "https://www.2xohotdog.com/favicon.ico",
+  "domain": "www.2xohotdog.com",
+  "px": 256
+ },
+ "오븐에빠진닭": {
+  "url": "https://ecimg.cafe24img.com/pg2696b65764996061/etang3651/web/upload/share-image-2-3157b10fc5fb98497bca7df018ebc834.jpg",
+  "domain": "oppadak.co.kr",
+  "px": 628
+ },
+ "밀면의 법칙": {
+  "url": "https://program-image.cloud.sbs.co.kr/og/2025/sbs_home.png",
+  "domain": "programs.sbs.co.kr",
+  "px": 420
+ },
+ "맥도날드": {
+  "url": "https://www.mcdonalds.co.kr/favicon.ico",
+  "domain": "www.mcdonalds.co.kr",
+  "px": 32
+ },
+ "성북당 십원빵": {
+  "url": "https://startuplus.kr/apple-touch-icon.png",
+  "domain": "startuplus.kr",
+  "px": 180
+ },
+ "계계속속": {
+  "url": "",
+  "domain": "www.nadoweb.co.kr",
+  "px": 0
+ },
+ "을찌로국물떡볶이": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "피자는 치즈빨": {
+  "url": "https://static.wixstatic.com/media/4ac065_02f992a38cc14d52b10aacac1387c183%7Emv2.png/v1/fill/w_192%2Ch_192%2Clg_1%2Cusm_0.66_1.00_0.01/4ac065_02f992a38cc14d52b10aacac1387c183%7Emv2.png",
+  "domain": "www.pizzaischeese.com",
+  "px": 192
+ },
+ "바나타이거": {
+  "url": "https://cdn.mhns.co.kr/image/logo/favicon.ico",
+  "domain": "www.mhns.co.kr",
+  "px": 48
+ },
+ "죽도령": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "더맛있는족발보쌈": {
+  "url": "https://cdn.imweb.me/thumbnail/20230818/07a03750c04bd.png",
+  "domain": "xn--sh1b6nw5n8pcxvw8ib.kr",
+  "px": 196
+ },
+ "동래정 백탄직화": {
+  "url": "https://cdn.imweb.me/thumbnail/20240612/97801a650af19.png",
+  "domain": "dongraejeong.com",
+  "px": 196
+ },
+ "광안천지식당": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "신마포갈매기": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011445",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "남다른감자탕": {
+  "url": "https://www.namzatang.com/img/common/og_img.jpeg",
+  "domain": "www.namzatang.com",
+  "px": 800
+ },
+ "호주에서 온 스시": {
+  "url": "",
+  "domain": "xn--2i4b21a2e59ivm63lu72a.com",
+  "px": 0
+ },
+ "참맛죽": {
+  "url": "https://www.visitbusan.net/favicon.ico",
+  "domain": "www.visitbusan.net",
+  "px": 48
+ },
+ "강순자옛맛김치찌개": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "청담이상": {
+  "url": "",
+  "domain": "www.cdleesang.co.kr",
+  "px": 0
+ },
+ "홍탕": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011445",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "앗뜨죽": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "국제시장 돼지국밥": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "마실커피": {
+  "url": "https://cdn.imweb.me/upload/S202603187655f14dd3835/c4596cc282638.png",
+  "domain": "www.masilcoffee.com",
+  "px": 48
+ },
+ "은화수식당": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011445",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "영삼이네우정소갈비": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "피굽남피자": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011445",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "두번먹는명인김치찜": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "이바돔감자탕": {
+  "url": "https://www.ebadom.com/img/common/bi.png",
+  "domain": "www.ebadom.com",
+  "px": 40
+ },
+ "윤검푸드 봉수아피자": {
+  "url": "https://storage.googleapis.com/cr-resource/image/7143efbdd7cb96af8e4a289b5cd263a2/bongsua/650/44c8ba1222e7f6d39441f40ec5d00f40.jpg?_1785563138",
+  "domain": "www.bongsuapizza.com",
+  "px": 370
+ },
+ "영계소문옛날통닭": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "5.5닭갈비": {
+  "url": "",
+  "domain": "www.yoogane.co.kr",
+  "px": 0
+ },
+ "진교동찜닭": {
+  "url": "https://cdn.imweb.me/thumbnail/20260311/327aa366c0056.png",
+  "domain": "jingyodongjjimdak.com",
+  "px": 196
+ },
+ "에이바우트커피": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785559625762",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "제줏간": {
+  "url": "https://cdn.imweb.me/thumbnail/20260701/8d8f605997413.png",
+  "domain": "jejusgan.com",
+  "px": 196
+ },
+ "육미명가옛날아우내순대&보쌈": {
+  "url": "",
+  "domain": "www.nadoweb.co.kr",
+  "px": 0
+ },
+ "오백국수": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011445",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "국밥은이거지": {
+  "url": "https://24do.co.kr/web/upload/logo/open.jpg",
+  "domain": "24do.co.kr",
+  "px": 420
+ },
+ "세광양대창": {
+  "url": "https://www.sgfco.kr/img/common/favicon.ico",
+  "domain": "www.sgfco.kr",
+  "px": 64
+ },
+ "퐁치커피익스프레스": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "벤티프레소": {
+  "url": "https://www.theventi.co.kr/favicon.ico?220119v1",
+  "domain": "www.theventi.co.kr",
+  "px": 16
+ },
+ "찌개공방": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "바나프레소": {
+  "url": "https://www.banapresso.com/ico_logo.ico",
+  "domain": "www.banapresso.com",
+  "px": 64
+ },
+ "뽁떡떡볶이": {
+  "url": "https://www.tiktok.com/apple-touch-icon.png",
+  "domain": "www.tiktok.com",
+  "px": 400
+ },
+ "뽁당": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316093124",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "전설의치킨": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011445",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "2피자1치킨상회": {
+  "url": "https://cdn.imweb.me/thumbnail/20250526/34a7cdb8fb0fa.png",
+  "domain": "2pizza1chicken.co.kr",
+  "px": 196
+ },
+ "김충기꽃삼겹": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "본래순대": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011445",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "요거트퍼플": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "해산물직화구이전문점삼바리": {
+  "url": "https://www.sambari.co.kr/_public/images/common/sambaripavi.png",
+  "domain": "www.sambari.co.kr",
+  "px": 16
+ },
+ "이태리양조장": {
+  "url": "https://cdn.buza.biz/w512/q100/f_png/configs/2026-05-28/d2642ecf-b1b1-4f98-83ee-232accff17b5.png",
+  "domain": "buza.biz",
+  "px": 512
+ },
+ "아이엠도넛(IamDonut)": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "미쳐버린파닭": {
+  "url": "",
+  "domain": "mipachicken.net",
+  "px": 0
+ },
+ "한옥마을": {
+  "url": "https://hanok.seoul.go.kr/favicon.ico",
+  "domain": "hanok.seoul.go.kr",
+  "px": 16
+ },
+ "육전국밥": {
+  "url": "",
+  "domain": "www.yukjeon.net",
+  "px": 0
+ },
+ "1992덮밥&짜글이": {
+  "url": "https://cdn.imweb.me/thumbnail/20230510/1be39244a9fef.png",
+  "domain": "xn--1992-jk5pt4xh0p0kvm4e.com",
+  "px": 196
+ },
+ "오늘,와인한잔": {
+  "url": "",
+  "domain": "www.oneulwine.co.kr",
+  "px": 0
+ },
+ "김순덕원조부안집": {
+  "url": "",
+  "domain": "www.sbiz.or.kr",
+  "px": 0
+ },
+ "카츠백": {
+  "url": "https://www.suto.co.kr/apple-touch-icon.png",
+  "domain": "www.suto.co.kr",
+  "px": 180
+ },
+ "봉이치킨": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011446",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "손큰할매순대국": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "보돌미역": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011446",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "안주가": {
+  "url": "https://topcoat.co.jp/assets/topcoat_official/apple-touch-icon.png",
+  "domain": "topcoat.co.jp",
+  "px": 180
+ },
+ "떡군이네떡볶이": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "뽕뜨락피자": {
+  "url": "https://www.bbongdderak.com/img/android-icon-192x192.png",
+  "domain": "www.bbongdderak.com",
+  "px": 192
+ },
+ "노걸대": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011446",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "리틀꼬마김밥": {
+  "url": "https://cdn.imweb.me/thumbnail/20210510/e95b3e8a151e2.png",
+  "domain": "littlekkoma.kr",
+  "px": 196
+ },
+ "오한수우육면가": {
+  "url": "https://www.seouldanurim.net/humanframe/theme/danurim/assets/image/favi.png",
+  "domain": "www.seouldanurim.net",
+  "px": 66
+ },
+ "하노이맥주밤거리": {
+  "url": "https://hanoimacbam.com/img/common/bi.png",
+  "domain": "hanoimacbam.com",
+  "px": 126
+ },
+ "심봉사도로케": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011446",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "복고다방": {
+  "url": "https://cdn.asiaa.co.kr/image/logo/favicon.png",
+  "domain": "www.asiaa.co.kr",
+  "px": 48
+ },
+ "황해수육": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "상무초밥": {
+  "url": "https://sangmusushi.kr/img/common/bi.png",
+  "domain": "sangmusushi.kr",
+  "px": 101
+ },
+ "차차커피코": {
+  "url": "https://chachacoffeeco.com/file/654550424",
+  "domain": "chachacoffeeco.com",
+  "px": 256
+ },
+ "테트리스찜닭": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011446",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "육장갈비": {
+  "url": "https://static.parastorage.com/client/pfavico.ico",
+  "domain": "www.fctime.net",
+  "px": 16
+ },
+ "굴세상": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011446",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "이라이타코야끼": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "샤브올데이": {
+  "url": "https://sballday.speedycdn.net/img/common/bi.jpg",
+  "domain": "xn--2n1b54rn9bt2h5vb.com",
+  "px": 420
+ },
+ "계림원누릉지통닭구이": {
+  "url": "",
+  "domain": "www.kyelimwon.com",
+  "px": 0
+ },
+ "샤브로21": {
+  "url": "https://shaburo21.com/favicon.ico",
+  "domain": "shaburo21.com",
+  "px": 200
+ },
+ "평화김해뒷고기": {
+  "url": "https://cdn.imweb.me/thumbnail/20250515/b388bda5bec4b.png",
+  "domain": "xn--299ayylb935bi35bidc00b.com",
+  "px": 196
+ },
+ "추오정": {
+  "url": "",
+  "domain": "www.chuojung.com",
+  "px": 0
+ },
+ "조선부뚜막": {
+  "url": "https://thevc.kr/icons/android-icon-192x192.png",
+  "domain": "thevc.kr",
+  "px": 192
+ },
+ "바빈스": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "마시그래이": {
+  "url": "",
+  "domain": "www.masigray.com",
+  "px": 0
+ },
+ "네오피자": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011446",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "마일로(MILO)": {
+  "url": "https://flyasiana.com/favicon.ico",
+  "domain": "flyasiana.com",
+  "px": 24
+ },
+ "정성순대": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316002358",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "소코아": {
+  "url": "",
+  "domain": "duli.co.kr",
+  "px": 0
+ },
+ "돈기부여": {
+  "url": "",
+  "domain": "www.gov.kr",
+  "px": 0
+ },
+ "청담피자": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011446",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "김영희아구찜&코다리냉면": {
+  "url": "",
+  "domain": "www.e-happyfood.com",
+  "px": 0
+ },
+ "이우철한방누룽지삼계탕": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "쉼, 어묵 그리고 한잔 술": {
+  "url": "",
+  "domain": "www.suimthebar.com",
+  "px": 0
+ },
+ "아덴블랑제리": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "죠샌드위치": {
+  "url": "https://www.joessandwich.com/common/images/default/favicon.png",
+  "domain": "www.joessandwich.com",
+  "px": 32
+ },
+ "집밥e선생": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "청년고기장수": {
+  "url": "https://cdn.job-post.co.kr/favicon.ico",
+  "domain": "www.job-post.co.kr",
+  "px": 48
+ },
+ "청담곱떡": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "갯벌의 조개": {
+  "url": "https://seondori.com/wp-content/uploads/2023/06/cropped-favicon512-192x192.png",
+  "domain": "seondori.com",
+  "px": 192
+ },
+ "과일에반하다.프루타": {
+  "url": "https://cdn.imweb.me/thumbnail/20230613/1221c3ab65470.png",
+  "domain": "www.fruta.co.kr",
+  "px": 196
+ },
+ "입큰아구알곤이찜": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "돈통마늘보쌈": {
+  "url": "",
+  "domain": "www.dontongbossam.com",
+  "px": 0
+ },
+ "샤브보트": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011447",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "빵위에 치즈 피자앰플러": {
+  "url": "https://cdn.imweb.me/thumbnail/20240528/94f4ef0259039.png",
+  "domain": "breadcheese.co.kr",
+  "px": 196
+ },
+ "탐나는피자": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316093124",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "고씨네": {
+  "url": "https://www.kosine.net/favicon.ico",
+  "domain": "www.kosine.net",
+  "px": 256
+ },
+ "하르당": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "파란만잔": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "한식밥상": {
+  "url": "",
+  "domain": "www.hortitimes.com",
+  "px": 0
+ },
+ "뚝배기양평해장국": {
+  "url": "https://haejang.biz/wp-content/uploads/2022/08/신로고2.png",
+  "domain": "haejang.biz",
+  "px": 229
+ },
+ "명동찌개마을": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011447",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "나능이": {
+  "url": "https://fclh.purpleo.co.kr:443/favicon.ico",
+  "domain": "fclh.purpleo.co.kr",
+  "px": 64
+ },
+ "필라프에빠지다": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "경성한우국밥": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "타코아찌 타코야끼전문점": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "마녀김밥": {
+  "url": "https://menu.mt.co.kr/common/favicons/favicon-180.ico",
+  "domain": "www.mt.co.kr",
+  "px": 180
+ },
+ "달인의찜닭": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011447",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "여우애(愛)": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "오태식해바라기치킨": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "강창구찹쌀진순대": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "커피마마퀸": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011447",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "코지하우스": {
+  "url": "https://cdn.imweb.me/thumbnail/20241028/f7d5201653a1c.png",
+  "domain": "cozyhouse.kr",
+  "px": 196
+ },
+ "어사출또": {
+  "url": "https://storage.googleapis.com/i.addblock.net/default-favicon.ico",
+  "domain": "fishkingsjamsil.creatorlink.net",
+  "px": 64
+ },
+ "카페보스(CAFE BOSS)": {
+  "url": "https://apps.apple.com/assets/favicon/favicon-180.png",
+  "domain": "apps.apple.com",
+  "px": 180
+ },
+ "까몬(CAMO’N)": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "최가네크레이지떡볶이": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "소소떡볶이": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785559625762",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "토핑폭탄김치찜&김치찌개": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "청년치킨": {
+  "url": "https://www.ymchicken.co.kr:443/superboard/data/siteconfig/20240812163639_66b9bb87baf55_3f9d92aa0e0a62319fab34aa0c98cbc4c6ede0dd.png",
+  "domain": "www.ymchicken.co.kr",
+  "px": 533
+ },
+ "토리아에즈": {
+  "url": "https://tblg.k-img.com/images/smartphone/favicon.ico?20230727",
+  "domain": "tabelog.com",
+  "px": 180
+ },
+ "자연임실치즈피자": {
+  "url": "https://cdn.imweb.me/thumbnail/20220120/fc43d644fbd94.png",
+  "domain": "imsilcheese.co.kr",
+  "px": 196
+ },
+ "김형제고기의철학": {
+  "url": "https://assets.triple.guide/images/og-tag-app_download@4x.png",
+  "domain": "triple.guide",
+  "px": 1020
+ },
+ "임실N치즈피자": {
+  "url": "https://imsilncheesepizza.co.kr/theme/responsive_thejg/include/img/sns_logo.png",
+  "domain": "imsilncheesepizza.co.kr",
+  "px": 300
+ },
+ "고기,원칙": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "참다랑어 막주는 집": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "미스터국수왕": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "파스타예요": {
+  "url": "",
+  "domain": "galaxystar.co.kr",
+  "px": 0
+ },
+ "노상치킨": {
+  "url": "http://www.jeonmin.co.kr/image/logo/snslogo_20190906054611.jpg",
+  "domain": "www.jeonmin.co.kr",
+  "px": 200
+ },
+ "우이락": {
+  "url": "https://wooyirak.com/assets/favicon/favicon-96x96.png",
+  "domain": "wooyirak.com",
+  "px": 96
+ },
+ "88켄터키치킨&떡볶이": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "조선볶음밥": {
+  "url": "https://www.chunilmall.com/data/main.jpg",
+  "domain": "www.chunilmall.com",
+  "px": 392
+ },
+ "와드커피(WAD COFFEE)": {
+  "url": "https://cdn.imweb.me/thumbnail/20230620/805792d7e36aa.png",
+  "domain": "wadcoffee.com",
+  "px": 196
+ },
+ "메이크어딜리버리": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "피자덕": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "동명 카츠": {
+  "url": "",
+  "domain": "www.dmkatz.co.kr",
+  "px": 0
+ },
+ "피자와치킨의러브레터": {
+  "url": "https://www.loveletterds.com/images/common/loveletter.png",
+  "domain": "www.loveletterds.com",
+  "px": 200
+ },
+ "서가앤쿡": {
+  "url": "http://snsbrand.co.kr/sns/img/common/logo.png",
+  "domain": "www.seogaandcook.com",
+  "px": 40
+ },
+ "고더커피": {
+  "url": "https://cdn.imweb.me/thumbnail/20230621/df758032d924d.png",
+  "domain": "gothecoffee.com",
+  "px": 196
+ },
+ "풍국면": {
+  "url": "https://www.daegufood.go.kr/kor/images/kakao.gif",
+  "domain": "www.daegufood.go.kr",
+  "px": 200
+ },
+ "용추골순대미궁": {
+  "url": "https://www.soondea.com/images/common/logo.png",
+  "domain": "www.soondea.com",
+  "px": 38
+ },
+ "빙수를품은달인(빙품달)": {
+  "url": "https://ayo.pe.kr/resources/images/ayo.png",
+  "domain": "ayo.pe.kr",
+  "px": 642
+ },
+ "토마토도시락": {
+  "url": "https://www.tomatodosirak.co.kr/img/common/bi.png",
+  "domain": "www.tomatodosirak.co.kr",
+  "px": 61
+ },
+ "거진어부네 코다리": {
+  "url": "",
+  "domain": "www.gwgs.go.kr",
+  "px": 0
+ },
+ "일공공샤브&편백찜": {
+  "url": "https://cdn.imweb.me/thumbnail/20221206/eaf9ad9355f55.png",
+  "domain": "xn--ob0ba932kgvccvl.kr",
+  "px": 196
+ },
+ "밥스틸러 김치찜": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "닭장수후라이드和": {
+  "url": "https://cdn.imweb.me/thumbnail/20200421/fb0e3b62342ac.png",
+  "domain": "www.dakjangsu.com",
+  "px": 196
+ },
+ "노랑강정": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011447",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "뜨돈(DD'DON)": {
+  "url": "https://www.webtro.co.kr/og_img.jpg",
+  "domain": "www.webtro.co.kr",
+  "px": 630
+ },
+ "제이델링": {
+  "url": "https://pf.kakao.com/cdn/rocket/channel-home-web/production/187ca29/assets/favicon-CmO6ClOa.ico",
+  "domain": "pf.kakao.com",
+  "px": 48
+ },
+ "원조설악칡냉면": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "오봉도시락": {
+  "url": "http://www.iobong.com/dob_comm_img/mysiteimg.jpg",
+  "domain": "www.iobong.com",
+  "px": 300
+ },
+ "더웨이닝커피": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011447",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "NAN갈비장터": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "잔잔": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316093124",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "에바돈가츠": {
+  "url": "",
+  "domain": "xn--o39ao1mboh1okdok.com",
+  "px": 0
+ },
+ "이태리부대찌개": {
+  "url": "",
+  "domain": "www.italybudae.co.kr",
+  "px": 0
+ },
+ "빵장수단팥빵": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "101번지 남산돈까스": {
+  "url": "",
+  "domain": "www.namsan101.co.kr",
+  "px": 0
+ },
+ "30년 불멸의 닭발": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "마장동김씨": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316004958",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "예향정": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "베스트생갈비찜&찜닭": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "잭슨피자": {
+  "url": "https://iamdubu.com/assets/images/hero-small-business.jpg",
+  "domain": "iamdubu.com",
+  "px": 1013
+ },
+ "종로김밥": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011447",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "제비파스타&리조또": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "리얼안심탕수육": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "규카츠정": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "이찌방라멘& 카츠카레": {
+  "url": "https://polle.com/images/favicon/apple-touch-icon.png",
+  "domain": "polle.com",
+  "px": 180
+ },
+ "카레세끼 매운숙성카레": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "야미마라탕": {
+  "url": "",
+  "domain": "www.yummymaratang.com",
+  "px": 0
+ },
+ "월미당": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "버텍스(VERTEX)": {
+  "url": "",
+  "domain": "www.llumar.co.kr",
+  "px": 0
+ },
+ "남도술상": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "전국3대춘천닭갈비": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "챙길,밥": {
+  "url": "https://cdn.imweb.me/thumbnail/20200701/7e87ca7092b7c.png",
+  "domain": "takebob.com",
+  "px": 196
+ },
+ "해쉬커피": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "양계장집아들": {
+  "url": "",
+  "domain": "yanga.kr",
+  "px": 0
+ },
+ "어부김호권의청년어부": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "전일맥주": {
+  "url": "",
+  "domain": "www.jeonilbeer.com",
+  "px": 0
+ },
+ "스테프핫도그(STEFF HOTDOG)": {
+  "url": "",
+  "domain": "www.steffhotdog.com",
+  "px": 0
+ },
+ "꽃마름": {
+  "url": "http://www.kkmr.co.kr/img/logo_sns.png",
+  "domain": "www.kkmr.co.kr",
+  "px": 400
+ },
+ "호미스(HOMIES)": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "짜글이미식회": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316004958",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "종로맥가": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011448",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "타코이찌 타코야끼 전문점": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "참토스트": {
+  "url": "https://cdn.imweb.me/thumbnail/20220320/d46dfd408d603.png",
+  "domain": "charmtoast.com",
+  "px": 196
+ },
+ "테그42(TEgg.42)": {
+  "url": "",
+  "domain": "tegg42.com",
+  "px": 0
+ },
+ "짱닭치킨": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011448",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "미미관마라탕": {
+  "url": "https://cdn.imweb.me/thumbnail/20240117/de0b1f5fd7667.png",
+  "domain": "mimimara.co.kr",
+  "px": 196
+ },
+ "찐이야숯불치킨": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "경아두마리치킨": {
+  "url": "",
+  "domain": "www.ka22.kr",
+  "px": 0
+ },
+ "한스(HANS)": {
+  "url": "",
+  "domain": "www.hanscake.co.kr",
+  "px": 0
+ },
+ "고향옥얼큰순대국": {
+  "url": "https://static.wixstatic.com/media/31e8b2_616bed56048e40d3856731ca6e79004f%7Emv2.png/v1/fill/w_192%2Ch_192%2Clg_1%2Cusm_0.66_1.00_0.01/31e8b2_616bed56048e40d3856731ca6e79004f%7Emv2.png",
+  "domain": "www.gohyangok.com",
+  "px": 192
+ },
+ "정동진칼국수": {
+  "url": "https://www.tiktok.com/apple-touch-icon.png",
+  "domain": "www.tiktok.com",
+  "px": 400
+ },
+ "베트남노상식당": {
+  "url": "https://www.nosangsikdang.com/favicon.ico",
+  "domain": "www.nosangsikdang.com",
+  "px": 16
+ },
+ "추닭집": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011448",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "라바게트": {
+  "url": "https://theqoo.net/files/attach/xeicon/favicon.ico?t=1688801569",
+  "domain": "theqoo.net",
+  "px": 32
+ },
+ "응급닭발센터": {
+  "url": "",
+  "domain": "www.xn--3e0boln8q87fglcewot4hgi.kr",
+  "px": 0
+ },
+ "돈돈김치찌개&찜": {
+  "url": "https://cdn.imweb.me/upload/S202601289c454c99b699e/fa517940d95bd.ico",
+  "domain": "xn--v69atsi76a6ykpha39j.com",
+  "px": 48
+ },
+ "동네포차주민": {
+  "url": "",
+  "domain": "www.juminpocha.com",
+  "px": 0
+ },
+ "오유미당": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "본설렁탕": {
+  "url": "https://www.bonif.co.kr/static/assets/images/common/bi/p/ci.png",
+  "domain": "www.bonif.co.kr",
+  "px": 260
+ },
+ "2도맥주 (2°C BEER)": {
+  "url": "https://cdn.ggilbo.com/image/logo/favicon.png",
+  "domain": "www.ggilbo.com",
+  "px": 48
+ },
+ "순대실록": {
+  "url": "https://www.sundaestory.com/assets/favicon/favicon-96x96.png",
+  "domain": "www.sundaestory.com",
+  "px": 96
+ },
+ "종로계림닭도리탕원조": {
+  "url": "http://www.jongrokelim.com/images/sns_link.png",
+  "domain": "www.jongrokelim.com",
+  "px": 400
+ },
+ "부엉이산장": {
+  "url": "https://www.tiktok.com/apple-touch-icon.png",
+  "domain": "www.tiktok.com",
+  "px": 400
+ },
+ "대한국밥만세": {
+  "url": "https://fchamall.com/icon-192.png",
+  "domain": "fchamall.com",
+  "px": 192
+ },
+ "돈가네김치찌개": {
+  "url": "https://cdn.imweb.me/thumbnail/20221005/9b11457b915b8.png",
+  "domain": "xn--o39an1h5pc.com",
+  "px": 196
+ },
+ "투사랑": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "구이구이쪽갈비": {
+  "url": "https://www.tefal.co.kr/favicon.ico",
+  "domain": "www.tefal.co.kr",
+  "px": 129
+ },
+ "제주스": {
+  "url": "https://assets.triple.guide/images/og-tag-app_download@4x.png",
+  "domain": "triple.guide",
+  "px": 1020
+ },
+ "생생돈까스": {
+  "url": "",
+  "domain": "xn--hu1b83jnmp41b93b.com",
+  "px": 0
+ },
+ "맛찜랭킹": {
+  "url": "https://www.changupdo.com/favicon_changupdo.ico",
+  "domain": "www.changupdo.com",
+  "px": 100
+ },
+ "요녀석": {
+  "url": "https://steemit.com/images/favicons/favicon-196x196.png",
+  "domain": "steemit.com",
+  "px": 196
+ },
+ "남바완돈카츠": {
+  "url": "https://nambawan1.co.kr/web/upload/ezst/shop1/favicon-512.png?v=1685607031344",
+  "domain": "nambawan1.co.kr",
+  "px": 512
+ },
+ "오늘도빙수": {
+  "url": "https://cdn.livebiz.today/favicon.ico",
+  "domain": "www.livebiz.today",
+  "px": 48
+ },
+ "소플러스": {
+  "url": "https://www.lguplus.com/static/pc-static/icon_512_lgu.png",
+  "domain": "www.lguplus.com",
+  "px": 512
+ },
+ "98도씨 국밥": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "밥깨비": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "꼬치의품격": {
+  "url": "https://cdn.kihoilbo.co.kr/favicon.ico",
+  "domain": "www.kihoilbo.co.kr",
+  "px": 48
+ },
+ "진1926": {
+  "url": "https://cdn.imweb.me/thumbnail/20201120/ce549d6d7de11.png",
+  "domain": "jin1926.co.kr",
+  "px": 196
+ },
+ "백연게장": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "버거앤프라이즈(Burger&Friez)": {
+  "url": "",
+  "domain": "www.burgernfriez.com",
+  "px": 0
+ },
+ "청춘닭꼬치": {
+  "url": "https://cdn.imweb.me/thumbnail/20230329/f7b09ec695f23.png",
+  "domain": "www.cc-fnb.com",
+  "px": 196
+ },
+ "구여사 컵밥": {
+  "url": "https://www.gucuprice.com/assets/front/images/favicon.ico",
+  "domain": "www.gucuprice.com",
+  "px": 256
+ },
+ "사이공본가": {
+  "url": "",
+  "domain": "wikiinfo.kr",
+  "px": 0
+ },
+ "탄광맥주": {
+  "url": "",
+  "domain": "www.tangwang.co.kr",
+  "px": 0
+ },
+ "아띠몽": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "달토끼의 떡볶이 흡입구역": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "탐나종합어시장": {
+  "url": "https://tamnafishmarket.co.kr/favicons/favicon.png",
+  "domain": "tamnafishmarket.co.kr",
+  "px": 50
+ },
+ "1943": {
+  "url": "",
+  "domain": "lampstand.kr",
+  "px": 0
+ },
+ "쪽갈비전문점 예감": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "샐러드박스(SaladBox)": {
+  "url": "https://www.slist.kr/image/logo/snslogo_20211012100442.png",
+  "domain": "www.slist.kr",
+  "px": 200
+ },
+ "꽈백최선생": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "담솥": {
+  "url": "https://ivt.or.kr/kht.png",
+  "domain": "ivt.or.kr",
+  "px": 209
+ },
+ "김밥일번지": {
+  "url": "https://www.gimhae.go.kr/scms-static/img/inc/logo_h1.png",
+  "domain": "www.gimhae.go.kr",
+  "px": 60
+ },
+ "강경불고기": {
+  "url": "https://cdn.imweb.me/thumbnail/20250722/bcda763e64a54.png",
+  "domain": "www.kk-food.com",
+  "px": 196
+ },
+ "시카고부대찌개": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "경양카츠": {
+  "url": "",
+  "domain": "www.dmkatz.co.kr",
+  "px": 0
+ },
+ "덮밥장사장": {
+  "url": "https://www.tiktok.com/apple-touch-icon.png",
+  "domain": "www.tiktok.com",
+  "px": 400
+ },
+ "파스토보이(pastoboy)": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "불아더 숯불바베큐": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "철뚝집": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011449",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "치킨뱅이": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011449",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "신룽푸마라탕": {
+  "url": "",
+  "domain": "www.maratang.co.kr",
+  "px": 0
+ },
+ "제주고세호해장국": {
+  "url": "https://www.jejuseho.com/favicon/favicon.png",
+  "domain": "www.jejuseho.com",
+  "px": 70
+ },
+ "용호동낙지": {
+  "url": "https://cdn.imweb.me/thumbnail/20200408/dc8452512e105.png",
+  "domain": "kfoodholdings.com",
+  "px": 196
+ },
+ "다가치통닭": {
+  "url": "https://xn--o39ar4k2az46w9rd.com/img/main/img_kakao.jpg",
+  "domain": "xn--o39ar4k2az46w9rd.com",
+  "px": 300
+ },
+ "요커": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316004958",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "제육집막내아들": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "마몽로제떡볶이": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "매스커피": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011449",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "내조국국밥": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "커피명가": {
+  "url": "https://myungga.com/web/upload/share-image-1-17f8f9fe04c44cada5cc2bf4a64cdfe9.jpg",
+  "domain": "myungga.com",
+  "px": 628
+ },
+ "맘스터치 피자앤치킨": {
+  "url": "https://momstouch.co.kr/assets/images/common/apple-touch-icon.png",
+  "domain": "momstouch.co.kr",
+  "px": 180
+ },
+ "이게볶음밥": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316002358",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "CAFE CANBUS(카페캔버스)": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "79네수육국밥": {
+  "url": "https://www.79food.co.kr/favicon.ico",
+  "domain": "www.79food.co.kr",
+  "px": 48
+ },
+ "거북이동네": {
+  "url": "http://www.geoboogitown.com/upload/site/20240124140744_ed180f74.jpg",
+  "domain": "www.geoboogitown.com",
+  "px": 500
+ },
+ "백년불고기": {
+  "url": "",
+  "domain": "www.bulgogi100.com",
+  "px": 0
+ },
+ "석봉토스트": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011449",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "송촌꼬마김밥": {
+  "url": "",
+  "domain": "xn--hu1b83jnmp41b93b.com",
+  "px": 0
+ },
+ "솥고집": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "스파게티스토리": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "철인7호": {
+  "url": "https://cheolin7.com/theme/main/img/favi.png",
+  "domain": "cheolin7.com",
+  "px": 192
+ },
+ "맘마찬": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "NiceCaffeinClub(NCC)": {
+  "url": "https://niceghostclub.com/web/upload/favicon-f5ad0df6ab328b539205630e8151074d.ico",
+  "domain": "niceghostclub.com",
+  "px": 48
+ },
+ "금복주류": {
+  "url": "https://www.kumbokju.co.kr:443/superboard/data/siteconfig/2024062610191117193647518530.ico",
+  "domain": "www.kumbokju.co.kr",
+  "px": 64
+ },
+ "탄탄면공방": {
+  "url": "https://cdn.gpkorea.com/image/logo/favicon.png",
+  "domain": "www.gpkorea.com",
+  "px": 196
+ },
+ "김치백서": {
+  "url": "",
+  "domain": "council.gwangju.go.kr",
+  "px": 0
+ },
+ "꺼꾸잽이 초장집": {
+  "url": "https://cdn.imweb.me/thumbnail/20221213/8c58ac5b44907.png",
+  "domain": "chojangzip.co.kr",
+  "px": 196
+ },
+ "꽃피는곱도리탕": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "면식당": {
+  "url": "https://www.noodlelovers.com/design/theme/noodle/favicon/android-icon-192x192.png",
+  "domain": "www.noodlelovers.com",
+  "px": 192
+ },
+ "김영희강남동태찜": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "온센": {
+  "url": "",
+  "domain": "onsenfood.kr",
+  "px": 0
+ },
+ "빙달": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "춘향골남원추어탕": {
+  "url": "",
+  "domain": "www.chunhyanggol.com",
+  "px": 0
+ },
+ "오투닭갈비&부대찌개": {
+  "url": "https://www.xn--w39at4k4skl1h9tp.com:443/superboard/data/siteconfig/20250114090042_6785a92a7a970_d4d71ed0b64e2179a324ccf8deb8167fe252fbe3.ico",
+  "domain": "www.xn--w39at4k4skl1h9tp.com",
+  "px": 16
+ },
+ "역북집": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "왕손피자": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "한가네숯불닭갈비": {
+  "url": "https://static.wixstatic.com/media/d62de2_8ceab261cb01403eb2c797394286a0f3%7Emv2.png/v1/fill/w_192%2Ch_192%2Clg_1%2Cusm_0.66_1.00_0.01/d62de2_8ceab261cb01403eb2c797394286a0f3%7Emv2.png",
+  "domain": "www.hkcor.co.kr",
+  "px": 192
+ },
+ "오니기리와이규동": {
+  "url": "https://cdn.imweb.me/thumbnail/20260206/aef5175e9c22c.png",
+  "domain": "gyudong.com",
+  "px": 196
+ },
+ "다다하다": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "화포식당": {
+  "url": "",
+  "domain": "diningsm.com",
+  "px": 0
+ },
+ "라스트춘선": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "포트리스": {
+  "url": "https://ssl.pstatic.net/static/nng/resource/common/apple-touch-icon.png",
+  "domain": "game.naver.com",
+  "px": 180
+ },
+ "돈오락쪽갈비": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "프랭크커핀바": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "명동칼국수샤브샤브": {
+  "url": "https://cdn.imweb.me/thumbnail/20240319/519677cea972c.png",
+  "domain": "mdccs.net",
+  "px": 196
+ },
+ "히노아지": {
+  "url": "https://cdn.imweb.me/thumbnail/20251114/121f6d683047d.png",
+  "domain": "hinoaji.co.kr",
+  "px": 196
+ },
+ "오사이초밥": {
+  "url": "https://incheonation.kr/files/attach/xeicon/favicon.ico?t=1611024194",
+  "domain": "incheonation.kr",
+  "px": 114
+ },
+ "맘스케익": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "우규": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785559625762",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "샹츠마라": {
+  "url": "https://goldtreedev.com/favicon.ico?favicon.0-5o_cz2.we2q.ico",
+  "domain": "goldtreedev.com",
+  "px": 128
+ },
+ "도리당": {
+  "url": "https://cdn.imweb.me/thumbnail/20260708/20c155269ec7e.png",
+  "domain": "www.doridang.com",
+  "px": 196
+ },
+ "굿맘할매순대국&양선지해장국": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "킹스꼬마김밥": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "히스피(HISFFEE)": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "불스떡볶이": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "킴브로스 피자&파스타": {
+  "url": "https://jejal.net/wp-content/uploads/2021/01/jejal_text_logo.png",
+  "domain": "jejal.net",
+  "px": 351
+ },
+ "이가네양꼬치": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "3X-LARGE COFFEE": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "그리너": {
+  "url": "https://rewind2nature.com/wp-content/uploads/2021/12/greener_favicon.png",
+  "domain": "rewind2nature.com",
+  "px": 512
+ },
+ "보승회관": {
+  "url": "https://static.parastorage.com/client/pfavico.ico",
+  "domain": "www.fctime.net",
+  "px": 16
+ },
+ "밥꼬찜닭": {
+  "url": "https://www.placeview.co.kr/favicon.ico",
+  "domain": "www.placeview.co.kr",
+  "px": 256
+ },
+ "감탄계숯불치킨": {
+  "url": "https://cdn.shinailbo.co.kr/favicon.ico",
+  "domain": "www.shinailbo.co.kr",
+  "px": 48
+ },
+ "짐키친(GYM KITCHEN)": {
+  "url": "",
+  "domain": "www.instargym.com",
+  "px": 0
+ },
+ "밥구정로데오": {
+  "url": "https://weseb.com/SJB/skin_board/korea/sosangincon.ico",
+  "domain": "weseb.com",
+  "px": 64
+ },
+ "순남시래기": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "요하마라21": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "덮밥집이야": {
+  "url": "https://cdn.imweb.me/thumbnail/20260111/4a7c2aca2df67.png",
+  "domain": "hecbob.com",
+  "px": 196
+ },
+ "돈쫄돈": {
+  "url": "",
+  "domain": "www.nadoweb.co.kr",
+  "px": 0
+ },
+ "경원해물찜0427": {
+  "url": "https://www.gimhae.go.kr/scms-static/img/inc/logo_h1.png",
+  "domain": "www.gimhae.go.kr",
+  "px": 60
+ },
+ "덮밥.ZIP": {
+  "url": "",
+  "domain": "www.zipair.net",
+  "px": 0
+ },
+ "사랑해베이글": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "손찬": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "공룡닭발": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "징기스": {
+  "url": "https://tblg.k-img.com/images/smartphone/favicon.ico?20230727",
+  "domain": "tabelog.com",
+  "px": 180
+ },
+ "25센치": {
+  "url": "https://www.research-paper.co.kr/image/logo/snslogo_20220328023801.jpg",
+  "domain": "www.research-paper.co.kr",
+  "px": 200
+ },
+ "빅쭌부대찌개": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "향리원 마라탕": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "구주": {
+  "url": "",
+  "domain": "www.guju.co.kr",
+  "px": 0
+ },
+ "마린보이 코다리1번가": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "마마쿡(MAMA COOK)": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "마라홀릭": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "청년찌개": {
+  "url": "https://chungnyeonzzigae.com:443/superboard/data/siteconfig/20240201130238_65bb17de4bffe_7e71d8d92ed94cdcf99677ac662884e2d7e96bc0.png",
+  "domain": "chungnyeonzzigae.com",
+  "px": 144
+ },
+ "본가집안동국밥곰탕": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "행컵": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "병천황토방순대": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "점순이 호떡": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "청춘감성쌀핫도그": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011450",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "홍익궁중전통육개장": {
+  "url": "",
+  "domain": "hongikfood.co.kr",
+  "px": 0
+ },
+ "해장은 천수냉면": {
+  "url": "",
+  "domain": "www.xn--o30bj7pvlg3ufooa69vzuq.com",
+  "px": 0
+ },
+ "본초맘죽": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "쿼드커피(QUAD COFFEE)": {
+  "url": "https://www.quadcoffee.co.kr:443/superboard/data/siteconfig/20260402103551_69cdc7f71361a_9138a17fda85a462543c480ce495fd40cce659dd.png",
+  "domain": "www.quadcoffee.co.kr",
+  "px": 512
+ },
+ "한상차림코다리명가": {
+  "url": "https://cdn.imweb.me/thumbnail/20220705/9591a24419455.png",
+  "domain": "www.xn--o39ar4k27f1b98cr5w26twzf66o.com",
+  "px": 196
+ },
+ "오르새피자": {
+  "url": "",
+  "domain": "bizk.co.kr",
+  "px": 0
+ },
+ "동백카츠": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "가얏골감자탕": {
+  "url": "https://www.gimhae.go.kr/scms-static/img/inc/logo_h1.png",
+  "domain": "www.gimhae.go.kr",
+  "px": 60
+ },
+ "SSOJA(쏘자)": {
+  "url": "https://t1.kakaocdn.net/story_static/public/web/story_icon_180x180_0203.png",
+  "domain": "story.kakao.com",
+  "px": 180
+ },
+ "멘야마쯔리": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "청록미나리식당": {
+  "url": "https://weseb.com/SJB/skin_board/korea/sosangincon.ico",
+  "domain": "weseb.com",
+  "px": 64
+ },
+ "카츠루와": {
+  "url": "https://t1.daumcdn.net/tistory_admin/top_v2/tistory-apple-touch-favicon.png",
+  "domain": "www.hans-mtb.co.kr",
+  "px": 180
+ },
+ "후토루": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785559625762",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "쿡1015": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "일월육일": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "밤하늘포차 연어육회": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "1인자감자탕": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "도스마스": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "디에떼에스프레소": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "엘리팝": {
+  "url": "",
+  "domain": "www.alleypub.co.kr",
+  "px": 0
+ },
+ "7곡제면소": {
+  "url": "https://ksjfood.net/upload/company/U0RRSjYxNzUxMDAwOTg0MC44MTQ0NTgwMFA5S0JG.png?v=2506271409",
+  "domain": "ksjfood.net",
+  "px": 356
+ },
+ "그릭하다": {
+  "url": "https://vobon.com/web/upload/ezst/shop1/favicon-512.png?v=1695094060684",
+  "domain": "vobon.com",
+  "px": 512
+ },
+ "바다수퍼 해물천하조개구이·찜": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "광명대창집": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "김태연국민동태탕찜": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "만년닭강정": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "포베이": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "촌댁맥주": {
+  "url": "",
+  "domain": "bizk.co.kr",
+  "px": 0
+ },
+ "육회야문연어": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "채선당도시락&샐러드": {
+  "url": "",
+  "domain": "www.chaesundang-dosirak.co.kr",
+  "px": 0
+ },
+ "신불떡볶이": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "인생김치찌개": {
+  "url": "https://weseb.com/SJB/skin_board/korea/sosangincon.ico",
+  "domain": "weseb.com",
+  "px": 64
+ },
+ "입술에 설렌다 빙수당": {
+  "url": "https://startuplus.kr/apple-touch-icon.png",
+  "domain": "startuplus.kr",
+  "px": 180
+ },
+ "전통맛집 할매순대국": {
+  "url": "https://xn--3e0bs9hosgbb312fe1iiidxvwsyh.com/images/halmaefavi.ico",
+  "domain": "xn--3e0bs9hosgbb312fe1iiidxvwsyh.com",
+  "px": 256
+ },
+ "잇쇼타코야끼": {
+  "url": "",
+  "domain": "www.nadoweb.co.kr",
+  "px": 0
+ },
+ "어벤더치커피": {
+  "url": "https://linkareer.com/images/ic-launcher-192.png",
+  "domain": "linkareer.com",
+  "px": 192
+ },
+ "지랄닭발": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "하노이별": {
+  "url": "https://static.parastorage.com/client/pfavico.ico",
+  "domain": "www.hanoistar.co.kr",
+  "px": 16
+ },
+ "돈카춘": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "달빛에 구운 고등어": {
+  "url": "https://dalbitgo.com/images/fav-icon.ico",
+  "domain": "dalbitgo.com",
+  "px": 60
+ },
+ "모미락": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "연돈튀김덮밥": {
+  "url": "https://www.theborn.co.kr/wp-content/uploads/2017/07/cropped-theborn_favi-192x192.png",
+  "domain": "www.theborn.co.kr",
+  "px": 192
+ },
+ "삼계탕이요": {
+  "url": "",
+  "domain": "www.insamfestival.co.kr",
+  "px": 0
+ },
+ "쌈촌": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "누들보쌈배달만족": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "순수빙떡": {
+  "url": "https://wordrow.kr/static/amp_logo.png",
+  "domain": "wordrow.kr",
+  "px": 70
+ },
+ "카페16온스": {
+  "url": "https://www.cafe16oz.com/favicon.ico",
+  "domain": "www.cafe16oz.com",
+  "px": 256
+ },
+ "꾸아(Qua)": {
+  "url": "https://vjs.vietnam.vn/assets/images/full-logo.png",
+  "domain": "www.vietnam.vn",
+  "px": 1210
+ },
+ "배통": {
+  "url": "https://wordrow.kr/static/amp_logo.png",
+  "domain": "wordrow.kr",
+  "px": 70
+ },
+ "치밥대장숯불양념92치킨": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "후라토식당": {
+  "url": "https://www.furato.co.kr/wp-content/uploads/2025/09/cropped-favicon-1-192x192.png",
+  "domain": "www.furato.co.kr",
+  "px": 192
+ },
+ "동춘돌곱창": {
+  "url": "https://t1.kakaocdn.net/one/production/front/web/images/favicon_32.png",
+  "domain": "booking.kakao.com",
+  "px": 32
+ },
+ "고깃리88번지": {
+  "url": "https://xn--88-oc2iz9bkz2at6d262a.com/assets/images/kakao_image.png",
+  "domain": "xn--88-oc2iz9bkz2at6d262a.com",
+  "px": 400
+ },
+ "정글비": {
+  "url": "https://velog.io/favicon.ico",
+  "domain": "velog.io",
+  "px": 64
+ },
+ "빨봉분식": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "올리앤(Ollien)": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316004958",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "스트릿 1988": {
+  "url": "https://www.supervs.co.kr/_var/site/meta/h20250922132319.png",
+  "domain": "www.supervs.co.kr",
+  "px": 150
+ },
+ "빚은": {
+  "url": "https://www.bizeun.co.kr/common/images/icons/bizeun_favicon.ico",
+  "domain": "www.bizeun.co.kr",
+  "px": 128
+ },
+ "피자닭터": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "보고싶다": {
+  "url": "https://www.mbs.jp/common/ogp.png",
+  "domain": "www.mbs.jp",
+  "px": 630
+ },
+ "야들리애": {
+  "url": "https://yadllie.com/wp-content/uploads/2020/09/yadllie_favicon.png",
+  "domain": "yadllie.com",
+  "px": 512
+ },
+ "천안옛날호두과자": {
+  "url": "https://hodoonara.com/web/upload/share-image-1-9e5024b75bd58094d0ae1df5688b78cd.jpg",
+  "domain": "hodoonara.com",
+  "px": 628
+ },
+ "청기와타운": {
+  "url": "https://xn--ok0b996b7jax7rctf.com/img/common/og_image.jpg",
+  "domain": "xn--ok0b996b7jax7rctf.com",
+  "px": 420
+ },
+ "삼송빵집": {
+  "url": "https://www.ssbnc.kr/og.png",
+  "domain": "www.ssbnc.kr",
+  "px": 800
+ },
+ "리파인": {
+  "url": "https://www.refine.co.kr/image/main/metaimage.png",
+  "domain": "www.refine.co.kr",
+  "px": 630
+ },
+ "연남물갈비": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "파이널나인": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316093124",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "진성아구찜": {
+  "url": "",
+  "domain": "jinsungahgoo.co.kr",
+  "px": 0
+ },
+ "미친피자": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316093124",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "오슬로우(OHSLOW)": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "마성떡볶이": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "헬키푸키": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316004958",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "샌드리아": {
+  "url": "https://valbyjscynlhyhsx.public.blob.vercel-storage.com/booster_favicon-6Ct627XlpKz0ZfQ9sturfbBTJ6k1ON.png",
+  "domain": "booster.im",
+  "px": 512
+ },
+ "청주본가": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "종국이두마리치킨": {
+  "url": "",
+  "domain": "www.jongkuk2.com",
+  "px": 0
+ },
+ "에그존": {
+  "url": "",
+  "domain": "diaegg.com",
+  "px": 0
+ },
+ "반포식스": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "찜꽁찜닭": {
+  "url": "https://menu.mt.co.kr/common/favicons/favicon-180.ico",
+  "domain": "www.mt.co.kr",
+  "px": 180
+ },
+ "첨단돌솥감자탕": {
+  "url": "",
+  "domain": "www.dkfood856.co.kr",
+  "px": 0
+ },
+ "링코(RINKO)": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011451",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "치킨인류": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785559625762",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "효자동설렁탕": {
+  "url": "https://www.jumpoline.com/images/common/static/apple_touch_icon.png",
+  "domain": "www.jumpoline.com",
+  "px": 180
+ },
+ "푸드모바일": {
+  "url": "http://www.cntt.co.kr/kr/resources/images/common/logo_300x300.png",
+  "domain": "www.cntt.co.kr",
+  "px": 300
+ },
+ "샤브쌈주머니": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "차돌풍": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "꽈배기진": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785559625762",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "장수본가해장국": {
+  "url": "",
+  "domain": "www.jangsooent.com",
+  "px": 0
+ },
+ "삼환축산": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "범맥주": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "국밥도감": {
+  "url": "",
+  "domain": "www.nadoweb.co.kr",
+  "px": 0
+ },
+ "고기궁전": {
+  "url": "https://www.mokpo.go.kr/contents/fb_www_logo.png?567890",
+  "domain": "www.mokpo.go.kr",
+  "px": 627
+ },
+ "BT버거앤타코 (BURGER&TACO)": {
+  "url": "https://startuplus.kr/apple-touch-icon.png",
+  "domain": "startuplus.kr",
+  "px": 180
+ },
+ "얼맥당": {
+  "url": "http://www.fcmedia.co.kr/image/logo/snslogo_20200115022650.jpg",
+  "domain": "www.fcmedia.co.kr",
+  "px": 200
+ },
+ "곱깨비": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "갓잇": {
+  "url": "https://t1.kakaocdn.net/story_static/public/web/story_icon_180x180_0203.png",
+  "domain": "story.kakao.com",
+  "px": 180
+ },
+ "깨봉이국물떡볶이": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "밥통령": {
+  "url": "https://ricepresident.com/web/upload/share-image-1-7473bb24cee64d223102eadd0d5ca69e.png",
+  "domain": "ricepresident.com",
+  "px": 500
+ },
+ "홍대개미": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "피자애": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "두거리우신탕": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "휴게소": {
+  "url": "https://data.ex.co.kr/img/favicon/android-icon-192x192.png",
+  "domain": "data.ex.co.kr",
+  "px": 192
+ },
+ "오부장치킨": {
+  "url": "",
+  "domain": "www.obuzang.com",
+  "px": 0
+ },
+ "영구스피자": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "커피스미스": {
+  "url": "",
+  "domain": "coffeesmith.co.kr",
+  "px": 0
+ },
+ "치순이통닭": {
+  "url": "",
+  "domain": "xn--hu1b83jnmp41b93b.com",
+  "px": 0
+ },
+ "따삐오": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "마요네즈 (mayonnaise)": {
+  "url": "https://www.contestkorea.com/img/common/favicon-152.png",
+  "domain": "www.contestkorea.com",
+  "px": 152
+ },
+ "씨에프숯불바베큐치킨": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "닭이봉춘천닭갈비": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "깐깐한족발": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "포슈아": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "짬뽕10101": {
+  "url": "https://store114.net/favicon.ico",
+  "domain": "store114.net",
+  "px": 256
+ },
+ "마케집": {
+  "url": "https://marketology.co.kr/wp-content/uploads/2020/07/apple-icon-57x57-1.png",
+  "domain": "marketology.co.kr",
+  "px": 57
+ },
+ "교동전선생": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "그라찌에": {
+  "url": "https://cdn.imweb.me/thumbnail/20250908/7fa7983b5a303.png",
+  "domain": "www.grazie.co.kr",
+  "px": 196
+ },
+ "눈꽃대패": {
+  "url": "",
+  "domain": "www.snowstory.co.kr",
+  "px": 0
+ },
+ "크레이저커피(C.Razer Coffee)": {
+  "url": "https://thinkyou.co.kr/images/favicon.ico",
+  "domain": "thinkyou.co.kr",
+  "px": 48
+ },
+ "덮밥90도씨": {
+  "url": "",
+  "domain": "www.beombros.com",
+  "px": 0
+ },
+ "블럭제빵소": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "삼겹식당": {
+  "url": "https://matchandl.com/wp-content/uploads/2024/07/cropped-icon-192x192.jpg",
+  "domain": "matchandl.com",
+  "px": 192
+ },
+ "궁 잔기지떡": {
+  "url": "https://cdn.imweb.me/thumbnail/20241219/ecf0a4a1e529f.png",
+  "domain": "www.xn--of0b37m.com",
+  "px": 196
+ },
+ "김삼구": {
+  "url": "",
+  "domain": "www.nadoweb.co.kr",
+  "px": 0
+ },
+ "백금당": {
+  "url": "https://contents.sixshop.com/uploadedFiles/84187/default/image_1562167409452.jpeg",
+  "domain": "baekgeumdang.com",
+  "px": 1096
+ },
+ "산쪼메": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "반미362": {
+  "url": "https://cdn.imweb.me/thumbnail/20260325/4bb5aa81f7c35.png",
+  "domain": "wemento.kr",
+  "px": 196
+ },
+ "덕수파스타 딜리버리": {
+  "url": "https://autoreserve.com/apple-touch-icon.png",
+  "domain": "autoreserve.com",
+  "px": 180
+ },
+ "진미대왕통닭": {
+  "url": "https://jejal.net/wp-content/uploads/2021/01/jejal_text_logo.png",
+  "domain": "jejal.net",
+  "px": 351
+ },
+ "목우촌웰빙마을": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "허갈닭강정": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "아이벗 치킨": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "김용덕의 소문난 부자국밥": {
+  "url": "https://fctier.kr/apple-icon?2990891187f67949",
+  "domain": "fctier.kr",
+  "px": 180
+ },
+ "리김밥": {
+  "url": "",
+  "domain": "bizk.co.kr",
+  "px": 0
+ },
+ "장미맨숀": {
+  "url": "https://rosamansion.com/web/upload/favicon-d83d13fa2945bdbfa8fbb2895ecb7a01.ico",
+  "domain": "rosamansion.com",
+  "px": 48
+ },
+ "Emoi(에머이)": {
+  "url": "https://ch.static.atomy.com/front/59f0ebc3da4210bb2b382c3e36b29d5f3f7f3d0d/resources/images/common/favicon.ico",
+  "domain": "ch.atomy.com",
+  "px": 256
+ },
+ "돈까스클럽": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "가르텐호프앤레스트": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "시루향기": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "김명자낙지마당": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "전주남문조춘자토종피순대국": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "JBD 본 종로빈대떡": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "엘에이치씨피자탑(LHC PIZZA TOP)": {
+  "url": "https://fchamall.com/icon-192.png",
+  "domain": "fchamall.com",
+  "px": 192
+ },
+ "피슈 마라홍탕": {
+  "url": "https://xn--oi2bo7b8xmqnp5ff5vb.net/img/common/bi.png",
+  "domain": "xn--oi2bo7b8xmqnp5ff5vb.net",
+  "px": 63
+ },
+ "파주닭국수": {
+  "url": "https://www.pajunoodle.co.kr/img/common/bi.png",
+  "domain": "www.pajunoodle.co.kr",
+  "px": 50
+ },
+ "구삼짜글이": {
+  "url": "",
+  "domain": "duli.co.kr",
+  "px": 0
+ },
+ "라화공방": {
+  "url": "https://cboard.net/favicon_192x192.png",
+  "domain": "cboard.net",
+  "px": 192
+ },
+ "달래해장": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "볶찜": {
+  "url": "https://framerusercontent.com/images/3RGPepc1ubcxM0OH0XdTPEJ0A2M.png",
+  "domain": "litt.ly",
+  "px": 128
+ },
+ "풍덕천 두꺼비집": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "당신은지금치킨이땡긴다": {
+  "url": "https://cdn.imweb.me/thumbnail/20210126/bff90dc35b03f.png",
+  "domain": "dangchiddaeng.co.kr",
+  "px": 196
+ },
+ "윤반장": {
+  "url": "https://menu.mt.co.kr/common/favicons/favicon-180.ico",
+  "domain": "www.mt.co.kr",
+  "px": 180
+ },
+ "장혁민의 부대찌개": {
+  "url": "https://autoreserve.com/apple-touch-icon.png",
+  "domain": "autoreserve.com",
+  "px": 180
+ },
+ "치킨더홈": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "투고샐러드 (TOGOSALAD)": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "오가다": {
+  "url": "",
+  "domain": "ogada.co.kr",
+  "px": 0
+ },
+ "무봤나촌닭": {
+  "url": "",
+  "domain": "bizk.co.kr",
+  "px": 0
+ },
+ "화르화르": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "한방전주콩나물국밥": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011452",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "본초불닭발": {
+  "url": "",
+  "domain": "www.bonchofood.com",
+  "px": 0
+ },
+ "목촌사골돼지국밥": {
+  "url": "",
+  "domain": "www.xn--3e0bj8jq5frsbs97awue.kr",
+  "px": 0
+ },
+ "청년순대국": {
+  "url": "https://www.chungsoon.co.kr/images/favi.ico",
+  "domain": "www.chungsoon.co.kr",
+  "px": 256
+ },
+ "원조의령소바": {
+  "url": "https://fchamall.com/icon-192.png",
+  "domain": "fchamall.com",
+  "px": 192
+ },
+ "700비어": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "퍼스트커피": {
+  "url": "https://www.firstcoffee.co.kr/images/main/ogimg.jpg",
+  "domain": "www.firstcoffee.co.kr",
+  "px": 400
+ },
+ "개미집": {
+  "url": "",
+  "domain": "xn--h49au41a4nk.kr",
+  "px": 0
+ },
+ "샐러바웃": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "기소야": {
+  "url": "https://gtksa.net/favicon.ico",
+  "domain": "gtksa.net",
+  "px": 48
+ },
+ "밥장인": {
+  "url": "https://xn--rh3b46r.com/theme/sample25/favicon.ico",
+  "domain": "xn--rh3b46r.com",
+  "px": 256
+ },
+ "일일양": {
+  "url": "https://in.naver.com/android-icon-192x192.png",
+  "domain": "in.naver.com",
+  "px": 192
+ },
+ "킹스타피자": {
+  "url": "https://infosori.com/sori/skin_board/korea/icon/infosoricon.ico",
+  "domain": "infosori.com",
+  "px": 64
+ },
+ "쏭스클럽핫도그": {
+  "url": "",
+  "domain": "carmap.co.kr",
+  "px": 0
+ },
+ "힘난다버거": {
+  "url": "https://menu.mt.co.kr/common/favicons/favicon-180.ico",
+  "domain": "www.mt.co.kr",
+  "px": 180
+ },
+ "메콩타이": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "취향마라": {
+  "url": "https://m.ekn.kr/images/favicon.ico",
+  "domain": "m.ekn.kr",
+  "px": 128
+ },
+ "치교치킨": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "랑데자뷰(RENDEJAVOUS)": {
+  "url": "https://www.yakup.com/favicon.ico",
+  "domain": "www.yakup.com",
+  "px": 16
+ },
+ "경성양꼬치": {
+  "url": "",
+  "domain": "www.xn--289a59bn50a98db7m.kr",
+  "px": 0
+ },
+ "오름순돼국밥": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "돼지팥빙수": {
+  "url": "https://res.kurly.com/icons/favicon-192x192.png",
+  "domain": "www.kurly.com",
+  "px": 192
+ },
+ "진탱 불곱창&불닭발": {
+  "url": "https://polle.com/images/favicon/apple-touch-icon.png",
+  "domain": "polle.com",
+  "px": 180
+ },
+ "두심스 독도해물알찜": {
+  "url": "",
+  "domain": "www.xn--hq1bb848co8kfri8ro.com",
+  "px": 0
+ },
+ "천사곱창": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "부엉이돈가스": {
+  "url": "https://cdn.imweb.me/thumbnail/20210111/ea0cf333d51a9.png",
+  "domain": "owlsfnb.co.kr",
+  "px": 196
+ },
+ "에슬로우커피 (ESLOW COFFEE)": {
+  "url": "https://www.poolixhub.io/apple-icon?383bd7dc4fb6c108",
+  "domain": "www.poolixhub.io",
+  "px": 180
+ },
+ "한결통아구찜": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "알촌": {
+  "url": "https://www.chunbukyo.or.kr/wp-content/uploads/2018/03/cropped-sinbo_favicon-1-300x300.png",
+  "domain": "www.chunbukyo.or.kr",
+  "px": 300
+ },
+ "샐러데이즈(Salad Days)": {
+  "url": "",
+  "domain": "saladdays.co.kr",
+  "px": 0
+ },
+ "리틀하노이(LittleHANOI)": {
+  "url": "https://cdn.maily.so/public/assets/apple-touch-icon-a1b2509b8dafc485b1dbda0c7653fa1d13c919850875d70f949a69fecef67323.png",
+  "domain": "maily.so",
+  "px": 180
+ },
+ "인생설렁탕": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "정가대박집": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "꾸꾸삼겹": {
+  "url": "https://school.jbedu.kr/v4/www/favicon_JBE.ico",
+  "domain": "school.jbedu.kr",
+  "px": 64
+ },
+ "청양일초": {
+  "url": "https://life114.co.kr/favicon.ico",
+  "domain": "life114.co.kr",
+  "px": 256
+ },
+ "엉터리생고기 두번째이야기 무한삼겹": {
+  "url": "",
+  "domain": "www.ungteori.com",
+  "px": 0
+ },
+ "꼬꼬아찌": {
+  "url": "",
+  "domain": "xn--hu1b83jnmp41b93b.com",
+  "px": 0
+ },
+ "정정아식당": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "내가찜한닭": {
+  "url": "",
+  "domain": "www.xn--o39a52g22b168bkxj.com",
+  "px": 0
+ },
+ "파스타 흔": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316002358",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "밥맛나는세상": {
+  "url": "https://moneypin.biz/apple-touch-icon.png",
+  "domain": "moneypin.biz",
+  "px": 180
+ },
+ "잭아저씨족발&보쌈": {
+  "url": "https://www.diningcode.com/favicon.ico",
+  "domain": "www.diningcode.com",
+  "px": 64
+ },
+ "크래프트한스(Craft Han&#39;s)": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "경아식당": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "청춘당 찹쌀 꽈배기": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "피자스웨그": {
+  "url": "https://www.jumpoline.com/images/common/static/apple_touch_icon.png",
+  "domain": "www.jumpoline.com",
+  "px": 180
+ },
+ "문토스트": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "고품격커피공장": {
+  "url": "https://www.albamon.com/assets/images/favicon.ico?v=1785316093124",
+  "domain": "www.albamon.com",
+  "px": 48
+ },
+ "완산골명가": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "해초과메기": {
+  "url": "https://www.cyso.co.kr/favicon.png",
+  "domain": "www.cyso.co.kr",
+  "px": 192
+ },
+ "하우돈곱창": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "국밥대장": {
+  "url": "",
+  "domain": "www.nadoweb.co.kr",
+  "px": 0
+ },
+ "파스타집이야": {
+  "url": "",
+  "domain": "galaxystar.co.kr",
+  "px": 0
+ },
+ "토고리 옛날막창": {
+  "url": "https://static.wixstatic.com/media/e2483f_ad18f62c8250489aaea6166eaa25375b%7Emv2.png/v1/fill/w_192%2Ch_192%2Clg_1%2Cusm_0.66_1.00_0.01/e2483f_ad18f62c8250489aaea6166eaa25375b%7Emv2.png",
+  "domain": "www.togori.co.kr",
+  "px": 192
+ },
+ "탕수육주는육군짬뽕": {
+  "url": "https://autoreserve.com/apple-touch-icon.png",
+  "domain": "autoreserve.com",
+  "px": 180
+ },
+ "못말리는파닭": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "타타스베이글": {
+  "url": "https://marketbz.com/type/common/img/favicon180x180.png",
+  "domain": "marketbz.com",
+  "px": 180
+ },
+ "바베큐통족구이": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "남도복국": {
+  "url": "https://weseb.com/SJB/skin_board/korea/sosangincon.ico",
+  "domain": "weseb.com",
+  "px": 64
+ },
+ "두리아": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "삼겹파티": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "아이러브피자": {
+  "url": "",
+  "domain": "www.ilovepizza.kr",
+  "px": 0
+ },
+ "히포슈가 (HIPPO SUGAR)": {
+  "url": "",
+  "domain": "alltimeprice.com",
+  "px": 0
+ },
+ "엉터리 해장국": {
+  "url": "",
+  "domain": "www.ungteori.com",
+  "px": 0
+ },
+ "내담해물찜탕": {
+  "url": "",
+  "domain": "bizk.co.kr",
+  "px": 0
+ },
+ "땡초우동": {
+  "url": "",
+  "domain": "xn--hu1b83jnmp41b93b.com",
+  "px": 0
+ },
+ "조선의 옛날통닭": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "바푸리": {
+  "url": "https://menu.sidae.com/moneys/static/favicon_180x180.ico",
+  "domain": "www.sidae.com",
+  "px": 180
+ },
+ "놀부김치찜": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "사쿠사쿠": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011453",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "웰덤치킨": {
+  "url": "https://cdn.imweb.me/thumbnail/20231026/be7ab52400fb0.png",
+  "domain": "www.welldum.co.kr",
+  "px": 196
+ },
+ "점프(JUMP)": {
+  "url": "",
+  "domain": "jump.beombros.com",
+  "px": 0
+ },
+ "신나게쌈빠찹쌀강정": {
+  "url": "https://frandoor.co.kr/opengraph-image?4d1673028d1c2630",
+  "domain": "frandoor.co.kr",
+  "px": 630
+ },
+ "수북국밥": {
+  "url": "https://cdn.imweb.me/thumbnail/20251117/1473734d5df9e.png",
+  "domain": "frico.kr",
+  "px": 196
+ },
+ "한뚝수육국밥": {
+  "url": "",
+  "domain": "www.xn--bc2b169c.com",
+  "px": 0
+ },
+ "치킨678": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011454",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "붐비어": {
+  "url": "https://infosori.com/sori/skin_board/korea/icon/infosoricon.ico",
+  "domain": "infosori.com",
+  "px": 64
+ },
+ "그램그램": {
+  "url": "https://www.lge.co.kr/lg5-common/images/favicon.ico",
+  "domain": "www.lge.co.kr",
+  "px": 256
+ },
+ "투가이즈(TWO GUYS)": {
+  "url": "https://otr.co.kr/wp-content/uploads/2020/07/cropped-otrsite1-192x192.png",
+  "domain": "otr.co.kr",
+  "px": 192
+ },
+ "앗싸곱창": {
+  "url": "https://bizno.net/img/logo.png",
+  "domain": "bizno.net",
+  "px": 28
+ },
+ "샤오바오우육면": {
+  "url": "https://in.naver.com/android-icon-192x192.png",
+  "domain": "in.naver.com",
+  "px": 192
+ },
+ "오복미역": {
+  "url": "",
+  "domain": "xn--hu1b83jnmp41b93b.com",
+  "px": 0
+ },
+ "저스트텐동": {
+  "url": "",
+  "domain": "bizk.co.kr",
+  "px": 0
+ },
+ "무쇠김치삼겹": {
+  "url": "https://shinganeofficial.com/theme/business/extend/sections/header/shingane_header/img/logo.png?v=231018",
+  "domain": "shinganeofficial.com",
+  "px": 58
+ },
+ "히츠지야": {
+  "url": "https://hitsujiya.quv.kr/s/og_image.png?v=1785563651",
+  "domain": "hitsujiya.quv.kr",
+  "px": 709
+ },
+ "꼬기만땅 점보비빔밥": {
+  "url": "https://www.siksinhot.com/static2/images/favicon.ico",
+  "domain": "www.siksinhot.com",
+  "px": 48
+ },
+ "상상짬뽕": {
+  "url": "https://www.114.co.kr/pc/image/favicon.ico?v=202608011454",
+  "domain": "www.114.co.kr",
+  "px": 64
+ },
+ "산카이 이자카야": {
+  "url": "",
+  "domain": "bizk.co.kr",
+  "px": 0
+ }
+}

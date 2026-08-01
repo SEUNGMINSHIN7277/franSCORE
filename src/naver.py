@@ -23,6 +23,7 @@ API (developers.naver.com 애플리케이션 자격증명 — 무료, 일 25,000
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -30,6 +31,7 @@ import time
 import unicodedata
 from datetime import date, timedelta
 from pathlib import Path
+from urllib.parse import urljoin, urlparse
 
 import numpy as np
 import pandas as pd
@@ -291,84 +293,247 @@ def news(query: str, cfg: dict | None = None, display: int = 20,
     return out
 
 
-_IMAGE_URL = "https://openapi.naver.com/v1/search/image"
+# ---------------------------------------------------------------------------
+# 브랜드 로고 — 공식 홈페이지가 스스로 내건 아이콘을 쓴다
+# ---------------------------------------------------------------------------
+#
+# 왜 이미지 검색을 쓰지 않는가 (실측으로 폐기한 1안)
+#     '브랜드 로고 CI' 로 이미지 검색을 돌려 정사각형·제목 키워드로 걸러도
+#     60건 중 9건만 조건을 통과했고, 그 9건조차 로고가 아니었다:
+#       · 이디야커피 → "AI페퍼스 배구단, 이디야커피 로고 찍힌 유니폼" (배구 유니폼 사진)
+#       · 교촌치킨   → "치킨 브랜드 로고 CI BI 디자인 제작 사례 포트폴리오" (남의 작업물)
+#       · 투다리     → "로고제작 디자인 회사 기업 CI BI : 김로고" (디자인 업체 광고)
+#     배구 유니폼 사진을 로고라고 붙이면 글자 마크보다 나쁘다. 그래서 폐기했다.
+#
+# 지금 방식 (실측 8/8 정확)
+#     웹문서 검색으로 **공식 홈페이지 도메인**을 찾고, 그 사이트가 <link rel> 로
+#     선언한 아이콘(apple-touch-icon 우선)이나 og:image 를 가져온다. 출처가
+#     브랜드 자신이므로 엉뚱한 이미지가 붙을 여지가 없다.
 
-# 로고 후보 질의 — 앞에서부터 시도한다. '로고'만 붙이면 간판·인테리어 사진이
-# 섞이므로 CI/BI 같은 정확한 용어를 먼저 넣어 심볼이 걸릴 확률을 높인다.
-_LOGO_QUERIES = ("{q} 로고 CI", "{q} 브랜드 로고", "{q} 로고")
-# 로고로 보기 어려운 결과를 거른다 (메뉴판·매장 사진·인물)
-_LOGO_STOPWORDS = ("메뉴", "인테리어", "매장", "간판", "창업설명회", "채용", "알바")
+_WEBKR_URL = "https://openapi.naver.com/v1/search/webkr.json"
+
+# 공식 홈페이지가 아닌 곳 — 블로그·카페·SNS·뉴스·위키·커뮤니티
+_NOT_OFFICIAL = (
+    "blog.", "cafe.", "post.naver", "tistory", "brunch", "instagram", "facebook",
+    "youtube", "twitter", "x.com", "wikipedia", "namu.wiki", "news", "dcinside",
+    "fmkorea", "ppomppu", "clien", "ruliweb", "inven", "danawa", "coupang",
+    "11st", "gmarket", "auction", "smartstore", "shopping", "map.naver",
+    "place.naver", "search.naver", "jobkorea", "saramin", "wanted",
+)
+_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                     "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+       "Accept": "text/html,application/xhtml+xml,*/*;q=0.8",
+       "Accept-Language": "ko-KR,ko;q=0.9"}
+
+_LINK_TAG = re.compile(r"<link\b[^>]*>", re.I)
+_REL = re.compile(r'rel=["\']([^"\']+)["\']', re.I)
+_HREF = re.compile(r'href=["\']([^"\']+)["\']', re.I)
+_SIZES = re.compile(r'sizes=["\'](\d+)x(\d+)["\']', re.I)
+_OG_IMAGE = re.compile(
+    r'<meta\b[^>]*property=["\']og:image["\'][^>]*content=["\']([^"\']+)["\']', re.I)
 
 
-def _score_logo(item: dict) -> float:
-    """이미지 1건의 '로고다움' 점수. 클수록 좋다. 0 이하면 후보 제외.
+def official_domain(brand_name: str, cfg: dict | None = None) -> str:
+    """브랜드의 공식 홈페이지 도메인. 못 찾으면 빈 문자열.
 
-    정사각형에 가깝고, 너무 크지 않고, 제목에 로고/CI 가 있으면 가점.
-    """
-    try:
-        w, h = float(item.get("sizewidth", 0)), float(item.get("sizeheight", 0))
-    except (TypeError, ValueError):
-        return 0.0
-    if w <= 0 or h <= 0:
-        return 0.0
-    title = _clean(item.get("title", ""))
-    if any(s in title for s in _LOGO_STOPWORDS):
-        return 0.0
-    ratio = min(w, h) / max(w, h)
-    if ratio < 0.55:                            # 가로로 길쭉하면 배너·간판일 확률이 높다
-        return 0.0
-    score = ratio
-    if any(k in title for k in ("로고", "CI", "BI", "심볼", "logo")):
-        score += 0.45
-    if 80 <= max(w, h) <= 800:                  # 로고 이미지의 통상 크기대
-        score += 0.25
-    return score
-
-
-def brand_logo(brand_name: str, cfg: dict | None = None) -> str:
-    """브랜드 로고 이미지 URL 1개. 못 찾으면 빈 문자열.
-
-    ⚠️ 이미지 검색 결과는 제3자가 올린 것이라 브랜드 공식 자산이라는 보장이 없다.
-       그래서 화면에는 **표시용 썸네일**로만 쓰고, 실패하면 글자 마크로 내려앉는다.
-       로고를 못 구했다고 카드가 비어 보이는 일은 없어야 한다.
+    상위 결과에서 블로그·뉴스·쇼핑몰을 걷어내고 **가장 자주 등장한 도메인**을 고른다.
+    한 번만 등장한 도메인은 우연일 수 있으므로 빈도를 본다.
     """
     q = search_term(brand_name)
     if not q:
         return ""
-    for tpl in _LOGO_QUERIES:
-        try:
-            data = _request("GET", _IMAGE_URL, cfg, headers=_headers(cfg),
-                            params={"query": tpl.format(q=q), "display": 20,
-                                    "sort": "sim", "filter": "all"})
-        except NaverError as exc:
-            if "재시도 무의미" in str(exc):      # 인증·권한 오류면 다음 질의도 실패한다
-                raise
+    try:
+        data = _request("GET", _WEBKR_URL, cfg, headers=_headers(cfg),
+                        params={"query": f"{q} 공식홈페이지", "display": 15})
+    except NaverError as exc:
+        if "재시도 무의미" in str(exc):
+            raise
+        return ""
+    counts: dict[str, int] = {}
+    for it in data.get("items", []):
+        host = urlparse(str(it.get("link", ""))).netloc.lower()
+        if not host or any(k in host for k in _NOT_OFFICIAL):
+            continue
+        counts[host] = counts.get(host, 0) + 1
+    if not counts:
+        return ""
+    # 빈도 우선, 같으면 짧은 도메인(www 없는 루트에 가까운 쪽)
+    return max(counts, key=lambda h: (counts[h], -len(h)))
+
+
+def _fetch_html(url: str, limit: int = 250_000) -> str:
+    try:
+        r = requests.get(url, headers=_UA, timeout=10, allow_redirects=True)
+        if r.status_code != 200:
             return ""
-        best, best_score = "", 0.0
-        for it in data.get("items", []):
-            s = _score_logo(it)
-            if s > best_score:
-                best, best_score = str(it.get("thumbnail") or it.get("link") or ""), s
-        if best and best_score >= 0.9:          # 확신이 설 때만 채택
-            return best
-    return ""
+        return r.content[:limit].decode(r.encoding or "utf-8", "ignore")
+    except Exception:
+        return ""
+
+
+# 선언이 없어도 관행적으로 존재하는 아이콘 경로. 파비콘만 있는 사이트에서
+# 더 큰 이미지를 건지는 마지막 수단이다.
+_ICON_GUESSES = ("/apple-touch-icon.png", "/apple-touch-icon-precomposed.png",
+                 "/apple-touch-icon-180x180.png", "/favicon.png", "/favicon.ico")
+MIN_LOGO_PX = 48        # 이보다 작으면 화면에서 흐려 로고 구실을 못 한다
+
+
+def icon_candidates(domain: str) -> list[str]:
+    """도메인에서 뽑을 수 있는 아이콘 후보 URL 전부 (선언 + 관행 경로 + og:image)."""
+    if not domain:
+        return []
+    base = f"https://{domain}"
+    html = _fetch_html(base)
+    out: list[str] = []
+
+    declared: list[tuple[int, str]] = []
+    for tag in _LINK_TAG.findall(html or ""):
+        rel_m, href_m = _REL.search(tag), _HREF.search(tag)
+        if not (rel_m and href_m) or "icon" not in rel_m.group(1).lower():
+            continue
+        sz = _SIZES.search(tag)
+        # apple-touch-icon 은 홈 화면용이라 대개 180px 이상이고 브랜드 심볼 원본이다.
+        # 크기 선언이 없어도 파비콘보다 우선하도록 가중치를 준다.
+        weight = int(sz.group(1)) if sz else (180 if "apple-touch" in rel_m.group(1).lower() else 0)
+        declared.append((weight, urljoin(base, href_m.group(1))))
+    out += [u for _, u in sorted(declared, reverse=True)]
+
+    og = _OG_IMAGE.search(html or "")
+    if og:
+        out.append(urljoin(base, og.group(1)))
+    out += [base + g for g in _ICON_GUESSES]
+
+    seen: set[str] = set()
+    return [u for u in out if not (u in seen or seen.add(u))]
+
+
+def _measure(url: str) -> tuple[int, int]:
+    """이미지를 실제로 받아 (짧은 변, 바이트) 를 잰다. 실패하면 (0, 0).
+
+    선언된 sizes 속성은 거짓인 경우가 흔하다(180x180 이라 적어 놓고 32px 이미지).
+    화면 품질을 좌우하는 값이므로 믿지 말고 직접 잰다.
+    """
+    try:
+        r = requests.get(url, headers=_UA, timeout=8)
+        if r.status_code != 200 or not r.headers.get("Content-Type", "").startswith("image"):
+            return 0, 0
+        data = r.content
+        if len(data) < 300:                 # 1×1 투명 픽셀 등
+            return 0, 0
+        from io import BytesIO
+
+        from PIL import Image
+        with Image.open(BytesIO(data)) as im:
+            # .ico 는 여러 해상도를 품는다 — PIL 은 가장 큰 것을 연다
+            return min(im.size), len(data)
+    except Exception:
+        return 0, 0
+
+
+def site_icon(domain: str) -> tuple[str, int]:
+    """도메인의 대표 아이콘 (URL, 실측 짧은 변 픽셀). 못 찾으면 ("", 0).
+
+    후보를 앞에서부터 실제로 받아 재고, MIN_LOGO_PX 이상이면 즉시 채택한다.
+    끝까지 못 넘기면 그중 가장 큰 것을 쓴다(작아도 없는 것보다 낫다).
+    """
+    best, best_px = "", 0
+    for url in icon_candidates(domain)[:6]:
+        px, _ = _measure(url)
+        if px > best_px:
+            best, best_px = url, px
+        if px >= MIN_LOGO_PX:
+            break
+    return best, best_px
+
+
+def brand_logo(brand_name: str, cfg: dict | None = None) -> str:
+    """브랜드 로고 이미지 URL. 못 찾으면 빈 문자열(화면은 글자 마크로 대체)."""
+    domain = official_domain(brand_name, cfg)
+    if not domain:
+        return ""
+    url, _px = site_icon(domain)
+    return url
+
+
+LOGO_CACHE = "data/raw/naver/logos.json"
+LOGO_DIR = "data/raw/naver/logo_img"
+LOGO_PX = 128           # 저장 해상도 — 화면 최대 62px 이므로 2배면 충분하다
+
+
+def logo_file_name(brand_name: str) -> str:
+    """브랜드명 → 로고 파일명. 한글·특수문자가 섞이므로 해시를 쓴다.
+
+    화면(views/common.py)도 이 함수로 경로를 **계산**한다. 색인 파일을 거치면
+    수집이 색인을 덮어쓸 때 참조가 끊긴다(실측: PNG 556장이 있는데 색인은 0건).
+    """
+    return hashlib.sha1(str(brand_name).encode("utf-8")).hexdigest()[:16] + ".png"
+
+
+def download_logo(brand_name: str, url: str, root: Path) -> str:
+    """로고를 내려받아 정사각 PNG 로 저장하고 상대경로를 돌려준다.
+
+    왜 링크를 그대로 쓰지 않는가
+      · 핫링크 차단: 상당수 기업 사이트가 외부 Referer 요청을 막는다. 배포한 화면에서
+        깨진 이미지가 뜨는 순간 서비스가 미완성으로 보인다.
+      · 남의 대역폭: 심사역이 볼 때마다 그 회사 서버를 때리는 것은 예의가 아니다.
+      · 시연 안정성: 상대 사이트가 잠깐 죽어도 우리 화면은 멀쩡해야 한다.
+    """
+    if not url:
+        return ""
+    dest_dir = root / LOGO_DIR
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    dest = dest_dir / logo_file_name(brand_name)
+    try:
+        r = requests.get(url, headers=_UA, timeout=12)
+        if r.status_code != 200 or len(r.content) < 300:
+            return ""
+        from io import BytesIO
+
+        from PIL import Image
+        with Image.open(BytesIO(r.content)) as im:
+            im = im.convert("RGBA")
+            # 원본이 16~32px 파비콘이면 카드 안에서 흐릿한 점으로 보인다.
+            # 그런 이미지는 브랜드 색 글자 마크보다 못하므로 아예 쓰지 않는다
+            # (실측: 더벤티 16px, 네네치킨 32px 이 화면에서 판독 불가였다).
+            if min(im.size) < MIN_LOGO_PX:
+                return ""
+            im.thumbnail((LOGO_PX, LOGO_PX), Image.LANCZOS)
+            # 정사각 캔버스 중앙 배치 — 가로로 긴 로고도 카드 안에서 잘리지 않는다
+            canvas = Image.new("RGBA", (LOGO_PX, LOGO_PX), (255, 255, 255, 0))
+            canvas.paste(im, ((LOGO_PX - im.width) // 2, (LOGO_PX - im.height) // 2))
+            canvas.save(dest, "PNG", optimize=True)
+    except Exception:
+        return ""
+    return f"{LOGO_DIR}/{dest.name}"
+
+
+def _load_logo_cache(cfg: dict) -> dict:
+    p = Path(cfg["_root"]) / LOGO_CACHE
+    if not p.exists():
+        return {}
+    try:
+        obj = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    # 구버전(브랜드→URL 문자열) 호환
+    return {k: (v if isinstance(v, dict) else {"url": v or "", "domain": "", "px": 0})
+            for k, v in obj.items()} if isinstance(obj, dict) else {}
 
 
 def collect_logos(cfg: dict | None = None, limit: int | None = None,
-                  sleep_sec: float = 0.1) -> dict:
-    """점수 코호트 브랜드의 로고를 한꺼번에 찾아 캐시에 저장한다.
+                  sleep_sec: float = 0.05) -> dict:
+    """코호트 브랜드의 로고를 한꺼번에 찾아 캐시에 저장한다.
 
-    화면에서 브랜드를 볼 때마다 API를 때리면 느리고 한도를 잡아먹는다.
-    미리 채워 두면 화면은 캐시만 읽는다. 이미 찾은 브랜드는 건너뛴다.
+    화면에서 브랜드를 볼 때마다 조회하면 느리고 호출 한도를 잡아먹는다.
+    미리 채워 두면 화면은 캐시만 읽는다. 이미 조회한 브랜드는 건너뛰므로
+    중단해도 이어서 돌릴 수 있다.
+
+    캐시에는 URL 뿐 아니라 **도메인과 실측 픽셀**도 남긴다. 나중에 "이 로고가
+    어디서 왔는가"를 확인할 수 있어야 하고, 화질이 낮은 건을 골라낼 수 있어야 한다.
     """
     cfg = cfg or load_config()
-    dest = Path(cfg["_root"]) / "data/raw/naver/logos.json"
-    cache: dict = {}
-    if dest.exists():
-        try:
-            cache = json.loads(dest.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            cache = {}
+    dest = Path(cfg["_root"]) / LOGO_CACHE
+    cache = _load_logo_cache(cfg)
 
     if not is_enabled(cfg):
         log.warning("네이버 자격증명이 없어 로고를 수집하지 않는다 — "
@@ -381,38 +546,46 @@ def collect_logos(cfg: dict | None = None, limit: int | None = None,
     scores = pd.read_csv(spath, encoding="utf-8-sig")
     scores = scores.assign(
         _n=pd.to_numeric(scores["n_stores"], errors="coerce").fillna(0))
-    todo = scores.sort_values("_n", ascending=False)
+    todo = scores.sort_values("_n", ascending=False)   # 큰 브랜드부터 (화면 노출 빈도 순)
     if limit:
         todo = todo.head(int(limit))
 
-    found, missing = 0, 0
+    def _save() -> None:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8")
+
+    done = 0
     for _, r in todo.iterrows():
         name = str(r["brand_name"])
         if name in cache:
             continue
         try:
-            url = brand_logo(name, cfg)
+            domain = official_domain(name, cfg)
+            url, px = site_icon(domain) if domain else ("", 0)
         except NaverError as exc:
-            log.warning("로고 조회 중단 (%s): %s", name, exc)
+            log.warning("로고 수집 중단 (%s): %s", name, exc)
             break
-        cache[name] = url or ""
-        found += bool(url)
-        missing += (not url)
-        if (found + missing) % 50 == 0:
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_text(json.dumps(cache, ensure_ascii=False, indent=1),
-                            encoding="utf-8")
-            log.info("로고 수집 진행: 확보 %d · 미확보 %d", found, missing)
+        except Exception as exc:                # 한 브랜드의 사이트 오류로 멈추지 않는다
+            log.info("로고 조회 실패 (%s): %s", name, str(exc)[:80])
+            domain, url, px = "", "", 0
+        local = download_logo(name, url, Path(cfg["_root"])) if url else ""
+        cache[name] = {"url": url, "domain": domain, "px": int(px), "file": local}
+        done += 1
+        if done % 50 == 0:
+            _save()
+            n_ok = sum(1 for v in cache.values() if v.get("url"))
+            log.info("로고 수집 %d건 처리 · 누적 확보 %d/%d", done, n_ok, len(cache))
         time.sleep(sleep_sec)
 
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8")
-    n_ok = sum(1 for v in cache.values() if v)
-    log.info("로고 수집 완료: 이번 실행 확보 %d · 미확보 %d · 누적 확보 %d/%d (%.0f%%) → %s",
-             found, missing, n_ok, len(cache),
-             100 * n_ok / max(len(cache), 1), dest.name)
-    return {"enabled": True, "n_found": found, "n_missing": missing,
-            "n_cached": len(cache), "n_with_logo": n_ok}
+    _save()
+    n_ok = sum(1 for v in cache.values() if v.get("url"))
+    n_hi = sum(1 for v in cache.values() if v.get("px", 0) >= MIN_LOGO_PX)
+    log.info("로고 수집 완료: 이번 %d건 · 누적 %d개 중 확보 %d (%.0f%%) · "
+             "선명(%dpx 이상) %d (%.0f%%) → %s",
+             done, len(cache), n_ok, 100 * n_ok / max(len(cache), 1),
+             MIN_LOGO_PX, n_hi, 100 * n_hi / max(len(cache), 1), dest.name)
+    return {"enabled": True, "n_processed": done, "n_cached": len(cache),
+            "n_with_logo": n_ok, "n_sharp": n_hi}
 
 
 # ---------------------------------------------------------------------------
@@ -467,6 +640,15 @@ def collect_demand(cfg: dict | None = None, limit: int | None = None,
                              str(r.get("industry_major") or ""), cfg)
         except NaverError as exc:
             n_fail += 1
+            if "Scope Status Invalid" in str(exc):
+                # 키는 맞지만 애플리케이션에 '데이터랩(검색어트렌드)' API 가 추가돼
+                # 있지 않을 때 나온다. 원인을 알려주지 않으면 키가 틀린 줄 안다.
+                log.error(
+                    "검색어트렌드 권한 없음 — 애플리케이션에 '데이터랩(검색어트렌드)' API가 "
+                    "추가돼 있지 않습니다. developers.naver.com → 내 애플리케이션 → "
+                    "API 설정 → '데이터랩(검색어트렌드)' 체크 후 저장하세요. "
+                    "(검색 API는 정상 동작 중이므로 뉴스·로고는 영향 없습니다)")
+                break
             log.warning("수요 조회 실패 (%s): %s", r["brand_name"], exc)
             if "재시도 무의미" in str(exc):
                 break                       # 인증·권한 오류면 나머지도 전부 실패한다

@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import base64
 import colorsys
 import hashlib
 import json
@@ -155,37 +156,35 @@ def scored_year() -> str:
 _LOGO_CACHE = "data/raw/naver/logos.json"
 
 
-@st.cache_data(show_spinner=False)
-def logo_url(brand_name: str) -> str:
-    """브랜드 로고 이미지 URL. 캐시에 없고 네이버 키가 있으면 이미지 검색으로 찾는다.
+@st.cache_data(show_spinner=False, max_entries=4096)
+def _logo_data_uri(brand_name: str, _mtime: float) -> str:
+    """브랜드 로고 파일 → data URI. 없으면 빈 문자열.
 
-    키가 없으면 빈 문자열을 돌려주고, 화면은 글자 마크로 대체한다 —
-    로고를 못 구했다고 카드가 비어 보이면 안 된다.
+    파일 경로는 브랜드명 해시로 **계산**한다 — 색인 파일(logos.json)을 거치지 않는다.
+    수집이 백그라운드로 돌면서 색인을 통째로 덮어쓰면 방금 저장한 파일 참조가 사라지는
+    경합이 실제로 났다(PNG 556장이 디스크에 있는데 색인은 0건). 경로를 계산하면
+    색인과 무관하게 항상 맞고, 수집 도중에도 화면이 정상 동작한다.
+
+    ⚠️ 원본 URL 을 <img src> 로 쓰지 않는 이유: 기업 사이트 상당수가 외부 Referer
+       요청을 막아 배포 화면에서 이미지가 깨진다. 파일을 우리가 들고 있으면 상대
+       사이트 상태와 무관하게 항상 뜬다. 128px PNG 라 한 장에 5~15KB 다.
     """
-    cache_p = Path(cfg()["_root"]) / _LOGO_CACHE
-    cache: dict = {}
-    if cache_p.exists():
-        try:
-            cache = json.loads(cache_p.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            cache = {}
-    if brand_name in cache:
-        return str(cache[brand_name] or "")
-
-    try:
-        from src import naver
-        if not naver.is_enabled(cfg()):
-            return ""
-        url = naver.brand_logo(brand_name, cfg())
-    except Exception:
+    from src.naver import LOGO_DIR, logo_file_name
+    p = Path(cfg()["_root"]) / LOGO_DIR / logo_file_name(brand_name)
+    if not p.exists():
         return ""
-    cache[brand_name] = url or ""
     try:
-        cache_p.parent.mkdir(parents=True, exist_ok=True)
-        cache_p.write_text(json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8")
+        return "data:image/png;base64," + base64.b64encode(p.read_bytes()).decode("ascii")
     except OSError:
-        pass
-    return url or ""
+        return ""
+
+
+def logo_url(brand_name: str) -> str:
+    """브랜드 로고를 화면에 바로 넣을 수 있는 형태로. 없으면 빈 문자열."""
+    from src.naver import LOGO_DIR
+    d = Path(cfg()["_root"]) / LOGO_DIR
+    # 디렉토리 수정시각을 캐시 키에 넣어 수집이 진행되면 화면이 따라오게 한다
+    return _logo_data_uri(str(brand_name), _mtime(d))
 
 
 def _mark_colors(name: str) -> tuple[str, str, str]:
@@ -226,7 +225,9 @@ def brand_mark_html(brand_name: str, size: int = 52) -> str:
     url = logo_url(brand_name)
     radius = int(size * 0.24)
     if url:
-        return (f"<img src='{url}' alt='{brand_name}' loading='lazy' "
+        # loading='lazy' 는 쓰지 않는다 — 한 화면에 8~12장뿐이라 이득이 없고,
+        # 뷰포트 밖 카드가 빈칸으로 보이는 시간이 생긴다.
+        return (f"<img src='{url}' alt='{brand_name}' "
                 f"style='width:{size}px;height:{size}px;border-radius:{radius}px;"
                 f"object-fit:contain;padding:{max(2, int(size * 0.08))}px;"
                 f"border:1px solid {theme.BORDER};background:#FFFFFF;"

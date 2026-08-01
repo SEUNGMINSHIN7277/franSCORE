@@ -210,10 +210,20 @@ def test_no_dormant_rules() -> None:
                 declared.add(c)
                 break
 
-    from src import naver
+    # 검색수요 규칙은 demand_trends.json 에 수집된 브랜드가 있어야 발동한다.
+    # 판정 기준은 **키 보유**가 아니라 **데이터 존재**다 — 키가 있어도 애플리케이션에
+    # 데이터랩 API 가 추가돼 있지 않으면 데이터가 안 쌓인다(실측: Scope Status Invalid).
     demand_codes = {"DEMAND_DECLINE", "DEMAND_UNDERPERFORM",
                     "CATEGORY_DECLINE", "DEMAND_GROWTH"}
-    excused = set() if naver.is_enabled(cfg) else demand_codes
+    dp = Path(cfg["paths"]["outputs"]) / "demand_trends.json"
+    n_demand = 0
+    if dp.exists():
+        try:
+            obj = json.loads(dp.read_text(encoding="utf-8"))
+            n_demand = sum(1 for v in (obj.get("brands") or {}).values() if v)
+        except (OSError, ValueError):
+            n_demand = 0
+    excused = set() if n_demand else demand_codes
 
     dormant = sorted(declared - fired - excused)
     assert not dormant, (
@@ -221,7 +231,7 @@ def test_no_dormant_rules() -> None:
         "데이터가 없어 원리상 발동 불가한 규칙이 코드에 남아 있다")
     zzz = sorted(declared & excused - fired)
     print(f"    선언 {len(declared)}종 · 발동 {len(declared & fired)}종"
-          + (f" · 키 대기 {len(zzz)}종 {zzz}" if zzz else " · 전부 발동"))
+          + (f" · 검색수요 데이터 대기 {len(zzz)}종 {zzz}" if zzz else " · 전부 발동"))
 
 
 TESTS = [
