@@ -149,6 +149,41 @@ def _event_flags(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
 # 라벨 빌드
 # ---------------------------------------------------------------------------
 
+def brand_state(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
+    """브랜드×연도의 **t년 시점 상태**. t+1 관측을 요구하지 않는다.
+
+    [brand_id, year, state, n_events, n_obs_metrics] 반환.
+      state = "건전"   — t년 악화사건 0건, 판정 지표 1개 이상 관측
+              "요주의" — t년 악화사건 발동, 판정 지표 관측됨
+              "평가불가" — 판정 지표가 하나도 관측되지 않음
+
+    왜 필요한가
+        모형은 `healthy_at_t=True` 행으로만 학습·보정·평가됐다. 그런데 점수는 자격
+        조건만 걸고 전체에 매겨진다. 어느 브랜드가 그 모집단 안에 있는지 알려면
+        **점수 산출 연도 자체의 상태**가 필요한데, labels.parquet 은 t+1 이 있어야
+        행이 생기므로 최신 연도가 아예 없다. 그래서 t+1 없이 상태만 뽑는 경로를 둔다.
+
+        ⚠️ 이전에는 '직전 연도 라벨 표본에 있었는가'로 대신 판정했다. 그건 t−1년
+        상태여서 t년 상태를 과소 보고한다(2024 기준 50.9% vs 실제 61.9%).
+    """
+    df = compute_derived_metrics(panel)
+    ev = _event_flags(df, cfg)
+    df = pd.concat([df, ev], axis=1)
+    ex_cols = [c for c in ev.columns if c.startswith("ex_")]
+    n_events = df[_EV_COLS].sum(axis=1).astype(int)
+    deteriorated = (n_events >= int(cfg["label"]["min_events"])) | df[ex_cols].any(axis=1)
+    obs_cols = ["store_growth_rate", "real_sales_growth", "contract_end_rate"]
+    n_obs = df[obs_cols].notna().sum(axis=1)
+
+    state = np.where(n_obs < 1, "평가불가",
+                     np.where(n_events == 0, "건전", "요주의"))
+    return pd.DataFrame({
+        "brand_id": df["brand_id"].to_numpy(), "year": df["year"].to_numpy(),
+        "state": state, "n_events": n_events.to_numpy(),
+        "n_obs_metrics": n_obs.to_numpy(), "deteriorated_at_t": deteriorated.to_numpy(),
+    })
+
+
 def build_labels(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     """계약 §2: [brand_id, year, label, healthy_at_t, ev_store, ev_sales,
     ev_contract, n_events, extreme_fired] 반환. 행의 year는 t (피처 시점),

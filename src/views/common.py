@@ -376,6 +376,22 @@ _RISK_HELP = ("공시·본부재무·검색수요를 학습한 모델이 산출�
 
 
 @st.cache_data(show_spinner=False)
+def grade_bands(m: float) -> dict:
+    """공표된 등급 밴드와 **검증 실현율**. 없으면 빈 dict.
+
+    등급의 의미는 규칙이 아니라 이 실적표가 정의한다 — 신용평가사가 등급별 장기
+    평균부도율을 공표해 등급을 앵커링하는 것과 같은 장치다.
+    """
+    p = out_dir() / "grade_bands.json"
+    if not p.exists():
+        return {}
+    try:
+        return _json(str(p), _mtime(p)) or {}
+    except (OSError, ValueError):
+        return {}
+
+
+@st.cache_data(show_spinner=False)
 def grade_bounds(m: float) -> dict:
     """등급 컷을 **실제 확률 경계**로 환산한다.
 
@@ -407,18 +423,25 @@ def population_note(row) -> str:
     모델이 본 적 없는 구간에서 나온다. 두 트랙을 같은 '주의'로 합쳐 보여주면
     심사역은 같은 근거를 가진 것으로 읽는다 — 그건 사실이 아니다.
     """
-    v = row.get("in_model_population") if hasattr(row, "get") else None
-    if v is None or pd.isna(v):
-        return ""
-    if bool(v):
+    state = str(row.get("brand_state") or "") if hasattr(row, "get") else ""
+    if state == "건전":
         return (f"<div style='margin-top:8px;font-size:.86rem;color:{theme.TEXT_MUTED}'>"
-                f"✓ 모델 검증 구간 — 백테스트로 성능이 측정된 모집단입니다.</div>")
-    return (f"<div style='margin-top:8px;padding:7px 10px;border-radius:7px;"
-            f"background:{theme.WARN_SOFT};border:1px solid #F0DFB8;font-size:.88rem;"
-            f"color:{theme.TEXT};line-height:1.5'>"
-            f"<b>모델 검증 구간 밖</b> — 이미 악화 신호가 관측된 브랜드라 학습·평가 "
-            f"표본에 포함되지 않았습니다. 확률값의 성능 근거가 없으므로 <b>순위 참고용</b>"
-            f"으로만 쓰고, 판단은 아래 진단 소견으로 하십시오.</div>")
+                f"✓ <b>건전</b> — 올해 공시에 악화 사건이 없습니다. "
+                f"이 구간에서 모델 성능이 백테스트로 측정됐습니다.</div>")
+    if state == "요주의":
+        return (f"<div style='margin-top:8px;padding:7px 10px;border-radius:7px;"
+                f"background:{theme.WARN_SOFT};border:1px solid #F0DFB8;font-size:.88rem;"
+                f"color:{theme.TEXT};line-height:1.5'>"
+                f"<b>요주의</b> — 올해 공시에 이미 악화 사건이 발동했습니다. 이 구간은 "
+                f"학습·평가 표본에 포함되지 않아 <b>확률값의 성능 근거가 없습니다.</b> "
+                f"순위 참고용으로만 쓰고, 판단은 아래 진단 소견으로 하십시오.</div>")
+    if state == "평가불가":
+        return (f"<div style='margin-top:8px;padding:7px 10px;border-radius:7px;"
+                f"background:{theme.BG};border:1px solid {theme.BORDER};font-size:.88rem;"
+                f"color:{theme.TEXT_SUB};line-height:1.5'>"
+                f"<b>평가불가</b> — 올해 공시에서 판정 지표가 관측되지 않았습니다. "
+                f"등급을 신뢰할 수 없습니다.</div>")
+    return ""
 
 
 def signal_html(grade: str, pd_1y: float | None = None, *, size: int = 13,
@@ -449,7 +472,40 @@ def signal_html(grade: str, pd_1y: float | None = None, *, size: int = 13,
 
 
 def grade_legend_html(bounds: dict) -> str:
-    """등급 구간표 — 어떤 구간에 들어가면 어떤 마크가 붙는지."""
+    """등급 구간표 — 어떤 구간이면 어떤 등급이고, **그 등급이 실제로 몇 % 악화했는지**.
+
+    실현율을 함께 싣는 것이 핵심이다. 밴드만 보여주면 "10.5% 이상"이 무슨 뜻인지
+    독자가 알 수 없고, 부도확률로 오독한다. 검증 실적이 등급의 의미를 정의한다.
+    """
+    b = grade_bands(_mtime(out_dir() / "grade_bands.json"))
+    if b.get("pooled"):
+        cuts = b["cuts"]
+        rng = {"FS1": f"{cuts[0] * 100:.1f}% 미만",
+               "FS2": f"{cuts[0] * 100:.1f} ~ {cuts[1] * 100:.1f}%",
+               "FS3": f"{cuts[1] * 100:.1f}% 이상"}
+        color = {"FS1": theme.SAFE, "FS2": theme.WARN, "FS3": theme.DANGER}
+        soft = {"FS1": theme.SAFE_SOFT, "FS2": theme.WARN_SOFT, "FS3": theme.DANGER_SOFT}
+        rows = "".join(
+            f"<div style='display:flex;align-items:center;gap:10px;padding:9px 2px;"
+            f"border-bottom:1px solid {theme.BORDER}'>"
+            f"<span style='width:11px;height:11px;border-radius:50%;flex:0 0 auto;"
+            f"background:{color[r['grade']]};box-shadow:0 0 0 3px {soft[r['grade']]}'></span>"
+            f"<span style='font-weight:700;color:{theme.INK};min-width:74px'>"
+            f"{r['grade']} {r['grade_kr']}</span>"
+            f"<span style='color:{theme.TEXT};font-variant-numeric:tabular-nums;"
+            f"min-width:104px'>{rng[r['grade']]}</span>"
+            f"<span style='margin-left:auto;color:{theme.TEXT_SUB};font-size:.92rem'>"
+            f"실제 악화 <b style='color:{color[r['grade']]}'>{r['rate'] * 100:.1f}%</b> "
+            f"<span style='color:{theme.TEXT_MUTED}'>(n={r['n']:,})</span></span></div>"
+            for r in b["pooled"])
+        yrs = "·".join(str(y) for y in b.get("validation_years", []))
+        return (f"<div style='font-size:.97rem;line-height:1.5'>{rows}"
+                f"<div style='color:{theme.TEXT_MUTED};font-size:.86rem;margin-top:9px'>"
+                f"구간은 <b>고정</b>입니다 — 순위가 아니라 확률 기준이라, 업계 전체가 "
+                f"나빠지면 하위 등급이 늘어납니다. 오른쪽은 그 등급을 받은 브랜드가 "
+                f"실제로 다음 해에 악화한 비율입니다({yrs}년 검증, 총 {b['n_validation']:,}건). "
+                f"이 확률은 <b>부도확률이 아니라</b> 공정위 공시 지표가 업종 하위구간에 "
+                f"진입할 확률입니다.</div></div>")
     if not bounds:
         return ""
     rows = [

@@ -1,0 +1,67 @@
+{
+  "cuts": [
+    0.05,
+    0.105
+  ],
+  "grades": [
+    "FS1",
+    "FS2",
+    "FS3"
+  ],
+  "grade_kr": {
+    "FS1": "안정",
+    "FS2": "관찰",
+    "FS3": "주의"
+  },
+  "anchored_on": "walkforward OOS, fold별 선행 fold 보정 (시점 정합)",
+  "validation_years": [
+    2022,
+    2023
+  ],
+  "excluded_years": [
+    2021
+  ],
+  "n_validation": 1429,
+  "n_events": 141,
+  "min_ci_separation": 0.041304,
+  "pooled": [
+    {
+      "grade": "FS1",
+      "n": 396,
+      "events": 9,
+      "rate": 0.022727,
+      "ci_lo": 0.010444,
+      "ci_hi": 0.042704,
+      "grade_kr": "안정"
+    },
+    {
+      "grade": "FS2",
+      "n": 870,
+      "events": 90,
+      "rate": 0.103448,
+      "ci_lo": 0.084007,
+      "ci_hi": 0.125621,
+      "grade_kr": "관찰"
+    },
+    {
+      "grade": "FS3",
+      "n": 163,
+      "events": 42,
+      "rate": 0.257669,
+      "ci_lo": 0.192446,
+      "ci_hi": 0.331923,
+      "grade_kr": "주의"
+    }
+  ],
+  "deploy_calibrator": "calibrator_deploy.joblib",
+  "label_note": "악화 = 공정거래위원회 가맹사업 공시 지표(가맹점수·계약종료·평균매출·면적당매출)가 업종×연도 하위 구간에 진입하는 사건이다. 차주의 채무불이행 확률이 아니다.",
+  "rule": {
+    "min_grade_n": 150,
+    "criteria": [
+      "등급별 최소 표본",
+      "실현율 단조 증가",
+      "인접 Clopper-Pearson 95% 구간 비중첩",
+      "검증 전 연도에서 단조성 유지"
+    ]
+  }
+}

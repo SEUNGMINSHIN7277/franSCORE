@@ -7,11 +7,11 @@
   "pd_floor": 0.0003,
   "pd_cap": 0.99,
   "grade_counts": {
-    "Low": 1009,
-    "Medium": 288,
-    "High": 145
+    "Medium": 701,
+    "Low": 377,
+    "High": 364
   },
-  "pd_min": 0.0003,
-  "pd_max": 0.4802513489761054,
+  "pd_min": 0.007050118665363661,
+  "pd_max": 0.1502336661383289,
   "note": "라벨 미확정 코호트의 사전 점수. 보정기는 과거 valid 적합본을 적용만 했으며 재적합하지 않았다. 성능 근거는 metrics.csv·walkforward_metrics.csv 참조."
 }

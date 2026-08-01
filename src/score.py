@@ -62,29 +62,54 @@ def _load_artifacts(out_dir: Path) -> tuple[lgb.Booster, dict, dict]:
     return booster, cal, name_map
 
 
-def _in_model_population(cfg: dict, brand_ids: pd.Series, target_year: int) -> pd.Series:
-    """이 브랜드가 모델이 실제로 학습·검증한 모집단에 속하는가.
+def _load_bands(cfg: dict) -> dict | None:
+    """등급 밴드 정의. 없으면 None (호출부가 순위 등급으로 폴백)."""
+    p = Path(cfg["paths"]["outputs"]) / "grade_bands.json"
+    if not p.exists():
+        return None
+    try:
+        b = json.loads(p.read_text(encoding="utf-8"))
+        return b if b.get("cuts") and b.get("grades") else None
+    except (OSError, ValueError) as exc:
+        log.warning("grade_bands.json 읽기 실패: %s", exc)
+        return None
+
+
+def _load_deploy_calibrator(cfg: dict):
+    p = Path(cfg["paths"]["outputs"]) / "calibrator_deploy.joblib"
+    if not p.exists():
+        return None
+    try:
+        return (joblib.load(p) or {}).get("model")
+    except Exception as exc:
+        log.warning("배포용 보정기 읽기 실패: %s", exc)
+        return None
+
+
+def _brand_state(cfg: dict, brand_ids: pd.Series, target_year: int) -> pd.Series:
+    """점수 산출 연도의 브랜드 상태 (건전 / 요주의 / 평가불가).
 
     왜 이 표시가 필요한가 (실측 근거)
-        라벨은 `healthy_gate_at_t=true` 로 만들어진다 — 즉 학습·보정·평가 표본은
-        **그 해에 악화사건이 하나도 없던 브랜드만**이다(labels.parquet 3,635행 전부
-        healthy_at_t=True). 그런데 점수 산출은 `eligible_t` 만 걸고 게이트를 걸지 않는다.
-        그 결과 2024 코호트 1,442개 중 708개(49.1%)가 모델이 한 번도 본 적 없는
-        모집단이고, **주의 등급 145개 중 116개(80.0%)가 거기서 나온다**.
-        평균 확률도 21.5% 대 10.6%로 두 배 넘게 갈린다.
+        라벨은 `healthy_gate_at_t=true` 로 만들어진다 — 학습·보정·평가 표본은
+        **그 해에 악화사건이 하나도 없던 브랜드만**이다. 그런데 점수 산출은
+        `eligible_t` 만 걸고 게이트를 걸지 않는다. 그 결과 2024 코호트 1,442개 중
+        절반 가까이가 모델이 학습한 적 없는 상태이고, **주의 등급의 대부분이
+        거기서 나온다**. 이들에 대한 성능 근거는 원리적으로 만들 수 없다 —
+        labels.parquet 에 행 자체가 없어 어떤 백테스트도 불가능하다.
 
-        이들에 대한 성능 근거는 원리적으로 만들 수 없다 — labels.parquet 에 행 자체가
-        없어 어떤 백테스트도 불가능하다. 보고된 Lift@10·AUC 는 전부 게이트 통과분에서만
-        측정된 값이다. 그러면 최소한 **어느 쪽인지는 화면과 CSV 에 밝혀야** 한다.
-        숨기면 심사역은 두 트랙을 같은 근거를 가진 하나의 '주의 등급'으로 읽게 된다.
+        ⚠️ 이전 판은 '직전 연도 라벨 표본에 있었는가'라는 프록시를 썼다. 그건
+        t−1년 상태라 t년 상태를 **과소 보고**한다(2024: 50.9% vs 실제 61.9%).
+        이제 `labels.brand_state()` 로 산출연도 상태를 직접 판정한다.
     """
-    labels_p = Path(cfg["paths"]["processed"]) / "labels.parquet"
-    if not labels_p.exists():
-        log.warning("labels.parquet 없음 — 모델 모집단 표시를 생략합니다")
-        return pd.Series(False, index=brand_ids.index)
-    lab = pd.read_parquet(labels_p, columns=["brand_id", "year"])
-    seen = set(lab.loc[lab["year"] == target_year - 1, "brand_id"].astype(str))
-    return brand_ids.astype(str).isin(seen)
+    panel_p = Path(cfg["paths"]["processed"]) / "panel.parquet"
+    if not panel_p.exists():
+        log.warning("panel.parquet 없음 — 브랜드 상태 표시를 생략합니다")
+        return pd.Series("미상", index=brand_ids.index)
+    from src.labels import brand_state
+    st = brand_state(pd.read_parquet(panel_p), cfg)
+    st = st[st["year"] == target_year].set_index(st.loc[st["year"] == target_year, "brand_id"]
+                                                 .astype(str))["state"]
+    return brand_ids.astype(str).map(st).fillna("미상")
 
 
 def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
@@ -127,8 +152,17 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
     X = X[trained]
 
     p_raw = np.clip(booster.predict(X), 0.0, 1.0)
-    p_cal_step = _apply_calibrator(
-        cal.get("model"), p_raw, str(cal.get("method", "identity")), cfg)
+    # 배포용 보정기가 있으면 그것을 쓴다 — 등급 밴드가 그 척도 위에서 도출·검증됐기
+    # 때문이다. 척도가 다르면 공표한 '등급별 실현 악화율'과 화면 확률이 어긋난다.
+    # (기존 보정기는 valid 한 해 689행 적합, 배포용은 워크포워드 OOS 2,063행 적합.)
+    bands = _load_bands(cfg)
+    deploy_cal = _load_deploy_calibrator(cfg) if bands else None
+    if deploy_cal is not None:
+        p_cal_step = np.clip(deploy_cal.predict(p_raw), 0.0, 1.0)
+        log.info("배포용 보정기 적용 (워크포워드 OOS 적합) — 예측평균 %.4f", p_cal_step.mean())
+    else:
+        p_cal_step = _apply_calibrator(
+            cal.get("model"), p_raw, str(cal.get("method", "identity")), cfg)
     # isotonic 은 계단 함수라 같은 계단에 든 브랜드가 **화면에 같은 확률로** 표시된다
     # (실측: 2,510개 중 216개가 42.86%). 계단 내부를 원점수로 선형 보간해 편다.
     # 1e-5 짜리 미세 tie-break 는 소수점 첫째 자리에서 여전히 같은 값이라 소용이 없었다.
@@ -163,13 +197,36 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
     # **감사 가능한 원본**을 함께 실어 둘을 대조할 수 있게 한다.
     res["pd_calibrated_step"] = p_cal_step
     res["pd_rank_pct"] = res["pd_1y"].rank(method="first", pct=True)
-    res["in_model_population"] = _in_model_population(cfg, res["brand_id"], target_year)
+    res["brand_state"] = _brand_state(cfg, res["brand_id"], target_year)
+    # 모델이 실제로 학습·검증한 모집단 = 건전 상태 브랜드
+    res["in_model_population"] = res["brand_state"].eq("건전")
 
-    # 등급: 학습·평가와 동일한 **순위 기반** 규칙 (값 임계 컷은 동률에 취약 — 기존 결함 수정 유지)
-    g = cfg["portfolio"]["risk_grades"]
-    hi, mid = float(g["high"]), float(g["medium"])
-    res["risk_grade"] = np.where(res["pd_rank_pct"] >= hi, "High",
-                                 np.where(res["pd_rank_pct"] >= mid, "Medium", "Low"))
+    # 등급 — 관측 악화율로 앵커링된 **절대 컷** (tools/derive_grade_bands.py 산출).
+    #
+    # 왜 순위 백분위를 버렸나: `pd_rank_pct >= 0.90 → High` 는 매 산출 시점에 항상
+    # 정확히 10%를 주의로 만든다. 산업 전체가 나빠져도 등급 분포가 고정되고, 위험이
+    # 전혀 변하지 않은 브랜드의 등급이 남의 변화 때문에 바뀐다(무변화 쌍 570개 중 19쌍 실측).
+    # 무엇보다 등급별 확률이 정의되지 않아 어떤 검증도 성립하지 않는다.
+    if bands:
+        cuts = [float(c) for c in bands["cuts"]]
+        idx = np.digitize(res["pd_1y"].to_numpy(), cuts)
+        res["grade"] = np.array(bands["grades"], dtype=object)[idx]
+        # 하위 호환: 기존 화면·포트폴리오·큐가 쓰는 High/Medium/Low 를 함께 유지
+        res["risk_grade"] = np.array(["Low", "Medium", "High"], dtype=object)[idx]
+        res["grade_band"] = [
+            f"{cuts[0] * 100:.1f}% 미만" if i == 0 else
+            (f"{cuts[0] * 100:.1f}~{cuts[1] * 100:.1f}%" if i == 1
+             else f"{cuts[1] * 100:.1f}% 이상") for i in idx]
+        log.info("절대 등급 적용 (컷 %s): %s", cuts,
+                 res["grade"].value_counts().to_dict())
+    else:
+        log.warning("grade_bands.json 없음 — 순위 백분위 등급으로 대체합니다 "
+                    "(`python tools/derive_grade_bands.py` 실행 권장)")
+        g = cfg["portfolio"]["risk_grades"]
+        hi, mid = float(g["high"]), float(g["medium"])
+        res["risk_grade"] = np.where(res["pd_rank_pct"] >= hi, "High",
+                                     np.where(res["pd_rank_pct"] >= mid, "Medium", "Low"))
+        res["grade"] = res["risk_grade"].map({"High": "FS3", "Medium": "FS2", "Low": "FS1"})
 
     # 상위 위험요인 (SHAP) — 심사역이 '왜'를 바로 볼 수 있게 CSV에 함께 싣는다
     try:
@@ -186,12 +243,10 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
     except Exception as exc:
         log.warning("SHAP 기여도 산출 생략: %s", exc)
 
-    n_in = int(res["in_model_population"].sum())
+    log.info("브랜드 상태: %s", res["brand_state"].value_counts().to_dict())
     high_mask = res["pd_rank_pct"] >= float(cfg["portfolio"]["risk_grades"]["high"])
-    log.info("모델 모집단 소속: %d/%d (%.1f%%) · 주의 등급 중 소속 %d/%d (%.1f%%)",
-             n_in, len(res), n_in / len(res) * 100,
-             int(res.loc[high_mask, "in_model_population"].sum()), int(high_mask.sum()),
-             res.loc[high_mask, "in_model_population"].mean() * 100)
+    log.info("최상위 등급 %d개의 상태 구성: %s", int(high_mask.sum()),
+             res.loc[high_mask, "brand_state"].value_counts().to_dict())
 
     res = res.sort_values("pd_1y", ascending=False).reset_index(drop=True)
     dest = out_dir / "scores_latest.csv"
