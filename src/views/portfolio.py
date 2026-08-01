@@ -67,6 +67,22 @@ def render() -> None:
     if extra:
         base = pd.concat([base, _new_rows(extra, adj)], ignore_index=True)
 
+    # ⚠️ 고지를 화면 맨 아래 캡션으로만 두면 아무도 안 읽는다. 여기 숫자는 **실제 여신이
+    #    아니라 공시 창업비용에서 유도한 추정치**이고, 그 사실을 모르고 HHI·예상손실을
+    #    인용하면 근거 없는 금액이 결재 문서로 넘어간다. 표 위에 먼저 밝힌다.
+    if basis != "actual_loan_book":
+        a = ((summary.get("assumptions") or {}).get("exposure") or {})
+        st.warning(
+            f"**여기 익스포저는 추정치입니다.** 실제 여신 잔액은 은행 내부 자료라 공개 "
+            f"데이터에 없습니다. 공정거래위원회 공시 창업비용에 대출조달비율 "
+            f"{float(a.get('loan_to_startup_cost', 0)) * 100:.0f}% · 은행점유율 "
+            f"{float(a.get('bank_share', 0)) * 100:.0f}% 가정을 곱해 만든 값이며, "
+            f"창업비용이 공시된 **{int(a.get('n_brands', 0))}개 브랜드**만 담겨 있습니다.\n\n"
+            f"→ **금액 자체가 아니라 '구조'를 보십시오** — 어느 브랜드에 쏠렸는지, "
+            f"신규 실행이 집중도를 얼마나 움직이는지가 이 화면의 쓸모입니다. "
+            f"실제 여신 CSV(`brand_id` 또는 `brand_name`, `exposure_mkrw`)를 "
+            f"`config.yaml` 의 `portfolio.exposure_source` 에 연결하면 전부 실측으로 바뀝니다.")
+
     port = _recompute(base, pcfg)
     _kpis(port, summary, adj)
     st.write("")

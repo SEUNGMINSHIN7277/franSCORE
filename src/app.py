@@ -32,16 +32,33 @@ MENU = {
     "점검 큐": ("queue", "담당자 배정과 확인 결과 기록"),
     "여신 포트폴리오": ("portfolio", "쏠림·예상손실 실시간 점검"),
     "AI 상담": ("assistant", "자연어 질의와 근거 인용"),
+    "서비스 소개": ("about", "무엇을 어떻게 평가하는가"),
 }
 
 DISCLAIMER = ("본 서비스의 지표는 2선 리스크 관리 참고용이며 자동 여신 결정에 "
               "사용되지 않습니다.")
 
 
+_NAV = "nav_view"
+
+
 def _sidebar() -> str:
     theme.sidebar_brand("FranSCORE", "프랜차이즈 여신 리스크")
     theme.sidebar_label("메뉴")
-    view = st.sidebar.radio("메뉴", list(MENU), label_visibility="collapsed")
+
+    # ⚠️ 라디오가 아니라 버튼을 쓴다. Streamlit 라디오는 **이미 선택된 항목을 다시
+    #    눌러도 값이 안 바뀌어 아무 일도 일어나지 않는다** — 브랜드 상세를 보다가
+    #    사이드바의 FRANSCORE 를 눌러도 목록으로 못 돌아갔다(실측 결함).
+    #    버튼은 누를 때마다 실행되므로 '같은 메뉴 다시 누르기 = 그 화면 처음으로'가 된다.
+    current = st.session_state.setdefault(_NAV, next(iter(MENU)))
+    for label in MENU:
+        if st.sidebar.button(label, key=f"nav_{MENU[label][0]}",
+                             use_container_width=True,
+                             type="primary" if label == current else "secondary"):
+            st.session_state[_NAV] = label
+            st.session_state["fs_selected"] = None
+            st.rerun()
+    view = st.session_state[_NAV]
 
     from src.views import common as C
     _, meta = C.load_scores()
@@ -67,9 +84,16 @@ def main() -> None:
     view = _sidebar()
     module_name = MENU[view][0]
 
-    from src.views import assistant, franscore, portfolio, queue
-    modules = {"franscore": franscore, "queue": queue,
-               "portfolio": portfolio, "assistant": assistant}
+    # 다른 화면에 다녀오면 브랜드 상세 선택을 푼다. 안 그러면 점검 큐에 갔다가
+    # FRANSCORE 로 돌아왔을 때 목록이 아니라 아까 보던 브랜드 상세가 뜬다.
+    if st.session_state.get("_last_view") != module_name:
+        if module_name != "franscore":
+            st.session_state["fs_selected"] = None
+        st.session_state["_last_view"] = module_name
+
+    from src.views import about, assistant, franscore, portfolio, queue
+    modules = {"franscore": franscore, "queue": queue, "portfolio": portfolio,
+               "assistant": assistant, "about": about}
     modules[module_name].render()
 
 

@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import io
+import json
 from datetime import UTC, datetime
 
 import pandas as pd
@@ -21,15 +22,41 @@ STATUS_KIND = {"미착수": "High", "검토 중": "Medium",
 _KEY = "queue_state"
 
 
+_STATE_FILE = "queue_state.json"
+
+
+def _state_path():
+    return C.out_dir() / _STATE_FILE
+
+
 def _state() -> dict:
     """처리 상태 저장소 (브랜드ID → {status, owner, note}).
 
-    ⚠️ 세션 저장이다. 브라우저를 닫으면 사라지므로 화면에 그 사실을 명시하고,
-       내려받기로 반출할 수 있게 한다. '저장됐다'고 착각하게 두지 않는다.
+    ⚠️ 예전에는 세션에만 담았다. 새로고침 한 번에 배정과 메모가 전부 사라졌다 —
+       **기록이 사라지는 큐는 큐가 아니다.** 파일로 남겨 새로고침·재기동을 견디게 한다.
+
+       다만 이것이 은행 업무 시스템을 대신하지는 못한다. 사용자 인증도, 변경 이력도,
+       결재 연동도 없다. 그 사실을 화면에 그대로 적고, 실제 운영은 반출(엑셀)로
+       기존 결재 흐름에 넘기는 것을 전제로 한다.
     """
     if _KEY not in st.session_state:
-        st.session_state[_KEY] = {}
+        p = _state_path()
+        try:
+            st.session_state[_KEY] = (json.loads(p.read_text(encoding="utf-8"))
+                                      if p.exists() else {})
+        except (OSError, ValueError):
+            st.session_state[_KEY] = {}
     return st.session_state[_KEY]
+
+
+def _save_state() -> None:
+    try:
+        p = _state_path()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(st.session_state.get(_KEY, {}), ensure_ascii=False,
+                                indent=1), encoding="utf-8")
+    except OSError:
+        pass          # 쓰기 불가 환경(읽기전용 배포)에서도 화면은 계속 동작해야 한다
 
 
 def render() -> None:
@@ -100,7 +127,10 @@ def _worklist(work: pd.DataFrame) -> None:
               * pd.to_numeric(view["n_stores"], errors="coerce").fillna(0))
     ).sort_values("_pri", ascending=False)
 
-    st.caption(f"조건에 맞는 **{len(view):,}건** · 위험도×규모 순으로 상위 20건을 펼쳐 둡니다.")
+    st.caption(
+        f"조건에 맞는 **{len(view):,}건** · 상위 20건을 펼쳐 둡니다. "
+        "순서는 **브랜드 리스크 × 가맹점 수**입니다 — 같은 확률이라도 점포가 많으면 "
+        "은행 익스포저가 크기 때문입니다.")
     if view.empty:
         st.success("조건에 해당하는 미처리 건이 없습니다.")
         return
@@ -143,6 +173,7 @@ def _worklist(work: pd.DataFrame) -> None:
                               "brand_name": str(r["brand_name"]),
                               "updated": datetime.now(UTC)
                                                  .astimezone().strftime("%Y-%m-%d %H:%M")}
+                _save_state()
 
 
 def _fulltable(work: pd.DataFrame, yr) -> None:
@@ -175,8 +206,10 @@ def _fulltable(work: pd.DataFrame, yr) -> None:
             "headline_detail": st.column_config.TextColumn("대표 소견", width="large"),
         })
 
-    st.caption("처리 상태는 이 브라우저 세션에만 남습니다. 기록을 보존하려면 "
-               "아래에서 내려받아 여신 파일에 첨부하십시오.")
+    st.caption(
+        f"처리 상태는 `{_state_path().name}` 에 저장돼 새로고침·재기동 후에도 남습니다. "
+        "다만 이 화면에는 사용자 인증도, 변경 이력도, 결재 연동도 없습니다 — "
+        "**공식 기록은 아래에서 내려받아 은행 결재 흐름에 넘기십시오.**")
     c1, c2 = st.columns(2)
     c1.download_button(
         "점검 목록 내려받기 (Excel)", _excel(view),

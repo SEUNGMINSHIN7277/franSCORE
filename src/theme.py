@@ -278,6 +278,31 @@ hr {{ border-color: {BORDER}; margin: 1.4rem 0; }}
     color: {NAV_ACTIVE_TEXT}; font-weight: 700;
 }}
 
+/* 사이드바 내비게이션 — 라디오 대신 버튼을 쓴다(같은 항목 재클릭이 동작해야 하므로).
+   버튼 기본 모양(흰 배경·테두리)이 어두운 사이드바에서 튀므로 항목처럼 다시 그린다. */
+[data-testid="stSidebar"] [data-testid="stButton"] > button {{
+    width: 100%; justify-content: flex-start; text-align: left;
+    padding: 11px 14px; border-radius: 9px; border: none;
+    background: transparent; color: {NAV_TEXT};
+    font-size: 1.02rem; font-weight: 500; box-shadow: none;
+    transition: background .12s ease;
+}}
+[data-testid="stSidebar"] [data-testid="stButton"] > button:hover {{
+    background: #423D37; color: #FFFFFF; border: none;
+}}
+[data-testid="stSidebar"] [data-testid="stButton"] > button[kind="primary"] {{
+    background: {NAV_ACTIVE_BG}; color: {NAV_ACTIVE_TEXT}; font-weight: 700;
+}}
+[data-testid="stSidebar"] [data-testid="stButton"] > button[kind="primary"]:hover {{
+    background: {YELLOW_DEEP}; color: {NAV_ACTIVE_TEXT};
+}}
+[data-testid="stSidebar"] [data-testid="stButton"] > button:focus:not(:active) {{
+    color: inherit; border: none; box-shadow: none;
+}}
+[data-testid="stSidebar"] [data-testid="stElementContainer"]:has([data-testid="stButton"]) {{
+    margin-bottom: 2px;
+}}
+
 /* ── 브랜드 헤더 (사이드바 상단) ─────────────────────────── */
 .kb-brand {{
     display: flex; align-items: center; gap: 10px;

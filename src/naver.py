@@ -551,17 +551,37 @@ def _fetch_html(url: str, limit: int = 250_000) -> str:
 
 # 선언이 없어도 관행적으로 존재하는 아이콘 경로. 파비콘만 있는 사이트에서
 # 더 큰 이미지를 건지는 마지막 수단이다.
-_ICON_GUESSES = ("/apple-touch-icon.png", "/apple-touch-icon-precomposed.png",
-                 "/apple-touch-icon-180x180.png", "/favicon.png", "/favicon.ico")
+_ICON_GUESSES = (
+    "/apple-touch-icon.png", "/apple-touch-icon-precomposed.png",
+    "/apple-touch-icon-180x180.png",
+    # 국내 프랜차이즈 사이트가 실제로 쓰는 로고 경로들. 파비콘만 뒤지면 16~32px 밖에
+    # 못 건지는데(실측: 네네치킨 32px, 한솥 16px), 이 경로에는 원본 로고가 있다.
+    "/images/common/logo.png", "/images/logo.png", "/img/logo.png",
+    "/assets/images/logo.png", "/assets/img/logo.png", "/static/images/logo.png",
+    "/images/common/logo300.jpg", "/images/logo.svg",
+    "/favicon.png", "/favicon.ico")
+
+# og:image 가 개발 호스트를 가리키는 사이트가 실제로 있다 — BHC 는 운영 페이지에서
+# `http://localhost:3000/images/common/logo300.jpg` 를 내보낸다. 경로는 맞으므로
+# 호스트만 실제 도메인으로 바꿔 주면 진짜 로고를 받을 수 있다.
+_DEV_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0", "dev.", "test.", "stage.")
 MIN_LOGO_PX = 64        # 이보다 작으면 카드에서 흐릿해 로고 구실을 못 한다
                         # (48px 로 뒀더니 모자이크처럼 보이는 건이 남았다)
 
 
-def icon_candidates(domain: str, brand_name: str = "") -> list[str]:
+def icon_candidates(domain: str, brand_name: str = "", *, verify: bool = True) -> list[str]:
     """도메인에서 뽑을 수 있는 아이콘 후보 URL 전부 (선언 + 관행 경로 + og:image).
 
-    brand_name 을 주면 **그 사이트가 정말 이 브랜드의 것인지 확인**하고, 아니면
-    빈 목록을 돌려준다(엉뚱한 사이트의 아이콘을 로고라고 붙이지 않는다).
+    verify=True 이고 brand_name 이 있으면 **그 사이트가 정말 이 브랜드의 것인지**
+    확인하고 아니면 빈 목록을 돌려준다.
+
+    ⚠️ `official_domain()` 이 이미 검증한 도메인에는 verify=False 로 부른다.
+       두 번 거르면 **같은 관문을 두 번 통과해야** 하는데, 두 번째 관문은 페이지를
+       직접 받아 텍스트를 보므로 JS 렌더링 사이트에서 통째로 실패한다.
+       실측: 도메인이 잡힌 1,326개 중 1,078개(81%)가 이 단계에서 버려졌다 —
+       교촌·이디야·맘스터치 같은 대형 브랜드가 전부 여기서 사라졌다.
+       엉뚱한 로고에 대한 방어는 `prune_shared_logos()` 가 담당한다(같은 도메인·
+       같은 이미지가 여러 브랜드에 붙으면 전부 버린다).
     """
     if not domain:
         return []
@@ -569,8 +589,8 @@ def icon_candidates(domain: str, brand_name: str = "") -> list[str]:
     html = _fetch_html(base)
     # 두 신호 중 **하나만** 맞아도 인정한다. 페이지 텍스트는 JS 렌더링이면 비고,
     # 도메인 로마자는 영문 브랜드명이면 안 맞는다 — 서로의 빈틈을 메운다.
-    if brand_name and not (site_mentions_brand(html, brand_name)
-                           or domain_matches_brand(domain, brand_name)):
+    if verify and brand_name and not (site_mentions_brand(html, brand_name)
+                                      or domain_matches_brand(domain, brand_name)):
         return []
     out: list[str] = []
 
@@ -588,7 +608,12 @@ def icon_candidates(domain: str, brand_name: str = "") -> list[str]:
 
     og = _OG_IMAGE.search(html or "")
     if og:
-        out.append(urljoin(base, og.group(1)))
+        u = urljoin(base, og.group(1))
+        host = urlparse(u).netloc.lower()
+        if any(h in host for h in _DEV_HOSTS):
+            # 개발 호스트가 새어 나온 경우 — 경로만 살려 실제 도메인으로 돌린다
+            u = urljoin(base, urlparse(u).path)
+        out.append(u)
     out += [base + g for g in _ICON_GUESSES]
 
     seen: set[str] = set()
@@ -611,21 +636,50 @@ def _measure(url: str) -> tuple[int, int]:
         from io import BytesIO
 
         from PIL import Image
-        with Image.open(BytesIO(data)) as im:
-            # .ico 는 여러 해상도를 품는다 — PIL 은 가장 큰 것을 연다
-            return min(im.size), len(data)
+        return _largest_side(Image.open(BytesIO(data))), len(data)
     except Exception:
         return 0, 0
 
 
-def site_icon(domain: str, brand_name: str = "") -> tuple[str, int]:
+def _largest_side(im) -> int:
+    """이미지의 짧은 변. **.ico 는 여러 해상도를 품으므로 가장 큰 프레임**을 본다.
+
+    ⚠️ PIL 은 ICO 를 열 때 기본 프레임(대개 16~32px)을 준다. 그대로 재면 실제로는
+       192px 프레임을 가진 파비콘이 '너무 작음'으로 버려진다 — 이디야·BHC 가
+       그렇게 탈락했다. `ico.sizes()` 로 최대 해상도를 확인한다.
+    """
+    try:
+        sizes = getattr(getattr(im, "ico", None), "sizes", None)
+        if callable(sizes):
+            best = max(sizes(), key=lambda wh: min(wh))
+            return int(min(best))
+    except Exception:
+        pass
+    return int(min(im.size))
+
+
+def _open_best_frame(data: bytes):
+    """바이트 → 가장 큰 프레임으로 연 PIL 이미지 (.ico 대응)."""
+    from io import BytesIO
+
+    from PIL import Image
+    im = Image.open(BytesIO(data))
+    try:
+        sizes = getattr(getattr(im, "ico", None), "sizes", None)
+        if callable(sizes):
+            return im.ico.getimage(max(sizes(), key=lambda wh: min(wh)))
+    except Exception:
+        pass
+    return im
+
+
+def site_icon(domain: str, brand_name: str = "", *, verify: bool = True) -> tuple[str, int]:
     """도메인의 대표 아이콘 (URL, 실측 짧은 변 픽셀). 못 찾으면 ("", 0).
 
     후보를 앞에서부터 실제로 받아 재고, MIN_LOGO_PX 이상이면 즉시 채택한다.
-    brand_name 을 주면 사이트 소유 검증까지 거친다.
     """
     best, best_px = "", 0
-    for url in icon_candidates(domain, brand_name)[:6]:
+    for url in icon_candidates(domain, brand_name, verify=verify)[:8]:
         px, _ = _measure(url)
         if px > best_px:
             best, best_px = url, px
@@ -639,13 +693,17 @@ def brand_logo(brand_name: str, cfg: dict | None = None) -> str:
     domain = official_domain(brand_name, cfg)
     if not domain:
         return ""
-    url, _px = site_icon(domain, brand_name)
+    # official_domain 이 이미 브랜드 소유를 검증했다 — 여기서 또 거르지 않는다.
+    url, _px = site_icon(domain, brand_name, verify=False)
     return url
 
 
 LOGO_CACHE = "data/raw/naver/logos.json"
 LOGO_DIR = "data/raw/naver/logo_img"
-LOGO_PX = 128           # 저장 해상도 — 화면 최대 62px 이므로 2배면 충분하다
+# 저장 해상도. 화면 최대 84px 이고 고해상도 디스플레이는 2배로 그리므로 168px 이
+# 필요하다 — 128px 로는 상세 화면에서 눈에 띄게 뭉갠다. 256px 이면 여유가 있고
+# PNG 한 장이 10~30KB 라 저장소에도 부담이 없다.
+LOGO_PX = 256
 
 
 def logo_file_name(brand_name: str) -> str:
@@ -675,20 +733,25 @@ def download_logo(brand_name: str, url: str, root: Path) -> str:
         r = requests.get(url, headers=_UA, timeout=12)
         if r.status_code != 200 or len(r.content) < 300:
             return ""
-        from io import BytesIO
-
         from PIL import Image
-        with Image.open(BytesIO(r.content)) as im:
+        with _open_best_frame(r.content) as im:
             im = im.convert("RGBA")
             # 원본이 16~32px 파비콘이면 카드 안에서 흐릿한 점으로 보인다.
             # 그런 이미지는 브랜드 색 글자 마크보다 못하므로 아예 쓰지 않는다
             # (실측: 더벤티 16px, 네네치킨 32px 이 화면에서 판독 불가였다).
             if min(im.size) < MIN_LOGO_PX:
                 return ""
-            im.thumbnail((LOGO_PX, LOGO_PX), Image.LANCZOS)
-            # 정사각 캔버스 중앙 배치 — 가로로 긴 로고도 카드 안에서 잘리지 않는다
-            canvas = Image.new("RGBA", (LOGO_PX, LOGO_PX), (255, 255, 255, 0))
-            canvas.paste(im, ((LOGO_PX - im.width) // 2, (LOGO_PX - im.height) // 2))
+            # 원본이 저장 해상도보다 작으면 **키우지 않는다** — 늘리면 뭉개진다.
+            if max(im.size) > LOGO_PX:
+                im.thumbnail((LOGO_PX, LOGO_PX), Image.LANCZOS)
+            # 정사각 캔버스 중앙 배치 — 가로로 긴 로고도 카드 안에서 잘리지 않는다.
+            # ⚠️ 캔버스를 항상 LOGO_PX 로 잡으면 안 된다. 작은 원본이 큰 투명 여백
+            #    안에 앉으면 CSS `object-fit: contain` 이 그 여백까지 맞추느라
+            #    화면에서 **로고만 작게** 보인다 — 브랜드마다 크기가 들쭉날쭉해진다.
+            #    캔버스를 이미지에 딱 맞춰 정사각으로만 만들면 모두 같은 크기로 뜬다.
+            side = max(im.width, im.height)
+            canvas = Image.new("RGBA", (side, side), (255, 255, 255, 0))
+            canvas.paste(im, ((side - im.width) // 2, (side - im.height) // 2))
             canvas.save(dest, "PNG", optimize=True)
     except Exception:
         return ""

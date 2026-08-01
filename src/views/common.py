@@ -527,6 +527,114 @@ def section_cards_html(brand_id: str, industry_mid: str | None = None) -> str:
             f"없습니다. 관측값과 업종 내 위치만 보여드립니다.</div>")
 
 
+def risk_summary_html(row, findings: pd.DataFrame | None) -> str:
+    """왜 이 등급이 나왔는지를 **한 화면에 들어오게** 요약한다.
+
+    소견을 아무리 잘 써도 6~10개를 다 읽어야 결론이 나오면 심사역은 안 읽는다.
+    부문(카테고리)별로 무거운 것 하나씩만 뽑아 한 줄로 세운다 — 조합이 보여야
+    "매출이 줄면서 계약도 끊기고 있다" 같은 판단이 선다.
+    """
+    if findings is None or findings.empty:
+        return ""
+    risk = findings[findings["direction"] == "risk"].copy()
+    if risk.empty:
+        return ""
+    order = {"High": 0, "Medium": 1, "Low": 2}
+    risk["_s"] = risk["severity"].map(order).fillna(3)
+    top = (risk.sort_values(["_s", "weight"], ascending=[True, False])
+              .groupby("category", sort=False).head(1)
+              .sort_values(["_s", "weight"], ascending=[True, False]).head(4))
+
+    chips = []
+    for _, f in top.iterrows():
+        sev = str(f.get("severity"))
+        col = {"High": theme.DANGER, "Medium": theme.WARN}.get(sev, theme.TEXT_SUB)
+        soft = {"High": theme.DANGER_SOFT, "Medium": theme.WARN_SOFT}.get(sev, theme.BG)
+        chips.append(
+            f"<div style='display:flex;gap:10px;align-items:baseline;padding:7px 0'>"
+            f"<span style='flex:0 0 auto;font-size:.76rem;font-weight:700;color:{col};"
+            f"background:{soft};padding:2px 7px;border-radius:5px'>{f['category']}</span>"
+            f"<span style='color:{theme.INK};font-weight:600'>{f['title']}</span></div>")
+
+    n_risk = len(risk)
+    n_high = int((risk["severity"] == "High").sum())
+    cats = " · ".join(dict.fromkeys(risk["category"].astype(str)))
+    return (f"<div style='padding:14px 16px;border-radius:10px;background:{theme.SURFACE};"
+            f"border:1px solid {theme.BORDER};box-shadow:var(--shadow-1)'>"
+            f"<div style='font-size:.8rem;font-weight:700;letter-spacing:.06em;"
+            f"color:{theme.TEXT_MUTED};margin-bottom:6px'>이 등급이 나온 이유</div>"
+            f"{''.join(chips)}"
+            f"<div style='margin-top:8px;padding-top:8px;border-top:1px solid {theme.BORDER};"
+            f"font-size:.88rem;color:{theme.TEXT_SUB}'>"
+            f"위험 소견 <b>{n_risk}건</b>"
+            f"{f' (중대 {n_high}건)' if n_high else ''} · 걸린 부문 {cats}</div></div>")
+
+
+def _int0(v) -> int:
+    """결측·문자열 섞인 값을 안전하게 정수로."""
+    n = pd.to_numeric(pd.Series([v]), errors="coerce").fillna(0).iloc[0]
+    return int(n)
+
+
+def diagnosis_report(row, findings: pd.DataFrame | None,
+                     sections_text: str = "") -> str:
+    """진단 보고서 (마크다운). 결재·회람에 그대로 붙일 수 있게 만든다."""
+    name = str(row.get("brand_name", "-"))
+    grade = str(row.get("grade") or row.get("risk_grade") or "-")
+    kr = {"FS1": "안정", "FS2": "관찰", "FS3": "주의"}.get(grade, "")
+    state = str(row.get("brand_state") or "-")
+    p = pd.to_numeric(pd.Series([row.get("pd_1y")]), errors="coerce").iloc[0]
+    b = grade_bands(_mtime(out_dir() / "grade_bands.json"))
+    when = refresh_state().get("finished_at", "-")
+    yr = scored_year()
+
+    L = [f"# {name} 브랜드 리스크 진단 보고서", "",
+         f"- **등급** {grade} {kr}",
+         f"- **{RISK_LABEL}** {p * 100:.1f}%" if pd.notna(p) else "",
+         f"- **브랜드 상태** {state}",
+         f"- **업종** {row.get('industry_major', '-')} · {row.get('industry_mid', '-')}",
+         f"- **가맹점 수** {_int0(row.get('n_stores')):,}개",
+         f"- **기준** {yr}년 공정거래위원회 가맹사업 공시 · 산출 {when}", ""]
+
+    if b.get("pooled"):
+        L += ["## 등급의 의미", "",
+              "| 등급 | 구간 | 검증 실현 악화율 | 표본 |", "|---|---|---|---|"]
+        cuts = b["cuts"]
+        rng = {"FS1": f"{cuts[0] * 100:.1f}% 미만",
+               "FS2": f"{cuts[0] * 100:.1f}~{cuts[1] * 100:.1f}%",
+               "FS3": f"{cuts[1] * 100:.1f}% 이상"}
+        for r in b["pooled"]:
+            mark = " ←" if r["grade"] == grade else ""
+            L.append(f"| {r['grade']} {r['grade_kr']}{mark} | {rng[r['grade']]} | "
+                     f"{r['rate'] * 100:.2f}% | {r['n']:,}건 |")
+        L += ["", "> 이 확률은 부도확률이 아니라 공정위 공시 지표가 업종 하위구간에 "
+                  "진입할 확률입니다.", ""]
+
+    if findings is not None and not findings.empty:
+        risk = findings[findings["direction"] == "risk"]
+        other = findings[findings["direction"] != "risk"]
+        if not risk.empty:
+            L += [f"## 위험 소견 ({len(risk)}건)", ""]
+            for _, f in risk.iterrows():
+                L += [f"### [{f['category']}] {f['title']}  ({f['severity']})",
+                      f"{f['detail']}", f"> 출처: {f['source']}", ""]
+        if not other.empty:
+            L += [f"## 완화요인·확인 필요 ({len(other)}건)", ""]
+            for _, f in other.iterrows():
+                L += [f"- **{f['title']}** — {f['detail']}"]
+            L.append("")
+
+    if sections_text:
+        L += ["## 부문별 점검", "", sections_text, ""]
+
+    L += ["---", "",
+          "**이 보고서의 사용 범위** — 2선 리스크 관리의 점검 우선순위 산정과 심사 참고 "
+          "정보로만 사용합니다. 자동 여신 승인·거절, 한도·금리 산정, 규제자본·충당금 "
+          "산출에는 사용할 수 없습니다. 등급은 브랜드의 사업 안정성 평가이며 차주의 "
+          "상환능력이나 부도확률이 아닙니다.", ""]
+    return "\n".join(x for x in L if x is not None)
+
+
 def population_note(row) -> str:
     """이 브랜드의 확률이 **모델이 검증된 구간에서 나온 것인지** 밝힌다.
 

@@ -297,9 +297,18 @@ def _detail_screen(r: pd.Series) -> None:
     bid, name = str(r["brand_id"]), str(r["brand_name"])
     grade = str(r["risk_grade"])
 
-    if st.button("← 목록으로", key="fs_back"):
-        st.session_state[_SEL] = None
-        st.rerun()
+    # ⚠️ 사이드바에서 이미 선택된 'FRANSCORE' 를 다시 눌러도 Streamlit 은 값이 바뀌지
+    #    않아 아무 일도 일어나지 않는다 — 상세 화면에 갇힌다(실측 결함).
+    #    그래서 화면 안에 **되돌아가는 경로를 직접** 둔다.
+    bc, _ = st.columns([1, 3])
+    with bc, st.container(border=False):
+        if st.button("← FRANSCORE 목록", key="fs_back", use_container_width=True):
+            st.session_state[_SEL] = None
+            st.rerun()
+    st.markdown(
+        f"<div style='font-size:.86rem;color:{theme.TEXT_MUTED};margin:-6px 0 10px 2px'>"
+        f"FRANSCORE › <b style='color:{theme.TEXT_SUB}'>{name}</b></div>",
+        unsafe_allow_html=True)
 
     h1, h2 = st.columns([2.6, 1])
     with h1:
@@ -333,9 +342,10 @@ def _detail_screen(r: pd.Series) -> None:
             f"</div></div>", unsafe_allow_html=True)
 
     st.write("")
+    findings = C.load_findings(bid)
     tabs = st.tabs(["진단 소견", "부문별 점검", "공시 추이", "가맹본부 재무", "검색 수요"])
     with tabs[0]:
-        _tab_findings(C.load_findings(bid))
+        _tab_findings(findings, r)
     with tabs[1]:
         html = C.section_cards_html(bid, r.get("industry_mid"))
         if html:
@@ -372,10 +382,18 @@ def _summary_sentence(r: pd.Series) -> str:
             f"가맹점은 {n:,}개입니다. {cut}</div>")
 
 
-def _tab_findings(findings: pd.DataFrame | None) -> None:
+def _tab_findings(findings: pd.DataFrame | None, row: pd.Series | None = None) -> None:
     if findings is None or findings.empty:
         st.info("이 브랜드의 진단 소견이 아직 생성되지 않았습니다.")
         return
+
+    # 소견을 다 읽어야 결론이 나오면 아무도 안 읽는다 — 조합을 먼저 한 화면에 보인다.
+    if row is not None:
+        summary = C.risk_summary_html(row, findings)
+        if summary:
+            st.markdown(summary, unsafe_allow_html=True)
+            st.write("")
+
     chips = C.category_summary(findings)
     if chips:
         st.markdown(f"<div style='margin-bottom:10px'>{chips}</div>",
@@ -386,6 +404,16 @@ def _tab_findings(findings: pd.DataFrame | None) -> None:
     if not other.empty:
         with st.expander(f"완화요인·확인 필요 사항 {len(other)}건"):
             C.render_findings(other)
+
+    if row is not None:
+        st.write("")
+        name = str(row.get("brand_name", "brand"))
+        st.download_button(
+            "진단 보고서 내려받기 (.md)",
+            C.diagnosis_report(row, findings).encode("utf-8-sig"),
+            file_name=f"FranSCORE_{name}_진단보고서.md", mime="text/markdown",
+            key=f"rep_{row.get('brand_id')}",
+            help="결재·회람에 그대로 붙일 수 있는 형식입니다. 사용 범위 고지가 함께 들어갑니다.")
 
 
 def _tab_trend(brand_id: str) -> None:
