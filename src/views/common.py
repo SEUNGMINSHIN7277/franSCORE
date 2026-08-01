@@ -216,29 +216,27 @@ def _mark_label(brand_name: str) -> str:
     return s[:2].upper()
 
 
-def brand_mark_html(brand_name: str, size: int = 52) -> str:
-    """로고가 있으면 이미지, 없으면 브랜드 색 마크.
+def brand_mark_html(brand_name: str, size: int = 64) -> str:
+    """브랜드 마크 — 로고가 있으면 이미지, 없으면 브랜드 색 글자 마크.
 
-    로고 이미지는 `object-fit: contain` 으로 넣는다 — cover 로 채우면 정사각형이
-    아닌 로고의 좌우가 잘려 다른 브랜드처럼 보인다.
+    로고마다 원본 비율·여백이 제각각이라 그냥 넣으면 어떤 건 꽉 차고 어떤 건
+    점처럼 보인다. **같은 크기의 타일 안에 contain 으로 앉히고** 안쪽 여백을
+    일정하게 줘서 목록에서 크기가 고르게 보이도록 한다.
+    cover 를 쓰면 가로로 긴 로고의 좌우가 잘려 다른 브랜드처럼 보인다.
     """
     url = logo_url(brand_name)
-    radius = int(size * 0.24)
+    radius = int(size * 0.26)
+    pad = max(5, int(size * 0.13))
+    style = (f"width:{size}px;height:{size}px;border-radius:{radius}px;"
+             f"flex:0 0 {size}px;box-sizing:border-box;")
     if url:
-        # loading='lazy' 는 쓰지 않는다 — 한 화면에 8~12장뿐이라 이득이 없고,
-        # 뷰포트 밖 카드가 빈칸으로 보이는 시간이 생긴다.
-        return (f"<img src='{url}' alt='{brand_name}' "
-                f"style='width:{size}px;height:{size}px;border-radius:{radius}px;"
-                f"object-fit:contain;padding:{max(2, int(size * 0.08))}px;"
-                f"border:1px solid {theme.BORDER};background:#FFFFFF;"
-                f"flex:0 0 {size}px;box-sizing:border-box'/>")
+        return (f"<div class='kb-mark' style='{style}padding:{pad}px'>"
+                f"<img src='{url}' alt='{brand_name}'/></div>")
     c1, c2, fg = _mark_colors(brand_name)
-    return (f"<div style='width:{size}px;height:{size}px;border-radius:{radius}px;"
-            f"background:linear-gradient(135deg,{c1} 0%,{c2} 100%);color:{fg};"
-            f"display:flex;align-items:center;justify-content:center;font-weight:800;"
-            f"font-size:{int(size * 0.36)}px;letter-spacing:-0.04em;"
-            f"flex:0 0 {size}px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)'>"
-            f"{_mark_label(brand_name)}</div>")
+    return (f"<div class='kb-mark' style='{style}"
+            f"background:linear-gradient(150deg,{c1} 0%,{c2} 100%)'>"
+            f"<span class='letter' style='color:{fg};font-size:{int(size * 0.34)}px'>"
+            f"{_mark_label(brand_name)}</span></div>")
 
 
 # ---------------------------------------------------------------------------

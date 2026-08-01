@@ -22,7 +22,8 @@ _SECRETS_LOADED = False
 # 이 이름들만 시크릿으로 취급한다. 임의의 키를 환경변수로 밀어넣지 않기 위한 화이트리스트.
 SECRET_KEYS = (
     "GEMINI_API_KEY", "DART_API_KEY", "DATA_GO_KR_KEY", "IFRMP_SERVICE_KEY",
-    "NAVER_CLIENT_ID", "NAVER_CLIENT_SECRET",
+    "NAVER_CLIENT_ID", "NAVER_CLIENT_SECRET",   # 구 개발자센터 (검색만)
+    "NCP_API_KEY_ID", "NCP_API_KEY",            # NAVER API HUB (검색 + 검색어트렌드)
 )
 
 

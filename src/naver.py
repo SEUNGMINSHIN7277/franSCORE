@@ -9,10 +9,11 @@
     업종 축소지만, 카테고리는 보합인데 특정 브랜드만 빠졌다면 그 브랜드의 문제다.
     이 구분은 공시 데이터만으로는 절대 나오지 않는다.
 
-API (developers.naver.com 애플리케이션 자격증명 — 무료, 일 25,000회)
-    검색어트렌드  POST https://openapi.naver.com/v1/datalab/search
-    뉴스 검색     GET  https://openapi.naver.com/v1/search/news.json
-    헤더 X-Naver-Client-Id / X-Naver-Client-Secret
+API — 네이버가 개발자센터 오픈API를 **NAVER API HUB**(네이버 클라우드)로 이관했다.
+    두 체계를 모두 지원하고, HUB 자격증명이 있으면 그쪽을 쓴다(아래 _PATHS 참조).
+    ⚠️ 검색어트렌드는 **HUB 에서만** 된다 — 구 개발자센터 애플리케이션에는 데이터랩
+       권한을 붙일 수 없어 'Scope Status Invalid' 로 막힌다(실측).
+    자격증명: NCP_API_KEY_ID / NCP_API_KEY  (NCP 콘솔 → NAVER API HUB → Application)
 
 정직성
     · 키가 없으면 **수집하지 않는다**. 추정값이나 예시값을 만들어 넣지 않는다.
@@ -23,6 +24,7 @@ API (developers.naver.com 애플리케이션 자격증명 — 무료, 일 25,000
 """
 from __future__ import annotations
 
+import difflib
 import hashlib
 import json
 import os
@@ -41,11 +43,33 @@ from src.common import get_logger, load_config
 
 log = get_logger("naver")
 
+# ── 두 가지 자격 체계 ──────────────────────────────────────────────────────
+# 네이버가 개발자센터(developers.naver.com)의 오픈API를 **NAVER API HUB**(네이버
+# 클라우드 플랫폼)로 이관했다. 둘은 도메인·경로·인증 헤더가 전부 다르다.
+#
+#              개발자센터(구)                        API HUB(신)
+#   도메인     openapi.naver.com                    naverapihub.apigw.ntruss.com
+#   뉴스       /v1/search/news.json                 /search/v1/news
+#   웹문서     /v1/search/webkr.json                /search/v1/webkr
+#   트렌드     /v1/datalab/search                   /search-trend/v1/search
+#   헤더       X-Naver-Client-Id/-Secret            X-NCP-APIGW-API-KEY-ID/-KEY
+#
+# ⚠️ 구 체계의 검색어트렌드는 애플리케이션에 권한을 붙일 수 없어 'Scope Status
+#    Invalid' 로 막힌다(실측). 트렌드를 쓰려면 API HUB 자격증명이 필요하다.
+# 둘 다 지원하고 **HUB 가 있으면 HUB 를 쓴다**.
+HUB_ID_ENV = "NCP_API_KEY_ID"
+HUB_SECRET_ENV = "NCP_API_KEY"
 ID_ENV = "NAVER_CLIENT_ID"
 SECRET_ENV = "NAVER_CLIENT_SECRET"
 
-_DATALAB_URL = "https://openapi.naver.com/v1/datalab/search"
-_NEWS_URL = "https://openapi.naver.com/v1/search/news.json"
+_HUB_BASE = "https://naverapihub.apigw.ntruss.com"
+_LEGACY_BASE = "https://openapi.naver.com"
+# (경로 키) → (HUB 경로, 구 경로)
+_PATHS = {
+    "news": ("/search/v1/news", "/v1/search/news.json"),
+    "webkr": ("/search/v1/webkr", "/v1/search/webkr.json"),
+    "trend": ("/search-trend/v1/search", "/v1/datalab/search"),
+}
 
 # 데이터랩 제약 (공식 문서): keywordGroups 최대 5개, 그룹당 keywords 최대 20개
 MAX_GROUPS = 5
@@ -94,42 +118,66 @@ class NaverError(RuntimeError):
 # 자격증명
 # ---------------------------------------------------------------------------
 
-def credentials(cfg: dict | None = None) -> tuple[str, str]:
+def credentials(cfg: dict | None = None) -> tuple[str, str, bool]:
+    """(ID, SECRET, HUB 인가) — API HUB 자격증명이 있으면 그쪽을 쓴다."""
     c = (cfg or {}).get("naver", {}) if cfg else {}
+    hub_id = os.environ.get(str(c.get("hub_id_env", HUB_ID_ENV)), "").strip()
+    hub_sec = os.environ.get(str(c.get("hub_secret_env", HUB_SECRET_ENV)), "").strip()
+    if hub_id and hub_sec:
+        return hub_id, hub_sec, True
     cid = os.environ.get(str(c.get("client_id_env", ID_ENV)), "").strip()
     sec = os.environ.get(str(c.get("client_secret_env", SECRET_ENV)), "").strip()
-    return cid, sec
+    return cid, sec, False
 
 
 def is_enabled(cfg: dict | None = None) -> bool:
-    cid, sec = credentials(cfg)
+    cid, sec, _ = credentials(cfg)
     return bool(cid and sec)
 
 
-def _headers(cfg: dict | None = None, json_body: bool = False) -> dict:
-    cid, sec = credentials(cfg)
+def has_trend(cfg: dict | None = None) -> bool:
+    """검색어트렌드를 쓸 수 있는가 — API HUB 자격증명이 있어야 한다."""
+    cid, sec, hub = credentials(cfg)
+    return bool(cid and sec and hub)
+
+
+def _endpoint(key: str, cfg: dict | None = None) -> tuple[str, dict]:
+    """(전체 URL, 헤더). 어느 자격 체계인지에 따라 도메인·경로·헤더가 갈린다."""
+    cid, sec, hub = credentials(cfg)
     if not (cid and sec):
         raise NaverError(
-            f"환경변수 {ID_ENV}/{SECRET_ENV} 미설정 — developers.naver.com 에서 "
-            "애플리케이션을 등록하고 '검색'·'데이터랩(검색어트렌드)' API를 추가하세요.")
-    h = {"X-Naver-Client-Id": cid, "X-Naver-Client-Secret": sec}
-    if json_body:
-        h["Content-Type"] = "application/json"
-    return h
+            f"네이버 자격증명 미설정 — API HUB 를 쓰려면 {HUB_ID_ENV}/{HUB_SECRET_ENV}, "
+            f"구 개발자센터를 쓰려면 {ID_ENV}/{SECRET_ENV} 를 설정하세요.")
+    hub_path, legacy_path = _PATHS[key]
+    if hub:
+        return _HUB_BASE + hub_path, {"X-NCP-APIGW-API-KEY-ID": cid,
+                                      "X-NCP-APIGW-API-KEY": sec}
+    if key == "trend":
+        raise NaverError(
+            "검색어트렌드는 API HUB 자격증명이 필요합니다 — 구 개발자센터 키로는 "
+            f"권한을 붙일 수 없습니다({HUB_ID_ENV}/{HUB_SECRET_ENV} 설정).")
+    return _LEGACY_BASE + legacy_path, {"X-Naver-Client-Id": cid,
+                                        "X-Naver-Client-Secret": sec}
 
 
-def _request(method: str, url: str, cfg: dict | None = None, **kw) -> dict:
+def _call(key: str, cfg: dict | None = None, *, params: dict | None = None,
+          body: bytes | None = None) -> dict:
     """재시도 포함 호출. 4xx(429 제외)는 재시도해도 같으므로 즉시 실패시킨다."""
+    url, headers = _endpoint(key, cfg)
+    method = "POST" if body is not None else "GET"
+    if body is not None:
+        headers["Content-Type"] = "application/json"
     last: Exception | None = None
     for attempt in range(1, _MAX_RETRIES + 1):
         try:
-            r = requests.request(method, url, timeout=_TIMEOUT, **kw)
+            r = requests.request(method, url, headers=headers, params=params,
+                                 data=body, timeout=_TIMEOUT)
             if r.status_code == 200:
                 return r.json()
-            body = r.text[:300]
+            text = r.text[:300]
             if r.status_code not in _RETRY_STATUS:
-                raise NaverError(f"HTTP {r.status_code} (재시도 무의미): {body}")
-            last = NaverError(f"HTTP {r.status_code}: {body}")
+                raise NaverError(f"HTTP {r.status_code} (재시도 무의미): {text}")
+            last = NaverError(f"HTTP {r.status_code}: {text}")
         except NaverError:
             raise
         except Exception as exc:                      # 네트워크 계층 오류
@@ -156,7 +204,19 @@ def search_term(brand_name: str) -> str:
     return t[:40]
 
 
-def category_terms(industry_mid: str, industry_major: str = "") -> list[str]:
+def category_terms(industry_mid: str, industry_major: str = "",
+                   brand_name: str = "") -> list[str]:
+    """비교 대상 카테고리 검색어.
+
+    ⚠️ 브랜드명을 먼저 본다. 공시 업종 중분류는 '한식'처럼 넓게 잡혀 있어서
+       '인생냉면'을 **한식 전체**와 비교하게 된다. 그러면 "냉면 수요가 줄어서인가,
+       이 브랜드만 밀리는가"라는 정작 궁금한 구분이 안 된다.
+       브랜드명에 '냉면'·'치킨'처럼 품목이 드러나면 그 카테고리를 쓴다.
+    """
+    name = str(brand_name or "")
+    for key, terms in CATEGORY_KEYWORDS.items():
+        if key and len(key) >= 2 and key in name:
+            return terms
     for key, terms in CATEGORY_KEYWORDS.items():
         if key and key in str(industry_mid or ""):
             return terms
@@ -197,8 +257,7 @@ def datalab_trend(groups: list[tuple[str, list[str]]], cfg: dict | None = None,
     }
     if not body["keywordGroups"]:
         return {}
-    data = _request("POST", _DATALAB_URL, cfg, headers=_headers(cfg, json_body=True),
-                    data=json.dumps(body, ensure_ascii=False).encode("utf-8"))
+    data = _call("trend", cfg, body=json.dumps(body, ensure_ascii=False).encode("utf-8"))
     return {str(r["title"]): list(r.get("data") or []) for r in (data.get("results") or [])}
 
 
@@ -241,7 +300,7 @@ def brand_demand(brand_name: str, industry_mid: str, industry_major: str = "",
     term = search_term(brand_name)
     if not term:
         return None
-    cats = category_terms(industry_mid, industry_major)
+    cats = category_terms(industry_mid, industry_major, brand_name)
     cat_label = cats[0]
     s, e = _default_period()
     res = datalab_trend([(term, [term]), (cat_label, cats)], cfg, s, e)
@@ -279,9 +338,8 @@ def _clean(s: str) -> str:
 def news(query: str, cfg: dict | None = None, display: int = 20,
          sort: str = "date") -> list[dict]:
     """뉴스 검색 — 제목·본문요약·링크·발행일."""
-    data = _request("GET", _NEWS_URL, cfg, headers=_headers(cfg),
-                    params={"query": query, "display": min(int(display), 100),
-                            "sort": sort})
+    data = _call("news", cfg, params={"query": query,
+                                      "display": min(int(display), 100), "sort": sort})
     out = []
     for it in data.get("items", []):
         out.append({
@@ -310,15 +368,22 @@ def news(query: str, cfg: dict | None = None, display: int = 20,
 #     선언한 아이콘(apple-touch-icon 우선)이나 og:image 를 가져온다. 출처가
 #     브랜드 자신이므로 엉뚱한 이미지가 붙을 여지가 없다.
 
-_WEBKR_URL = "https://openapi.naver.com/v1/search/webkr.json"
-
-# 공식 홈페이지가 아닌 곳 — 블로그·카페·SNS·뉴스·위키·커뮤니티
+# 공식 홈페이지가 아닌 곳 — 블로그·카페·SNS·뉴스·커뮤니티·쇼핑
 _NOT_OFFICIAL = (
     "blog.", "cafe.", "post.naver", "tistory", "brunch", "instagram", "facebook",
     "youtube", "twitter", "x.com", "wikipedia", "namu.wiki", "news", "dcinside",
     "fmkorea", "ppomppu", "clien", "ruliweb", "inven", "danawa", "coupang",
     "11st", "gmarket", "auction", "smartstore", "shopping", "map.naver",
     "place.naver", "search.naver", "jobkorea", "saramin", "wanted",
+    # ── 디렉토리·포털 (실측으로 적발) ──────────────────────────────────────
+    # 프랜차이즈 정보를 나열하는 사이트라 "○○ 공식홈페이지" 검색에 잘 걸린다.
+    # 이것들을 걸러내지 않아 www.114.co.kr 하나가 **215개 브랜드**의 공식
+    # 홈페이지로 잡혔고, 전화번호부 아이콘이 215개 카드에 똑같이 붙었다.
+    "114.co.kr", "poolixhub", "moneypin", "diningcode", "bizno.net", "sidae.com",
+    "albamon", "siksinhot", "nadoweb", "marketbz", "franchise", "changuptoday",
+    "startuptoday", "mangoplate", "yogiyo", "baemin", "wingeat", "menupan",
+    "creatoplus", "bizinfo", "nicebizinfo", "saramin", "catchtable", "katchup",
+    "storelink", "openad", "atable", "foodbank", "thinkfood", "yeogi",
 )
 _UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                      "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
@@ -343,22 +408,135 @@ def official_domain(brand_name: str, cfg: dict | None = None) -> str:
     if not q:
         return ""
     try:
-        data = _request("GET", _WEBKR_URL, cfg, headers=_headers(cfg),
-                        params={"query": f"{q} 공식홈페이지", "display": 15})
+        data = _call("webkr", cfg, params={"query": f"{q} 공식홈페이지", "display": 15})
     except NaverError as exc:
         if "재시도 무의미" in str(exc):
             raise
         return ""
+    # ⚠️ 검색 결과의 **제목에 브랜드명이 있는가**가 가장 확실한 신호다.
+    #    이 검사가 없으면 디렉토리 사이트가 통과한다 — 실측으로 www.114.co.kr
+    #    하나가 215개 브랜드의 '공식 홈페이지'로 잡혔다. 그런 사이트는 브랜드를
+    #    나열만 하므로 개별 결과 제목에 브랜드명이 안 들어가는 경우가 많고,
+    #    들어가더라도 아래 '도메인 공유' 검사(prune_shared_logos)가 잡아낸다.
+    core = _NONWORD.sub("", unicodedata.normalize("NFKC", q).lower())
     counts: dict[str, int] = {}
     for it in data.get("items", []):
         host = urlparse(str(it.get("link", ""))).netloc.lower()
         if not host or any(k in host for k in _NOT_OFFICIAL):
+            continue
+        title = _NONWORD.sub("", unicodedata.normalize("NFKC",
+                                                       _clean(it.get("title", ""))).lower())
+        named = bool(core) and (core in title or core[:6] in title)
+        if not (named or domain_matches_brand(host, brand_name)):
             continue
         counts[host] = counts.get(host, 0) + 1
     if not counts:
         return ""
     # 빈도 우선, 같으면 짧은 도메인(www 없는 루트에 가까운 쪽)
     return max(counts, key=lambda h: (counts[h], -len(h)))
+
+
+_TITLE = re.compile(r"<title[^>]*>(.*?)</title>", re.I | re.S)
+_TAGS = re.compile(r"<(script|style)\b.*?</\1>", re.I | re.S)
+
+
+_CHO = ("g", "kk", "n", "d", "tt", "r", "m", "b", "pp", "s", "ss", "", "j",
+        "jj", "ch", "k", "t", "p", "h")
+_JUNG = ("a", "ae", "ya", "yae", "eo", "e", "yeo", "ye", "o", "wa", "wae", "oe",
+         "yo", "u", "wo", "we", "wi", "yu", "eu", "ui", "i")
+_JONG = ("", "k", "k", "k", "n", "n", "n", "t", "l", "l", "l", "l", "l", "l",
+         "l", "l", "m", "p", "p", "t", "t", "ng", "t", "t", "k", "t", "p", "t")
+# 로마자 표기가 사람마다 갈리는 지점 — 비교 전에 한쪽으로 모은다
+_ROMA_FOLD = (("eo", "o"), ("eu", "u"), ("ae", "a"), ("oe", "e"),
+              ("kk", "k"), ("tt", "t"), ("pp", "p"), ("ss", "s"), ("jj", "j"),
+              ("ch", "c"), ("k", "g"), ("t", "d"), ("p", "b"), ("r", "l"))
+
+
+def romanize(text: str) -> str:
+    """한글을 대략적인 로마자로. 도메인 비교용이라 표준 표기가 목표가 아니다.
+
+    왜 필요한가
+        공식 홈페이지 상당수가 JS 로 렌더링돼 원본 HTML 에 브랜드명이 없다.
+        그래서 '페이지에 브랜드명이 있는가' 검사만 쓰면 푸라닭(puradakchicken.com)·
+        명랑시대쌀핫도그(myungranghotdog.com)·우리할매떡볶이(wehalmae.co.kr) 같은
+        **진짜 공식 사이트가 탈락한다**(실측 146건 중 다수). 도메인 자체가 브랜드명의
+        로마자인 경우가 많으므로 그것을 보조 신호로 쓴다.
+    """
+    out = []
+    for ch in str(text or ""):
+        code = ord(ch)
+        if 0xAC00 <= code <= 0xD7A3:
+            idx = code - 0xAC00
+            out.append(_CHO[idx // 588] + _JUNG[(idx % 588) // 28] + _JONG[idx % 28])
+        elif ch.isascii() and ch.isalnum():
+            out.append(ch.lower())
+    s = "".join(out)
+    for a, b in _ROMA_FOLD:
+        s = s.replace(a, b)
+    return s
+
+
+DOMAIN_MATCH_MIN = 0.62     # 로마자 유사도 하한
+
+
+def domain_matches_brand(domain: str, brand_name: str) -> bool:
+    """도메인이 브랜드명의 로마자와 충분히 닮았는가.
+
+    접두 완전일치로는 안 된다 — 로마자 표기가 사람마다 갈린다.
+    설빙 solbing↔sulbing, 명랑 myong↔myung, 우리 uli↔we 처럼 같은 브랜드도
+    표기가 다르다(실측). 그래서 **부분 유사도**로 본다.
+
+    도메인 쪽에 브랜드 로마자가 얼마나 들어와 있는지를 재므로, 도메인에 부가어가
+    붙어도(puradak**chicken**, myungrang**hotdog**) 성립한다.
+    """
+    raw_host = re.sub(r"^www\.", "", str(domain or "").lower()).split(".")[0].replace("-", "")
+    if len(raw_host) < 3:
+        return False
+    # 공시 등록명의 괄호 안 영문 병기가 도메인과 그대로 맞는 경우가 많다
+    # ('메가엠지씨커피(MEGA MGC COFFEE)' → mega-mgccoffee.com). 한글 로마자보다
+    # 훨씬 정확하므로 먼저 본다. ⚠️ 이 비교는 **로마자 변환 전** 원문끼리 해야 한다
+    # (host 를 romanize 하면 p→b 폴딩 때문에 composecoffee 가 combosecoffee 가 된다).
+    for m in _PAREN.finditer(str(brand_name or "")):
+        eng = re.sub(r"[^a-z0-9]", "", m.group(0).lower())
+        if len(eng) >= 3 and (eng in raw_host or raw_host in eng):
+            return True
+    host = romanize(raw_host)
+    core = romanize(search_term(brand_name))
+    if len(core) < 4:
+        return False
+    if core in host or host in core:
+        return True
+    # 브랜드 앞부분이 도메인 어딘가와 얼마나 겹치는가 (도메인의 부가어를 무시)
+    probe = core[:max(5, min(10, len(core)))]
+    m = difflib.SequenceMatcher(None, probe, host)
+    match = m.find_longest_match(0, len(probe), 0, len(host))
+    return match.size / len(probe) >= DOMAIN_MATCH_MIN
+
+
+def site_mentions_brand(html: str, brand_name: str) -> bool:
+    """그 사이트가 정말 이 브랜드의 것인지 — **페이지에 브랜드명이 있는가**로 판정한다.
+
+    왜 차단 목록으로는 부족한가
+        디렉토리·언론·링크서비스는 계속 새로 생긴다. 목록을 아무리 늘려도
+        `linktr.ee`·`femiwiki.com`·`businesskorea.co.kr` 같은 것들이 계속 새어 나온다.
+        반면 **공식 홈페이지라면 브랜드명이 페이지에 반드시 있다**. 이 검사는
+        목록 유지보수 없이 일반적으로 동작한다.
+
+    비교는 정규화 후에 한다 — 공시 등록명 '메가엠지씨커피(MEGA MGC COFFEE)' 와
+    사이트의 '메가MGC커피' 는 구분기호·영문 병기 때문에 원문 그대로는 안 맞는다.
+    """
+    if not html:
+        return False
+    text = _TAGS.sub(" ", html)
+    norm_page = _NONWORD.sub("", unicodedata.normalize("NFKC", text).lower())
+    core = _NONWORD.sub("", unicodedata.normalize("NFKC", search_term(brand_name)).lower())
+    if len(core) < 2:
+        return False
+    if core in norm_page:
+        return True
+    # 등록명이 길면 앞부분(브랜드 고유부)만으로도 인정한다 — '떡볶이 참 잘하는 집, 떡참'
+    head = core[:6] if len(core) >= 6 else core
+    return len(head) >= 3 and head in norm_page
 
 
 def _fetch_html(url: str, limit: int = 250_000) -> str:
@@ -375,15 +553,25 @@ def _fetch_html(url: str, limit: int = 250_000) -> str:
 # 더 큰 이미지를 건지는 마지막 수단이다.
 _ICON_GUESSES = ("/apple-touch-icon.png", "/apple-touch-icon-precomposed.png",
                  "/apple-touch-icon-180x180.png", "/favicon.png", "/favicon.ico")
-MIN_LOGO_PX = 48        # 이보다 작으면 화면에서 흐려 로고 구실을 못 한다
+MIN_LOGO_PX = 64        # 이보다 작으면 카드에서 흐릿해 로고 구실을 못 한다
+                        # (48px 로 뒀더니 모자이크처럼 보이는 건이 남았다)
 
 
-def icon_candidates(domain: str) -> list[str]:
-    """도메인에서 뽑을 수 있는 아이콘 후보 URL 전부 (선언 + 관행 경로 + og:image)."""
+def icon_candidates(domain: str, brand_name: str = "") -> list[str]:
+    """도메인에서 뽑을 수 있는 아이콘 후보 URL 전부 (선언 + 관행 경로 + og:image).
+
+    brand_name 을 주면 **그 사이트가 정말 이 브랜드의 것인지 확인**하고, 아니면
+    빈 목록을 돌려준다(엉뚱한 사이트의 아이콘을 로고라고 붙이지 않는다).
+    """
     if not domain:
         return []
     base = f"https://{domain}"
     html = _fetch_html(base)
+    # 두 신호 중 **하나만** 맞아도 인정한다. 페이지 텍스트는 JS 렌더링이면 비고,
+    # 도메인 로마자는 영문 브랜드명이면 안 맞는다 — 서로의 빈틈을 메운다.
+    if brand_name and not (site_mentions_brand(html, brand_name)
+                           or domain_matches_brand(domain, brand_name)):
+        return []
     out: list[str] = []
 
     declared: list[tuple[int, str]] = []
@@ -430,14 +618,14 @@ def _measure(url: str) -> tuple[int, int]:
         return 0, 0
 
 
-def site_icon(domain: str) -> tuple[str, int]:
+def site_icon(domain: str, brand_name: str = "") -> tuple[str, int]:
     """도메인의 대표 아이콘 (URL, 실측 짧은 변 픽셀). 못 찾으면 ("", 0).
 
     후보를 앞에서부터 실제로 받아 재고, MIN_LOGO_PX 이상이면 즉시 채택한다.
-    끝까지 못 넘기면 그중 가장 큰 것을 쓴다(작아도 없는 것보다 낫다).
+    brand_name 을 주면 사이트 소유 검증까지 거친다.
     """
     best, best_px = "", 0
-    for url in icon_candidates(domain)[:6]:
+    for url in icon_candidates(domain, brand_name)[:6]:
         px, _ = _measure(url)
         if px > best_px:
             best, best_px = url, px
@@ -451,7 +639,7 @@ def brand_logo(brand_name: str, cfg: dict | None = None) -> str:
     domain = official_domain(brand_name, cfg)
     if not domain:
         return ""
-    url, _px = site_icon(domain)
+    url, _px = site_icon(domain, brand_name)
     return url
 
 
@@ -520,6 +708,70 @@ def _load_logo_cache(cfg: dict) -> dict:
             for k, v in obj.items()} if isinstance(obj, dict) else {}
 
 
+def prune_shared_logos(cfg: dict, cache: dict) -> dict:
+    """여러 브랜드가 나눠 쓰는 로고를 **전부 폐기**한다.
+
+    왜 이 검사가 필수인가 (실측 사고)
+        공식 홈페이지 도메인은 브랜드마다 다르다. 한 도메인이 여러 브랜드의
+        '공식 홈페이지'일 수는 없다. 그런데 검색이 디렉토리 사이트를 물어 오면서
+        `www.114.co.kr`(전화번호부) 하나가 **215개 브랜드**의 홈페이지로 잡혔고,
+        전화번호부 아이콘이 215개 카드에 똑같이 붙었다. 알바몬·식신·다이닝코드도
+        같은 방식으로 수십 개씩 오염시켰다. 전체 1,074건 중 665건(62%)이 오염이었다.
+
+        차단 목록만으로는 막을 수 없다 — 새로운 디렉토리 사이트는 계속 생긴다.
+        그래서 **결과를 보고 판정한다**: 같은 도메인 또는 같은 이미지가 둘 이상의
+        브랜드에 걸리면 그것은 브랜드 로고가 아니다.
+
+    한 회사가 여러 브랜드를 한 사이트에서 운영하는 경우(예: 한 본부의 서브 브랜드)도
+    폐기 대상이다. 그 경우에도 서로 다른 브랜드에 같은 그림이 붙는 것은 마찬가지이고,
+    틀린 로고보다 브랜드 색 글자 마크가 낫다.
+    """
+    root = Path(cfg["_root"])
+    img_dir = root / LOGO_DIR
+
+    dom_count: dict[str, int] = {}
+    for v in cache.values():
+        if isinstance(v, dict) and v.get("domain"):
+            dom_count[v["domain"]] = dom_count.get(v["domain"], 0) + 1
+
+    hash_owner: dict[str, list[str]] = {}
+    for name in cache:
+        p = img_dir / logo_file_name(name)
+        if p.exists():
+            try:
+                h = hashlib.md5(p.read_bytes()).hexdigest()
+            except OSError:
+                continue
+            hash_owner.setdefault(h, []).append(name)
+    shared_hash = {h for h, owners in hash_owner.items() if len(owners) > 1}
+
+    removed_dom = removed_img = 0
+    for name, v in cache.items():
+        if not isinstance(v, dict):
+            continue
+        p = img_dir / logo_file_name(name)
+        reason = ""
+        if v.get("domain") and dom_count.get(v["domain"], 0) > 1:
+            reason = f"도메인 공유({dom_count[v['domain']]}개 브랜드)"
+            removed_dom += 1
+        elif p.exists():
+            try:
+                if hashlib.md5(p.read_bytes()).hexdigest() in shared_hash:
+                    reason = "동일 이미지가 다른 브랜드에도 사용됨"
+                    removed_img += 1
+            except OSError:
+                pass
+        if reason:
+            p.unlink(missing_ok=True)
+            v["url"], v["file"], v["rejected"] = "", "", reason
+
+    n_left = len(list(img_dir.glob("*.png"))) if img_dir.exists() else 0
+    log.info("공유 로고 폐기: 도메인 공유 %d건 · 동일 이미지 %d건 → 남은 로고 %d건",
+             removed_dom, removed_img, n_left)
+    return {"removed_domain": removed_dom, "removed_image": removed_img,
+            "remaining": n_left}
+
+
 def collect_logos(cfg: dict | None = None, limit: int | None = None,
                   sleep_sec: float = 0.05) -> dict:
     """코호트 브랜드의 로고를 한꺼번에 찾아 캐시에 저장한다.
@@ -561,7 +813,7 @@ def collect_logos(cfg: dict | None = None, limit: int | None = None,
             continue
         try:
             domain = official_domain(name, cfg)
-            url, px = site_icon(domain) if domain else ("", 0)
+            url, px = site_icon(domain, name) if domain else ("", 0)
         except NaverError as exc:
             log.warning("로고 수집 중단 (%s): %s", name, exc)
             break
@@ -577,6 +829,8 @@ def collect_logos(cfg: dict | None = None, limit: int | None = None,
             log.info("로고 수집 %d건 처리 · 누적 확보 %d/%d", done, n_ok, len(cache))
         time.sleep(sleep_sec)
 
+    _save()
+    prune_shared_logos(cfg, cache)
     _save()
     n_ok = sum(1 for v in cache.values() if v.get("url"))
     n_hi = sum(1 for v in cache.values() if v.get("px", 0) >= MIN_LOGO_PX)
@@ -613,12 +867,15 @@ def collect_demand(cfg: dict | None = None, limit: int | None = None,
             prev = {}
     brands: dict = dict(prev.get("brands") or {})
 
-    if not is_enabled(cfg):
-        meta = {"enabled": False, "reason": f"{ID_ENV}/{SECRET_ENV} 미설정",
+    if not has_trend(cfg):
+        why = ("API HUB 자격증명 미설정" if not is_enabled(cfg)
+               else "구 개발자센터 키로는 검색어트렌드를 쓸 수 없음")
+        meta = {"enabled": False, "reason": f"{why} ({HUB_ID_ENV}/{HUB_SECRET_ENV})",
                 "n_collected": len(brands), "brands": brands}
         dest.write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
-        log.warning("네이버 자격증명이 없어 검색수요를 수집하지 않는다 — "
-                    "developers.naver.com 에서 발급 후 %s/%s 설정", ID_ENV, SECRET_ENV)
+        log.warning("검색수요를 수집하지 않는다 — %s. NCP 콘솔의 NAVER API HUB → "
+                    "Application 에서 Client ID/Secret 을 받아 %s/%s 에 설정하세요.",
+                    why, HUB_ID_ENV, HUB_SECRET_ENV)
         return meta
 
     spath = out_dir / "scores_latest.csv"

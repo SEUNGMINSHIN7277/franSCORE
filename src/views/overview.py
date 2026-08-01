@@ -67,7 +67,7 @@ def _watchlist(df: pd.DataFrame, diag: pd.DataFrame | None) -> None:
             with head:
                 st.markdown(
                     f"<div style='display:flex;gap:12px;align-items:center'>"
-                    f"{C.brand_mark_html(str(r['brand_name']), 46)}"
+                    f"{C.brand_mark_html(str(r['brand_name']), 62)}"
                     f"<div><div style='font-size:1.26rem;font-weight:700;"
                     f"color:{theme.INK};line-height:1.3'>{r['brand_name']}</div>"
                     f"<div style='font-size:.9rem;color:{theme.TEXT_SUB}'>"

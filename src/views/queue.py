@@ -114,7 +114,7 @@ def _worklist(work: pd.DataFrame) -> None:
             with a:
                 st.markdown(
                     f"<div style='display:flex;gap:11px;align-items:center'>"
-                    f"{C.brand_mark_html(str(r['brand_name']), 40)}"
+                    f"{C.brand_mark_html(str(r['brand_name']), 56)}"
                     f"<div><div style='font-weight:700;font-size:1.14rem;color:{theme.INK}'>"
                     f"{r['brand_name']} {theme.grade_chip(str(r['risk_grade']))} "
                     f"{theme.chip(cur.get('status', '미착수'), STATUS_KIND[cur.get('status', '미착수')])}"

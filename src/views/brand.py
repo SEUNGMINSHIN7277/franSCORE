@@ -98,7 +98,7 @@ def _landing(df: pd.DataFrame, meta: dict) -> None:
         with cols[i % 3], st.container(border=True):
             st.markdown(
                 f"<div style='display:flex;gap:10px;align-items:center'>"
-                f"{C.brand_mark_html(str(r['brand_name']), 38)}"
+                f"{C.brand_mark_html(str(r['brand_name']), 54)}"
                 f"<div style='min-width:0'><div style='font-weight:700;font-size:1.06rem;"
                 f"color:{theme.INK};overflow:hidden;text-overflow:ellipsis;"
                 f"white-space:nowrap'>{r['brand_name']}</div>"
@@ -148,7 +148,7 @@ def _brand_detail(r: pd.Series) -> None:
         with h1:
             st.markdown(
                 f"<div style='display:flex;gap:16px;align-items:center'>"
-                f"{C.brand_mark_html(name, 62)}"
+                f"{C.brand_mark_html(name, 84)}"
                 f"<div><div style='font-size:1.75rem;font-weight:700;color:{theme.INK};"
                 f"line-height:1.25;letter-spacing:-.02em'>{name} "
                 f"{theme.grade_chip(grade)}</div>"

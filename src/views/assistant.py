@@ -7,6 +7,7 @@ from src import chat, theme
 from src.views import common as C
 
 _HISTORY = "chat_history"
+_PENDING = "chat_pending"
 EXAMPLES = [
     "인생냉면 창업을 고민 중인데 전반적으로 분석해줘",
     "달콤왕가탕후루 가맹점 수 추이를 가져와줘",
@@ -31,7 +32,7 @@ def render() -> None:
         cols = st.columns(2)
         for i, ex in enumerate(EXAMPLES):
             if cols[i % 2].button(ex, key=f"ex_{i}", use_container_width=True):
-                _ask(ex)
+                _enqueue(ex)
                 st.rerun()
         st.write("")
 
@@ -51,9 +52,19 @@ def render() -> None:
                     "no_key": "답변 생성 모델이 설정되지 않아 수집된 사실만 정리했습니다.",
                 }.get(turn.get("reason", ""), "답변 생성에 실패해 수집된 사실만 정리했습니다."))
 
+    # ⚠️ 답을 만든 뒤에 질문까지 한꺼번에 그리면, 사용자가 엔터를 친 뒤 수십 초 동안
+    #    **자기가 뭘 물었는지도 화면에 안 보인다**. 질문을 먼저 세션에 넣고 즉시 rerun 해
+    #    말풍선을 띄운 다음, 다음 실행에서 답을 만든다.
+    pending = st.session_state.get(_PENDING)
+    if pending:
+        with st.chat_message("assistant", avatar="🟡"), st.spinner(
+                "공시·재무·뉴스에서 근거를 찾는 중…"):
+            _answer(pending)
+        st.rerun()
+
     q = st.chat_input("무엇이든 물어보십시오")
     if q:
-        _ask(q)
+        _enqueue(q)
         st.rerun()
 
     if history:
@@ -68,17 +79,22 @@ def render() -> None:
             file_name="franscore_상담.md", mime="text/markdown")
 
 
-def _ask(question: str) -> None:
+def _enqueue(question: str) -> None:
+    """질문만 먼저 대화에 올린다. 답변 생성은 다음 실행에서."""
+    st.session_state[_HISTORY].append({"role": "user", "content": question})
+    st.session_state[_PENDING] = question
+
+
+def _answer(question: str) -> None:
     history = st.session_state[_HISTORY]
-    history.append({"role": "user", "content": question})
-    with st.spinner("공시·재무·뉴스에서 근거를 찾는 중…"):
-        try:
-            res = chat.answer(C.cfg(), question, history[:-1])
-        except Exception as exc:                      # 화면이 죽으면 안 된다
-            history.append({"role": "assistant",
-                            "content": f"답변 중 문제가 발생했습니다: {exc}",
-                            "llm_used": False})
-            return
+    st.session_state[_PENDING] = None
+    try:
+        res = chat.answer(C.cfg(), question, history[:-1])
+    except Exception as exc:                          # 화면이 죽으면 안 된다
+        history.append({"role": "assistant",
+                        "content": f"답변 중 문제가 발생했습니다: {exc}",
+                        "llm_used": False, "reason": "error"})
+        return
     history.append({"role": "assistant", "content": res["text"],
                     "evidence": res.get("evidence") or [],
                     "llm_used": bool(res.get("llm_used")),

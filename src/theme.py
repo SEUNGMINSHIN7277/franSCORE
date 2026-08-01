@@ -111,6 +111,21 @@ def plot(fig: go.Figure, *, height: int | None = None, key: str | None = None) -
 # CSS
 # ---------------------------------------------------------------------------
 
+# 카드(테두리 있는 컨테이너) 선택자.
+# ⚠️ Streamlit 1.57 에서 st.container(border=True) 는 **stLayoutWrapper 의 자식
+#    stVerticalBlock** 으로 렌더된다. 구버전의 stVerticalBlockBorderWrapper 는 이
+#    버전 DOM 에 아예 없다(실측 0개) — 그것만 적어 두면 카드 스타일이 통째로 죽는다.
+_CARD = '[data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"]'
+
+_BLOCK = '[data-testid="stMainBlockContainer"] [data-testid="stLayoutWrapper"]'
+# 카드마다 등장 지연을 조금씩 늘려 한 덩어리가 아니라 차례로 놓이게 한다
+# ⚠️ 이 문자열은 아래 f-string 에 **값으로** 꽂힌다. 값은 다시 파싱되지 않으므로
+#    중괄호를 이중으로 쓰면 안 된다(그러면 CSS 에 `{{` 가 그대로 남는다).
+_STAGGER = "\n".join(
+    f"{_BLOCK}:nth-of-type({n}) {{ animation-delay: {d:.2f}s; }}"
+    for n, d in ((1, .02), (2, .06), (3, .10), (4, .14), (5, .18))
+) + f"\n{_BLOCK}:nth-of-type(n+6) {{ animation-delay: .21s; }}"
+
 _CSS = f"""
 <style>
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
@@ -164,12 +179,33 @@ label, [data-testid="stWidgetLabel"] p, [data-testid="stWidgetLabel"] label {{
 
 /* ── 페이지 셸 ───────────────────────────────────────────── */
 [data-testid="stAppViewContainer"] {{ background: {BG}; }}
-[data-testid="stHeader"] {{ background: transparent; height: 0; }}
-/* Streamlit 기본 크롬(Deploy 버튼·상태 위젯)은 서비스 화면의 것이 아니다 */
-[data-testid="stToolbar"], [data-testid="stStatusWidget"],
-[data-testid="stDecoration"], .stDeployButton, [data-testid="stAppDeployButton"] {{
+[data-testid="stHeader"] {{
+    background: transparent; height: 0; pointer-events: none;
+}}
+/* Streamlit 기본 크롬(Deploy 버튼·메뉴·상태 위젯)은 서비스 화면의 것이 아니다.
+   ⚠️ 단, stToolbar 를 통째로 숨기면 **사이드바 펼치기 버튼까지 사라진다** —
+   그 버튼이 툴바의 자식이라 사이드바를 접으면 다시 열 방법이 없어진다(실측 결함).
+   개별 요소만 숨기고 툴바 자체는 살려 둔다. */
+[data-testid="stStatusWidget"], [data-testid="stDecoration"],
+[data-testid="stToolbarActions"], .stDeployButton,
+[data-testid="stAppDeployButton"], #MainMenu {{
     display: none !important;
 }}
+[data-testid="stToolbar"] {{ pointer-events: auto; }}
+[data-testid="stExpandSidebarButton"] {{
+    pointer-events: auto;
+    width: 40px !important; height: 40px !important;
+    display: flex !important; align-items: center; justify-content: center;
+    background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 11px;
+    box-shadow: 0 2px 8px rgba(38,34,30,.10);
+    transition: background .16s ease, box-shadow .16s ease, transform .16s ease;
+}}
+[data-testid="stExpandSidebarButton"]:hover {{
+    background: {YELLOW_SOFT}; border-color: {YELLOW_DEEP};
+    box-shadow: 0 4px 14px rgba(38,34,30,.14); transform: translateY(-1px);
+}}
+[data-testid="stExpandSidebarButton"] svg,
+[data-testid="stExpandSidebarButton"] span {{ color: {INK} !important; }}
 [data-testid="stMainBlockContainer"] {{
     padding: 1.8rem 2.6rem 4rem 2.6rem; max-width: 1560px;
 }}
@@ -208,7 +244,17 @@ hr {{ border-color: {BORDER}; margin: 1.4rem 0; }}
 [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {{
     color: #FFFFFF;
 }}
-[data-testid="stSidebarCollapseButton"] button {{ color: {NAV_TEXT} !important; }}
+/* 접기 버튼은 기본이 visibility:hidden 이라 사이드바에 마우스를 올려야 보인다.
+   숨은 컨트롤은 있는 줄도 모르니 항상 보이게 두고, 대신 은은하게 처리한다. */
+[data-testid="stSidebarCollapseButton"] {{ visibility: visible !important; }}
+[data-testid="stSidebarCollapseButton"] button {{
+    color: {NAV_TEXT} !important; opacity: .55;
+    transition: opacity .18s var(--ease), background .18s var(--ease);
+    border-radius: 8px;
+}}
+[data-testid="stSidebarCollapseButton"] button:hover {{
+    opacity: 1; background: #423D37 !important;
+}}
 
 /* 사이드바 라디오를 네비게이션 항목처럼 */
 [data-testid="stSidebar"] [role="radiogroup"] {{ gap: 2px; }}
@@ -368,6 +414,130 @@ div[data-testid="stVerticalBlockBorderWrapper"] {{
 ::-webkit-scrollbar {{ width: 10px; height: 10px; }}
 ::-webkit-scrollbar-thumb {{ background: {BORDER_STRONG}; border-radius: 6px; }}
 ::-webkit-scrollbar-track {{ background: transparent; }}
+::-webkit-scrollbar-thumb:hover {{ background: {TEXT_MUTED}; }}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   깊이·움직임 — 요소가 배경에 얹힌 그림이 아니라 화면의 일부로 보이게 한다
+   ═══════════════════════════════════════════════════════════════════════
+   원칙 세 가지
+     1. 그림자는 한 겹이 아니라 **두 겹**이다. 가까운 곳의 또렷한 경계선과
+        멀리 퍼지는 부드러운 그늘이 함께 있어야 종이처럼 보인다.
+     2. 움직임은 **감속**한다. 시작이 빠르고 끝이 느린 곡선이라야 물리적으로 읽힌다.
+     3. 등장은 **아래에서 위로 살짝**. 뚝 나타나면 붙여넣은 이미지처럼 보인다.
+   ─────────────────────────────────────────────────────────────────────── */
+
+:root {{
+    --ease: cubic-bezier(.22, 1, .36, 1);
+    --shadow-1: 0 1px 2px rgba(38,34,30,.05), 0 1px 3px rgba(38,34,30,.03);
+    --shadow-2: 0 2px 6px rgba(38,34,30,.06), 0 8px 24px rgba(38,34,30,.07);
+    --shadow-3: 0 4px 12px rgba(38,34,30,.08), 0 16px 40px rgba(38,34,30,.10);
+}}
+
+@keyframes kb-rise {{
+    from {{ opacity: 0; transform: translateY(10px); }}
+    to   {{ opacity: 1; transform: translateY(0); }}
+}}
+@keyframes kb-fade {{ from {{ opacity: 0; }} to {{ opacity: 1; }} }}
+
+/* 본문 요소가 떠오르며 들어온다.
+   ⚠️ 선택자 주의: Streamlit 버전에 따라 카드 컨테이너의 식별자가 다르다.
+      구버전은 stVerticalBlockBorderWrapper, 현재는 **stLayoutWrapper 의 자식인
+      stVerticalBlock** 이다(실측: 전자는 DOM 에 0개). 둘 다 적어 어느 쪽이든 걸리게 한다. */
+[data-testid="stMainBlockContainer"] [data-testid="stElementContainer"],
+[data-testid="stMainBlockContainer"] [data-testid="stLayoutWrapper"] {{
+    animation: kb-rise .42s var(--ease) both;
+}}
+{_STAGGER}
+
+/* 카드 — 정지 상태는 얕게, 손이 닿으면 떠오른다 */
+{_CARD}, div[data-testid="stVerticalBlockBorderWrapper"] {{
+    box-shadow: var(--shadow-1);
+    transition: box-shadow .28s var(--ease), transform .28s var(--ease),
+                border-color .28s var(--ease);
+    will-change: transform;
+}}
+{_CARD}:hover, div[data-testid="stVerticalBlockBorderWrapper"]:hover {{
+    box-shadow: var(--shadow-2);
+    transform: translateY(-2px);
+    border-color: {BORDER_STRONG} !important;
+}}
+[data-testid="stMetric"] {{
+    box-shadow: var(--shadow-1);
+    transition: box-shadow .28s var(--ease), transform .28s var(--ease);
+}}
+[data-testid="stMetric"]:hover {{ box-shadow: var(--shadow-2); transform: translateY(-2px); }}
+
+/* 브랜드 마크 — 로고가 카드 안에서 '얹힌 그림'이 되지 않도록 자리를 만든다 */
+.kb-mark {{
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #FFFFFF 0%, #FBFAF8 100%);
+    border: 1px solid {BORDER};
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 1px 3px rgba(38,34,30,.06);
+    overflow: hidden; flex-shrink: 0;
+    transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+}}
+div[data-testid="stVerticalBlockBorderWrapper"]:hover .kb-mark {{
+    transform: scale(1.04);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 4px 12px rgba(38,34,30,.12);
+}}
+.kb-mark img {{
+    width: 100%; height: 100%; object-fit: contain;
+    animation: kb-fade .5s var(--ease) both;
+}}
+.kb-mark .letter {{
+    width: 100%; height: 100%; display: flex; align-items: center;
+    justify-content: center; font-weight: 800; letter-spacing: -.04em;
+}}
+
+/* 소견 — 왼쪽 색 막대가 자라 들어온다 */
+.kb-finding {{ animation: kb-rise .38s var(--ease) both; }}
+.kb-finding .bar {{
+    transition: width .3s var(--ease);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.4) inset;
+}}
+.kb-finding:hover .bar {{ width: 5px; }}
+
+/* 버튼·탭·입력 — 손이 닿는 것에는 전부 반응을 준다 */
+.stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {{
+    transition: all .2s var(--ease); box-shadow: var(--shadow-1);
+}}
+.stButton > button:hover, .stDownloadButton > button:hover {{
+    transform: translateY(-1px); box-shadow: var(--shadow-2);
+}}
+.stButton > button:active {{ transform: translateY(0); box-shadow: var(--shadow-1); }}
+[data-baseweb="tab"] {{ transition: color .2s var(--ease), background .2s var(--ease); }}
+[data-testid="stTextInput"] input, [data-baseweb="select"] > div {{
+    transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+}}
+[data-testid="stExpander"] {{ transition: box-shadow .25s var(--ease); }}
+[data-testid="stExpander"]:hover {{ box-shadow: var(--shadow-1); }}
+
+/* 차트 — 나타날 때 부드럽게 */
+.js-plotly-plot {{ animation: kb-fade .55s var(--ease) both; }}
+
+/* 사이드바 항목 — 활성 항목에 왼쪽 강조선 */
+[data-testid="stSidebar"] [role="radiogroup"] > label {{
+    transition: background .18s var(--ease), padding-left .18s var(--ease);
+    position: relative;
+}}
+[data-testid="stSidebar"] [role="radiogroup"] > label:has(input:checked)::before {{
+    content: ""; position: absolute; left: -14px; top: 50%; transform: translateY(-50%);
+    width: 4px; height: 62%; border-radius: 0 3px 3px 0; background: {YELLOW};
+}}
+[data-testid="stSidebar"] [role="radiogroup"] > label:hover {{ padding-left: 17px; }}
+
+/* 채팅 말풍선 */
+[data-testid="stChatMessage"] {{
+    animation: kb-rise .34s var(--ease) both; box-shadow: var(--shadow-1);
+}}
+
+/* 움직임을 원치 않는 사용자 설정을 존중한다 (접근성) */
+@media (prefers-reduced-motion: reduce) {{
+    *, *::before, *::after {{
+        animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }}
+}}
 </style>
 """
 
