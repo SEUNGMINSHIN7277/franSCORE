@@ -433,6 +433,21 @@ hr {{ border-color: {BORDER}; margin: 1.4rem 0; }}
     padding: 16px 14px 7px 14px; font-size: {FS_XS}; font-weight: 700;
     letter-spacing: .08em; color: {NAV_SUB};
 }}
+/* 사이드바 하단 — 기준연도·평가규모와 사용범위 고지.
+   app.py 는 클래스 이름만 적고 모양은 여기서 정한다(모듈 세대 어긋남 방어). */
+.kb-navmeta {{
+    padding: 14px 12px 4px 12px; margin-top: 14px; font-size: {FS_XS};
+    line-height: 1.7; color: {NAV_SUB}; border-top: 1px solid #453F39;
+}}
+.kb-navmeta b {{ color: {NAV_TEXT}; font-weight: 700; }}
+.kb-navnote {{
+    padding: 16px 12px; font-size: {FS_XS}; line-height: 1.6; color: {NAV_SUB};
+}}
+/* ⚠️ 사이드바 안의 색은 `[data-testid="stSidebar"] *` 로도 걸리므로 특이도를
+   맞춰 다시 못박는다 — 안 그러면 위 두 규칙이 그 규칙에 밀린다. */
+[data-testid="stSidebar"] .kb-navmeta,
+[data-testid="stSidebar"] .kb-navnote {{ color: {NAV_SUB}; }}
+[data-testid="stSidebar"] .kb-navmeta b {{ color: {NAV_TEXT}; }}
 
 /* ── 페이지 헤더 ─────────────────────────────────────────── */
 .kb-page {{ margin-bottom: 1.1rem; }}

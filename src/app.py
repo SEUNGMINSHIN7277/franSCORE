@@ -62,21 +62,24 @@ def _sidebar() -> str:
 
     from src.views import common as C
     _, meta = C.load_scores()
+    # ⚠️ 여기서 theme 의 **색·크기 상수를 직접 꺼내 쓰지 않는다.** 클래스 이름만 적고
+    #    모양은 theme 의 CSS 가 정한다.
+    #    이유: 이 파일은 진입 스크립트라 배포 때마다 항상 새로 실행되는데, import 된
+    #    src.theme 은 sys.modules 에 **옛 버전이 남을 수 있다**. 그러면 새 app.py 가
+    #    옛 theme 의 새 상수를 찾다가 AttributeError 로 앱 전체가 죽는다
+    #    (실측: 배포 직후 theme.FS_XS 로 화면이 통째로 뜨지 않았다).
+    #    클래스 이름은 그냥 문자열이라, 설령 CSS 가 옛 버전이어도 모양만 밋밋해질 뿐
+    #    화면은 뜬다. 서비스 화면은 못생겨질지언정 죽으면 안 된다.
     if meta:
         st.sidebar.markdown(
-            f"<div style='padding:14px 12px 4px 12px;font-size:{theme.FS_XS};"
-            f"color:{theme.NAV_SUB};line-height:1.7;border-top:1px solid #453F39;"
-            f"margin-top:14px'>"
-            f"기준 공시연도 <b style='color:{theme.NAV_TEXT}'>"
-            f"{meta.get('scored_year', '-')}년</b><br>"
-            f"평가 대상 <b style='color:{theme.NAV_TEXT}'>"
-            f"{meta.get('n_scored', 0):,}개</b> 브랜드"
-            f"</div>", unsafe_allow_html=True)
-    # ⚠️ 고지문은 법적 성격이라 '작게 흘려두는' 문구가 아니다. 예전엔 11.2px·
-    #    명도대비 2.78 로 사실상 안 읽히게 두었는데, 안 읽히는 고지는 고지가 아니다.
-    st.sidebar.markdown(
-        f"<div style='padding:16px 12px;font-size:{theme.FS_XS};color:{theme.NAV_SUB};"
-        f"line-height:1.6'>{DISCLAIMER}</div>", unsafe_allow_html=True)
+            f"<div class='kb-navmeta'>"
+            f"기준 공시연도 <b>{meta.get('scored_year', '-')}년</b><br>"
+            f"평가 대상 <b>{meta.get('n_scored', 0):,}개</b> 브랜드</div>",
+            unsafe_allow_html=True)
+    # 고지문은 법적 성격이라 '작게 흘려두는' 문구가 아니다. 예전엔 11.2px·
+    # 명도대비 2.78 로 사실상 안 읽히게 두었는데, 안 읽히는 고지는 고지가 아니다.
+    st.sidebar.markdown(f"<div class='kb-navnote'>{DISCLAIMER}</div>",
+                        unsafe_allow_html=True)
     return view
 
 

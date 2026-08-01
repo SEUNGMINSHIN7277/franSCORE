@@ -17,6 +17,7 @@
 """
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -111,7 +112,6 @@ def run() -> int:
           f"{'통과' if not t_fail else '실패'}")
 
     # ── 화면 코드가 스케일 밖 크기를 쓰지 않는지 ──────────────────────
-    import re
     stray = []
     for f in sorted((_ROOT / "src" / "views").glob("*.py")):
         for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
@@ -123,7 +123,21 @@ def run() -> int:
         print(f"  FAIL  스케일 밖 크기: {s}")
     print(f"화면 코드 인라인 크기 - 스케일 이탈 {len(stray)}건")
 
-    bad = len(fails) + t_fail + len(stray)
+    # ── 진입 스크립트는 theme 의 '상수'를 쓰지 않는다 ──────────────────
+    # 배포 환경에서 src/app.py 는 매번 새로 실행되지만 import 된 src.theme 은
+    # 옛 버전이 sys.modules 에 남을 수 있다. 그 상태에서 새 app.py 가 새 상수를
+    # 참조하면 AttributeError 로 **앱 전체가 뜨지 않는다**(실측: theme.FS_XS).
+    # 화면 모듈(views/*.py)은 theme 과 같은 세대로 함께 낡으므로 문제가 없지만,
+    # 진입 스크립트만은 예외다. 여기서는 클래스 이름만 적고 모양은 CSS 가 정한다.
+    app_src = (_ROOT / "src" / "app.py").read_text(encoding="utf-8")
+    app_code = "\n".join(ln for ln in app_src.splitlines()
+                         if not ln.lstrip().startswith("#"))
+    consts = sorted(set(re.findall(r"theme\.([A-Z][A-Z0-9_]*)", app_code)))
+    for c in consts:
+        print(f"  FAIL  app.py 가 theme.{c} 를 직접 참조 — CSS 클래스로 옮길 것")
+    print(f"진입 스크립트 theme 상수 참조 {len(consts)}건")
+
+    bad = len(fails) + t_fail + len(stray) + len(consts)
     print("=" * 58)
     print("전체 통과" if not bad else f"실패 {bad}건")
     return 1 if bad else 0
