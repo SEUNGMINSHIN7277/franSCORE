@@ -26,8 +26,12 @@ log = get_logger("pipeline")
 # 그 결과(hq_financials.parquet)를 features 가 읽는다.
 # demand(검색수요)·news 는 diagnose 앞에 온다: 진단 규칙이 그 산출물을 읽어
 # 수요·평판 소견을 만든다. 둘 다 없어도 diagnose 는 공시·재무 소견만으로 동작한다.
+# ⚠️ 순서가 의미를 갖는다. bands 는 evaluate 산출물(워크포워드 예측)을 읽어 등급 컷과
+#    배포용 보정기를 만들고, score 는 그 둘을 읽어 등급을 매긴다. validate 는 마지막에
+#    전부를 검증한다. 순서를 바꾸면 조용히 옛 컷으로 점수가 나간다.
 STEPS = ["collect", "panel", "dart", "ifrmp", "features", "labels", "model", "evaluate",
-         "portfolio", "score", "correlation", "demand", "news", "diagnose", "eval_llm"]
+         "bands", "portfolio", "score", "correlation", "demand", "news", "diagnose",
+         "eval_llm", "validate"]
 
 
 def _extended_cfg(cfg: dict) -> dict:
@@ -192,6 +196,16 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
         # 브랜드 개별 진단 — 공시·본부재무·수요·보도를 규칙으로 훑어 소견을 만든다
         from src import diagnosis
         diagnosis.run(cfg)
+
+    elif step == "bands":
+        # 등급 밴드 도출 — 관측 악화율로 앵커링된 절대 컷 + 배포용 보정기
+        from tools.derive_grade_bands import main as derive_bands
+        derive_bands()
+
+    elif step == "validate":
+        # 모형 검증 산출물 — 판별력·정확성·안정성 (PSI·KS·HL·이행행렬)
+        from src import validation
+        validation.run(cfg)
 
     else:
         raise ValueError(f"unknown step: {step}")

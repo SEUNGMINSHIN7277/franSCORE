@@ -1,0 +1,24 @@
+{
+  "basis": "시점 정합 보정 (fold t 는 선행 fold 로만 보정)",
+  "years": [
+    2022,
+    2023
+  ],
+  "n": 1429,
+  "events": 141,
+  "hosmer_lemeshow": {
+    "statistic": 25.5234,
+    "df": 6,
+    "p_value": 0.000273,
+    "bins": 8,
+    "verdict": "보정 부적정(기각)"
+  },
+  "spiegelhalter": {
+    "z": 3.4054,
+    "p_value": 0.000661,
+    "verdict": "과소예측"
+  },
+  "ece": 0.031374,
+  "mean_predicted": 0.074701,
+  "observed": 0.09867
+}

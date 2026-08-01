@@ -1,0 +1,173 @@
+{
+  "n_oos": 2063,
+  "n_events": 191,
+  "years": [
+    2021,
+    2022,
+    2023
+  ],
+  "cuts": [
+    0.05,
+    0.105
+  ],
+  "grades": [
+    "FS1",
+    "FS2",
+    "FS3"
+  ],
+  "discrimination_pooled": {
+    "scope": "풀링",
+    "n": 2063,
+    "events": 191,
+    "base_rate": 0.09258361609306835,
+    "auc": 0.706868,
+    "auc_lo": 0.671133,
+    "auc_hi": 0.742101,
+    "gini": 0.413736,
+    "gini_lo": 0.342265,
+    "gini_hi": 0.484202,
+    "ks": 0.315778,
+    "ks_lo": 0.270013,
+    "ks_hi": 0.392734,
+    "lift_at_10": 2.516749,
+    "lift_at_10_lo": 1.983981,
+    "lift_at_10_hi": 3.109874
+  },
+  "calibration": {
+    "basis": "시점 정합 보정 (fold t 는 선행 fold 로만 보정)",
+    "years": [
+      2022,
+      2023
+    ],
+    "n": 1429,
+    "events": 141,
+    "hosmer_lemeshow": {
+      "statistic": 25.5234,
+      "df": 6,
+      "p_value": 0.000273,
+      "bins": 8,
+      "verdict": "보정 부적정(기각)"
+    },
+    "spiegelhalter": {
+      "z": 3.4054,
+      "p_value": 0.000661,
+      "verdict": "과소예측"
+    },
+    "ece": 0.031374,
+    "mean_predicted": 0.074701,
+    "observed": 0.09867
+  },
+  "transition_pairs": 2,
+  "mean_exit_rate": 0.1097,
+  "psi": {
+    "score": {
+      "basis": "운영 모형 원점수, 과거 코호트 → 배포 코호트 (동일 모형·시점 간)",
+      "by_year": [
+        {
+          "base_year": 2021,
+          "target_year": 2024,
+          "psi": 0.053873,
+          "band": "정상",
+          "n_bins": 10,
+          "n_base": 1076,
+          "n_target": 1442
+        },
+        {
+          "base_year": 2022,
+          "target_year": 2024,
+          "psi": 0.01179,
+          "band": "정상",
+          "n_bins": 10,
+          "n_base": 1203,
+          "n_target": 1442
+        },
+        {
+          "base_year": 2023,
+          "target_year": 2024,
+          "psi": 0.007788,
+          "band": "정상",
+          "n_bins": 10,
+          "n_base": 1297,
+          "n_target": 1442
+        }
+      ]
+    },
+    "features_representativeness": {
+      "n_features": 49,
+      "bands": {
+        "정상": 23,
+        "적색": 14,
+        "경보": 12
+      },
+      "worst": [
+        {
+          "feature": "f_lvl_n_stores",
+          "psi": 1.741073,
+          "band": "적색"
+        },
+        {
+          "feature": "f_lvl_brand_age",
+          "psi": 1.057422,
+          "band": "적색"
+        },
+        {
+          "feature": "f_hq_op_margin",
+          "psi": 0.601762,
+          "band": "적색"
+        },
+        {
+          "feature": "f_hq_revenue_growth",
+          "psi": 0.575161,
+          "band": "적색"
+        },
+        {
+          "feature": "f_hq_revenue_log",
+          "psi": 0.57041,
+          "band": "적색"
+        }
+      ]
+    },
+    "features_stability": {
+      "n_features": 49,
+      "bands": {
+        "정상": 41,
+        "적색": 7,
+        "경보": 1
+      },
+      "worst": [
+        {
+          "feature": "f_hq_revenue_growth",
+          "psi": 1.46457,
+          "band": "적색"
+        },
+        {
+          "feature": "f_hq_net_margin",
+          "psi": 0.929533,
+          "band": "적색"
+        },
+        {
+          "feature": "f_hq_roa",
+          "psi": 0.769017,
+          "band": "적색"
+        },
+        {
+          "feature": "f_hq_op_margin",
+          "psi": 0.5147,
+          "band": "적색"
+        },
+        {
+          "feature": "f_hq_liab_ratio",
+          "psi": 0.502495,
+          "band": "적색"
+        }
+      ]
+    },
+    "n_train": 2206,
+    "n_deploy": 1442,
+    "note": "대표성 PSI 가 크면 개발표본과 적용모집단이 다르다는 뜻이고(게이트 효과), 안정성 PSI 가 크면 시간에 따른 실제 이동이다. 둘을 합치면 원인을 못 가린다.",
+    "thresholds": {
+      "warn": 0.1,
+      "alert": 0.25
+    }
+  }
+}
