@@ -159,10 +159,14 @@ html, body, [class*="st-"], button, input, textarea, select {{
 /* Streamlit 이 `[data-testid=stMarkdownContainer] p {{font-size:.9rem}}` 처럼 자체
    규칙을 갖고 있어 같은 선택자로는 밀린다(실측: 1rem 지정 → 15.3px 렌더).
    테마 계층이므로 !important 로 확정한다. */
-html {{ font-size: 17px; }}
+/* ⚠️ 루트 17px + 본문 1.06rem 이면 본문이 **18.02px** 로 렌더된다(실측). 대시보드
+   본문으로는 과하게 커서 카드 안 여백이 먹히고 비율이 어색해진다. 루트를 브라우저
+   기본값 16px 로 되돌리고 본문을 16.3px 로 잡는다 — Streamlit 기본(14px 상당)보다는
+   확실히 크면서 화면 밀도를 해치지 않는 지점이다. */
+html {{ font-size: 16px; }}
 body, .stMarkdown p, .stMarkdown li,
 [data-testid="stMarkdownContainer"] p, [data-testid="stMarkdownContainer"] li {{
-    font-size: 1.06rem !important; line-height: 1.7; color: {TEXT};
+    font-size: 1.02rem !important; line-height: 1.68; color: {TEXT};
 }}
 [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p,
 [data-testid="stCaptionContainer"] div, .stCaption, small {{
