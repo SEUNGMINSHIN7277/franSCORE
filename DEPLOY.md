@@ -31,6 +31,49 @@ https://share.streamlit.io/deploy?repository=SEUNGMINSHIN7277%2FfranSCORE&branch
 `Deploy!` 를 누르면 의존성 설치에 3~5분 걸립니다.
 완료되면 `https://<정한이름>.streamlit.app` 으로 누구나 접속할 수 있습니다.
 
+### 1-1-a. ⚠️ 비공개 저장소면 먼저 권한을 줘야 합니다 (실제로 여기서 막혔음)
+
+이 저장소는 **비공개(private)** 입니다. Streamlit Cloud 가 처음 GitHub 로그인 시
+받는 권한은 **공개 저장소까지만** 이고, GitHub 은 권한 없는 리소스에 404 를
+돌려주므로 배포 화면에 이렇게 뜹니다 — 저장소는 멀쩡한데도 그렇습니다.
+
+```
+This repository does not exist
+This branch does not exist
+This file does not exist
+```
+
+App URL 칸에 `Domain is available` 이 초록색으로 뜬다면 로그인은 정상이고
+**권한만 없는 것**입니다. 아래로 해결합니다.
+
+1. https://share.streamlit.io 접속
+2. 좌측 상단 **GitHub 사용자명** 클릭 → **`Settings`**
+3. 왼쪽 사이드바 **`Linked accounts`**
+4. `Source control` 의 **`Connect here`**
+5. **`Authorize streamlit`** — "access your private repositories" 가 있는 두 번째 승인
+
+`Connect here` 가 안 보이거나 이미 연결됨으로 표시되면
+https://github.com/settings/applications 에서 `Streamlit` 을 **Revoke** 한 뒤 다시 하십시오.
+기존 승인이 남아 있으면 GitHub 이 재승인 화면을 띄우지 않습니다.
+
+공개 전환으로 해결할 수도 있으나 코드와 수집 데이터가 전부 공개됩니다.
+
+```bash
+gh repo edit SEUNGMINSHIN7277/franSCORE --visibility public --accept-visibility-change-consequences
+```
+
+### 1-1-b. `Paste GitHub URL` 모드를 쓸 때
+
+이 모드는 저장소 주소가 아니라 **`.py` 파일을 직접 가리키는 주소**를 요구합니다.
+
+```
+https://github.com/SEUNGMINSHIN7277/franSCORE/blob/main/src/app.py
+```
+
+저장소 루트 URL 을 넣으면
+`The field needs to contain a Github URL pointing to a .py file` 로 거부됩니다.
+이 모드 역시 비공개 저장소면 1-1-a 의 권한 승인이 선행돼야 합니다.
+
 ### 1-2. API 키 등록 (선택)
 
 **키가 하나도 없어도 앱은 정상 동작합니다.** 새로 clone 한 상태에서 키 없이 5개
@@ -80,7 +123,8 @@ RAG 색인은 배포를 감안해 `float32` + 문자 n-gram 상한 40,000 으로
 
 ## 2. Hugging Face Spaces (대안)
 
-메모리 여유가 더 필요하거나 저장소를 비공개로 두고 싶을 때 씁니다.
+메모리 여유가 더 필요할 때 씁니다. (비공개 저장소는 Streamlit Cloud 로도 배포
+가능합니다 — 1-1-a 참고.)
 
 1. https://huggingface.co/new-space → SDK `Streamlit`, Hardware `CPU basic (무료)`
 2. 생성된 Space 저장소에 이 저장소 내용을 push
