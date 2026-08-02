@@ -206,7 +206,7 @@ def oot_cut_procedure(frame: pd.DataFrame) -> dict:
     a = anchor.copy()
     a["p_cal"] = cal.predict(a["p_prod"])
     try:
-        cuts_a, rows_a, sep_a = search_cuts(a)
+        cuts_a, _rows_a, sep_a = search_cuts(a)
     except SystemExit as exc:
         return {"feasible": False, "anchor_years": [int(y) for y in anchor_years],
                 "why": f"선행 연도만으로는 조건 만족 컷 없음: {exc}"}

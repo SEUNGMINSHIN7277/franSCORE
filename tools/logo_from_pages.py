@@ -121,7 +121,7 @@ def main() -> int:
         todo = todo[:args.limit]
 
     log.info("대상 %d개 브랜드 (자기 도메인 보유 · 로고 미확보)", len(todo))
-    ok = no_page = no_cand = too_small = 0
+    ok = no_page = too_small = 0
     for i, (name, domain) in enumerate(todo, 1):
         cands = page_logo_candidates(domain, name)
         if not cands:

@@ -157,7 +157,7 @@ class _IsolatedKeys:
         os.environ.update(self.saved)
         return False
 
-def test_llm_client(cfg: dict) -> str:
+def test_llm_client(cfg: dict) -> None:
     """src.llm 클라이언트 자체: 스키마 정제·사고파트 제거·차단/절단/재시도 분기."""
     env = src_llm.api_key_env(cfg)
     with _IsolatedKeys(cfg, "mock-key-for-test"):
@@ -232,10 +232,9 @@ def _test_llm_client_body(cfg: dict, env: str) -> str:
     finally:
         _iso_none.__exit__(None, None, None)
     print("    (5) 키 미설정: 호출 시도 없이 즉시 예외 확인")
-    return PASS
 
 
-def test_news_llm_path(cfg: dict) -> str:
+def test_news_llm_path(cfg: dict) -> None:
     """news_llm의 LLM 분기: 구조화 요청 구성·파싱·검증·차단/예외 폴백."""
     from src import news_llm
 
@@ -307,10 +306,9 @@ def test_news_llm_path(cfg: dict) -> str:
         print("    (5) 비JSON 응답 처리: 폴백 전환 확인")
     finally:
         _iso.__exit__(None, None, None)
-    return PASS
 
 
-def test_memo_llm_path(cfg: dict) -> str:
+def test_memo_llm_path(cfg: dict) -> None:
     """memo_llm의 LLM 분기: 프롬프트 구성·필수 고지 강제·차단/예외 폴백."""
     from src import memo_llm
 
@@ -384,10 +382,9 @@ def test_memo_llm_path(cfg: dict) -> str:
         print(f"    (6) 환각 검증: 정상 통과 + 지어낸 수치 {halluc['unsupported']} 검출·경고 부착 확인")
     finally:
         _iso.__exit__(None, None, None)
-    return PASS
 
 
-def test_rag_retrieval(cfg: dict) -> str:
+def test_rag_retrieval(cfg: dict) -> None:
     """RAG: 코퍼스 구축 → 색인 → 검색이 실제로 관련 문서를 회수하는지."""
     import pandas as pd
 
@@ -456,7 +453,6 @@ def test_rag_retrieval(cfg: dict) -> str:
     hits2 = loaded.retrieve("테스트브랜드 계약종료 급증", k=3)
     assert not hits2.empty, "재로드한 색인으로 검색이 되지 않음"
     print("    색인 이식성: 클래스 참조 없이 저장 → 재로드·검색 정상 확인")
-    return PASS
 
 
 def main() -> int:
@@ -472,7 +468,8 @@ def main() -> int:
                 cfg = _tmp_cfg(Path(td) / name)
                 print(f"[{i}/{len(tests)}] {name} ...")
                 try:
-                    results.append((name, fn(cfg)))
+                    fn(cfg)
+                    results.append((name, PASS))
                     print(f"[{i}/{len(tests)}] {name} ... {PASS}")
                 except Exception as exc:
                     import traceback
