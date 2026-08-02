@@ -186,6 +186,88 @@ def financial_rows(reg_no: str, brand: dict) -> list[dict]:
     return rows
 
 
+def ingest_saved(cfg: dict, src_dir: str) -> dict:
+    """**사람이 브라우저로 저장한** 열람 페이지(.html)를 읽어 수집분에 합친다.
+
+    왜 이 경로가 필요한가
+        전량 자동 수집은 캡차로 막혀 있고(세션당 5건), 우리는 그것을 우회하지
+        않는다. 그러나 정보공개서는 **누구나 볼 수 있게 공개된 문서**이고, 사람이
+        브라우저로 열어 저장하는 것은 캡차가 막으려는 행위가 아니라 그 사이트가
+        의도한 사용 그 자체다. 자동화를 뚫는 대신 **사람의 열람 결과를 받는다.**
+
+        정식 키(IFRMP_SERVICE_KEY)가 마감 전에 안 나올 수 있으므로, 점포 수가 많은
+        브랜드부터 손으로 몇십 건만 받아도 점포가중 커버리지가 크게 오른다
+        (실측: 상위 30개 → 37.1% → 49.4%). 어느 브랜드를 먼저 받아야 하는지는
+        `tools/ifrmp_wanted.py` 가 뽑아 준다.
+
+    저장 방법 (브라우저에서)
+        정보공개서 열람 → 브랜드 검색 → 상세 화면에서 Ctrl+S
+        → "웹페이지, HTML만"(single file 아님) 으로 저장. 파일명은 아무거나 좋다.
+
+    파싱은 자동 수집과 **완전히 같은 코드**(parse_view / financial_rows)를 쓴다.
+    경로만 다르고 결과는 같아야 하므로, 다른 파서를 두지 않는다.
+    """
+    root = Path(cfg["_root"])
+    src = Path(src_dir)
+    if not src.is_absolute():
+        src = root / src
+    dest = root / RAW_DIR
+    dest.mkdir(parents=True, exist_ok=True)
+
+    files = sorted([p for p in src.rglob("*") if p.suffix.lower() in (".html", ".htm")])
+    if not files:
+        log.warning("%s 에 .html 파일이 없다", src)
+        return {"files": 0, "parsed": 0, "with_financials": 0}
+
+    parsed = with_fin = 0
+    skipped: list[str] = []
+    for p in files:
+        try:
+            page = p.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            skipped.append(f"{p.name}: 읽기 실패 {exc}")
+            continue
+        brand = parse_view(page)
+        flat = _TAGS.sub(" ", page)
+        # 등록번호를 페이지에서 찾는다 — 파일명에 기대지 않는다(사람이 붙인 이름이다)
+        m = re.search(r"등록번호.{0,200}?(\d{8,12})", flat, re.S)
+        reg_no = m.group(1) if m else p.stem
+        rows = financial_rows(reg_no, brand)
+        if not rows:
+            skipped.append(f"{p.name}: 재무 표를 못 읽음 (열람 상세 페이지가 맞는지 확인)")
+            continue
+        for key, pat in (("brand_name", r"영업표지\s*([^\s<]{1,40})"),
+                         ("corp_name", r"상\s*호\s*([^\s<]{1,40})"),
+                         ("ceo", r"대표자\s*(?:명)?\s*([^\s<]{1,20})")):
+            hit = re.search(pat, flat)
+            if hit:
+                brand.setdefault(key, _txt(hit.group(1)))
+        brand.update({"reg_no": reg_no, "source": SOURCE, "_source_file": p.name,
+                      "_collected_by": "manual_browser_save"})
+
+        # ⚠️ 덮어쓰지 않고 **병합**한다. 주문형 조회(fetch_brand)로 이미 받아 둔 건에는
+        #    목록 화면에서만 얻는 항목(상호·영업표지·업종·등록일)이 들어 있는데,
+        #    저장 페이지에는 그게 없을 수 있다. 통째로 쓰면 그 값들이 사라진다
+        #    (실제로 왕복 시험에서 corp_name·brand_name·industry 를 날렸다).
+        out_p = dest / f"{reg_no}.json"
+        if out_p.exists():
+            try:
+                prev = json.loads(out_p.read_text(encoding="utf-8"))
+                merged = {**prev, **{k: v for k, v in brand.items() if v not in ("", None, [])}}
+                brand = merged
+            except (OSError, ValueError):
+                pass
+        out_p.write_text(json.dumps(brand, ensure_ascii=False), encoding="utf-8")
+        parsed += 1
+        with_fin += 1
+    for s in skipped[:10]:
+        log.warning("건너뜀 — %s", s)
+    log.info("오프라인 수집: 파일 %d개 → 파싱 %d건 (재무 %d건, 건너뜀 %d)",
+             len(files), parsed, with_fin, len(skipped))
+    return {"files": len(files), "parsed": parsed, "with_financials": with_fin,
+            "skipped": len(skipped)}
+
+
 def build_parquet(cfg: dict) -> pd.DataFrame:
     """수집된 브랜드별 JSON → 재무 parquet. 수집과 분리해 재실행 가능하게 둔다."""
     root = Path(cfg["_root"])
@@ -350,9 +432,13 @@ def main() -> int:
     ap.add_argument("--max-pages", type=int, default=0,
                     help="⚠️ 전량 수집은 캡차로 막혀 있다 — 진단용으로만 남긴다")
     ap.add_argument("--build-only", action="store_true", help="수집 없이 parquet 재구축만")
+    ap.add_argument("--ingest-dir", type=str, default="",
+                    help="사람이 브라우저로 저장한 열람 페이지(.html) 폴더를 읽어들인다")
     args = ap.parse_args()
     cfg = load_config()
-    if args.brand:
+    if args.ingest_dir:
+        ingest_saved(cfg, args.ingest_dir)
+    elif args.brand:
         fetch_brand(cfg, args.brand)
     elif not args.build_only:
         log.warning("전량 수집은 캡차로 차단돼 있다(세션당 %d건). --brand 로 주문형 조회를 "
