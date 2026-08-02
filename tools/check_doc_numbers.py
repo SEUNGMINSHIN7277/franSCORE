@@ -21,6 +21,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -49,6 +50,10 @@ DOCS = {
     # DEPLOY.md 도 같은 이유로 뒤늦게 들어왔다 — "로고 535건" 이 실제 611건이
     # 되도록 수집이 진행되는 동안에도 검사에 걸리지 않았다.
     "DEPLOY": ROOT / "DEPLOY.md",
+    # 기술설명서는 전 과정을 한 파일에 모으므로 낡을 여지가 가장 크다.
+    # ⚠️ 등록만 하고 need() 를 0건 두면 OPERATIONS 때와 같은 착시가 된다 —
+    #    아래 §TECH 블록에 실제 대조를 배선했다.
+    "TECH": ROOT / "docs" / "TECHNICAL_REPORT.md",
 }
 
 # 폐기된 표기 — 문서 어디에도 남아 있으면 안 된다 (교체 누락 탐지).
@@ -357,6 +362,72 @@ def main() -> int:
     if len(lg):
         need("OPS fold별 Lift 나열",
              " / ".join(f"{v:.3f}" for v in lg["lift_at_10"]), "OPS")
+    # ---- TECH: 기술설명서 전용 대조 ------------------------------------------
+    # 이 문서는 전 과정을 한 파일에 모으므로 다른 문서가 갱신될 때마다 낡을 수 있다.
+    # 각 부에서 결론에 해당하는 값만 골라 산출물에서 다시 계산해 대조한다.
+    vsum = json.loads((OUT / "validation" / "summary.json").read_text(encoding="utf-8"))
+    dp = vsum["discrimination_pooled"]
+    need("TECH 판별력 AUC", f"{dp['auc']:.3f}", "TECH")
+    need("TECH 판별력 AUC CI", f"[{dp['auc_lo']:.3f}, {dp['auc_hi']:.3f}]", "TECH")
+    need("TECH 검증 OOS 표본", thou(dp["n"]), "TECH")
+    cal = vsum["calibration"]
+    need("TECH HL p", f"p={cal['hosmer_lemeshow']['p_value']:.3f}", "TECH")
+    need("TECH Spiegelhalter Z", f"Z={cal['spiegelhalter']['z']:.3f}", "TECH")
+
+    gb = json.loads((OUT / "grade_bands.json").read_text(encoding="utf-8"))
+    need("TECH 등급 컷", f"[{gb['cuts'][0]}, {gb['cuts'][1]}]", "TECH")
+    need("TECH 최소 CI 분리", f"{100 * gb['min_ci_separation']:.2f}%p", "TECH")
+    need("TECH 절차 OOT 컷",
+         f"[{gb['cut_procedure_oot']['cuts_from_anchor'][0]}, "
+         f"{gb['cut_procedure_oot']['cuts_from_anchor'][1]}]", "TECH")
+    need("TECH 귀무검정 반복", f"{gb['null_test']['n_iter']}회", "TECH")
+    for row in gb["pooled"]:
+        need(f"TECH 실현율 {row['grade']}", f"{100 * row['rate']:.2f}%", "TECH")
+
+    need("TECH UL 배수", f"{ci_['ul99_multiple']:.2f}배", "TECH")
+    need("TECH 상위5 UL 비중",
+         f"{100 * ci_['euler_allocation']['top5_ul_share']:.1f}%", "TECH")
+    need("TECH 브랜드 내부 상관", f"{bc['rho_asset']:.3f}", "TECH")
+    need("TECH 브랜드 간 상관", f"{btw['rho_between']:.3f}", "TECH")
+
+    wb = json.loads((OUT / "watch_base_rates.json").read_text(encoding="utf-8"))
+    need("TECH 요주의 실현율 나열",
+         " / ".join(f"{100 * r['rate']:.1f}%" for r in wb["table"]), "TECH")
+
+    le = json.loads((OUT / "llm_eval.json").read_text(encoding="utf-8"))
+    need("TECH LLM 정확도(전체)", f"{le['all']['llm']['accuracy']:.3f}", "TECH")
+    need("TECH 규칙 정확도(전체)", f"{le['all']['rules']['accuracy']:.3f}", "TECH")
+
+    dg = json.loads((OUT / "brand_diagnosis_meta.json").read_text(encoding="utf-8"))
+    need("TECH 진단 소견 건수", thou(dg["n_findings"]), "TECH")
+    need("TECH 소견 조합 종수", thou(dg["distinct_finding_sets"]), "TECH")
+
+    rs = json.loads((OUT / "rag_stats.json").read_text(encoding="utf-8"))
+    need("TECH RAG 문서수", thou(rs["n_documents"]), "TECH")
+    need("TECH RAG 커버 브랜드", thou(rs["n_brands_covered"]), "TECH")
+
+    # 결함 전수 목록은 **표를 세어서** 건수를 정한다. 사람이 헤아려 적으면 항목을
+    # 추가할 때마다 어긋난다 — 그 어긋남이 바로 이 문서가 고발하는 종류의 결함이다.
+    tech = _txt("TECH")
+    sec = tech.split("## 43. 우리가 스스로 잡은 결함")[1].split("## 44.")[0]
+    rows = [int(m.group(1)) for m in re.finditer(r"^\|\s*(\d+)\s*\|", sec, re.M)]
+    if rows:
+        if sorted(rows) != list(range(1, len(rows) + 1)):
+            _fails.append(f"TECH 결함 목록 번호가 연속이 아니다 (n={len(rows)})")
+        cats = [int(m.group(3)) for m in re.finditer(r"### ([A-H])\. (.+?) \((\d+)건\)", sec)]
+        if cats and sum(cats) != len(rows):
+            _fails.append(f"TECH 카테고리 합 {sum(cats)} ≠ 실제 행수 {len(rows)}")
+        need("TECH 결함 전수 건수", f"결함 {len(rows)}건", "README", "TECH")
+
+    # 수집 데이터셋 종수는 **원본 스냅샷 파일군**에서 센다. 창업비용(15110265)을
+    # 뒤늦게 추가했을 때 README·AI_USAGE 가 6종에 멈춰 있었다 — 원천이 늘어나는 것은
+    # 이 프로젝트에서 자주 일어나는 일이라 사람 기억에 맡기지 않는다.
+    raw = ROOT / "data" / "raw"
+    if raw.exists():
+        fam = {re.sub(r"_\d{4}\.json.*$", "", p.name) for p in raw.glob("*.json*")}
+        if fam:
+            need("공정위 수집 데이터셋 종수", f"오픈API **{len(fam)}종**", "README")
+
     # 라벨 구성표는 **자격 통과 표본**을 말한다. 예전에는 같은 파일이 자격 이전
     # 프레임(7,163행·11.4%)을 담아 OPERATIONS 와 IMPLEMENTATION 이 서로 다른 값을
     # 인용했다. 두 값 모두 산출물에서 다시 계산해 대조한다.
