@@ -331,6 +331,51 @@ def _expected_loss(port: pd.DataFrame, pcfg: dict) -> None:
     imp = C.out_dir() / "correlation_impact.json"
     if imp.exists():
         _correlation_note(imp)
+    _tail_contribution()
+
+
+def _tail_contribution() -> None:
+    """어느 브랜드가 99% 꼬리를 만드는가 — 측정한 ρ 가 여신 판단으로 이어지는 자리.
+
+    왜 이 표가 접힌 참고표가 아니라 본문인가 (심사 지적)
+        상관을 측정해 놓고 화면에는 포트폴리오 총량(UL 배수)만 있었다. 심사역의 실제
+        질문은 "그래서 어느 브랜드의 한도를 봐야 하는가"다. 성분 ES(Euler 배분)는
+        합이 전체 ES 와 정확히 일치하는 유일한 가법 배분이라, 꼬리손실을 브랜드별로
+        조작 없이 나눠 그 질문에 답한다.
+    """
+    p = C.out_dir() / "brand_ul_contribution.csv"
+    if not p.exists():
+        return
+    df = pd.read_csv(p, encoding="utf-8-sig").head(10)
+    st.markdown(f"<div style='font-weight:700;font-size:{theme.FS_LG};color:{theme.INK};"
+                f"margin-top:18px'>꼬리손실 기여 상위 — 어느 브랜드가 99% 손실을 만드는가"
+                f"</div>", unsafe_allow_html=True)
+    view = pd.DataFrame({
+        "브랜드": df["brand_name"],
+        "여신 비중": df["exposure_share"],
+        "UL 기여 비중": df["ul_share"],
+        "쏠림 배수": df["concentration_ratio"],
+        "꼬리손실 기여(억)": df["ul_contrib_mkrw"] / 100,
+    })
+    st.dataframe(
+        view, hide_index=True, use_container_width=True,
+        column_config={
+            "여신 비중": st.column_config.NumberColumn(format="percent"),
+            "UL 기여 비중": st.column_config.ProgressColumn(
+                format="percent", min_value=0.0,
+                max_value=float(view["UL 기여 비중"].max() or 1.0)),
+            "쏠림 배수": st.column_config.NumberColumn(
+                format="%.2f배",
+                help="UL 기여 비중 ÷ 여신 비중. 1보다 크면 여신 규모에 비해 꼬리손실 "
+                     "기여가 큰 브랜드 — 브랜드 내부 상관(ρ=0.416)과 집중이 만드는 "
+                     "위험 쏠림입니다."),
+            "꼬리손실 기여(억)": st.column_config.NumberColumn(format="%.2f"),
+        })
+    st.caption(
+        "총손실이 99% 분위수를 넘는 시나리오에서 각 브랜드가 평균적으로 만든 손실"
+        "(성분 ES, Euler 배분 — 브랜드별 기여의 합이 전체 꼬리손실과 정확히 일치)에서 "
+        "그 브랜드의 기대손실을 뺀 값입니다. 한도 재검토 우선순위는 여신 잔액이 아니라 "
+        "이 표의 순서를 따르는 것이 이 도구의 처방입니다.")
 
 
 def _correlation_note(path) -> None:

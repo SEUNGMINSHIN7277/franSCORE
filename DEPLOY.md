@@ -191,6 +191,55 @@ streamlit run src/app.py --server.port 8501 --server.address 0.0.0.0
 바뀌고, 고지 문구도 자동으로 그에 맞게 바뀝니다 (필요 컬럼: `brand_id` 또는
 `brand_name`, `exposure_mkrw`).
 
+### 3-1. 폐쇄망 이식 — 무엇이 밖으로 나가고, 막히면 무엇이 남는가
+
+은행 도입 심사에서 반드시 나오는 두 질문에 미리 답한다.
+**"이 앱이 어디로 통신하는가"** 와 **"전부 막으면 무엇이 되는가"**.
+
+**아웃바운드 목적지 전량** (이 표에 없는 호스트로는 나가는 요청이 없다)
+
+| 호스트 | 용도 | 주기 | 막히면 |
+|---|---|---|---|
+| `apis.data.go.kr` | 공정위 가맹사업 공시 6종 수집 | **연 1회** | 기존 스냅샷(`data/raw/`)으로 전 지표 재현 — 점수·등급 무영향 |
+| `opendart.fss.or.kr` | 가맹본부 감사보고서 재무 | 연 1회 | 기존 수집분 사용 — 무영향 |
+| `generativelanguage.googleapis.com` | Gemini — 뉴스 사건 추출·AI 상담·로고 판독 | 일간 | 규칙기반 폴백 자동 전환, `llm_used=false` 표기 — 점수 무영향 |
+| `openapi.naver.com` / `naverapihub.apigw.ntruss.com` | 뉴스 본문·검색수요 | 일간 | 뉴스는 제목만(RSS), 수요 소견은 생성 안 함 — 점수 무영향 |
+| `news.google.com` | 뉴스 RSS 보완 | 일간 | 뉴스 층 축소 |
+| 브랜드 공식 도메인 다수 | 로고 1회 수집 | 1회성 | 글자 마크로 대체 — 기능 무영향 |
+
+핵심 설계: **점수·등급·포트폴리오 지표는 외부 연결이 하나도 없어도 산출된다.**
+연 1회 공시 스냅샷이 `data/raw/` 에 커밋돼 있고, 새 클론에서 API 호출 없이 전 지표가
+bit-identical 재현됨을 실측으로 확인했다(→ OPERATIONS §6). 일간 층(뉴스·수요·로고)은
+전부 폴백이 있으며, 어느 것이 축소 가동인지 `python tools/check_credentials.py` 가
+기동 전에 찍고 화면에도 표기된다 — `src/common.py` 의 `CAPABILITIES` 표가 단일 진실이다.
+
+**오프라인 설치 (외부 PyPI 차단 시)**
+
+```bash
+# 인터넷 되는 곳에서: 바퀴 전부 내려받기
+pip download -r requirements.txt -d wheelhouse/
+# 폐쇄망에서: 인덱스 없이 설치
+pip install --no-index --find-links wheelhouse/ -r requirements.txt
+```
+
+버전은 `requirements.txt` 에 고정돼 있어 두 환경의 패키지가 동일하다.
+Python 3.13 고정 사유는 §5 참조.
+
+**사내 LLM 교체 지점 — 파일 한 개**
+
+모든 LLM 호출은 `src/llm.py` 의 `generate()` / `generate_json()` **두 함수만** 지난다
+(화면·뉴스·메모 등 호출부 어디에도 공급자 코드가 없다). 사내 승인 LLM 으로 바꾸려면
+이 두 함수의 HTTP 호출부만 교체하면 되고, 폴백·재시도·`llm_used` 표기는 그대로
+동작한다. 키가 전혀 없는 상태의 동작은 지금도 매일 검증된다 — 규칙기반 폴백이
+정상 경로이기 때문이다.
+
+**데이터 반출입 경계**
+
+- 들어오는 것: 실여신 CSV 1장 (`brand_id/brand_name`, `exposure_mkrw`) — §3 위 참조
+- 나가는 것: **없음.** 여신 금액·차주 정보는 어떤 외부 API 로도 전송되지 않는다.
+  AI 상담(`src/chat.py`)의 LLM 프롬프트에는 공시 기반 산출물만 들어가며, 포트폴리오
+  익스포저 값은 포함되지 않는다(코드 검증: chat.py 에 exposure 참조 0건).
+
 ---
 
 ## 4. 데이터 갱신

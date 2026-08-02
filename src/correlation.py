@@ -361,6 +361,53 @@ def _simulate_nested(thr: np.ndarray, expo: np.ndarray, n_stores: np.ndarray, lg
     return np.concatenate(out)
 
 
+def _brand_tail_stats(thr: np.ndarray, expo: np.ndarray, n_stores: np.ndarray, lgd: float,
+                      rho_w: float, rho_b: float, n_sims: int, seed: int,
+                      tail_threshold: float,
+                      chunk: int = 20_000) -> tuple[int, np.ndarray, np.ndarray]:
+    """꼬리 시나리오에서의 **브랜드별** 손실 — Euler(성분 ES) 배분용.
+
+    왜 필요한가 (심사 지적 — 측정한 ρ가 의사결정면에 배선되지 않았다)
+        ρ_W=0.416 을 측정해 놓고 정작 화면에는 포트폴리오 총량(UL 5.31배)만 있었다.
+        심사역이 물을 것은 "그래서 **어느 브랜드가** 그 꼬리를 만드는가"인데, 총량은
+        그 질문에 답하지 못한다. 성분 ES(E[L_i | L ≥ VaR])는 합이 정확히 전체 ES 가
+        되는 유일한 가법 배분(Euler)이라, 브랜드별 기여를 조작 없이 나눌 수 있다.
+
+    구현 — 2패스 공통난수
+        총손실 분포는 1패스(_simulate_nested)가 이미 계산했다. 같은 seed·같은 chunk
+        순서로 난수를 다시 뽑으면 **동일한 시나리오**가 재현되므로, 2패스에서는
+        총손실이 tail_threshold 를 넘는 시나리오의 브랜드별 손실만 누적한다.
+        (rng 호출 순서가 1패스와 완전히 같아야 한다 — z → y → binomial.)
+
+    Returns: (꼬리 시나리오 수, 브랜드별 꼬리손실 합, 브랜드별 전체손실 합)
+    """
+    rng = np.random.default_rng(seed)
+    n = len(thr)
+    per_store = np.where(n_stores > 0, expo / np.maximum(n_stores, 1), 0.0)
+    a_b, a_y = np.sqrt(rho_b), np.sqrt(max(rho_w - rho_b, 0.0))
+    denom = np.sqrt(max(1.0 - rho_w, 1e-12))
+    counts = np.maximum(n_stores.astype(np.int64), 0)
+    tail_n = 0
+    tail_sum = np.zeros(n)
+    all_sum = np.zeros(n)
+    done = 0
+    while done < n_sims:
+        m = min(chunk, n_sims - done)
+        z = rng.standard_normal((m, 1))
+        y = rng.standard_normal((m, n))
+        q = norm.cdf((thr[None, :] - a_b * z - a_y * y) / denom)
+        d = rng.binomial(counts[None, :].repeat(m, axis=0), q)
+        brand_loss = d * per_store[None, :] * lgd          # (m, n)
+        total = brand_loss.sum(axis=1)
+        all_sum += brand_loss.sum(axis=0)
+        in_tail = total >= tail_threshold
+        tail_n += int(in_tail.sum())
+        if in_tail.any():
+            tail_sum += brand_loss[in_tail].sum(axis=0)
+        done += m
+    return tail_n, tail_sum, all_sum
+
+
 def _simulate_losses(rhos: list[float], thr: np.ndarray, expo: np.ndarray, lgd: float,
                      n_sims: int, seed: int, chunk: int = 50_000) -> dict[float, np.ndarray]:
     """단일요인 모형 손실 시뮬레이션 — 모든 ρ에 **같은 난수**를 쓴다(공통난수).
@@ -518,6 +565,41 @@ def correlation_impact(cfg: dict, rho_asset: float, rho_between: float | None = 
         res[f"{lab}_ul99_mkrw"] = res[f"{lab}_p99_mkrw"] - res[f"{lab}_mean_mkrw"]
     res["ul99_multiple"] = (res["brand_correlated_ul99_mkrw"] / res["independent_ul99_mkrw"]
                             if res["independent_ul99_mkrw"] > 0 else float("nan"))
+
+    # ── 브랜드별 꼬리손실 기여 (Euler 성분 ES) ────────────────────────────
+    # 측정한 ρ 를 의사결정면에 배선한다: "어느 브랜드가 99% 꼬리를 만드는가".
+    var99 = res["brand_correlated_p99_mkrw"]
+    tail_n, tail_sum, all_sum = _brand_tail_stats(
+        thr, expo, n_stores, lgd, rho, rho_b, n_sims, int(cfg["seed"]), var99)
+    es_total = float(loss_corr[loss_corr >= var99].mean())
+    es_i = tail_sum / max(tail_n, 1)                 # 성분 ES
+    el_i = all_sum / n_sims                          # 브랜드별 기대손실
+    ul_i = es_i - el_i                               # 꼬리 초과분 = UL 기여
+    # Euler 가법성 검산 — 성분의 합이 전체 ES 와 일치해야 한다. 어긋나면 배분이 아니라 조작이다.
+    addup_err = abs(float(es_i.sum()) - es_total) / max(es_total, 1e-9)
+    contrib = pd.DataFrame({
+        "brand_id": port["brand_id"], "brand_name": port.get("brand_name", ""),
+        "n_stores": n_stores.astype(int), "exposure_mkrw": expo,
+        "exposure_share": expo / max(expo.sum(), 1e-9),
+        "el_mkrw": el_i, "es99_mkrw": es_i, "ul_contrib_mkrw": ul_i,
+        "ul_share": ul_i / max(float(ul_i.sum()), 1e-9),
+    })
+    contrib["concentration_ratio"] = contrib["ul_share"] / contrib["exposure_share"].clip(lower=1e-9)
+    contrib = contrib.sort_values("ul_contrib_mkrw", ascending=False)
+    contrib.to_csv(out_dir / "brand_ul_contribution.csv", index=False, encoding="utf-8-sig")
+    res["euler_allocation"] = {
+        "n_tail_scenarios": int(tail_n),
+        "es99_total_mkrw": es_total,
+        "component_addup_rel_err": round(addup_err, 8),
+        "top5_ul_share": round(float(contrib["ul_share"].head(5).sum()), 4),
+        "file": "brand_ul_contribution.csv",
+        "note": ("성분 ES = E[브랜드 손실 | 총손실 ≥ VaR99]. 합이 전체 ES 와 일치하는 "
+                 "유일한 가법 배분(Euler). concentration_ratio > 1 이면 익스포저 비중보다 "
+                 "꼬리 기여가 큰 브랜드 — 상관·집중이 만드는 위험 쏠림이다."),
+    }
+    log.info("Euler 배분: 꼬리 %d개 시나리오 · 성분 합/전체 ES 오차 %.2e · "
+             "상위 5개 브랜드가 UL 의 %.1f%%",
+             tail_n, addup_err, 100 * float(contrib["ul_share"].head(5).sum()))
 
     (out_dir / "correlation_impact.json").write_text(
         json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")

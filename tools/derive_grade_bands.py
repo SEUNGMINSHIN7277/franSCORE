@@ -177,6 +177,100 @@ def search_cuts(oos: pd.DataFrame) -> tuple[list[float], list[dict], float]:
     return best
 
 
+def oot_cut_procedure(frame: pd.DataFrame) -> dict:
+    """**컷 선택 절차 자체**의 시점 밖 검증.
+
+    왜 필요한가 (심사 지적 — 순환논증)
+        배포 컷은 2022+2023 풀에서 '인접 CI 분리폭 최대화'로 골랐고, 격자 탐색의
+        연도별 단조 조건이 2023 라벨을 이미 본다. 그 뒤 2023 실현율을 '시점 밖
+        확인'으로 제시하면 **컷을 고를 때 본 데이터로 컷을 검증**하는 셈이다.
+        비중첩·단조는 선택 제약이지 독립 검증이 아니다.
+
+    무엇을 검증하는가
+        "이 절차(보정 적합 → 격자 탐색)가 미래에도 유효한 등급을 만드는가"를
+        검증한다. 선행 연도만으로 보정기를 적합하고 컷을 고른 뒤, **한 번도 보지
+        않은 후행 연도**에 그대로 적용해 단조성·실현율을 채점한다. 검증 대상은
+        특정 컷 값이 아니라 **절차**다 — 배포 컷은 검증된 절차를 전체 자료에
+        적용한 결과다(모형을 검증 후 전체 자료로 재적합하는 표준 관행과 같다).
+    """
+    from src import calibration
+    years = sorted(frame["year"].unique())
+    if len(years) < 2:
+        return {"feasible": False, "why": f"연도 2개 이상 필요 (현재 {years})"}
+    anchor_years, test_year = years[:-1], years[-1]
+    anchor = frame[frame["year"].isin(anchor_years)]
+    test = frame[frame["year"] == test_year].copy()
+
+    cal, _ = calibration.fit(anchor["p_prod"], anchor["y_true"],
+                             fitted_on=str(anchor_years))
+    a = anchor.copy()
+    a["p_cal"] = cal.predict(a["p_prod"])
+    try:
+        cuts_a, rows_a, sep_a = search_cuts(a)
+    except SystemExit as exc:
+        return {"feasible": False, "anchor_years": [int(y) for y in anchor_years],
+                "why": f"선행 연도만으로는 조건 만족 컷 없음: {exc}"}
+
+    test["p_cal"] = cal.predict(test["p_prod"])
+    gi = np.digitize(test["p_cal"].to_numpy(), cuts_a)
+    yv = test["y_true"].to_numpy()
+    by_grade = []
+    for i, g in enumerate(GRADES):
+        m = gi == i
+        n, k = int(m.sum()), int(yv[m].sum())
+        lo, hi = wilson(k, n)
+        by_grade.append({"grade": g, "n": n, "events": k,
+                         "rate": round(k / n, 6) if n else None,
+                         "ci_lo": round(lo, 6), "ci_hi": round(hi, 6)})
+    rates = [r["rate"] for r in by_grade]
+    monotone = all(r is not None for r in rates) and rates[0] < rates[1] < rates[2]
+    sep_test = min(by_grade[1]["ci_lo"] - by_grade[0]["ci_hi"],
+                   by_grade[2]["ci_lo"] - by_grade[1]["ci_hi"])
+    return {"feasible": True,
+            "anchor_years": [int(y) for y in anchor_years],
+            "test_year": int(test_year),
+            "cuts_from_anchor": [float(c) for c in cuts_a],
+            "anchor_min_separation": round(sep_a, 6),
+            "test_by_grade": by_grade,
+            "test_monotone": bool(monotone),
+            "test_min_separation": round(float(sep_test), 6),
+            "note": ("컷 선택이 검증 연도를 전혀 보지 않은 상태의 성적. "
+                     "분리폭이 음수여도 단조가 유지되면 절차는 유효하다 — "
+                     "비중첩까지 요구하면 검증이 아니라 선택 제약의 재확인이 된다.")}
+
+
+def null_permutation_test(scored: pd.DataFrame, n_iter: int = 200,
+                          seed: int = 42) -> dict:
+    """라벨 무작위 치환 자료에 같은 격자 탐색을 돌린다 — 다중비교의 크기를 잰다.
+
+    격자 60값 × 1,770쌍에서 '분리폭 최대'를 고르는 선택에는 다중비교가 내재한다.
+    라벨을 연도 안에서 무작위로 섞으면(연도별 기저율 보존) 등급과 결과의 진짜 연관은
+    사라진다. 그 귀무 자료에서 ① 조건 만족 컷이 나올 확률 ② 나왔을 때의 분리폭
+    분포를 재면, 관측된 분리폭이 선택 효과만으로 설명되는지 답할 수 있다.
+    """
+    rng = np.random.default_rng(seed)
+    found, seps = 0, []
+    base = scored[["year", "p_cal", "y_true"]].copy()
+    for _ in range(n_iter):
+        perm = base.copy()
+        perm["y_true"] = (perm.groupby("year")["y_true"]
+                          .transform(lambda s: rng.permutation(s.to_numpy())))
+        try:
+            _, _, sep = search_cuts(perm)
+            found += 1
+            seps.append(float(sep))
+        except SystemExit:
+            continue
+    return {"n_iter": n_iter,
+            "n_qualifying_cut_found": found,
+            "p_qualifying_by_chance": round(found / n_iter, 4),
+            "null_sep_max": round(max(seps), 6) if seps else None,
+            "null_sep_p95": round(float(np.percentile(seps, 95)), 6) if seps else None,
+            "note": ("무작위 라벨에서 조건(표본·단조·비중첩·연도별 단조)을 모두 만족하는 "
+                     "컷이 나올 확률과, 나왔을 때의 분리폭. 관측 분리폭이 귀무 최대값보다 "
+                     "크면 선택 효과만으로는 설명되지 않는다.")}
+
+
 def per_year_table(oos: pd.DataFrame, cuts: list[float]) -> pd.DataFrame:
     g = np.digitize(oos["p_cal"].to_numpy(), cuts)
     rows = []
@@ -223,8 +317,24 @@ def main() -> None:
                  r["grade"], GRADE_KR[r["grade"]], r["n"], r["events"],
                  r["rate"] * 100, r["ci_lo"] * 100, r["ci_hi"] * 100)
 
+    # ── 검증 3종 ──────────────────────────────────────────────────────────
+    # ⚠️ 위 표(pooled)는 컷을 **고른 자료 위에서** 계산된다. 비중첩·단조는 격자
+    #    탐색의 선택 제약이므로 이 표는 검증이 아니라 **실적표(앵커)** 다.
+    #    검증은 아래 세 개가 맡는다:
+    #    ① cut_procedure_oot — 컷 선택이 검증 연도를 전혀 보지 않은 절차 검증
+    #    ② null_test         — 무작위 라벨에서 같은 조건이 우연히 만족될 확률
+    #    ③ out_of_time       — 확률값 자체의 시점 밖 보정 확인 (기존)
+    proc = oot_cut_procedure(frame)
+    log.info("절차 검증(선행→후행): %s",
+             json.dumps({k: v for k, v in proc.items() if k != "test_by_grade"},
+                        ensure_ascii=False))
+    null_t = null_permutation_test(scored)
+    log.info("귀무검정: 무작위 라벨에서 조건 만족 %d/%d (p=%.3f) · 귀무 분리폭 최대 %s "
+             "vs 관측 %.4f", null_t["n_qualifying_cut_found"], null_t["n_iter"],
+             null_t["p_qualifying_by_chance"], null_t["null_sep_max"], sep)
+
     # 시점 밖 확인 — 앞 연도로만 적합한 보정기로 뒤 연도를 매겨 **같은 컷**의
-    # 등급별 실현율이 유지되는지 본다. 이것이 컷의 진짜 검증이다.
+    # 등급별 실현율이 유지되는지 본다 (확률 보정의 시점 밖 성능).
     oot, cal_meta = time_consistent_oos(cfg, frame)
     oot_rows = []
     gi = np.digitize(oot["p_cal"].to_numpy(), cuts)
@@ -249,8 +359,19 @@ def main() -> None:
         "grades": GRADES,
         "grade_kr": GRADE_KR,
         "anchored_on": ("운영 모형 점수(학습 연도 제외) + 등온회귀·계단별 축소 보정. "
-                        "컷은 배포 보정기 척도에서 도출 — 보정 in-sample 이므로 "
-                        "시점 밖 확인(out_of_time)을 함께 본다."),
+                        "컷은 배포 보정기 척도에서 도출."),
+        "selection_caveat": ("pooled 실현율표는 컷을 고른 자료 위에서 계산된 **실적표**다. "
+                             "비중첩·단조는 격자 탐색의 선택 제약이므로 이 표 자체는 "
+                             "검증이 아니다 — 검증은 cut_procedure_oot(절차의 시점 밖 "
+                             "검증)와 null_test(라벨 치환 귀무검정)가 맡는다."),
+        "calibration_data_note": ("보정 자료 중 2022년은 운영 모형의 valid 연도다 — "
+                                  "복잡도 선택과 조기종료가 그 해 라벨을 봤으므로 그 해 "
+                                  "점수의 분리력은 순수 OOS 보다 유리할 수 있다. 2023년은 "
+                                  "모형 선택에 쓰이지 않은 순수 OOS 다. 절차 검증"
+                                  "(cut_procedure_oot)의 채점 연도는 2023이므로 이 우려의 "
+                                  "영향권 밖이다."),
+        "cut_procedure_oot": proc,
+        "null_test": null_t,
         "calibration_years": [int(y) for y in sorted(frame["year"].unique())],
         "out_of_time": {
             "fit_years": [int(y) for y in sorted(set(frame["year"]) - set(oot["year"]))],

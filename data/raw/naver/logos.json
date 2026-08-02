@@ -177,23 +177,35 @@
   "file": "data/raw/naver/logo_img/4277fca143a6391a.png"
  },
  "노랑통닭": {
-  "url": "",
+  "url": "http://imgnews.naver.net/image/5002/2021/12/02/0001961614_001_20211202181402366.jpg",
   "domain": "www.norangtongdak.co.kr",
-  "px": 0,
-  "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "px": 680,
+  "file": "data/raw/naver/logo_img/e9b34467c0a4ed74.png",
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "source": "image-search+llm",
+  "verified_text": "노랑통닭",
+  "verified_reason": "이미지에 노랑통닭의 고유 캘리그라피 텍스트 로고인 '노랑통닭'이 명확하게 표시되어 있습니다.",
+  "img_search_done": "확보"
  },
  "지코바양념치킨": {
-  "url": "",
+  "url": "https://ldb-phinf.pstatic.net/20210714_62/16262485622178Bddz_PNG/c86d419374c2380e2404dfe4dbe58be422570f6dba1d3fcd7f40c167da74de21caebf45469fdf916.png",
   "domain": "",
-  "px": 0,
-  "file": ""
+  "px": 503,
+  "file": "data/raw/naver/logo_img/6fb0e33d50adae9d.png",
+  "source": "image-search+llm",
+  "verified_text": "GCOVA 지코바치킨",
+  "verified_reason": "해당 이미지는 지코바양념치킨(지코바치킨) 브랜드의 공식 로고(GCOVA 지코바치킨) 이미지입니다.",
+  "img_search_done": "확보"
  },
  "매머드익스프레스(Mammoth Express)": {
-  "url": "",
+  "url": "https://ldb-phinf.pstatic.net/20221205_74/1670215387257lNQIp_JPEG/0._%B8%C5%B8%D3%B5%E5%B7%CE%B0%ED.jpg",
   "domain": "",
-  "px": 0,
-  "file": ""
+  "px": 709,
+  "file": "data/raw/naver/logo_img/84a358991696dd2f.png",
+  "source": "image-search+llm",
+  "verified_text": "EXpress MAMMOTH EXPRESS",
+  "verified_reason": "매머드익스프레스의 영문 브랜드명인 'MAMMOTH EXPRESS'와 심볼 마크가 명확히 표시되어 있는 공식 브랜드 로고입니다.",
+  "img_search_done": "확보"
  },
  "호식이두마리치킨": {
   "url": "https://cdn.imweb.me/thumbnail/20260622/08a95063a4427.png",
@@ -220,11 +232,15 @@
   "file": "data/raw/naver/logo_img/548a4c9305c47fea.png"
  },
  "신전떡볶이": {
-  "url": "",
+  "url": "http://imgnews.naver.net/image/5161/2026/03/25/0000395338_001_20260402171409268.jpg",
   "domain": "www.sinjeon.co.kr",
-  "px": 0,
-  "file": "",
-  "page_scan": "내려받기 실패"
+  "px": 631,
+  "file": "data/raw/naver/logo_img/91607e73a031fc42.png",
+  "page_scan": "내려받기 실패",
+  "source": "image-search+llm",
+  "verified_text": "신전떡볶이",
+  "verified_reason": "이미지에 브랜드명 '신전떡볶이'가 명확히 보이며, 신전떡볶이의 공식 브랜드 로고(BI)에 해당합니다.",
+  "img_search_done": "확보"
  },
  "60계": {
   "url": "http://www.60chicken.com/img/logo.png",
@@ -233,30 +249,43 @@
   "file": "data/raw/naver/logo_img/61fd478f52bbe3ab.png"
  },
  "불닭발땡초동대문엽기떡볶이": {
-  "url": "",
+  "url": "https://file.albamon.com/Albamon/Recruit/Photo/C-Photo-View?FN=2017%5C4%5C18%5CJK_CO_seokhwa99.jpg",
   "domain": "",
-  "px": 0,
-  "file": ""
+  "px": 1350,
+  "file": "data/raw/naver/logo_img/b1825200df4b3c91.png",
+  "source": "image-search+llm",
+  "verified_text": "동대문 엽기떡볶이",
+  "verified_reason": "이미지에서 '동대문 엽기떡볶이'라는 브랜드 로고 텍스트가 명확하게 확인됩니다.",
+  "img_search_done": "확보"
  },
  "하삼동커피": {
-  "url": "",
+  "url": "https://ldb-phinf.pstatic.net/20241027_195/1729955965534RHOEp_PNG/%C7%CF%BB%EF%B5%BF%C4%BF%C7%C7_%B7%CE%B0%ED.png",
   "domain": "www.hasamdongcoffee.com",
-  "px": 0,
-  "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "px": 1152,
+  "file": "data/raw/naver/logo_img/5066d86dae9c4b8f.png",
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "source": "image-search+llm",
+  "verified_text": "하삼동커피 HASAMDONG COFFEE",
+  "verified_reason": "하삼동커피의 브랜드 심볼과 한글/영문 브랜드명이 명확히 포함된 공식 로고 이미지입니다.",
+  "img_search_done": "확보"
  },
  "피자스쿨": {
   "url": "",
   "domain": "pizzaschool.net",
   "px": 0,
   "file": "",
-  "page_scan": "내려받기 실패"
+  "page_scan": "내려받기 실패",
+  "img_search_done": "후보 5건 전부 검증 기각"
  },
  "프랭크버거": {
-  "url": "https://frankburger.co.kr/img/common/bi.png",
+  "url": "http://imgnews.naver.net/image/366/2023/06/05/0000906911_001_20230606075501362.jpg",
   "domain": "frankburger.co.kr",
-  "px": 50,
-  "file": "data/raw/naver/logo_img/6d2091cb23491b29.png"
+  "px": 1495,
+  "file": "data/raw/naver/logo_img/6d2091cb23491b29.png",
+  "source": "image-search+llm",
+  "verified_text": "FRANK BURGER FRANK Handmade Cheeseburger",
+  "verified_reason": "프랭크버거(FRANK BURGER)의 공식 텍스트 및 아이콘으로 구성된 브랜드 로고(BI) 이미지입니다.",
+  "img_search_done": "확보"
  },
  "던킨/던킨도너츠": {
   "url": "https://www.dunkindonuts.co.kr/images/favicon_180x180.png",
@@ -296,11 +325,15 @@
   "rejected": "도메인 공유(7개 브랜드)"
  },
  "또래오래": {
-  "url": "",
+  "url": "http://imgnews.naver.net/image/5415/2025/01/09/0000228167_002_20250109135415378.jpg",
   "domain": "www.toreore.com",
-  "px": 0,
-  "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "px": 394,
+  "file": "data/raw/naver/logo_img/d6d6db64a75b8f5b.png",
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "source": "image-search+llm",
+  "verified_text": "또래오래 Chicken",
+  "verified_reason": "이미지에 '또래오래' 브랜드명과 대표 닭 심볼이 명확히 포함된 공식 브랜드 로고(BI)입니다.",
+  "img_search_done": "확보"
  },
  "디저트39": {
   "url": "https://cdn.dessert39.com/www/img/common/dessert39_og.png",
@@ -309,12 +342,14 @@
   "file": "data/raw/naver/logo_img/18f9211dac4f7b93.png"
  },
  "피자마루": {
-  "url": "",
+  "url": "https://ldb-phinf.pstatic.net/20240709_221/1720486799114MPClW_JPEG/1656920168362.jpg",
   "domain": "gflix.kr",
-  "px": 192,
-  "file": "",
-  "rejected": "도메인 공유(3개 브랜드)",
-  "pruned": "shared"
+  "px": 2005,
+  "file": "data/raw/naver/logo_img/45af788e8e8017f4.png",
+  "source": "image-search+llm",
+  "verified_text": "PM Pizza maru 피자마루",
+  "verified_reason": "피자마루 브랜드의 영문 및 한글 명칭, 브랜드 아이콘이 명확히 표시된 공식 브랜드 로고(BI/CI)입니다.",
+  "img_search_done": "확보"
  },
  "탕화쿵푸마라탕": {
   "url": "http://www.iminju.net/image/logo/snslogo_20230703100457.png",
@@ -323,12 +358,14 @@
   "file": "data/raw/naver/logo_img/e62c663cd7206c7e.png"
  },
  "명랑시대쌀핫도그": {
-  "url": "",
+  "url": "https://file.albamon.com/Albamon/Recruit/Photo/C-Photo-View?FN=2017%5C6%5C09%5CJK_CO_forever3131.jpg",
   "domain": "www.jumpoline.com",
-  "px": 180,
-  "file": "",
-  "rejected": "도메인 공유(15개 브랜드)",
-  "pruned": "shared"
+  "px": 1350,
+  "file": "data/raw/naver/logo_img/27c793311fff3482.png",
+  "source": "image-search+llm",
+  "verified_text": "명랑時代 쌀 핫도그",
+  "verified_reason": "이미지에 '명랑시대쌀핫도그' 브랜드의 공식 로고 타입과 텍스트('명랑時代 쌀 핫도그')가 정확히 포함되어 있으므로 브랜드 로고가 맞습니다.",
+  "img_search_done": "확보"
  },
  "봉구스밥버거": {
   "url": "https://www.bongousse.com/images/logo_wt.png",
