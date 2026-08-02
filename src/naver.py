@@ -713,6 +713,68 @@ def site_icon(domain: str, brand_name: str = "", *, verify: bool = True) -> tupl
     return best, best_px
 
 
+_LOGO_HINT = re.compile(r"logo|_bi\b|\bci_|brand[-_]?mark|symbol|header[-_]?img", re.I)
+# 로고가 아니라 그 페이지가 얹은 남의 상표인 것들. 이게 붙으면 다른 브랜드 로고가 나간다.
+_NOT_LOGO_SRC = re.compile(
+    r"kakao|naver|instagram|facebook|youtube|blog|band\.us|twitter|"
+    r"appstore|google.?play|app_?store|qr|btn|icon_sns|sns_|share|"
+    r"go\.kr|or\.kr/|kfa|kab_|footer_logo", re.I)
+
+
+def page_logo_candidates(domain: str, brand_name: str) -> list[tuple[str, str]]:
+    """브랜드 **자기 사이트의 페이지 안**에서 로고 이미지 후보를 찾는다.
+
+    왜 필요한가 (실측)
+        파비콘만 보면 브랜드의 34.2%(343/1,003)가 '도메인은 찾았는데 아이콘이
+        없음'으로 끝난다. 파비콘을 아예 안 두거나 16~32px 만 두는 사이트가 많다.
+        그런데 그 사이트의 **헤더에는 원본 로고가 걸려 있다.**
+
+    ⚠️ 반드시 페이지 본문으로 브랜드 소유를 확인한 뒤에만 쓴다. 확인 없이 긁으면
+       검색이 물어 온 엉뚱한 사이트의 로고가 붙는다 — 실측 사고: 일미리금계찜닭에
+       `gimhae.go.kr`(김해시청), 생어거스틴에 `booking.kakao.com`(카카오 예약)이
+       잡혔다. 그 상태로 이미지를 받으면 김해시 로고가 찜닭 브랜드에 나간다.
+       **틀린 로고는 글자 마크보다 나쁘다.**
+
+    Returns: [(종류, 절대 URL)] — 앞쪽이 더 신뢰할 만한 후보.
+    """
+    for scheme in ("https://", "http://"):
+        html = _fetch_html(scheme + domain)
+        if html:
+            base = scheme + domain
+            break
+    else:
+        return []
+    if not site_mentions_brand(html, brand_name):
+        return []
+
+    out: list[tuple[str, str]] = []
+    # ⚠️ og:image 는 로고가 아니라 **공유 카드용 대표 이미지**다. 그냥 받으면
+    #    배너·음식 사진·SNS 버튼·카톡 캡처가 로고 자리에 들어간다. 실측 사례:
+    #        고망고        main_img_01.jpg (1920px)  메인 배너
+    #        할머니가래떡볶이  sns_link.png              SNS 버튼
+    #        국민낙곱새      KakaoTalk_...jpg          카톡 캡처
+    #        열정국밥       default.jpg               자리표시자
+    #    그래서 og:image 는 **파일 경로가 로고임을 명시할 때만** 후보로 받는다.
+    m = re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)', html, re.I)
+    if m and re.search(r"(^|[/_-])(logo|ci|bi|symbol|brand)([._-]|$)", m.group(1), re.I):
+        out.append(("og:image", urljoin(base, m.group(1))))
+    for tag in re.finditer(r"<img[^>]+>", html, re.I):
+        t = tag.group(0)
+        if not _LOGO_HINT.search(t):
+            continue
+        src = re.search(r'src=["\']([^"\']+)', t)
+        if not src or _NOT_LOGO_SRC.search(src.group(1)):
+            continue
+        out.append(("page-logo", urljoin(base, src.group(1))))
+    # 같은 URL 중복 제거 (순서 유지)
+    seen, uniq = set(), []
+    for kind, u in out:
+        if u not in seen:
+            seen.add(u)
+            uniq.append((kind, u))
+    return uniq[:8]
+
+
 def brand_logo(brand_name: str, cfg: dict | None = None) -> str:
     """브랜드 로고 이미지 URL. 못 찾으면 빈 문자열(화면은 글자 마크로 대체)."""
     domain = official_domain(brand_name, cfg)
@@ -839,7 +901,11 @@ def prune_shared_logos(cfg: dict, cache: dict) -> dict:
             continue
         p = img_dir / logo_file_name(name)
         reason = ""
-        if v.get("domain") and dom_count.get(v["domain"], 0) > 1:
+        # ⚠️ 이미지 검색 + LLM 판독으로 얻은 로고는 **도메인에서 온 것이 아니다.**
+        #    캐시에 남아 있는 domain 은 예전 사이트 탐색의 흔적일 뿐이라, 그 도메인이
+        #    공유됐다는 이유로 지우면 멀쩡히 검증된 로고가 사라진다. 출처로 구분한다.
+        from_domain = not str(v.get("source", "")).startswith("image-search")
+        if from_domain and v.get("domain") and dom_count.get(v["domain"], 0) > 1:
             reason = f"도메인 공유({dom_count[v['domain']]}개 브랜드)"
             removed_dom += 1
         elif p.exists():

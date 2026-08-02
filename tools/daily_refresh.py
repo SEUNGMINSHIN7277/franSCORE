@@ -51,6 +51,7 @@ log = get_logger("daily")
 
 NEWS_BRANDS = 12          # 하루에 뉴스를 훑을 브랜드 수
 DEMAND_BRANDS = 40        # 하루에 검색수요를 새로 채울 브랜드 수
+LOGO_BRANDS = 60          # 하루에 로고를 채울 브랜드 수 (LLM 판독 할당에 맞춘 값)
 STATE_FILE = "refresh_state.json"
 
 
@@ -101,7 +102,8 @@ def _step(name: str, fn, results: list[dict]):
         log.warning("[%s] 실패 (건너뜀): %s", name, str(exc)[:200])
 
 
-def run(news_brands: int = NEWS_BRANDS, demand_limit: int = DEMAND_BRANDS) -> dict:
+def run(news_brands: int = NEWS_BRANDS, demand_limit: int = DEMAND_BRANDS,
+        logo_limit: int = LOGO_BRANDS) -> dict:
     started = datetime.now()
     load_secrets()
     # 무엇이 폴백으로 돌게 되는지 **먼저** 알고 시작한다 (아래 state["capability"]).
@@ -132,6 +134,19 @@ def run(news_brands: int = NEWS_BRANDS, demand_limit: int = DEMAND_BRANDS) -> di
             naver.collect_demand(cfg, limit=demand_limit)
             return f"신규 최대 {demand_limit}개 브랜드"
         _step("demand", _demand, results)
+
+    # 로고 채우기 — LLM 판독 검증을 거치므로 하루 할당만큼만 나아간다.
+    # 한 번에 다 못 채우는 것이 정상이고, `img_search_done` 표시로 이어서 진행된다.
+    if logo_limit > 0:
+        def _logos():
+            import subprocess
+            r = subprocess.run(
+                [sys.executable, str(_ROOT / "tools" / "logo_verified_search.py"),
+                 "--limit", str(logo_limit)],
+                capture_output=True, text=True, encoding="utf-8", errors="replace")
+            tail = (r.stdout or "").strip().splitlines()[-1:] or [""]
+            return tail[0][-160:] or f"종료코드 {r.returncode}"
+        _step("logos", _logos, results)
 
     # 진단 재산출 — 위에서 들어온 뉴스·수요가 여기서 소견과 우선순위로 바뀐다
     rescored = 0
@@ -186,8 +201,11 @@ def main() -> None:
                     help=f"뉴스를 훑을 브랜드 수 (0이면 건너뜀, 기본 {NEWS_BRANDS})")
     ap.add_argument("--demand-limit", type=int, default=DEMAND_BRANDS,
                     help=f"검색수요를 새로 채울 브랜드 수 (0이면 건너뜀, 기본 {DEMAND_BRANDS})")
+    ap.add_argument("--logo-limit", type=int, default=LOGO_BRANDS,
+                    help=f"로고를 채울 브랜드 수 (0이면 건너뜀, 기본 {LOGO_BRANDS})")
     args = ap.parse_args()
-    state = run(news_brands=args.news_brands, demand_limit=args.demand_limit)
+    state = run(news_brands=args.news_brands, demand_limit=args.demand_limit,
+                logo_limit=args.logo_limit)
     failed = [s["name"] for s in state["steps"] if not s["ok"]]
     if failed:
         log.warning("일부 단계 실패: %s (산출물은 갱신됨)", ", ".join(failed))
