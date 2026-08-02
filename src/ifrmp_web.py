@@ -310,6 +310,71 @@ def parse_pdf(path: Path) -> dict:
     return out
 
 
+def extra_fields(flat: str) -> dict:
+    """열람 화면에만 있는 **추가 신호**를 뽑는다.
+
+    재무 6항목은 정보공개서 PDF 에도 있지만, 웹 열람 본문에는 여신 판단에 직접
+    쓰이는 항목이 더 있다. 그리고 이것들은 **우리가 지금 어떤 원천에서도 못 얻는
+    값**이다 — 공정위 오픈API 에도, DART 에도 없다.
+
+      법 위반 3종   시정조치·민사패소·형의 선고 (최근 3년) — 가장 직접적인 위험 신호
+      가맹금 예치   '예치' 가 아니라 '보험' 이면 보증 구조가 다르다
+      광고·판촉비   본부가 브랜드에 실제로 쓰는 돈
+      부담금 세부   가입비·교육비·보증금·기타 (합계만 있던 것을 분해)
+      인테리어 단가 단위면적당 — 창업비용 구조
+      계약기간      최초·연장 (계약종료율의 분모를 해석하는 데 필요)
+
+    ⚠️ 없으면 없는 대로 둔다. 0 으로 채우지 않는다 — '위반 0건'과 '기재 없음'은
+       다른 사실이고, 섞으면 자료 없는 브랜드가 깨끗해 보인다(부문 설계에서 이미
+       같은 이유로 본부재무를 부문에서 뺐다).
+    """
+    out: dict = {}
+
+    def num(pat: str, key: str) -> None:
+        m = re.search(pat, flat)
+        if m:
+            v = _num(m.group(1))
+            if v is not None:
+                out[key] = v
+
+    m = re.search(r"시정조치.{0,80}?형의\s*선고\s*([\d,]+)\s+([\d,]+)\s+([\d,]+)", flat, re.S)
+    if m:
+        out["viol_ftc"], out["viol_civil"], out["viol_criminal"] = (
+            _num(m.group(1)), _num(m.group(2)), _num(m.group(3)))
+    num(r"광고비\s*판촉비\s*\d{4}\s+([\d,]+)", "ad_cost")
+    num(r"광고비\s*판촉비\s*\d{4}\s+[\d,]+\s+([\d,]+)", "promo_cost")
+    m = re.search(r"형태\s*([가-힣]+)\s*예치\s*가맹금\s*([\d,]+)", flat)
+    if m:
+        out["deposit_type"], out["deposit_amount"] = m.group(1), _num(m.group(2))
+    m = re.search(r"가입비\(가맹비\)\s*교육비\s*보증금\s*기타비용\s*합계\s*"
+                  r"([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)", flat)
+    if m:
+        for k, g in zip(("fee_join", "fee_edu", "fee_deposit", "fee_other", "fee_total"),
+                        m.groups(), strict=False):
+            out[k] = _num(g)
+    m = re.search(r"인테리어\s*비용\s*([\d,]+)\s+([\d,]+)\s+([\d,]+)", flat)
+    if m:
+        out["interior_per_unit"], out["interior_area"], out["interior_total"] = (
+            _num(m.group(1)), _num(m.group(2)), _num(m.group(3)))
+    m = re.search(r"계약기간\s*최초\s*연장\s*(\d+)\s+(\d+)", flat)
+    if m:
+        out["contract_years_first"], out["contract_years_renew"] = int(m.group(1)), int(m.group(2))
+    num(r"가맹지역본부\(지사,지역총판\)수\s*([\d,]+)", "regional_hq")
+    num(r"브랜드\s*수\s*가맹사업\s*계열사\s*수\s*([\d,]+)", "hq_brand_count")
+
+    # 자기 검산 — 부담금 4항목 합이 합계와 맞는가. 재무 표의 자산=부채+자본 과 같은
+    # 장치다. 열이 밀리거나 정규식이 옆 표를 물면 여기서 깨진다.
+    parts = [out.get(k) for k in ("fee_join", "fee_edu", "fee_deposit", "fee_other")]
+    if out.get("fee_total") and all(v is not None for v in parts):
+        s = sum(parts)
+        if abs(s - out["fee_total"]) > 0.01 * max(abs(out["fee_total"]), 1):
+            log.warning("부담금 합계 불일치 — 항목합 %s vs 합계 %s. 이 5개는 버린다",
+                        f"{s:,.0f}", f"{out['fee_total']:,.0f}")
+            for k in ("fee_join", "fee_edu", "fee_deposit", "fee_other", "fee_total"):
+                out.pop(k, None)
+    return out
+
+
 def _panel_index(cfg: dict) -> tuple[dict[str, str], dict[str, list[str]]]:
     """(등록번호 → 브랜드명, 정규화 브랜드명 → 등록번호 목록). 최신 연도 기준."""
     p = Path(cfg["_root"]) / cfg["paths"]["processed"] / "panel_full.parquet"
@@ -385,9 +450,9 @@ def ingest_saved(cfg: dict, src_dir: str) -> dict:
     dest.mkdir(parents=True, exist_ok=True)
 
     files = sorted([p for p in src.rglob("*")
-                    if p.suffix.lower() in (".html", ".htm", ".pdf")])
+                    if p.suffix.lower() in (".html", ".htm", ".pdf", ".txt")])
     if not files:
-        log.warning("%s 에 .html/.pdf 파일이 없다", src)
+        log.warning("%s 에 .html/.pdf/.txt 파일이 없다", src)
         return {"files": 0, "parsed": 0, "with_financials": 0}
 
     by_id, by_name = _panel_index(cfg)
@@ -405,8 +470,17 @@ def ingest_saved(cfg: dict, src_dir: str) -> dict:
                 flat = ""
             else:
                 page = p.read_text(encoding="utf-8", errors="replace")
+                flat = re.sub(r"[ \t]+", " ", _TAGS.sub(" ", page))
                 brand = parse_view(page)
-                flat = _TAGS.sub(" ", page)
+                # HTML 저장본·화면 복사본 모두 받는다. 표 구조가 남아 있으면
+                # parse_view 가 잡고, 텍스트만 남았으면 재무표 정규식이 잡는다.
+                if not brand.get("financials"):
+                    brand["financials"] = _pdf_fin_table(flat)
+                    mu = re.search(r"단위\s*[:：]?\s*\(?\s*([가-힣]+원)", flat)
+                    if mu:
+                        brand["amount_unit"] = mu.group(1)
+                brand.update({k: v for k, v in extra_fields(flat).items()
+                              if k not in brand})
         except Exception as exc:
             skipped.append(f"{p.name}: 읽기 실패 {type(exc).__name__}: {exc}")
             continue

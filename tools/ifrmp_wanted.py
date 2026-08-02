@@ -52,15 +52,16 @@ def wanted() -> tuple[pd.DataFrame, dict]:
     m = sc.merge(cur, on="brand_id", how="left")
     m["has_dart"] = m["f_hq_has_financials"].fillna(0) > 0
 
-    # 웹 열람으로 이미 받아 둔 것도 보유로 친다 (같은 브랜드를 두 번 받게 하지 않는다)
+    # 웹 열람으로 이미 받아 둔 것도 보유로 친다 (같은 브랜드를 두 번 받게 하지 않는다).
+    # ⚠️ 키는 **등록번호**로 맞춘다. 브랜드명으로 맞추면 공시 등록명과 표기가 달라
+    #    이미 받은 건이 목록에 계속 남는다 — 실제로 4건이 그렇게 남아 있었다.
     web = _ROOT / "data" / "processed" / "ifrmp_web_financials.parquet"
-    got_web: set[str] = set()
+    got_reg: set[str] = set()
     if web.exists():
         w = pd.read_parquet(web)
-        for col in ("brand_name", "reg_no"):
-            if col in w.columns:
-                got_web |= set(w[col].astype(str))
-    m["has_web"] = m["brand_name"].astype(str).isin(got_web)
+        if "reg_no" in w.columns:
+            got_reg = set(w["reg_no"].astype(str))
+    m["has_web"] = m["brand_id"].astype(str).str.replace("^BRD_", "", regex=True).isin(got_reg)
     m["has"] = m["has_dart"] | m["has_web"]
 
     total_stores = float(m["n_stores"].sum())
