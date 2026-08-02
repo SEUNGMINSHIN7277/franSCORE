@@ -60,9 +60,42 @@ class ShrunkIsotonic:
         self.n = int(n)
         self.events = int(events)
 
+    def _levels(self) -> tuple[np.ndarray, np.ndarray]:
+        """정렬된 (계단값, 축소확률). 옛 pickle 에도 없는 필드라 지연 계산한다."""
+        cache = getattr(self, "_lv_cache", None)
+        if cache is None:
+            k = np.array(sorted(self.mapping), dtype=float)
+            v = np.array([self.mapping[x] for x in k], dtype=float)
+            cache = (k, v)
+            self._lv_cache = cache
+        return cache
+
     def predict(self, x) -> np.ndarray:
+        """원점수 → 보정확률. **계단 함수로** 평가한다.
+
+        ⚠️ 예전에는 `self.mapping.get(lv, self.base)` 로 조회했다. 그런데
+           `IsotonicRegression.predict()` 는 학습 knot 사이의 입력에 대해 **선형
+           보간값**을 돌려준다 — 그 값은 계단 키에 없다. 그래서 조회가 실패하고
+           조용히 기저율(base)로 대체됐다.
+
+           실측(2024 코호트 1,442행): 14행이 이 경로를 탔고, 인접 계단으로
+           올바르게 스냅하면 **12건의 등급이 바뀐다 — 11건이 FS2→FS3**, 즉 위험을
+           낮게 표시하고 있었다. floor·ceil 두 규약이 동일한 12건을 내므로 규약
+           선택과 무관한 오류다.
+
+           더 무거운 문제는 단조성이었다. 보간 구간의 브랜드만 평균값을 받으므로
+           원점수가 더 나쁜데 등급이 더 좋은 구간이 실재했다(FS3→FS2→FS3).
+           계단 함수는 정의상 단조라 이 문제가 사라진다.
+
+           floor 를 쓰는 이유: 등온회귀의 계단은 오른쪽 연속 계단함수이고, 각 계단은
+           **실현율을 실제로 관측한 표본 집단**이다. 보간값을 그대로 쓰면 어떤 집단의
+           실적으로도 뒷받침되지 않는 확률이 나온다. 아래 계단으로 내리면 모든 출력이
+           검증 가능한 계단값 위에 남는다.
+        """
         lv = np.round(self.iso.predict(np.asarray(x, dtype=float)), 10)
-        return np.clip([self.mapping.get(v, self.base) for v in lv], _EPS, 1.0 - _EPS)
+        keys, vals = self._levels()
+        idx = np.clip(np.searchsorted(keys, lv, side="right") - 1, 0, len(keys) - 1)
+        return np.clip(vals[idx], _EPS, 1.0 - _EPS)
 
     def describe(self) -> dict:
         return {"method": "isotonic+eb_shrinkage", "alpha": self.alpha,
@@ -70,12 +103,51 @@ class ShrunkIsotonic:
                 "base_rate": round(self.base, 6), "n_levels": len(self.mapping)}
 
 
+def _pav(v: np.ndarray, w: np.ndarray) -> np.ndarray:
+    """가중 PAV — 오름차순을 깨는 인접 구간을 표본수 가중평균으로 합친다.
+
+    축소는 계단마다 따로 하므로 **순서를 보장하지 않는다**. 표본이 적은 계단은
+    기저율 쪽으로 세게 끌려가는데, 그 계단이 낮은 쪽에 있으면 위로 끌려 올라가
+    바로 위 계단을 추월한다.
+
+    실측(배포 보정기): 계단 0.000000 → 축소 0.013156, 계단 0.005814 → 축소 0.010916.
+    원점수가 **더 나쁜** 브랜드가 **더 낮은** 확률을 받는다. 보정 함수가 단조가
+    아니면 '보정'이라는 이름이 성립하지 않는다.
+
+    단순히 누적최대(np.maximum.accumulate)로 밀어 올리지 않는다 — 그건 위반한
+    쪽만 일방적으로 올려 확률의 총합(기대 사건수)을 부풀린다. 가중 PAV 는 합친
+    구간의 가중평균을 쓰므로 표본 전체의 기대 사건수가 보존된다.
+    """
+    v = np.asarray(v, dtype=float).copy()
+    w = np.asarray(w, dtype=float).copy()
+    # (값, 가중치, 구간길이) 스택을 쌓으며 위반이 생기면 뒤에서부터 합친다
+    vals: list[float] = []
+    wts: list[float] = []
+    lens: list[int] = []
+    for vi, wi in zip(v, w, strict=True):
+        vals.append(vi)
+        wts.append(wi)
+        lens.append(1)
+        while len(vals) > 1 and vals[-2] > vals[-1]:
+            v2, w2, l2 = vals.pop(), wts.pop(), lens.pop()
+            v1, w1, l1 = vals.pop(), wts.pop(), lens.pop()
+            tot = w1 + w2
+            vals.append((v1 * w1 + v2 * w2) / tot if tot > 0 else (v1 + v2) / 2)
+            wts.append(tot)
+            lens.append(l1 + l2)
+    out = np.concatenate([np.full(n, val) for val, n in zip(vals, lens, strict=True)])
+    return out
+
+
 def _fit_one(x: np.ndarray, y: np.ndarray, alpha: float) -> ShrunkIsotonic:
     iso = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0).fit(x, y)
     base = float(np.mean(y))
     t = (pd.DataFrame({"lv": np.round(iso.predict(x), 10), "y": y})
          .groupby("lv").agg(n=("y", "size"), k=("y", "sum")))
-    mp = dict(zip(t.index, (t["k"] + alpha * base) / (t["n"] + alpha), strict=True))
+    shrunk = ((t["k"] + alpha * base) / (t["n"] + alpha)).to_numpy()
+    # 계단은 오름차순(groupby 색인)이므로 그 순서 그대로 단조로 사영한다
+    shrunk = _pav(shrunk, t["n"].to_numpy())
+    mp = dict(zip(t.index, shrunk, strict=True))
     return ShrunkIsotonic(iso, mp, base, alpha, "", len(y), int(np.sum(y)))
 
 

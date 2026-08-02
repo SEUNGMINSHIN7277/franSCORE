@@ -41,19 +41,19 @@
     "n": 740,
     "events": 60,
     "hosmer_lemeshow": {
-      "statistic": 11.8511,
+      "statistic": 11.8485,
       "df": 8,
-      "p_value": 0.157972,
+      "p_value": 0.158091,
       "bins": 10,
       "verdict": "보정 적정(기각 못함)"
     },
     "spiegelhalter": {
-      "z": -1.1091,
-      "p_value": 0.267385,
+      "z": -1.0763,
+      "p_value": 0.281779,
       "verdict": "보정 적정"
     },
-    "ece": 0.03433,
-    "mean_predicted": 0.099976,
+    "ece": 0.035357,
+    "mean_predicted": 0.099661,
     "observed": 0.081081
   },
   "transition_pairs": 2,
