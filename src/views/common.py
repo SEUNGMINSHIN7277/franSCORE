@@ -666,13 +666,41 @@ def diagnosis_report(row, findings: pd.DataFrame | None,
     return "\n".join(x for x in L if x is not None)
 
 
+@st.cache_data(show_spinner=False)
+def watch_rates(m: float) -> dict:
+    """요주의 사건수별 다음 해 재발동 실현율 (`tools/watch_base_rates.py` 산출).
+
+    {사건수: {rate, ci_low, ci_high, n}} 형태. 없으면 빈 dict.
+    """
+    p = out_dir() / "watch_base_rates.json"
+    if not p.exists():
+        return {}
+    try:
+        obj = _json(str(p), _mtime(p)) or {}
+    except (OSError, ValueError):
+        return {}
+    out = {}
+    for r in obj.get("table") or []:
+        out[int(r["n_events_at_t"])] = {
+            "rate": float(r["rate"]), "ci_low": float(r["ci_low"]),
+            "ci_high": float(r["ci_high"]), "n": int(r["n"]),
+            "state": str(r["state"]),
+        }
+    return out
+
+
 def population_note(row) -> str:
     """이 브랜드의 확률이 **모델이 검증된 구간에서 나온 것인지** 밝힌다.
 
     학습·보정·평가 표본은 '그 해 악화사건이 없던 브랜드'만으로 만들어졌는데
-    점수는 그 게이트 없이 전체에 매겨진다. 실측하면 주의 등급 145개 중 116개(80%)가
-    모델이 본 적 없는 구간에서 나온다. 두 트랙을 같은 '주의'로 합쳐 보여주면
-    심사역은 같은 근거를 가진 것으로 읽는다 — 그건 사실이 아니다.
+    점수는 그 게이트 없이 전체에 매겨진다. 2024 코호트에서 주의(FS3) 367개 중
+    271개(73.8%)가 모델이 본 적 없는 구간에서 나온다. 두 트랙을 같은 '주의'로
+    합쳐 보여주면 심사역은 같은 근거를 가진 것으로 읽는다 — 그건 사실이 아니다.
+
+    ⚠️ 예전에는 여기서 "성능 근거가 없습니다. 순위 참고용으로만 쓰십시오"로 끝냈다.
+       그건 정직하긴 해도 **일을 넘긴 것**이다. 심사역이 알고 싶은 것은 '이 브랜드가
+       내년에도 나쁠 확률'이고, 그 값은 모형 없이도 셀 수 있다. 라벨 표본이 없을 뿐
+       상태 전이는 패널에 그대로 있기 때문이다. 그래서 이제 실현율을 함께 준다.
     """
     state = str(row.get("brand_state") or "") if hasattr(row, "get") else ""
     if state == "건전":
@@ -680,12 +708,30 @@ def population_note(row) -> str:
                 f"✓ <b>건전</b> — 올해 공시에 악화 사건이 없습니다. "
                 f"이 구간에서 모델 성능이 백테스트로 측정됐습니다.</div>")
     if state == "요주의":
+        k = row.get("n_events_at_t") if hasattr(row, "get") else None
+        rt = watch_rates(_mtime(out_dir() / "watch_base_rates.json"))
+        ev = ""
+        try:
+            r = rt.get(int(k)) if k is not None and str(k) != "nan" else None
+        except (TypeError, ValueError):
+            r = None
+        if r:
+            base = rt.get(0)
+            mult = (f" — 건전 브랜드({base['rate']*100:.1f}%)의 "
+                    f"<b>{r['rate']/base['rate']:.1f}배</b>" if base and base["rate"] else "")
+            ev = (f"<div style='margin-top:6px'>올해 악화 사건 <b>{int(k)}건</b>. "
+                  f"같은 조건의 과거 브랜드 {r['n']:,}개 중 "
+                  f"<b>{r['rate']*100:.1f}%</b>가 다음 해에도 악화 사건을 냈습니다"
+                  f"(95% 구간 {r['ci_low']*100:.1f}~{r['ci_high']*100:.1f}%){mult}.</div>")
         return (f"<div style='margin-top:8px;padding:7px 10px;border-radius:{theme.RADIUS_MD};"
                 f"background:{theme.WARN_SOFT};border:1px solid #F0DFB8;font-size:{theme.FS_SM};"
                 f"color:{theme.TEXT};line-height:1.5'>"
                 f"<b>요주의</b> — 올해 공시에 이미 악화 사건이 발동했습니다. 이 구간은 "
-                f"학습·평가 표본에 포함되지 않아 <b>확률값의 성능 근거가 없습니다.</b> "
-                f"순위 참고용으로만 쓰고, 판단은 아래 진단 소견으로 하십시오.</div>")
+                f"학습·평가 표본에 포함되지 않아 <b>위 확률값에는 성능 근거가 없습니다.</b>"
+                f"{ev}"
+                f"<div style='margin-top:6px;color:{theme.TEXT_SUB}'>이 실현율은 모형이 아니라 "
+                f"과거 실적을 그대로 센 값이라 브랜드 간 순위를 매기지 않습니다. "
+                f"순위가 필요하면 아래 진단 소견을 보십시오.</div></div>")
     if state == "평가불가":
         return (f"<div style='margin-top:8px;padding:7px 10px;border-radius:{theme.RADIUS_MD};"
                 f"background:{theme.BG};border:1px solid {theme.BORDER};font-size:{theme.FS_SM};"

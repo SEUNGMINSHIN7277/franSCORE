@@ -86,8 +86,9 @@ def _load_deploy_calibrator(cfg: dict):
         return None
 
 
-def _brand_state(cfg: dict, brand_ids: pd.Series, target_year: int) -> pd.Series:
-    """점수 산출 연도의 브랜드 상태 (건전 / 요주의 / 평가불가).
+def _brand_state(cfg: dict, brand_ids: pd.Series,
+                 target_year: int) -> tuple[pd.Series, pd.Series]:
+    """점수 산출 연도의 (브랜드 상태, 악화사건 수).
 
     왜 이 표시가 필요한가 (실측 근거)
         라벨은 `healthy_gate_at_t=true` 로 만들어진다 — 학습·보정·평가 표본은
@@ -100,16 +101,26 @@ def _brand_state(cfg: dict, brand_ids: pd.Series, target_year: int) -> pd.Series
         ⚠️ 이전 판은 '직전 연도 라벨 표본에 있었는가'라는 프록시를 썼다. 그건
         t−1년 상태라 t년 상태를 **과소 보고**한다(2024: 50.9% vs 실제 61.9%).
         이제 `labels.brand_state()` 로 산출연도 상태를 직접 판정한다.
+
+    사건 수를 함께 내보내는 이유
+        요주의 구간에는 모형 판별력 근거가 없다. 대신 `outputs/watch_base_rates.csv`
+        가 **사건 수별 다음 해 재발동 실현율**을 공표한다(1건 24.1% / 2건 45.9% /
+        3건 64.8%, 건전 9.4%). 화면이 그 표를 이 브랜드에 적용하려면 사건 수가
+        산출물에 있어야 한다. 등급 확률이 답이 아닌 구간에서 답을 주는 값이다.
     """
+    idx = brand_ids.index
     panel_p = Path(cfg["paths"]["processed"]) / "panel.parquet"
     if not panel_p.exists():
         log.warning("panel.parquet 없음 — 브랜드 상태 표시를 생략합니다")
-        return pd.Series("미상", index=brand_ids.index)
+        return pd.Series("미상", index=idx), pd.Series(pd.NA, index=idx, dtype="Int64")
     from src.labels import brand_state
     st = brand_state(pd.read_parquet(panel_p), cfg)
-    st = st[st["year"] == target_year].set_index(st.loc[st["year"] == target_year, "brand_id"]
-                                                 .astype(str))["state"]
-    return brand_ids.astype(str).map(st).fillna("미상")
+    st = st[st["year"] == target_year].copy()
+    st["brand_id"] = st["brand_id"].astype(str)
+    st = st.drop_duplicates("brand_id").set_index("brand_id")
+    key = brand_ids.astype(str)
+    return (key.map(st["state"]).fillna("미상"),
+            key.map(st["n_events"]).astype("Int64"))
 
 
 def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
@@ -197,7 +208,8 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
     # **감사 가능한 원본**을 함께 실어 둘을 대조할 수 있게 한다.
     res["deterioration_step"] = p_cal_step
     res["deterioration_rank_pct"] = res["deterioration_1y"].rank(method="first", pct=True)
-    res["brand_state"] = _brand_state(cfg, res["brand_id"], target_year)
+    res["brand_state"], res["n_events_at_t"] = _brand_state(
+        cfg, res["brand_id"], target_year)
     # 모델이 실제로 학습·검증한 모집단 = 건전 상태 브랜드
     res["in_model_population"] = res["brand_state"].eq("건전")
 

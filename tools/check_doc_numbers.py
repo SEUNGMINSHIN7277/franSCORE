@@ -38,6 +38,14 @@ DOCS = {
     "IFACE": ROOT / "docs" / "INTERFACES.md",
     "AIUSE": ROOT / "docs" / "AI_USAGE.md",
     "LEAK": ROOT / "docs" / "LEAKAGE_CHECKLIST.md",
+    # ⚠️ 아래 4개는 오랫동안 이 목록에 없었다. 그 결과 대조는 88/88 통과인데
+    #    이 문서들 안의 수치는 낡아 있었다 — FS3 등급이 404개로 적혀 있었지만
+    #    실제는 367개였고, 학습 모집단 밖은 708개(49.1%)로 적혀 있었지만 550개(38.1%)
+    #    였다. 검사 대상에 없으면 통과 숫자는 안전의 증거가 아니라 착시다.
+    "SPEC": ROOT / "docs" / "MODEL_USE_SPEC.md",
+    "CONCEPT": ROOT / "docs" / "RATING_CONCEPT.md",
+    "METHOD": ROOT / "docs" / "METHODOLOGY.md",
+    "OPS": ROOT / "docs" / "OPERATIONS.md",
 }
 
 # 폐기된 표기 — 문서 어디에도 남아 있으면 안 된다 (교체 누락 탐지).
@@ -287,6 +295,37 @@ def main() -> int:
             print(f"  [STALE] '{token}' → {', '.join(hits)}  ({why})")
         else:
             print(f"  [OK  ] '{token}' 잔존 없음")
+
+    head("⑪ 운영 코호트 구성 · 요주의 실현율")
+    sc = pd.read_csv(OUT / "scores_latest.csv", encoding="utf-8-sig")
+    n_co = len(sc)
+    need("코호트 규모", thou(n_co), "SPEC", "CONCEPT")
+    for g in ("FS1", "FS2", "FS3"):
+        info(f"{g} 개수", int((sc["grade"] == g).sum()))
+    need("FS3 등급 수", thou(int((sc["grade"] == "FS3").sum())), "SPEC")
+    st = sc["brand_state"].value_counts()
+    for s in ("건전", "요주의", "평가불가"):
+        need(f"상태 {s}", thou(int(st.get(s, 0))), "SPEC", "METHOD")
+        need(f"상태 {s} 비중", f"{100 * st.get(s, 0) / n_co:.1f}%", "SPEC", "METHOD")
+    # 학습 모집단 밖 = 요주의 + 평가불가
+    out_n = int(n_co - st.get("건전", 0))
+    need("학습 모집단 밖", thou(out_n), "SPEC", "CONCEPT")
+    need("학습 모집단 밖 비중", f"{100 * out_n / n_co:.1f}%", "SPEC", "CONCEPT")
+    fs3 = sc[sc["grade"] == "FS3"]
+    w3 = int((fs3["brand_state"] == "요주의").sum())
+    need("FS3 중 요주의", thou(w3), "SPEC")
+    need("FS3 중 요주의 비중", f"{100 * w3 / len(fs3):.1f}%", "SPEC")
+
+    wb_p = OUT / "watch_base_rates.csv"
+    if wb_p.exists():
+        wb = pd.read_csv(wb_p, encoding="utf-8-sig")
+        for r in wb.to_dict("records"):
+            k = int(r["n_events_at_t"])
+            lbl = "건전" if r["state"] == "건전" else f"요주의 {k}건"
+            need(f"실현율 {lbl}", f"{100 * r['rate']:.1f}%", "SPEC", "METHOD")
+            need(f"실현율 {lbl} 표본", thou(r["n"]), "SPEC", "METHOD")
+    else:
+        info("요주의 실현율표", "없음 — tools/watch_base_rates.py 미실행")
 
     head("결과")
     if _fails:
