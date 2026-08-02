@@ -1287,7 +1287,7 @@ ECE=0.0000 이 나왔다. 그 보정기가 **같은 데이터로 적합됐기 �
 | 항목 | 값 |
 |---|---|
 | 브랜드 | 1,442 |
-| 소견 | **9,374건** |
+| 소견 | **9,371건** |
 | 브랜드당 평균 | 6.51건 |
 | 서로 다른 소견 조합 | **1,081종** |
 | 대표 소견 종류 | 41종 |
@@ -2131,7 +2131,7 @@ python run_pipeline.py --step score        # 최신 코호트 점수 (재학습 
 python run_pipeline.py --step validate     # PSI·KS·HL·이행행렬
 python run_pipeline.py --step portfolio    # 여신 집중도·EL
 python run_pipeline.py --step correlation  # ρ 실증 + 손실 분포 + Euler 배분
-python run_pipeline.py --step diagnose     # 진단 소견 9,374건
+python run_pipeline.py --step diagnose     # 진단 소견 9,371건
 python run_pipeline.py --step news         # 뉴스 사건 추출 (LLM)
 python run_pipeline.py --step demand       # 검색수요 + 로고
 ```

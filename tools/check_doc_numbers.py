@@ -369,6 +369,36 @@ def main() -> int:
         else:
             print(f"  [OK  ] '{token}' 잔존 없음")
 
+    head("⑧-2 본부 축 실증 (측정했으나 모형에 넣지 않은 축)")
+    hp = OUT / "hq_axis.json"
+    if not hp.exists():
+        print("  [SKIP] hq_axis.json 없음 — `python tools/hq_axis.py` 실행 필요")
+    else:
+        # 산출물은 있는데 어느 문서도 참조하지 않으면 **없는 것과 같다.** 실제로 이 파일은
+        # 만들어진 뒤 한동안 생성기 자신 말고는 저장소 어디에서도 언급되지 않았다.
+        ha = json.loads(hp.read_text(encoding="utf-8"))
+        # 값만 넘기면 문서 안 다른 97.8%(엔티티 정합 확보율)에 걸려 통과한다 —
+        # 실제로 README 에 98.8% 라 적혀 있는데 통과했다. 문구째 대조한다.
+        need("본부 축 패널 관리번호 보유율",
+             f"패널 전체의 **{100 * ha['hq_coverage_in_panel']:.1f}%**", "README")
+        for r in ha["table"]:
+            if r["state"] != "요주의" or r["n_events_at_t"] not in (1, 2):
+                continue
+            k = r["n_events_at_t"]
+            need(f"형제 정상 재발동률(k={k})", f"{100 * r['rate_sib_ok']:.1f}%", "README")
+            need(f"형제 악화 재발동률(k={k})", f"{100 * r['rate_sib_bad']:.1f}%", "README")
+            need(f"형제 효과 Fisher p(k={k})", f"{r['fisher_p']:.4f}", "README")
+        for e in ha.get("hq_size_effect", []):
+            if e["n_events_at_t"] != 1:
+                continue
+            need("본부 규모 효과 소", f"{100 * e['rate_small']:.1f}%", "README")
+            need("본부 규모 효과 대", f"{100 * e['rate_big']:.1f}%", "README")
+            need("본부 규모 효과 p", f"{e['fisher_p']:.4f}", "README")
+        need("본부 축 관측 Δ", f"{ha['observed_delta']:+.4f}", "README")
+        need("본부 축 귀무 평균", f"{ha['null']['mean']:+.4f}", "README")
+        need("본부 축 p값", f"p={ha['null']['p_value']:.3f}", "README")
+        need("본부 축 교란 설명분", f"{100 * ha['confound_share']:.1f}%", "README")
+
     head("⑨ 화면 코드 대조 (src/views) — 문서만 고치면 잡히지 않는 자리")
     # 🛑 이 절이 없던 동안 실제로 이런 일이 있었다: README 는 '7.30배'인데 서비스 소개
     #    화면(src/views/about.py)은 '5.31배'를 그대로 띄우고 있었다. 검사 대상이 .md

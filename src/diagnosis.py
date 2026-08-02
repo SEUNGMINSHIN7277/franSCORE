@@ -44,6 +44,10 @@ import pandas as pd
 
 from src.common import get_logger, industry_group_col, load_config
 
+# 본부 재무가 정보공개서 열람분인지 가리는 표식(src/ifrmp_web.py 소유).
+# 문자열을 여기서 다시 쓰지 않는다 — 한쪽만 바뀌면 출처가 조용히 뒤바뀐다.
+from src.ifrmp_web import HQ_SOURCE_TAG as _IFRMP_TAG
+
 log = get_logger("diagnosis")
 
 # 심각도 → 감시점수 가산치 (규칙 성분). 완화요인은 음수.
@@ -698,6 +702,22 @@ def _stale_severity(ctx: Ctx, last: pd.Series, sev: str) -> str:
     return {"High": "Medium", "Medium": "Low"}.get(sev, "Low")
 
 
+def _hq_source(last: pd.Series) -> str:
+    """이 소견의 근거가 **어느 문서**인지 적는다.
+
+    ⚠️ 본부 재무는 이제 두 원천에서 온다 — 금감원 감사보고서와 공정위 정보공개서
+       열람분. 그런데 모든 소견이 출처를 '금융감독원 전자공시 감사보고서'로
+       박아 두고 있었다. 그 결과 외부감사 대상이 아닌 개인사업자 본부(신전푸드시스
+       등)의 수치에까지 DART 이름표가 붙었다 — 심사역이 확인하러 가면 그 문서는
+       없다. 근거 문장에서 출처를 틀리는 것은 수치를 틀리는 것과 같은 급의 잘못이다.
+    """
+    fy = last.get("fiscal_year")
+    yr = f"{int(fy)} " if pd.notna(fy) else ""
+    if str(last.get("source") or "") == _IFRMP_TAG:
+        return f"공정거래위원회 가맹사업정보제공시스템 {yr}정보공개서"
+    return f"금융감독원 전자공시 {yr}감사보고서".replace("  ", " ")
+
+
 def r_hq_equity_negative(ctx: Ctx) -> Finding | None:
     last = _hq_last(ctx)
     if last is None:
@@ -714,7 +734,7 @@ def r_hq_equity_negative(ctx: Ctx) -> Finding | None:
                 "부채가 자산을 넘어선 상태로, "
                 "본부가 물류·판촉·신규출점 지원을 계속할 수 있을지 확인해야 합니다."
                 + _stale_note(ctx, last)),
-        source=f"금융감독원 전자공시 {int(last['fiscal_year'])} 감사보고서",
+        source=_hq_source(last),
         evidence={"equity": eq, "fiscal_year": int(last["fiscal_year"])})
 
 
@@ -734,7 +754,7 @@ def r_hq_capital_impaired(ctx: Ctx) -> Finding | None:
                 f"{won_from_krw(cs)}에 미달합니다"
                 f"(잠식률 {pct(1 - eq / cs)}). 누적 결손이 납입자본을 갉아먹고 "
                 "있습니다." + _stale_note(ctx, last)),
-        source=f"금융감독원 전자공시 {int(last['fiscal_year'])} 감사보고서",
+        source=_hq_source(last),
         evidence={"equity": eq, "capital_stock": cs, "impair": 1 - eq / cs})
 
 
@@ -763,7 +783,7 @@ def r_hq_operating_loss(ctx: Ctx) -> Finding | None:
         detail=(f"{ctx.hq_company}의 {int(last['fiscal_year'])}년 영업손익이 "
                 f"{won_from_krw(oi)}입니다.{mg}{streak} 본업에서 돈을 벌지 못하는 "
                 "상태라 가맹점 지원 여력이 줄어듭니다." + _stale_note(ctx, last)),
-        source=f"금융감독원 전자공시 {int(last['fiscal_year'])} 감사보고서",
+        source=_hq_source(last),
         evidence={"operating_income": oi, "margin": margin, "streak": n})
 
 
@@ -786,7 +806,7 @@ def r_hq_high_leverage(ctx: Ctx) -> Finding | None:
                 f"{ratio * 100:,.0f}%입니다(부채 {won_from_krw(li)} / 자본 "
                 f"{won_from_krw(eq)}). 금리가 오르거나 매출이 흔들리면 "
                 "이자 부담이 곧바로 손익을 압박합니다." + _stale_note(ctx, last)),
-        source=f"금융감독원 전자공시 {int(last['fiscal_year'])} 감사보고서",
+        source=_hq_source(last),
         evidence={"debt_ratio": ratio})
 
 
@@ -805,7 +825,7 @@ def r_hq_going_concern(ctx: Ctx) -> Finding | None:
                 "'계속기업 관련 중요한 불확실성' 문단이 있습니다. 회계감사인이 "
                 "이 회사가 사업을 계속할 수 있을지에 의문을 표시했다는 뜻으로, "
                 "가장 무거운 재무 경고 신호입니다." + _stale_note(ctx, last)),
-        source=f"금융감독원 전자공시 {int(last['fiscal_year'])} 감사보고서",
+        source=_hq_source(last),
         evidence={"fiscal_year": int(last["fiscal_year"])})
 
 
@@ -823,7 +843,7 @@ def r_hq_audit_opinion(ctx: Ctx) -> Finding | None:
         detail=(f"{ctx.hq_company}의 {int(last['fiscal_year'])}년 감사의견이 "
                 f"'{op}'입니다. 적정의견이 아니라는 것은 재무제표 자체를 "
                 "그대로 믿기 어렵다는 뜻입니다." + _stale_note(ctx, last)),
-        source=f"금융감독원 전자공시 {int(last['fiscal_year'])} 감사보고서",
+        source=_hq_source(last),
         evidence={"audit_opinion": op})
 
 
@@ -845,7 +865,7 @@ def r_hq_revenue_decline(ctx: Ctx) -> Finding | None:
                 f"{won_from_krw(b)}{josa(won_from_krw(b), '으로')} {signed_pct(g)} 줄었습니다. "
                 "본부 매출은 대부분 가맹점에 넘기는 물품·로열티라, 가맹점 사정이 "
                 "본부 장부에 먼저 잡힙니다." + _stale_note(ctx, last)),
-        source="금융감독원 전자공시 감사보고서",
+        source=_hq_source(last),
         evidence={"prev": a, "cur": b, "growth": g})
 
 
@@ -868,7 +888,7 @@ def r_hq_solid(ctx: Ctx) -> Finding | None:
                 f"{won_from_krw(eq)}, 영업이익 {won_from_krw(oi)}"
                 f"{josa(won_from_krw(oi), '으로')} "
                 "자본잠식·영업적자가 없습니다." + _stale_note(ctx, last)),
-        source=f"금융감독원 전자공시 {int(last['fiscal_year'])} 감사보고서",
+        source=_hq_source(last),
         evidence={"equity": eq, "operating_income": oi})
 
 
@@ -879,9 +899,10 @@ def r_hq_no_data(ctx: Ctx) -> Finding | None:
         code="HQ_NO_DATA", category="재무", severity="Low", direction="info",
         title="본부 재무를 확인할 수 없습니다",
         detail=("이 브랜드의 가맹본부는 외부감사 대상이 아니어서 감사보고서를 "
-                "제출하지 않습니다. 본부의 자본잠식·적자 여부를 공시로 확인할 방법이 "
-                "없으므로, 여신 심사 시 별도 재무자료를 징구해 확인해야 합니다."),
-        source="금융감독원 전자공시 조회 결과 없음",
+                "제출하지 않고, 정보공개서 열람분도 아직 확보하지 못했습니다. "
+                "본부의 자본잠식·적자 여부를 확인할 방법이 없으므로, 여신 심사 시 "
+                "별도 재무자료를 징구해 확인해야 합니다."),
+        source="금융감독원 전자공시·공정위 정보공개서 조회 결과 없음",
         evidence={})
 
 
@@ -1026,6 +1047,10 @@ _SUPPRESS = {
     "HQ_GOING_CONCERN": {"HQ_SOLID"},
     "HQ_AUDIT_OPINION": {"HQ_SOLID"},
     "HQ_OPERATING_LOSS": {"HQ_SOLID"},
+    # 부채비율 1,306% 를 High 로 띄우면서 같은 카드에 "본부 재무는 안정적입니다"
+    # 를 함께 내보내고 있었다(실측: 신전떡볶이). 자본잠식·적자가 아니라는 것은
+    # 사실이지만, 위험 소견 옆의 "안정적"은 심사역이 읽는 순간 신뢰를 깎는다.
+    "HQ_HIGH_LEVERAGE": {"HQ_SOLID"},
     "HQ_REVENUE_DECLINE": {"HQ_SOLID"},
     "STORE_DECLINE_STREAK": set(),
     "SALES_DECLINE_STREAK": {"SALES_DECLINE"},
