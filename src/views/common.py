@@ -70,25 +70,51 @@ def proc_dir() -> Path:
     return Path(cfg()["paths"]["processed"])
 
 
-def load_scores() -> tuple[pd.DataFrame | None, dict]:
-    """운영 점수표. 확장 트랙이 최신이면 그것을, 아니면 기본 트랙을 쓴다.
+# 화면이 반드시 필요로 하는 점수표 컬럼. 하나라도 없으면 그 파일은 못 쓴다.
+SCORE_REQUIRED = ("brand_id", "brand_name", "n_stores", "grade", "risk_grade",
+                  "deterioration_1y")
 
-    ⚠️ 예전에는 확장 트랙을 무조건 우선했다. 확장 트랙을 다시 돌리지 않은 상태에서
-       기본 트랙만 재학습하면 화면이 **오래된 점수**를 보여주게 된다(실측: 화면은
-       7월 31일 산출물, 실제 최신은 8월 1일). 수정시각을 비교해 최신을 고른다.
+
+def load_scores() -> tuple[pd.DataFrame | None, dict]:
+    """서비스가 쓰는 점수표 — **공표 트랙(외식업·점포 30+) 고정**.
+
+    왜 트랙을 고르지 않고 고정하는가 (실제로 두 번 사고가 났다)
+        이 저장소에는 트랙이 둘 있다. 공표 트랙(`outputs/`)과 확장 트랙
+        (`outputs/extended/`, 전 업종·점포 20+)이다. 확장 트랙은 **체리피킹 방지용
+        근거 산출물**이지 서비스 데이터가 아니다 — 좋은 쪽만 골라 보고하지 않았음을
+        보이려고 항상 함께 돌려 `track_comparison.csv` 에 남긴다.
+
+        ① 처음에는 확장 트랙을 무조건 우선했다. 확장을 다시 안 돌린 채 공표 트랙만
+           재학습하니 화면이 **오래된 점수**를 보여줬다(실측: 화면 7/31, 실제 8/1).
+        ② 그래서 '수정시각이 최신인 쪽'으로 바꿨다. 그랬더니 점수 컬럼을
+           `deterioration_*` 로 개명하면서 공표 트랙만 재산출한 날, 배포 환경이
+           아직 옛 이름을 쓰는 확장 트랙을 골라 화면 전체가 `KeyError` 로 죽었다.
+           로컬은 공표 트랙이 더 최신이라 멀쩡했기 때문에 **배포에서만** 터졌다.
+
+        두 사고의 원인은 같다. **어느 데이터로 서비스할지를 파일 타임스탬프가 정하고
+        있었다.** 게다가 확장 트랙은 자기 `grade_bands.json` 이 없어 순위 백분위
+        등급으로 폴백한다 — 우리가 폐기한 체계다. 모집단도 등급 의미도 다른 표가
+        시각에 따라 조용히 화면에 오르는 구조 자체가 결함이었다.
+
+        그래서 서비스는 공표 트랙만 쓴다. 확장 트랙은 문서와 비교표로만 등장한다.
+        스키마 검사는 그래도 남긴다 — 공표 트랙 자체가 낡았을 때 조용히 죽지 않고
+        무엇이 없는지 말하게 하기 위해서다.
     """
-    cands = []
-    for path, label in ((out_dir() / "extended" / "scores_latest.csv", "전 업종"),
-                        (out_dir() / "scores_latest.csv", "외식업")):
-        if path.exists():
-            cands.append((_mtime(path), path, label))
-    if not cands:
-        return None, {}
-    mt, path, label = max(cands)
-    df = _csv(str(path), mt)
+    path = out_dir() / "scores_latest.csv"
+    if not path.exists():
+        return None, {"rejected": [{"path": str(path), "why": "파일 없음"}]}
+    mt = _mtime(path)
+    try:
+        df = _csv(str(path), mt)
+    except (OSError, ValueError) as exc:
+        return None, {"rejected": [{"path": str(path), "why": f"읽기 실패: {exc}"}]}
+    missing = [c for c in SCORE_REQUIRED if c not in df.columns]
+    if missing:
+        return None, {"rejected": [{"path": str(path),
+                                    "why": f"필수 컬럼 없음: {missing}"}]}
     meta_p = path.parent / "scores_latest_meta.json"
     meta = _json(str(meta_p), _mtime(meta_p)) if meta_p.exists() else {}
-    meta["scope_label"] = label
+    meta["scope_label"] = "외식업"
     meta["scope_dir"] = str(path.parent)
     return df, meta
 

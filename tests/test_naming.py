@@ -101,18 +101,54 @@ def test_no_pd_claim() -> None:
 
 
 def test_published_columns() -> None:
-    """공개 산출물 컬럼명이 실제로 바뀌었는지 — 코드만 고치고 CSV 를 안 돌리면 무의미하다."""
+    """**모든** 점수표의 컬럼명 — 코드만 고치고 CSV 를 안 돌리면 무의미하다.
+
+    ⚠️ 이 검사는 처음에 `outputs/scores_latest.csv` **하나만** 봤다. 그래서 개명 후
+       공표 트랙만 재산출하고 확장 트랙(`outputs/extended/`)을 빼먹은 것을 놓쳤고,
+       배포 환경이 아직 `pd_1y` 인 확장 트랙을 골라 화면 전체가 KeyError 로 죽었다.
+       로컬은 공표 트랙이 더 최신이라 통과했다 — 검사 범위가 좁으면 통과는 증거가
+       아니다. 이제 저장소의 모든 scores_latest.csv 를 훑는다.
+    """
+    paths = sorted((_ROOT / "outputs").rglob("scores_latest.csv"))
+    if not paths:
+        check(True, "산출물 컬럼명", "점수표 없음 — 건너뜀")
+        return
+    need = {"deterioration_1y", "deterioration_step", "deterioration_rank_pct", "score_raw"}
+    problems = []
+    for p in paths:
+        cols = [c.strip() for c in
+                p.read_text(encoding="utf-8-sig").splitlines()[0].split(",")]
+        bad = [c for c in cols if c.startswith("pd_")]
+        missing = sorted(need - set(cols))
+        if bad or missing:
+            problems.append(f"{p.relative_to(_ROOT)}: 잔존 {bad} · 누락 {missing}")
+    for x in problems:
+        print(f"        {x}")
+    check(not problems, "모든 점수표 컬럼명이 새 규약",
+          f"{len(problems)}/{len(paths)}개 파일 불합격" if problems
+          else f"{len(paths)}개 점수표 확인")
+
+
+def test_service_reads_valid_schema() -> None:
+    """화면이 실제로 읽는 파일에 화면이 요구하는 컬럼이 있는가.
+
+    개명 사고의 본질은 '어느 파일을 서비스에 쓸지를 파일 수정시각이 정하고 있었다'는
+    것이다. 지금은 공표 트랙 고정 + 스키마 검사이지만, 그 계약이 깨지지 않는지 본다.
+    """
+    import logging
+
+    import pandas as pd
     p = _ROOT / "outputs" / "scores_latest.csv"
     if not p.exists():
-        check(True, "산출물 컬럼명", "scores_latest.csv 없음 — 건너뜀")
+        check(True, "화면 스키마 계약", "점수표 없음 — 건너뜀")
         return
-    header = p.read_text(encoding="utf-8-sig").splitlines()[0]
-    cols = [c.strip() for c in header.split(",")]
-    bad = [c for c in cols if c.startswith("pd_")]
-    need = {"deterioration_1y", "deterioration_step", "deterioration_rank_pct", "score_raw"}
-    missing = sorted(need - set(cols))
-    check(not bad and not missing, "산출물 컬럼명이 새 규약",
-          f"잔존 {bad} · 누락 {missing}" if (bad or missing) else f"{len(cols)}개 컬럼 확인")
+    # streamlit 을 런타임 밖에서 import 하면 캐시 경고가 결과를 덮는다
+    logging.getLogger("streamlit").setLevel(logging.CRITICAL)
+    from src.views.common import SCORE_REQUIRED
+    cols = set(pd.read_csv(p, encoding="utf-8-sig", nrows=1).columns)
+    missing = [c for c in SCORE_REQUIRED if c not in cols]
+    check(not missing, "화면 필수 컬럼 존재", f"누락 {missing}" if missing
+          else f"{len(SCORE_REQUIRED)}개 전부 존재")
 
 
 def test_spec_consistency() -> None:
@@ -130,8 +166,8 @@ def test_spec_consistency() -> None:
 
 
 def main() -> int:
-    for fn in (test_no_old_pd_tokens, test_no_pd_claim,
-               test_published_columns, test_spec_consistency):
+    for fn in (test_no_old_pd_tokens, test_no_pd_claim, test_published_columns,
+               test_service_reads_valid_schema, test_spec_consistency):
         try:
             fn()
         except Exception as exc:
