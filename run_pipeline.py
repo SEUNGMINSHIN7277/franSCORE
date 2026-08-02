@@ -138,6 +138,9 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
             lab = (lab.merge(elig, on=["brand_id", "year"], how="left"))
             lab = lab[lab["eligible_t"].fillna(False)].drop(columns=["eligible_t"])
             log.info("labels: 실시간 자격 필터 %d → %d행", n0, len(lab))
+        # 학습·검증에 실제로 쓰이는 표본의 구성표. build_labels 안에서 쓰면 자격
+        # 필터 이전 프레임이 기록돼 문서가 다른 숫자를 인용하게 된다(실제로 그랬다).
+        labels.write_composition(lab, cfg, scope=labels.SAMPLE_SCOPE)
         lab.to_parquet(cfg["paths"]["processed"] / "labels.parquet", index=False)
         log.info("labels: %s rows, 양성률 %.1f%%", len(lab), 100 * lab["label"].mean())
 

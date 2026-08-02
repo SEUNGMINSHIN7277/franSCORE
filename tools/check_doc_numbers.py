@@ -357,6 +357,16 @@ def main() -> int:
     if len(lg):
         need("OPS fold별 Lift 나열",
              " / ".join(f"{v:.3f}" for v in lg["lift_at_10"]), "OPS")
+    # 라벨 구성표는 **자격 통과 표본**을 말한다. 예전에는 같은 파일이 자격 이전
+    # 프레임(7,163행·11.4%)을 담아 OPERATIONS 와 IMPLEMENTATION 이 서로 다른 값을
+    # 인용했다. 두 값 모두 산출물에서 다시 계산해 대조한다.
+    lc = pd.read_csv(OUT / "label_composition.csv")
+    yr = lc[lc["section"] == "year_positive_rate"]["value"]
+    need("라벨 양성률(자격 표본)",
+         f"{100 * float(lc.loc[lc['key'] == 'positive_rate', 'value'].iloc[0]):.1f}%", "OPS")
+    need("라벨 연도별 양성률 범위",
+         f"{100 * yr.min():.1f}~{100 * yr.max():.1f}%", "OPS")
+
     # 로고는 색인이 아니라 **디스크의 PNG** 가 화면에 뜨는 실체다 (→ tests/test_naming.py
     # 로고 색인·디스크 정합). 그래서 세는 대상도 파일이다.
     logo_dir = ROOT / "data" / "raw" / "naver" / "logo_img"

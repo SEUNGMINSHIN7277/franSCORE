@@ -238,14 +238,30 @@ def build_labels(panel: pd.DataFrame, cfg: dict) -> pd.DataFrame:
         "(store gate applies); NaN metric never fires; |delta stores| gate is absolute value; "
         "healthy_at_t requires >=1 observable t-metric (판정 불가 행은 표본 제외)."
     )
-    _write_composition(out, cfg)
+    # ⚠️ 이 시점의 `out` 은 **자격 필터 이전** 프레임이다. 학습·검증 표본은
+    #    run_pipeline 이 eligible_t 로 한 번 더 거른 뒤 확정된다(7,163 → 3,635).
+    #    두 프레임의 양성률이 다르므로(11.4% vs 9.2%) 어느 쪽 표인지 파일에 적는다.
+    write_composition(out, cfg, scope=PREGATE_SCOPE, filename="label_composition_pregate.csv")
     return out
 
 
-def _write_composition(sample: pd.DataFrame, cfg: dict) -> None:
-    """사건별 발동률·중복 분포·연도별 양성률 → outputs/label_composition.csv."""
+PREGATE_SCOPE = "라벨 산출 가능 전체 (실시간 자격 필터 이전)"
+SAMPLE_SCOPE = "학습·검증 표본 (실시간 자격 통과)"
+
+
+def write_composition(sample: pd.DataFrame, cfg: dict, scope: str,
+                      filename: str = "label_composition.csv") -> None:
+    """사건별 발동률·중복 분포·연도별 양성률.
+
+    **scope 를 파일 안에 적는다.** 예전에는 이 표가 자격 필터 이전 프레임(7,163행,
+    양성률 11.4%)을 기록하면서 파일 이름만 label_composition.csv 였다. 그래서
+    IMPLEMENTATION 은 "양성률 9.2%"(실제 학습 표본 3,635행)라 인용하고 OPERATIONS 는
+    "연도별 10.1~12.6%"(자격 이전 표)라 인용하는 모순이 생겼다. 같은 파일을 두 문서가
+    다른 뜻으로 읽고 있었고, 파일 자신은 어느 쪽인지 말하지 않았다.
+    """
     rows: list[dict] = []
     n = len(sample)
+    rows.append({"section": "scope", "key": "표본 범위", "value": np.nan, "n": 0, "scope": scope})
     rows.append({"section": "overall", "key": "n_sample", "value": float(n), "n": n})
     rows.append({
         "section": "overall", "key": "positive_rate",
@@ -266,12 +282,13 @@ def _write_composition(sample: pd.DataFrame, cfg: dict) -> None:
                 "section": "year_positive_rate", "key": str(int(year)),
                 "value": float(grp["label"].mean()), "n": len(grp),
             })
-    comp = pd.DataFrame(rows, columns=["section", "key", "value", "n"])
+    comp = pd.DataFrame(rows, columns=["section", "key", "value", "n", "scope"])
+    comp["scope"] = comp["scope"].fillna(scope)
     out_dir = Path(cfg["paths"]["outputs"])  # ⚠️ 호출 시점에 해석 (demo 격리 대응)
     out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / "label_composition.csv"
+    path = out_dir / filename
     comp.to_csv(path, index=False, encoding="utf-8")
-    log.info("labels: composition -> %s", path)
+    log.info("labels: composition(%s) -> %s", scope, path)
 
 
 # ---------------------------------------------------------------------------
