@@ -7,9 +7,9 @@
   "pd_floor": 0.0003,
   "pd_cap": 0.99,
   "grade_counts": {
-    "Medium": 596,
+    "Medium": 644,
     "Low": 442,
-    "High": 404
+    "High": 356
   },
   "pd_min": 0.00979590738163167,
   "pd_max": 0.35570530763847774,

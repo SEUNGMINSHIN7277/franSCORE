@@ -209,10 +209,34 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
     # 무엇보다 등급별 확률이 정의되지 않아 어떤 검증도 성립하지 않는다.
     if bands:
         cuts = [float(c) for c in bands["cuts"]]
-        idx = np.digitize(res["pd_1y"].to_numpy(), cuts)
+        # ⚠️ 등급은 **계단값(pd_calibrated_step)** 으로 매긴다. 보간값(pd_1y)이 아니다.
+        #
+        #    컷은 tools/derive_grade_bands.py:218 이 `deploy.predict(...)` 출력, 즉
+        #    보정기의 계단값 위에서 도출했다(grade_bands.json 의 anchored_on 도 같은 말).
+        #    공표 실현율 FS1 2.22% / FS2 11.69% / FS3 30.22% 도 그 척도로 매긴 등급의
+        #    실적이다. 그런데 예전 코드는 그 컷을 **보간값**에 적용했다 — 컷이 도출된
+        #    적 없는 척도다.
+        #
+        #    결과(실측): 계단 0.159823 에 98개 브랜드가 앉아 있는데 컷이 0.16 이라,
+        #    보간이 그중 48개를 컷 위로 밀어 올려 주의(FS3)로 만들었다. 그 브랜드들의
+        #    **실제 추정 확률은 컷 아래**다. 게다가 계단 내부 순서는 이 저장소가 직접
+        #    측정해 out-of-sample 판별력이 없다고 결론 낸 값이다 — 신호가 없는 양이
+        #    등급 경계를 넘기고 있었다. 검증 산출물(이행행렬·등급별 이항검정)은 계단값
+        #    으로 매기므로, 화면 등급과 검증 등급이 48개 브랜드에서 어긋나 있었다.
+        idx = np.digitize(res["pd_calibrated_step"].to_numpy(), cuts)
         res["grade"] = np.array(bands["grades"], dtype=object)[idx]
         # 하위 호환: 기존 화면·포트폴리오·큐가 쓰는 High/Medium/Low 를 함께 유지
         res["risk_grade"] = np.array(["Low", "Medium", "High"], dtype=object)[idx]
+        # 화면에 쓰는 보간값이 자기 등급의 구간을 벗어나면, 사용자는 "16.4%인데 관찰"
+        # 이라는 모순을 본다. 보간은 **계단 안의 표시 순서**를 만들려고 넣은 것이므로
+        # 자기 구간 안에 머물러야 한다. 구간 안으로 되돌리고 순서는 그대로 둔다.
+        edges = [0.0, *cuts, 1.0]
+        lo_b = np.array(edges[:-1], dtype=float)[idx]
+        hi_b = np.array(edges[1:], dtype=float)[idx]
+        n_out = int(((res["pd_1y"] < lo_b) | (res["pd_1y"] >= hi_b)).sum())
+        res["pd_1y"] = np.clip(res["pd_1y"], lo_b, np.nextafter(hi_b, 0.0))
+        if n_out:
+            log.info("보간값을 등급 구간 안으로 되돌림: %d행", n_out)
         res["grade_band"] = [
             f"{cuts[0] * 100:.1f}% 미만" if i == 0 else
             (f"{cuts[0] * 100:.1f}~{cuts[1] * 100:.1f}%" if i == 1
