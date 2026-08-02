@@ -242,7 +242,8 @@ def main() -> int:
          f"{100 * (w * has).sum() / max(w.sum(), 1):.1f}%", "README", "IMPL")
     info("본부재무 보유 브랜드 수", f"{int(has.sum())} / {len(cov)}")
     # 원천 분해 — 어디서 온 값인지 문서가 말하는 대로인지 본다
-    hq = pd.read_parquet(PROC / "hq_financials.parquet", columns=["source", "key"])
+    hq_full = pd.read_parquet(PROC / "hq_financials.parquet")
+    hq = hq_full[["source", "key"]]
     if str(ROOT) not in sys.path:          # tools/ 를 직접 실행해도 src 가 보이게
         sys.path.insert(0, str(ROOT))
     from src.ifrmp_web import HQ_SOURCE_TAG
@@ -253,6 +254,45 @@ def main() -> int:
     #    대조할 때는 값만 넘기지 말고 **문구째** 넘겨 우연한 일치를 막는다.
     need("정보공개서 열람 법인 수",
          f"열람 법인 **{hq.loc[hq['source'] == HQ_SOURCE_TAG, 'key'].nunique()}**개", "IMPL")
+
+    # 🔬 파서를 **독립 원천으로 검증한다.** 두 원천이 같은 (법인, 회계연도)를 갖는 구간이
+    #    있는데, 한쪽은 금감원에 접수된 감사보고서이고 다른 쪽은 사람이 화면에서 옮긴
+    #    정보공개서다. 두 값이 맞으면 파서가 옳다는 것을 **우리 주장이 아닌 제3자 문서로**
+    #    말할 수 있다. 겹치는 구간을 합병 단계에서 DART 로 덮으므로, 대조는 덮기 전
+    #    원본(ifrmp_web_financials.parquet)과 한다.
+    from src.dart import norm_corp
+    webp = PROC / "ifrmp_web_financials.parquet"
+    if webp.exists():
+        w = pd.read_parquet(webp).copy()
+        pfx = pd.read_parquet(PROC / "panel_full.parquet",
+                              columns=["brand_id", "company_name", "year"])
+        pfx = pfx.sort_values("year").drop_duplicates("brand_id", keep="last")
+        kmap = {str(b)[4:]: norm_corp(str(c))
+                for b, c in zip(pfx["brand_id"], pfx["company_name"], strict=False)
+                if isinstance(c, str) and c.strip()}
+        w["key"] = w["reg_no"].astype(str).map(kmap)
+        both = w.dropna(subset=["key"]).merge(
+            hq_full[hq_full["source"] != HQ_SOURCE_TAG], on=["key", "fiscal_year"],
+            suffixes=("_w", "_d"))
+        vals, agree = 0, 0
+        for c in ("assets", "liabilities", "equity", "revenue",
+                  "operating_income", "net_income"):
+            a = pd.to_numeric(both.get(c + "_w"), errors="coerce")
+            b = pd.to_numeric(both.get(c + "_d"), errors="coerce")
+            ok = a.notna() & b.notna()
+            if not ok.any():
+                continue
+            rel = ((a - b).abs() / b.abs().clip(lower=1))[ok]
+            vals += int(ok.sum())
+            agree += int((rel <= 0.001).sum())
+        info("두 원천 겹침", f"(법인, 회계연도) {len(both)}쌍 · 대조값 {vals}개")
+        _checked_inc()
+        if vals and agree == vals:
+            need("정보공개서·감사보고서 교차검증",
+                 f"{vals}개 값 전부 0.1% 이내 일치", "IMPL")
+        elif vals:
+            _fails.append(f"교차검증 불일치 — {vals}개 중 {vals - agree}개가 0.1% 초과")
+            print(f"  [FAIL] 교차검증 {vals}개 중 {vals - agree}개 불일치")
 
     ip = OUT / "ifrmp_status.json"
     if not ip.exists():
