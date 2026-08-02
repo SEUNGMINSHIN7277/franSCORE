@@ -76,26 +76,57 @@ def _files():
         yield p
 
 
-def test_no_old_pd_tokens() -> None:
-    hits = []
+# 옛 표기를 **기록으로 인용해야만 하는** 단 한 곳.
+#
+# 기술설명서 §41-1 은 "무엇을 왜 개명했는가"를 남기는 절이고, 이전 이름이 없는
+# 개명 대조표는 기록으로서 쓸모가 없다. 그렇다고 검사를 느슨하게 하면 진짜 잔존을
+# 놓친다(이 프로젝트는 앞서 폐기 모델명이 문서에 남았을 때도 검사를 풀지 않고
+# 문장을 고쳤다). 그래서 **파일 하나 × 제목 하나**로만 범위를 연다 —
+# 다른 파일, 같은 파일의 다른 절에서 되살아나면 그대로 실패한다.
+_HISTORY_FILE = "TECHNICAL_REPORT.md"
+_HISTORY_HEADING = "PD 명칭"
+
+
+def _scan(pattern_fn):
+    """(파일, 줄번호, 표시문자열) 을 모으되 기록 인용 구역은 건너뛴다."""
+    hits, allowed = [], 0
     for p in _files():
+        heading = ""
         for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
-            for m in OLD_TOKENS.finditer(line):
-                hits.append(f"{p.relative_to(_ROOT)}:{i} {m.group(0)}")
-    check(not hits, "옛 pd_* 식별자 없음", f"{len(hits)}건" + (f" 예: {hits[0]}" if hits else ""))
+            if line.startswith("#"):
+                heading = line
+            found = pattern_fn(line)
+            if not found:
+                continue
+            if p.name == _HISTORY_FILE and _HISTORY_HEADING in heading:
+                allowed += 1
+                continue
+            hits.append(f"{p.relative_to(_ROOT)}:{i} {found}")
+    return hits, allowed
+
+
+def test_no_old_pd_tokens() -> None:
+    def find(line):
+        m = OLD_TOKENS.search(line)
+        return m.group(0) if m else ""
+
+    hits, allowed = _scan(find)
+    check(not hits, "옛 pd_* 식별자 없음",
+          f"{len(hits)}건" + (f" 예: {hits[0]}" if hits else f" (개명 기록 인용 {allowed}건 제외)"))
     for h in hits[:10]:
         print(f"        {h}")
 
 
 def test_no_pd_claim() -> None:
-    hits = []
-    for p in _files():
-        for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
-            for pat, why in CLAIM_PATTERNS:
-                if pat.search(line):
-                    hits.append(f"{p.relative_to(_ROOT)}:{i} — {why}")
+    def find(line):
+        for pat, why in CLAIM_PATTERNS:
+            if pat.search(line):
+                return f"— {why}"
+        return ""
+
+    hits, allowed = _scan(find)
     check(not hits, "산출물을 PD 라 부르는 문장 없음",
-          f"{len(hits)}건" + (f" 예: {hits[0]}" if hits else ""))
+          f"{len(hits)}건" + (f" 예: {hits[0]}" if hits else f" (개명 기록 인용 {allowed}건 제외)"))
     for h in hits[:10]:
         print(f"        {h}")
 
@@ -230,10 +261,48 @@ def test_logo_index_matches_disk() -> None:
           if (ghost or phantom) else f"양쪽 모두 {len(disk)}건으로 일치")
 
 
+def test_no_unreachable_code() -> None:
+    """`return` 뒤에 남은 문장이 있는가 — 화면 하나가 통째로 죽었던 자리.
+
+    실제로 있었던 일: 점검 큐의 우선순위 함수가 정렬 결과를 `return` 한 뒤에
+    **카드 렌더링과 처리상태 저장 블록 47행이 그대로 남아 있었다.** 파이썬은
+    경고하지 않고, 린트도 잡지 않았고, 화면은 예외 없이 잘 떴다 — 다만
+    "상위 20건을 펼쳐 둡니다"라는 안내문 아래가 **비어 있었다.**
+    사이드바에서 유일하게 '업무'라고 이름 붙은 화면이 그 상태였다.
+
+    조용히 죽는 결함은 눈으로 못 잡는다. 구조로 잡는다.
+    """
+    import ast
+    bad: list[str] = []
+    for p in sorted((_ROOT / "src").rglob("*.py")) + sorted((_ROOT / "tools").rglob("*.py")):
+        try:
+            tree = ast.parse(p.read_text(encoding="utf-8"))
+        except SyntaxError as exc:                     # 문법 오류는 다른 테스트의 몫
+            bad.append(f"{p.relative_to(_ROOT)}: 파싱 실패 {exc}")
+            continue
+        for node in ast.walk(tree):
+            for field in ("body", "orelse", "finalbody"):
+                blk = getattr(node, field, None)
+                if not isinstance(blk, list):
+                    continue
+                for i, stmt in enumerate(blk):
+                    exits = ast.Return | ast.Raise | ast.Continue | ast.Break
+                    if isinstance(stmt, exits) and blk[i + 1:]:
+                        bad.append(
+                            f"{p.relative_to(_ROOT)}:{blk[i + 1].lineno} — "
+                            f"{stmt.lineno}행 {type(stmt).__name__} 뒤 "
+                            f"{len(blk) - i - 1}개 문장이 실행되지 않는다")
+    check(not bad, "도달 불가 코드 없음",
+          bad[0] if bad else "src·tools 전 함수에서 0건")
+    for b in bad[:10]:
+        print(f"        {b}")
+
+
 def main() -> int:
     for fn in (test_no_old_pd_tokens, test_no_pd_claim, test_published_columns,
                test_service_reads_valid_schema, test_spec_consistency,
-               test_published_artifact_prose, test_logo_index_matches_disk):
+               test_published_artifact_prose, test_logo_index_matches_disk,
+               test_no_unreachable_code):
         try:
             fn()
         except Exception as exc:

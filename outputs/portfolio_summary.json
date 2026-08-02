@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T02:29:05",
+  "generated_at": "2026-08-03T05:29:55",
   "synthetic": false,
   "test_year": 2023,
   "n_brands": 60,
@@ -30,30 +30,30 @@
   "expected_loss_scenarios": [
     {
       "lgd": 0.3,
-      "el_mkrw": 1020.4894955370349,
-      "el_ekw": 10.20489495537035,
-      "el_pct_of_exposure": 0.01532475595401231,
-      "stress_el_mkrw": 1117.4409078020735,
-      "stress_el_ekw": 11.174409078020735,
-      "stress_el_pct_of_exposure": 0.016780681506265712
+      "el_mkrw": 1020.4895316538516,
+      "el_ekw": 10.204895316538517,
+      "el_pct_of_exposure": 0.015324756496380853,
+      "stress_el_mkrw": 1117.4409439188903,
+      "stress_el_ekw": 11.174409439188903,
+      "stress_el_pct_of_exposure": 0.016780682048634258
     },
     {
       "lgd": 0.45,
-      "el_mkrw": 1530.7342433055521,
-      "el_ekw": 15.30734243305552,
-      "el_pct_of_exposure": 0.02298713393101846,
-      "stress_el_mkrw": 1676.1613617031103,
-      "stress_el_ekw": 16.761613617031102,
-      "stress_el_pct_of_exposure": 0.025171022259398566
+      "el_mkrw": 1530.7342974807773,
+      "el_ekw": 15.307342974807773,
+      "el_pct_of_exposure": 0.02298713474457128,
+      "stress_el_mkrw": 1676.1614158783354,
+      "stress_el_ekw": 16.761614158783356,
+      "stress_el_pct_of_exposure": 0.025171023072951385
     },
     {
       "lgd": 0.6,
-      "el_mkrw": 2040.9789910740699,
-      "el_ekw": 20.4097899107407,
-      "el_pct_of_exposure": 0.03064951190802462,
-      "stress_el_mkrw": 2234.881815604147,
-      "stress_el_ekw": 22.34881815604147,
-      "stress_el_pct_of_exposure": 0.033561363012531424
+      "el_mkrw": 2040.9790633077032,
+      "el_ekw": 20.409790633077034,
+      "el_pct_of_exposure": 0.030649512992761706,
+      "stress_el_mkrw": 2234.8818878377806,
+      "stress_el_ekw": 22.348818878377806,
+      "stress_el_pct_of_exposure": 0.033561364097268516
     }
   ],
   "stress": {

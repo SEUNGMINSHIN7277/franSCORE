@@ -73,6 +73,7 @@ import sys
 import time
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import requests
 
@@ -139,10 +140,14 @@ def parse_view(page: str) -> dict:
     out["financials"] = _extract_table(page, "재무상황")
     out["store_flow"] = _extract_table(page, "가맹점 및 직영점 현황") or \
         _extract_table(page, "가맹점 변동 현황") or _extract_table(page, "가맹점 현황")
-    m = re.search(r"사업자등록번호.{0,400}?(\d{3}-\d{2}-\d{5})", page, re.S)
-    out["brno"] = m.group(1).replace("-", "") if m else ""
-    m = re.search(r"법인등록번호.{0,400}?(\d{6}-\d{7})", page, re.S)
-    out["crno"] = m.group(1).replace("-", "") if m else ""
+    # ⚠️ 구분선 둘레의 공백을 허용한다. 열람 화면은 표 칸이 나뉘어 있어 본문이
+    #    '504 - 07 - 99251' 처럼 떨어져 나온다. 공백 없는 형태만 보던 첫 판은
+    #    사람이 옮긴 19건에서 사업자·법인등록번호를 **전건 놓쳤다**(실측).
+    #    이 둘은 DART·오픈API 와의 대조 열쇠라 비면 교차검증 자체가 불가능해진다.
+    m = re.search(r"사업자등록번호.{0,400}?(\d{3})\s*-\s*(\d{2})\s*-\s*(\d{5})", page, re.S)
+    out["brno"] = "".join(m.groups()) if m else ""
+    m = re.search(r"법인등록번호.{0,400}?(\d{6})\s*-\s*(\d{7})", page, re.S)
+    out["crno"] = "".join(m.groups()) if m else ""
     return out
 
 
@@ -194,11 +199,24 @@ def financial_rows(reg_no: str, brand: dict) -> list[dict]:
         vals = {k: _num(cells[j]) for k, j in idx.items()}
         if all(v is None for v in vals.values()):
             continue
+        # 전 항목이 0 인 행은 재무가 아니라 **미기재**다. 자산도 매출도 0 인 가맹본부는
+        # 존재하지 않는다(실측: 밥스토랑 2022년 — 본부 법인 설립 이전 사업연도).
+        # 0 으로 저장하면 '자본잠식 아님·매출 0' 이라는 없는 사실이 만들어지고,
+        # 부문 설계에서 결측을 0 으로 채우지 않기로 한 원칙과도 어긋난다.
+        if all((v or 0) == 0 for v in vals.values()):
+            continue
         for k, v in vals.items():
             rec[k] = v * unit_mul if v is not None else None   # 원 단위 (DART 와 동일)
         rows.append(rec)
     return rows
 
+
+# 열람 표의 **머리글 낱말**. 값 자리에 이것이 잡히면 값이 아니라 라벨을 읽은 것이다.
+_FORM_LABELS = frozenset({
+    "상호", "영업표지", "대표자", "업종", "주소", "사업자유형", "법인등록번호",
+    "사업자등록번호", "등록번호", "최초등록일", "최종등록일", "법인설립등기일",
+    "사업자등록일", "대표번호", "연도", "구분",
+})
 
 _YEAR_RE = re.compile(r"^(19|20)\d{2}\s*년?$")
 # 쉼표로 세 자리씩 끊긴 수. 붙어 있는 숫자열을 가르는 유일한 단서다.
@@ -231,20 +249,31 @@ def _pdf_fin_table(flat: str) -> list[list[str]]:
     pos = m.end()
     tail = flat[pos:pos + 4000]
     while True:
-        ym = re.match(r"\s*((?:19|20)\d{2})\s*년?\s*", tail)
+        # `\s*년?` 로 쓰면 년 이 없을 때도 `\s*` 가 **뒤 줄바꿈까지** 먹어 버려
+        # 아래 줄바꿈 가드가 무력해진다(실측: 첫 수정판이 샐러디를 그대로 놓쳤다).
+        ym = re.match(r"\s*((?:19|20)\d{2})(?:\s*년)?", tail)
         if not ym:
             break
         cells = [ym.group(1)]
         tail = tail[ym.end():]
         for _ in range(ncol):
-            nm = _NUM_RE.match(tail.lstrip())
+            ws = re.match(r"\s*", tail).group(0)
+            rest = tail[len(ws):]
+            # ⚠️ 줄이 바뀌자마자 4자리 연도가 오면 **다음 행이 시작된 것**이다.
+            #    값이 비어 있는 사업연도가 실제로 있다(아직 결산 공시 전). 그때 다음 행의
+            #    '2024' 를 자산으로 읽으면 전 열이 한 칸씩 밀린다 — 실측: 샐러디 2025년
+            #    행에서 자산 202천원·부채 4천원·자본 263억이 나왔다. 뒤의 검산이 잡아
+            #    주기는 하나, 검산은 **파일 전체**를 버리므로 멀쩡한 2024·2023 까지 잃는다.
+            if "\n" in ws and re.match(r"(?:19|20)\d{2}(?![\d,])", rest):
+                break
+            nm = _NUM_RE.match(rest)
             if not nm:
                 break
-            tail = tail.lstrip()[nm.end():]
+            tail = rest[nm.end():]
             cells.append(nm.group(0))
-        if len(cells) != ncol + 1:
-            break
-        rows.append(cells)
+        # 값이 모자란 행은 **그 행만** 버리고 계속 읽는다. 여기서 멈추면 아래 연도까지 잃는다.
+        if len(cells) == ncol + 1:
+            rows.append(cells)
     return rows if len(rows) > 1 else []
 
 
@@ -509,12 +538,20 @@ def ingest_saved(cfg: dict, src_dir: str) -> dict:
             skipped.append(f"{p.name}: 검산 실패(자산≠부채+자본) 연도 {bad} — 열 밀림 의심")
             continue
 
+        # ⚠️ 화면을 그대로 옮긴 텍스트는 **머리글 행이 값보다 먼저** 온다:
+        #      "상호  영업표지  대표자  업종"
+        #      "상호○○  영업표지○○  대표자○○  치킨"
+        #    그래서 첫 일치를 그냥 쓰면 영업표지 값이 '대표자' 가 된다 —
+        #    실측으로 19건 **전부** 그렇게 들어갔다. 표의 머리글 낱말이 잡히면
+        #    버리고 다음 일치를 본다.
         for key, pat in (("brand_name", r"영업표지\s*([^\s<]{1,40})"),
                          ("corp_name", r"상\s*호\s*([^\s<]{1,40})"),
                          ("ceo", r"대표자\s*(?:명)?\s*([^\s<]{1,20})")):
-            hit = re.search(pat, flat)
-            if hit:
-                brand.setdefault(key, _txt(hit.group(1)))
+            for hit in re.finditer(pat, flat):
+                v = _txt(hit.group(1))
+                if v and v not in _FORM_LABELS:
+                    brand.setdefault(key, v)
+                    break
         brand.update({"reg_no": reg_no, "source": SOURCE, "_source_file": p.name,
                       "_collected_by": "manual_browser_save"})
 
@@ -573,6 +610,92 @@ def build_parquet(cfg: dict) -> pd.DataFrame:
     (Path(cfg["paths"]["outputs"]) / "ifrmp_web_status.json").write_text(
         json.dumps(status, ensure_ascii=False, indent=1), encoding="utf-8")
     return df
+
+
+# 합쳐 넣은 행을 되찾아 지우기 위한 표식. 문자열이 바뀌면 재실행이 중복을 쌓는다.
+HQ_SOURCE_TAG = "정보공개서(공정위 열람)"
+
+
+def merge_into_hq(cfg: dict) -> dict:
+    """웹 열람으로 받은 본부 재무를 `hq_financials.parquet` 에 합친다.
+
+    🛑 이 함수가 없으면 **손으로 모은 자료가 어디에도 쓰이지 않는다.**
+       `ifrmp_web_financials.parquet` 를 읽는 곳은 우선순위 목록 도구(tools/
+       ifrmp_wanted.py) 하나뿐이었다. 모형(features)·소견(diagnosis)·상담(chat)·
+       RAG·화면은 전부 `hq_financials.parquet`(DART) 만 본다. 즉 브랜드 30개를
+       사람이 직접 열람해 받아 놓고 **모형도 화면도 그 값을 한 번도 본 적이 없었다.**
+       '수집했다'와 '쓴다'는 다른 말이고, 여기서 그 둘을 잇는다.
+
+    조인 키를 어떻게 잡는가
+        features 는 정규화 법인명(`norm_corp`)으로 재무를 붙인다. 문서에 적힌 상호를
+        그대로 정규화하면 표기 차이('㈜'/'(주)'/공백)로 헛돌 수 있으므로, **패널이 그
+        브랜드에 대해 쓰는 법인명**을 키로 삼는다. 브랜드 확정은 이미 resolve_brand()
+        가 패널 대조로 끝냈으니 이 키는 정의상 반드시 붙는다.
+
+        그 결과 한 본부가 여러 브랜드를 가지면 재무가 **형제 브랜드 전부**에 붙는다.
+        이는 DART 행의 동작과 같고, 정보공개서의 '가맹본부 재무상황'이 법인 단위
+        값이라는 사실과도 맞다 — 브랜드별 재무가 아니다.
+
+    겹치면 DART 를 남긴다
+        같은 (법인, 회계연도)가 양쪽에 있으면 감사받은 DART 행을 쓴다. 감사의견·
+        계속기업 주석·자본금이 함께 있기 때문이다. 웹 행에서는 그 칸들이 비는데,
+        **비는 것이 맞다** — 없는 것을 0 이나 '적정'으로 채우면 확인하지 못한 것을
+        확인했다고 말하는 셈이 된다(부문 설계에서 이미 같은 이유로 결측을 남겼다).
+    """
+    from src.dart import norm_corp
+
+    proc = Path(cfg["paths"]["processed"])
+    web_p, hq_p = proc / "ifrmp_web_financials.parquet", proc / "hq_financials.parquet"
+    if not web_p.exists():
+        return {"merged_rows": 0, "reason": "웹 수집분 없음"}
+
+    web = pd.read_parquet(web_p)
+    panel_p = proc / "panel_full.parquet"
+    if not panel_p.exists() or web.empty:
+        return {"merged_rows": 0, "reason": "패널 또는 수집분 없음"}
+    pf = pd.read_parquet(panel_p, columns=["brand_id", "company_name", "year"])
+    pf = pf.sort_values("year").drop_duplicates("brand_id", keep="last")
+    key_by_reg = {
+        str(b)[4:] if str(b).startswith("BRD_") else str(b): norm_corp(str(c))
+        for b, c in zip(pf["brand_id"], pf["company_name"], strict=False)
+        if isinstance(c, str) and c.strip()}
+
+    web = web.copy()
+    web["key"] = web["reg_no"].astype(str).map(key_by_reg)
+    n_lost = int(web["key"].isna().sum())
+    web = web.dropna(subset=["key"])
+    if web.empty:
+        return {"merged_rows": 0, "unmatched_rows": n_lost, "reason": "패널 법인명 대조 실패"}
+
+    vals = ["assets", "liabilities", "equity", "revenue", "operating_income", "net_income"]
+    add = pd.DataFrame({
+        "corp_code": None, "fiscal_year": web["fiscal_year"].astype(int),
+        "source": HQ_SOURCE_TAG, "rcept_no": None, "rcept_dt": None,
+        **{c: pd.to_numeric(web[c], errors="coerce") for c in vals},
+        "capital_stock": np.nan, "audit_opinion": None,
+        "going_concern_flag": np.nan, "key": web["key"],
+    }).drop_duplicates(["key", "fiscal_year"])
+
+    base = pd.read_parquet(hq_p) if hq_p.exists() else pd.DataFrame(columns=add.columns)
+    # 재실행해도 중복이 쌓이지 않도록 **지난번에 넣은 행을 먼저 걷어낸다.**
+    if len(base) and "source" in base.columns:
+        base = base[base["source"] != HQ_SOURCE_TAG]
+    n_dart_keys = int(base["key"].nunique()) if len(base) else 0
+
+    both = pd.concat([base.assign(_p=0), add.assign(_p=1)], ignore_index=True)
+    both = (both.sort_values("_p")
+                .drop_duplicates(["key", "fiscal_year"], keep="first")
+                .drop(columns="_p")
+                .sort_values(["key", "fiscal_year"])
+                .reset_index(drop=True))
+    n_new = int((both["source"] == HQ_SOURCE_TAG).sum())
+    both.to_parquet(hq_p, index=False)
+
+    log.info("본부 재무 통합 — DART 법인 %d개에 정보공개서 %d행(법인 %d개) 추가 → 총 %d행"
+             "%s", n_dart_keys, n_new, int(add["key"].nunique()), len(both),
+             f" · 패널 법인명 미확인으로 제외 {n_lost}행" if n_lost else "")
+    return {"merged_rows": n_new, "unmatched_rows": n_lost,
+            "hq_rows_total": len(both), "hq_keys_total": int(both["key"].nunique())}
 
 
 def collect(cfg: dict, max_pages: int | None = None) -> dict:
@@ -724,6 +847,8 @@ def main() -> int:
         neg_eq = (df.groupby("reg_no")["equity"].last() < 0).sum()
         op_loss = (df.groupby("reg_no")["operating_income"].last() < 0).sum()
         log.info("최신 연도 기준 자본잠식 %d개 · 영업적자 %d개 브랜드", neg_eq, op_loss)
+    # 수집으로 끝내지 않는다 — 합쳐 넣어야 모형과 화면이 이 값을 본다.
+    log.info("본부 재무 통합 결과: %s", merge_into_hq(cfg))
     return 0
 
 

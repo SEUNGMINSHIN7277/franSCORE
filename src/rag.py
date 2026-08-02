@@ -39,6 +39,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from src.common import get_logger, load_config
 
+# hq_financials 에 섞여 들어온 정보공개서 열람분을 식별하는 표식(src/ifrmp_web.py 소유).
+# 문자열을 여기서 다시 쓰지 않고 그쪽을 단일 출처로 둔다 — 한쪽만 바뀌면 출처가 뒤바뀐다.
+from src.ifrmp_web import HQ_SOURCE_TAG as _IFRMP_TAG
+
 try:  # 뉴스 개체 매칭 규칙 재사용 (단일 정의 원칙)
     from src.news_llm import _entity_match
 except Exception:
@@ -147,12 +151,17 @@ def _disclosure_documents(cfg: dict, max_rows: int | None = None) -> list[dict]:
 
 
 def _hq_financial_documents(cfg: dict) -> list[dict]:
-    """가맹본부 감사보고서 → 자연어 문서.
+    """가맹본부 재무 → 자연어 문서 (감사보고서 + 정보공개서 열람분).
 
     ⭐ 이 층이 코퍼스의 성격을 바꾼다. 기존 disclosure 문서는 우리가 이미 가진 패널 수치를
     문장으로 다시 쓴 것이라, 심사메모가 그것을 '인용'해도 사실상 자기 인용이었다
-    (자체 감사 지적). 반면 이 문서의 근거는 **금감원에 접수된 감사보고서**이고, 접수번호로
-    원문 URL 이 특정된다 — 심사역이 클릭해서 직접 확인할 수 있는 1차 출처다.
+    (자체 감사 지적). 반면 이 문서의 근거는 **외부 1차 문서**다 — 금감원에 접수된
+    감사보고서(접수번호로 원문 URL 이 특정된다), 또는 공정위 가맹사업정보제공시스템의
+    정보공개서. 어느 쪽이든 심사역이 클릭해 직접 확인할 수 있다.
+
+    ⚠️ 두 원천을 **문서마다 구분해 적는다.** 정보공개서에서 온 수치에 '금융감독원
+       전자공시'라는 이름표를 붙이면, 확인하러 간 심사역이 그 문서를 찾지 못한다.
+       근거 문서에서 출처를 틀리는 것은 수치를 틀리는 것과 같은 급의 잘못이다.
     """
     fp = Path(cfg["paths"]["processed"]) / "hq_financials.parquet"
     pp = Path(cfg["paths"]["processed"]) / "panel.parquet"
@@ -203,17 +212,30 @@ def _hq_financial_documents(cfg: dict) -> list[dict]:
         if pd.notna(gc) and gc:
             parts.append("**감사보고서에 계속기업 관련 중요한 불확실성 기재**")
 
+        # ⚠️ 이 표에는 이제 두 원천이 섞여 있다 — DART 감사보고서와 **공정위 정보공개서
+        #    열람분**(사람이 직접 받아 온 것). 출처를 구분하지 않으면 정보공개서에서 온
+        #    수치가 '금융감독원 전자공시'라는 이름표를 달고 나가는데, 그것은 심사역이
+        #    클릭해 확인할 수 없는 거짓 출처다. 근거 문서에서 출처를 틀리는 것은
+        #    수치를 틀리는 것과 같은 종류의 잘못이다.
+        src_txt = str(getattr(r, "source", "") or "")
         rc = getattr(r, "rcept_no", None)
-        url = (f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={rc}" if rc
-               else "https://opendart.fss.or.kr (전자공시)")
+        if src_txt == _IFRMP_TAG:
+            url = "https://franchise.ftc.go.kr/mnu/00013/program/userRqst/list.do"
+            src_name = "공정거래위원회 가맹사업정보제공시스템 정보공개서(열람)"
+            doc_id = f"ifrmp:{r.key}:{fy}:{r.brand_id}"
+        else:
+            url = (f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={rc}" if rc
+                   else "https://opendart.fss.or.kr (전자공시)")
+            src_name = f"금융감독원 전자공시 {src_txt or '감사보고서'}"
+            doc_id = f"dart:{r.corp_code}:{fy}:{r.brand_id}"
         docs.append({
-            "doc_id": f"dart:{r.corp_code}:{fy}:{r.brand_id}",
+            "doc_id": doc_id,
             "brand_name": r.brand_name,
             "source_type": "hq_financial",
             "text": ", ".join(parts),
             "url": url,
             "published": str(getattr(r, "rcept_dt", "") or fy),
-            "source_name": f"금융감독원 전자공시 {getattr(r, 'source', '감사보고서')}",
+            "source_name": src_name,
             "year": fy,
             "brand_id": r.brand_id,
         })

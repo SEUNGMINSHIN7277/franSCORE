@@ -1007,7 +1007,7 @@ Spiegelhalter Z = +3.41              과소예측 (예측 7.47% vs 실제 9.87%)
 | 검정 | 이전 | 이후 |
 |---|---|---|
 | Hosmer–Lemeshow | χ²=25.5, p=0.00027 **기각** | χ²=11.85, df=8, **p=0.158 통과** |
-| Spiegelhalter | Z=+3.41 과소예측 | **Z=-1.076 통과** (p=0.282) |
+| Spiegelhalter | Z=+3.41 과소예측 | **Z=-1.077 통과** (p=0.282) |
 | 등급별 이항검정 | FS2·FS3 불일치 | **3/3 정합** |
 | ECE | 0.0314 | 0.0354 |
 | 예측 vs 실제 | 7.47% vs 9.87% | 9.97% vs 8.11% |
@@ -1287,9 +1287,9 @@ ECE=0.0000 이 나왔다. 그 보정기가 **같은 데이터로 적합됐기 �
 | 항목 | 값 |
 |---|---|
 | 브랜드 | 1,442 |
-| 소견 | **9,381건** |
+| 소견 | **9,374건** |
 | 브랜드당 평균 | 6.51건 |
-| 서로 다른 소견 조합 | **1,077종** |
+| 서로 다른 소견 조합 | **1,081종** |
 | 대표 소견 종류 | 41종 |
 
 상위 발동 규칙:
@@ -2131,7 +2131,7 @@ python run_pipeline.py --step score        # 최신 코호트 점수 (재학습 
 python run_pipeline.py --step validate     # PSI·KS·HL·이행행렬
 python run_pipeline.py --step portfolio    # 여신 집중도·EL
 python run_pipeline.py --step correlation  # ρ 실증 + 손실 분포 + Euler 배분
-python run_pipeline.py --step diagnose     # 진단 소견 9,381건
+python run_pipeline.py --step diagnose     # 진단 소견 9,374건
 python run_pipeline.py --step news         # 뉴스 사건 추출 (LLM)
 python run_pipeline.py --step demand       # 검색수요 + 로고
 ```

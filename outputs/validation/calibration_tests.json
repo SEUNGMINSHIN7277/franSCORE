@@ -6,18 +6,18 @@
   "n": 740,
   "events": 60,
   "hosmer_lemeshow": {
-    "statistic": 11.8485,
+    "statistic": 11.848,
     "df": 8,
-    "p_value": 0.158091,
+    "p_value": 0.158117,
     "bins": 10,
     "verdict": "보정 적정(기각 못함)"
   },
   "spiegelhalter": {
-    "z": -1.0763,
-    "p_value": 0.281779,
+    "z": -1.0769,
+    "p_value": 0.281536,
     "verdict": "보정 적정"
   },
-  "ece": 0.035357,
-  "mean_predicted": 0.099661,
+  "ece": 0.035279,
+  "mean_predicted": 0.099666,
   "observed": 0.081081
 }

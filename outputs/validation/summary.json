@@ -41,19 +41,19 @@
     "n": 740,
     "events": 60,
     "hosmer_lemeshow": {
-      "statistic": 11.8485,
+      "statistic": 11.848,
       "df": 8,
-      "p_value": 0.158091,
+      "p_value": 0.158117,
       "bins": 10,
       "verdict": "보정 적정(기각 못함)"
     },
     "spiegelhalter": {
-      "z": -1.0763,
-      "p_value": 0.281779,
+      "z": -1.0769,
+      "p_value": 0.281536,
       "verdict": "보정 적정"
     },
-    "ece": 0.035357,
-    "mean_predicted": 0.099661,
+    "ece": 0.035279,
+    "mean_predicted": 0.099666,
     "observed": 0.081081
   },
   "transition_pairs": 2,
@@ -65,7 +65,7 @@
         {
           "base_year": 2021,
           "target_year": 2024,
-          "psi": 0.053873,
+          "psi": 0.051166,
           "band": "정상",
           "n_bins": 10,
           "n_base": 1076,
@@ -74,7 +74,7 @@
         {
           "base_year": 2022,
           "target_year": 2024,
-          "psi": 0.01179,
+          "psi": 0.012584,
           "band": "정상",
           "n_bins": 10,
           "n_base": 1203,
@@ -83,7 +83,7 @@
         {
           "base_year": 2023,
           "target_year": 2024,
-          "psi": 0.007788,
+          "psi": 0.007198,
           "band": "정상",
           "n_bins": 10,
           "n_base": 1297,
@@ -110,18 +110,18 @@
           "band": "적색"
         },
         {
-          "feature": "f_hq_op_margin",
-          "psi": 0.601762,
+          "feature": "f_hq_revenue_growth",
+          "psi": 0.639961,
           "band": "적색"
         },
         {
-          "feature": "f_hq_revenue_growth",
-          "psi": 0.575161,
+          "feature": "f_hq_roa",
+          "psi": 0.608054,
           "band": "적색"
         },
         {
           "feature": "f_hq_revenue_log",
-          "psi": 0.57041,
+          "psi": 0.599506,
           "band": "적색"
         }
       ]
@@ -130,33 +130,33 @@
       "n_features": 49,
       "bands": {
         "정상": 41,
-        "적색": 7,
-        "경보": 1
+        "적색": 5,
+        "경보": 3
       },
       "worst": [
         {
-          "feature": "f_hq_revenue_growth",
-          "psi": 1.46457,
+          "feature": "f_hq_net_margin",
+          "psi": 0.613214,
           "band": "적색"
         },
         {
-          "feature": "f_hq_net_margin",
-          "psi": 0.929533,
+          "feature": "f_hq_revenue_growth",
+          "psi": 0.440166,
           "band": "적색"
         },
         {
           "feature": "f_hq_roa",
-          "psi": 0.769017,
+          "psi": 0.321264,
           "band": "적색"
         },
         {
           "feature": "f_hq_op_margin",
-          "psi": 0.5147,
+          "psi": 0.263342,
           "band": "적색"
         },
         {
-          "feature": "f_hq_liab_ratio",
-          "psi": 0.502495,
+          "feature": "f_trd_sales_growth_slope",
+          "psi": 0.250057,
           "band": "적색"
         }
       ]

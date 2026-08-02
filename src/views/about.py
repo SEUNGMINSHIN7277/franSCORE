@@ -53,13 +53,14 @@ def render() -> None:
 
     st.write("")
     st.markdown("### 왜 브랜드를 따로 보아야 하는가")
+    imp = _corr_impact()
     c1, c2, c3 = st.columns(3)
-    c1.metric("같은 브랜드 안의 상관", "0.416",
+    c1.metric("같은 브랜드 안의 상관", _fmt(imp.get("rho_within_brand"), 3),
               help="한 브랜드의 여러 지역 점포가 함께 움직이는 정도. 거시·업종 효과를 "
                    "걷어낸 뒤에도 이만큼 남습니다.")
-    c2.metric("브랜드 사이의 상관", "0.005",
+    c2.metric("브랜드 사이의 상관", _fmt(imp.get("rho_between_brand"), 3),
               help="브랜드끼리는 거의 함께 움직이지 않습니다.")
-    c3.metric("독립 가정 시 과소추정", "5.31배",
+    c3.metric("독립 가정 시 과소추정", _fmt(imp.get("ul99_multiple"), 2, "배"),
               help="차주를 서로 무관하다고 보면 자본 소요분을 이만큼 낮게 잡습니다.")
     st.caption("위험은 경기가 아니라 **브랜드**에 있습니다. 그래서 처방도 '경기 대응'이 "
                "아니라 '브랜드 단위 관리'가 맞습니다.")
@@ -136,6 +137,29 @@ def render() -> None:
         st.caption("2선 리스크 관리의 **점검 우선순위**와 **심사 참고 정보**가 정해진 용도입니다.")
 
     C.refresh_footer()
+
+
+def _corr_impact() -> dict:
+    """상관 실증 산출물을 읽는다.
+
+    ⚠️ 이 세 수치는 원래 화면에 **박아 놓은 문자열**이었다. 그래서 모형이 다시 돌아
+       배수가 5.31 → 7.30 으로 바뀌었을 때 문서만 갱신되고 화면은 옛 값을 계속
+       보여 줬다. 같은 제출물 안에서 필요성의 핵심 수치가 두 값으로 갈린 것이다.
+       고쳐야 할 것은 그 문자열이 아니라 **문자열을 박아 둔 구조**다 — 산출물에서
+       읽으면 다시 어긋날 수가 없다.
+    """
+    p = C.out_dir() / "correlation_impact.json"
+    if not p.exists():
+        return {}
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def _fmt(v, nd: int, suffix: str = "") -> str:
+    """산출물이 없으면 숫자를 지어내지 않고 '—' 를 보여 준다."""
+    return "—" if v is None else f"{float(v):.{nd}f}{suffix}"
 
 
 def _validation_block() -> None:

@@ -118,6 +118,15 @@ def run_step(step: str, cfg: dict, demo: bool) -> None:
                 ifrmp.build(cfg)
             except Exception as exc:
                 log.error("정보공개서 수집 실패 — 계속 진행합니다: %s", str(exc)[:200])
+        # 웹 열람으로 사람이 받아 둔 본부 재무를 hq_financials 에 합친다.
+        # ⚠️ 반드시 dart 다음·features 앞이어야 한다. dart 가 파일을 다시 쓰므로
+        #    앞에 두면 합친 행이 그대로 날아가고, 뒤에 두면 모형이 못 본다.
+        #    (실측: 이 배선이 없어서 손으로 받은 30개 브랜드를 모형이 한 번도 못 봤다.)
+        try:
+            from src import ifrmp_web
+            log.info("본부 재무 통합: %s", ifrmp_web.merge_into_hq(cfg))
+        except Exception as exc:
+            log.error("본부 재무 통합 실패 — 계속 진행합니다: %s", str(exc)[:200])
 
     elif step == "features":
         from src import features

@@ -209,8 +209,8 @@ def main() -> int:
         tot = sum(v.values()) or 1
         need("이름 매칭 오매칭률", f"{100 * v.get('불일치', 0) / tot:.0f}%", "IMPL")
         el = dm["eligible"]
-        need("본부재무 커버리지(자격·가맹점가중)",
-             f"{100 * el['with_financials_store_weighted']:.1f}%", "README", "IMPL")
+        info("DART 단독 커버리지(자격·가맹점가중)",
+             f"{100 * el['with_financials_store_weighted']:.1f}%")
         info("자격 브랜드 확정 커버리지(가맹점가중)",
              f"{100 * el['confirmed_store_weighted']:.1f}%")
         q = dm.get("quality") or {}
@@ -218,6 +218,41 @@ def main() -> int:
             info("회계 항등식 통과율", f"{100 * q['balance_pass_rate']:.1f}% "
                                        f"({q['balance_checked']:,}건 검증)")
         info("계속기업 불확실성 기재", q.get("going_concern_flagged"))
+
+    # 🛑 위 값은 **DART 매칭 리포트**의 것이라 정보공개서 열람분이 빠져 있다. 그리고 그
+    #    리포트는 `--step dart` 를 돌려야만 갱신되므로, 열람분을 아무리 합쳐도 숫자가
+    #    움직이지 않는다. 실제로 이 검사는 모형 입력이 39.7% → 48.1% 로 바뀐 뒤에도
+    #    **통과했다.** 눈에 보이는 불일치보다 나쁘다 — 틀린 값을 옳다고 확인해 준다.
+    #
+    #    커버리지의 정의는 '우리가 모은 양'이 아니라 **'모형이 실제로 본 양'** 이다.
+    #    그래서 features.parquet 의 f_hq_has_financials 에서 직접 잰다.
+    head("⑥-3 본부재무 커버리지 — 모형이 실제로 본 양")
+    feat = pd.read_parquet(PROC / "features.parquet", columns=["brand_id", "year",
+                                                               "f_hq_has_financials"])
+    pnl = pd.read_parquet(PROC / "panel.parquet", columns=["brand_id", "year",
+                                                           "n_stores", "eligible_t"])
+    yr = int(feat["year"].max())
+    cov = feat[feat["year"] == yr].merge(pnl[pnl["year"] == yr], on=["brand_id", "year"],
+                                         how="left")
+    cov = cov[cov["eligible_t"].fillna(False).astype(bool)]
+    has = cov["f_hq_has_financials"].fillna(0)
+    w = cov["n_stores"].fillna(0)
+    need("본부재무 커버리지(자격·브랜드)", f"{100 * has.mean():.1f}%", "README", "IMPL")
+    need("본부재무 커버리지(자격·가맹점가중)",
+         f"{100 * (w * has).sum() / max(w.sum(), 1):.1f}%", "README", "IMPL")
+    info("본부재무 보유 브랜드 수", f"{int(has.sum())} / {len(cov)}")
+    # 원천 분해 — 어디서 온 값인지 문서가 말하는 대로인지 본다
+    hq = pd.read_parquet(PROC / "hq_financials.parquet", columns=["source", "key"])
+    if str(ROOT) not in sys.path:          # tools/ 를 직접 실행해도 src 가 보이게
+        sys.path.insert(0, str(ROOT))
+    from src.ifrmp_web import HQ_SOURCE_TAG
+    n_web = int((hq["source"] == HQ_SOURCE_TAG).sum())
+    info("본부재무 행 원천", f"DART {len(hq) - n_web:,}행 · 정보공개서 열람 {n_web:,}행")
+    # ⚠️ need() 는 **부분문자열**로 찾는다. '28' 같은 두 자리 수는 문서 안 아무 숫자에나
+    #    걸려 통과해 버린다 — 실제로 문서에 29 라고 적혀 있는데 통과했다. 작은 수를
+    #    대조할 때는 값만 넘기지 말고 **문구째** 넘겨 우연한 일치를 막는다.
+    need("정보공개서 열람 법인 수",
+         f"열람 법인 **{hq.loc[hq['source'] == HQ_SOURCE_TAG, 'key'].nunique()}**개", "IMPL")
 
     ip = OUT / "ifrmp_status.json"
     if not ip.exists():
@@ -282,6 +317,28 @@ def main() -> int:
             need("평가 프로브 건수", f"{ev['synthetic']['rules']['n']}건", "README")
             info("평가 모델", ev.get("model"))
 
+    # 🛑 배포 산출물이 **실제로 LLM 으로 만들어진 것인가**를 여기서 확인한다.
+    #    IMPLEMENTATION.md 에 "실제 Gemini 호출 63/63건(폴백 0)" 이라고 적혀 있었는데,
+    #    같은 시점의 news_signals.json 은 45건 전량 `llm_used=False`(규칙 폴백)였다.
+    #    AI 활용을 묻는 항목에서 문서와 산출물이 정반대를 말하고 있었던 것이다.
+    #    수치(건수)는 수집 때마다 바뀌므로 **'폴백 0건'이라는 성질**을 검사한다.
+    np_ = OUT / "news_signals.json"
+    if not np_.exists():
+        print("  [SKIP] news_signals.json 없음 — `--step news` 실행 필요")
+    else:
+        sig = json.loads(np_.read_text(encoding="utf-8"))
+        n_all = len(sig)
+        n_llm = sum(1 for s in sig if s.get("llm_used"))
+        info("뉴스 신호 건수", f"{n_llm}/{n_all}건이 LLM 추출")
+        _checked_inc()
+        if n_all and n_llm == n_all:
+            need("뉴스 LLM 폴백", "폴백 0건", "IMPL")
+        else:
+            _fails.append(
+                f"news_signals.json {n_all}건 중 LLM 추출은 {n_llm}건 — "
+                f"'폴백 0건' 주장을 문서에 적어 둘 수 없다 (규칙 폴백 {n_all - n_llm}건)")
+            print(f"  [FAIL] 뉴스 LLM 폴백 {n_all - n_llm}건 — 문서 주장과 대조 필요")
+
     head("⑦-2 폐기값 잔존 검사 (같은 자리에 옛 수치가 남아 있는가)")
     # need() 는 '정답이 문서에 있는가'만 본다 — 옛 값이 함께 남아 있어도 통과한다.
     # 실제로 이 사각지대 때문에 헤드라인에 옛 수치가 남는 사고가 있었다(자체 감사 검출).
@@ -311,6 +368,42 @@ def main() -> int:
             print(f"  [STALE] '{token}' → {', '.join(hits)}  ({why})")
         else:
             print(f"  [OK  ] '{token}' 잔존 없음")
+
+    head("⑨ 화면 코드 대조 (src/views) — 문서만 고치면 잡히지 않는 자리")
+    # 🛑 이 절이 없던 동안 실제로 이런 일이 있었다: README 는 '7.30배'인데 서비스 소개
+    #    화면(src/views/about.py)은 '5.31배'를 그대로 띄우고 있었다. 검사 대상이 .md
+    #    뿐이면 "문서 수치 142건 전부 일치"는 안전의 증거가 아니라 **착시**다.
+    #    같은 이유로 DEPLOY·TECH 를 뒤늦게 등록했던 전례를 여기서 되풀이하지 않는다.
+    VIEWS = sorted((ROOT / "src" / "views").glob("*.py"))
+    for token, why in STALE:
+        _checked_inc()
+        hits = [p.name for p in VIEWS if token in p.read_text(encoding="utf-8")]
+        if hits:
+            _fails.append(f"폐기 표기 '{token}' 가 화면 코드에 잔존: {', '.join(hits)} ({why})")
+            print(f"  [STALE] '{token}' → {', '.join(hits)}  ({why})")
+        else:
+            print(f"  [OK  ] '{token}' 화면 코드 잔존 없음")
+
+    # 핵심 수치는 화면에 **문자열로 박지 않는다.** 박는 순간 산출물과 갈라질 수 있고,
+    # 갈라진 것을 사람이 알아채는 유일한 방법이 '심사위원이 먼저 보는 것'이 된다.
+    # 그래서 '값이 맞는가'가 아니라 **'박아 두었는가'** 를 검사한다 — 값 대조는 다음
+    # 재산출에서 또 낡지만, 이 검사는 구조를 강제하므로 낡지 않는다.
+    LITERAL_BANS = (
+        (r'"\s*\d+\.\d+\s*배\s*"', "UL 배수", "outputs/correlation_impact.json ul99_multiple"),
+        (r'"\s*0\.\d{3}\s*"', "상관계수", "outputs/correlation_impact.json rho_*"),
+    )
+    for pattern, what, whence in LITERAL_BANS:
+        _checked_inc()
+        hits = []
+        for p in VIEWS:
+            for m in _re.finditer(pattern, p.read_text(encoding="utf-8")):
+                hits.append(f"{p.name}:{m.group(0).strip()}")
+        if hits:
+            _fails.append(f"{what} 를 화면에 문자열로 박았다: {', '.join(hits)} "
+                          f"— {whence} 에서 읽어야 한다")
+            print(f"  [HARD] {what:12s} 박힌 값 {hits}")
+        else:
+            print(f"  [OK  ] {what:12s} 화면에 박힌 값 없음 ({whence} 에서 읽는다)")
 
     head("⑪ 운영 코호트 구성 · 요주의 실현율")
     sc = pd.read_csv(OUT / "scores_latest.csv", encoding="utf-8-sig")

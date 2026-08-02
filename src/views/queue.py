@@ -135,43 +135,6 @@ def _worklist(work: pd.DataFrame) -> None:
             "올해 공시에 이미 악화 사건이 발동한 브랜드입니다. 이들은 모델 학습 표본 밖이라 "
             "**확률값 대신 같은 사건수 브랜드의 실제 재발동률**로 순서를 잡았습니다.")
 
-
-def _prioritize(view: pd.DataFrame) -> pd.DataFrame:
-    """상태별로 다른 위험도를 쓴다 — 한 척도로 줄세우면 명세를 어긴다.
-
-    왜 이렇게 바꿨나 (실측)
-        예전에는 `deterioration_1y × n_stores` 하나로 전부 줄세웠다. 그런데 큐 상위
-        20건 중 **18건이 요주의**였다. 요주의 구간은 `MODEL_USE_SPEC` 이 "확률값에
-        성능 근거가 없으니 순위를 매기지 말라"고 못박은 바로 그 구간이다.
-        즉 심사역이 가장 먼저 보는 화면이 **우리 명세가 금지한 줄세우기**를 하고 있었고,
-        화면 어디에도 그 사실이 없었다(queue.py 에 brand_state 참조 0건).
-
-        그렇다고 요주의를 큐에서 빼면 안 된다 — 실제로 다음 해 재발동률이 사건 1건
-        24.1% / 2건 45.9% / 3건 64.8% 로 건전(9.4%)보다 훨씬 높다. 봐야 할 브랜드가
-        맞다. 잘못된 것은 **근거 없는 숫자로 줄세운 것**이지 목록에 넣은 것이 아니다.
-
-        그래서 건전은 모델 확률로, 요주의는 `watch_base_rates.csv` 의 **실현율**로
-        위험도를 잡는다. 둘 다 '1년 내 악화' 확률이라 같은 축에서 비교 가능하고,
-        요주의 쪽은 모델이 아니라 실적이라 명세를 어기지 않는다.
-    """
-    rates = C.watch_rates(0.0)
-
-    def risk(r) -> float:
-        if str(r.get("brand_state")) == "요주의":
-            k = r.get("n_events_at_t")
-            try:
-                hit = rates.get(int(k)) if k is not None and str(k) != "nan" else None
-            except (TypeError, ValueError):
-                hit = None
-            if hit:
-                return float(hit["rate"])
-        return float(pd.to_numeric(pd.Series([r.get("deterioration_1y")]),
-                                   errors="coerce").fillna(0).iloc[0])
-
-    v = view.copy()
-    v["_risk"] = v.apply(risk, axis=1) if len(v) else []
-    v["_pri"] = v["_risk"] * pd.to_numeric(v["n_stores"], errors="coerce").fillna(0)
-    return v.sort_values("_pri", ascending=False)
     if view.empty:
         st.success("조건에 해당하는 미처리 건이 없습니다.")
         return
@@ -219,6 +182,44 @@ def _prioritize(view: pd.DataFrame) -> pd.DataFrame:
                               "updated": datetime.now(UTC)
                                                  .astimezone().strftime("%Y-%m-%d %H:%M")}
                 _save_state()
+
+
+def _prioritize(view: pd.DataFrame) -> pd.DataFrame:
+    """상태별로 다른 위험도를 쓴다 — 한 척도로 줄세우면 명세를 어긴다.
+
+    왜 이렇게 바꿨나 (실측)
+        예전에는 `deterioration_1y × n_stores` 하나로 전부 줄세웠다. 그런데 큐 상위
+        20건 중 **18건이 요주의**였다. 요주의 구간은 `MODEL_USE_SPEC` 이 "확률값에
+        성능 근거가 없으니 순위를 매기지 말라"고 못박은 바로 그 구간이다.
+        즉 심사역이 가장 먼저 보는 화면이 **우리 명세가 금지한 줄세우기**를 하고 있었고,
+        화면 어디에도 그 사실이 없었다(queue.py 에 brand_state 참조 0건).
+
+        그렇다고 요주의를 큐에서 빼면 안 된다 — 실제로 다음 해 재발동률이 사건 1건
+        24.1% / 2건 45.9% / 3건 64.8% 로 건전(9.4%)보다 훨씬 높다. 봐야 할 브랜드가
+        맞다. 잘못된 것은 **근거 없는 숫자로 줄세운 것**이지 목록에 넣은 것이 아니다.
+
+        그래서 건전은 모델 확률로, 요주의는 `watch_base_rates.csv` 의 **실현율**로
+        위험도를 잡는다. 둘 다 '1년 내 악화' 확률이라 같은 축에서 비교 가능하고,
+        요주의 쪽은 모델이 아니라 실적이라 명세를 어기지 않는다.
+    """
+    rates = C.watch_rates(0.0)
+
+    def risk(r) -> float:
+        if str(r.get("brand_state")) == "요주의":
+            k = r.get("n_events_at_t")
+            try:
+                hit = rates.get(int(k)) if k is not None and str(k) != "nan" else None
+            except (TypeError, ValueError):
+                hit = None
+            if hit:
+                return float(hit["rate"])
+        return float(pd.to_numeric(pd.Series([r.get("deterioration_1y")]),
+                                   errors="coerce").fillna(0).iloc[0])
+
+    v = view.copy()
+    v["_risk"] = v.apply(risk, axis=1) if len(v) else []
+    v["_pri"] = v["_risk"] * pd.to_numeric(v["n_stores"], errors="coerce").fillna(0)
+    return v.sort_values("_pri", ascending=False)
 
 
 def _risk_label(r) -> str:
