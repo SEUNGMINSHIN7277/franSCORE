@@ -385,9 +385,14 @@ def build_portfolio(cfg: dict) -> None:
                 expo_meta["basis"], "여신 exposure 산출 근거 미상"),
             "seed": int(cfg["seed"]),
             "units": {"exposure": "백만원(MKRW)", "display": "억원 = 백만원 / 100"},
+            # ⚠️ 이 문장은 pd_* → deterioration_* 일괄 개명(156건) 때 조사가 깨진 채
+            #    산출물에 실려 나갔다("부도확률(PD)이 사용한 것으로"). 뜻이 통하지 않을 뿐
+            #    아니라, 우리 산출물을 PD 라고 주장하는 것처럼 읽혀 MODEL_USE_SPEC 의
+            #    금지 용도와 정면으로 충돌한다. 명세와 같은 말을 하도록 다시 쓴다.
             "risk_definition": (
-                "악화확률은 모델이 예측한 '1년 내 구조악화 전환 확률'이다. 부도확률(PD)이 "
-                "사용한 것으로, 실제 부도율과 다를 수 있습니다."),
+                "악화확률은 모델이 예측한 '1년 내 구조악화 전환 확률'입니다. 공정거래위원회 "
+                "공시 지표가 업종×연도 하위 구간에 진입하는 사건의 확률이며, 차주의 "
+                "채무불이행 확률(PD)이 아닙니다. EL 은 그 확률을 쓴 대리 손실 지표입니다."),
             "el_formula": "EL_i = exposure_i × 악화확률_i × LGD (LGD 시나리오 3종)",
             "stress_rule": (
                 f"악화확률 상위 {stress_top_pct:.0%} 브랜드({n_stress}개)의 악화확률 × {stress_mult} "

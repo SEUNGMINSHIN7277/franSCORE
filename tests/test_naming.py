@@ -165,6 +165,45 @@ def test_spec_consistency() -> None:
           "운영 문서가 PD 사용을 허용" if ops_allows else "두 문서 모두 PD 표기 금지")
 
 
+def test_published_artifact_prose() -> None:
+    """**반출되는 산출물**의 설명 문장이 명세와 같은 말을 하는가.
+
+    지금까지 이 파일의 검사는 소스(.py/.md/.yaml)만 훑었다. 그런데 은행 분석가가
+    실제로 읽는 것은 CSV·JSON 에 실려 나가는 문장이다. 실제로 pd_* → deterioration_*
+    일괄 개명(156건) 때 portfolio_summary.json 의 risk_definition 이
+
+        "악화확률은 … 확률이다. 부도확률(PD)이 사용한 것으로, 실제 부도율과 다를 수 있습니다."
+
+    로 깨진 채 나갔다. 뜻이 통하지 않을 뿐 아니라 우리 산출물을 PD 라고 주장하는
+    것처럼 읽혀 MODEL_USE_SPEC 의 금지 용도와 충돌한다. 소스 검사는 이걸 못 잡는다.
+
+    명세가 요구하는 것은 "PD 라는 말을 쓰지 마라"가 아니라 **"숫자와 부인 문구가
+    함께 다녀야 한다"**이다. 그래서 부인 문구의 존재를 계약으로 검사한다.
+    """
+    import json
+
+    checks = [
+        ("outputs/portfolio_summary.json", ("assumptions", "risk_definition")),
+    ]
+    bad = []
+    for rel, path in checks:
+        p = _ROOT / rel
+        if not p.exists():
+            continue
+        node = json.loads(p.read_text(encoding="utf-8"))
+        for key in path:
+            node = node.get(key, {}) if isinstance(node, dict) else {}
+        text = str(node)
+        if not text:
+            bad.append(f"{rel}: {'.'.join(path)} 없음")
+        elif "PD" in text and "아닙니다" not in text:
+            bad.append(f"{rel}: PD 를 언급하면서 부인 문구가 없다 — {text[:60]}")
+        elif OLD_TOKENS.search(text):
+            bad.append(f"{rel}: 옛 식별자 잔존")
+    check(not bad, "반출 산출물 설명문이 명세와 정합",
+          bad[0] if bad else "악화확률 ≠ PD 부인 문구 확인")
+
+
 def test_logo_index_matches_disk() -> None:
     """화면이 띄우는 로고 = 색인이 인정한 로고인가.
 
@@ -194,7 +233,7 @@ def test_logo_index_matches_disk() -> None:
 def main() -> int:
     for fn in (test_no_old_pd_tokens, test_no_pd_claim, test_published_columns,
                test_service_reads_valid_schema, test_spec_consistency,
-               test_logo_index_matches_disk):
+               test_published_artifact_prose, test_logo_index_matches_disk):
         try:
             fn()
         except Exception as exc:
