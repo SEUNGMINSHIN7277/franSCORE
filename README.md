@@ -252,7 +252,7 @@ python tests/test_llm_paths.py     # 4/4  LLM 클라이언트·실경로·RAG (�
 python tests/test_calibration.py   # 6/6  계단 밖 출력·기저율 대체·단조성·등급 척도 일치
 python tests/test_naming.py        # 4/4  산출물을 PD(부도확률)라 부르지 않는지
 python tests/test_theme_contrast.py #     명도대비 35종·타이포 스케일·진입 스크립트 규칙
-python tools/check_doc_numbers.py  # 88/88 문서에 쓴 숫자가 산출물과 일치하는지
+python tools/check_doc_numbers.py  # 114건 문서에 쓴 숫자가 산출물과 일치하는지
 
 # 린트 (규칙·버전 고정 — ruff.toml / requirements-dev.txt)
 pip install -r requirements-dev.txt && python -m ruff check .    # 기대: All checks passed!

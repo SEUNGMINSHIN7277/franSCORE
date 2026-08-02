@@ -335,6 +335,27 @@ def main() -> int:
     else:
         info("요주의 실현율표", "없음 — tools/watch_base_rates.py 미실행")
 
+    head("⑫ 운영·거버넌스 문서 (OPERATIONS) — 게이트를 규정한 문서가 게이트를 받는다")
+    # ⚠️ 이 절이 없던 동안 OPS 는 DOCS 레지스트리에 **등록만 되고 검사 0건**이었다.
+    #    그 사이 §2 큐 규모(145 vs 실측 367), §3 게이트 근거(+0.775 vs +1.059),
+    #    fold 변동폭(2.617/2.252/2.500 vs 2.818/2.752/2.667)이 전부 낡았다.
+    #    등록돼 있다는 사실이 검사받는다는 뜻이 아니다 — 그래서 착시가 더 컸다.
+    g = sc["grade"].value_counts()
+    need("OPS 큐 규모(FS3)", thou(int(g.get("FS3", 0))), "OPS")
+    need("OPS 큐 소요 주수", f"{round(int(g.get('FS3', 0)) / 10)}주", "OPS")
+    dci_p = OUT / "walkforward_delta_ci.csv"
+    if dci_p.exists():
+        dci = pd.read_csv(dci_p, encoding="utf-8-sig").set_index("comparison")
+        r = dci.loc["lgbm - persistence"]
+        need("OPS 게이트 근거 격차", f"+{r['mean_delta_lift']:.3f}", "OPS")
+        need("OPS 게이트 근거 CI", f"[{r['ci_lo']:.3f}, {r['ci_hi']:.3f}]", "OPS")
+    wfm = pd.read_csv(OUT / "walkforward_metrics.csv", encoding="utf-8-sig")
+    lg = wfm[wfm["scope"].astype(str).str.startswith("fold_test_") & (wfm["model"] == "lgbm")]
+    if len(lg):
+        need("OPS fold별 Lift 나열",
+             " / ".join(f"{v:.3f}" for v in lg["lift_at_10"]), "OPS")
+    need("OPS 자동대조 건수", f"{_checked + 1}건", "OPS")   # 이 줄 자신을 포함한 수
+
     head("결과")
     if _fails:
         print(f"불일치 {len(_fails)}건 / 검사 {_checked}건")
