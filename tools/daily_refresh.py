@@ -40,7 +40,12 @@ for _stream in (sys.stdout, sys.stderr):
     with contextlib.suppress(AttributeError, OSError):  # 리다이렉트된 스트림 등
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src.common import get_logger, load_config, load_secrets  # noqa: E402
+from src.common import (  # noqa: E402
+    capability_report,
+    get_logger,
+    load_config,
+    load_secrets,
+)
 
 log = get_logger("daily")
 
@@ -99,6 +104,11 @@ def _step(name: str, fn, results: list[dict]):
 def run(news_brands: int = NEWS_BRANDS, demand_limit: int = DEMAND_BRANDS) -> dict:
     started = datetime.now()
     load_secrets()
+    # 무엇이 폴백으로 돌게 되는지 **먼저** 알고 시작한다 (아래 state["capability"]).
+    cap = capability_report()
+    if cap["degraded"]:
+        log.warning("자격증명 미비로 축소 가동 %d건: %s",
+                    len(cap["degraded"]), " · ".join(cap["degraded"]))
     cfg = load_config()
     out_dir = Path(cfg["paths"]["outputs"])
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -153,6 +163,9 @@ def run(news_brands: int = NEWS_BRANDS, demand_limit: int = DEMAND_BRANDS) -> di
                         f"새 공시 공표 시 재학습 필요" if year else "공시 기반 리스크 확률",
         "next_due": (finished + timedelta(days=1)).strftime("%Y-%m-%d %H:%M"),
         "steps": results,
+        # 축소 가동을 산출물에 남긴다. 폴백이 조용히 도는 바람에 실패가 하나도 없이
+        # 성능만 줄어든 채 매일 성공으로 끝나던 일이 실제로 있었다(값은 담지 않는다).
+        "capability": cap,
         "source": "daily_refresh",
     }
     (out_dir / STATE_FILE).write_text(
@@ -160,6 +173,10 @@ def run(news_brands: int = NEWS_BRANDS, demand_limit: int = DEMAND_BRANDS) -> di
     log.info("갱신 완료 — 뉴스 +%d(총 %d) · 수요 +%d(총 %d) · 진단 %d개 · %.1fs",
              state["news_added"], news_after, state["demand_updated"], demand_after,
              rescored, state["elapsed_sec"])
+    if cap["degraded"]:
+        log.warning("축소 가동 %d건 — %s (자격증명 미설정). "
+                    "폴백으로 산출했으며 화면에 그대로 표기된다.",
+                    len(cap["degraded"]), " · ".join(cap["degraded"]))
     return state
 
 

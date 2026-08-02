@@ -65,7 +65,8 @@ High 145 / Medium 288 / Low 1,009. 심사역 1인이 주당 10건을 본다면 H
      하한보다 보수적인 값을 게이트로 잡아 우연한 통과를 막는다.
 2. 신규 fold의 Lift@10% 가 직전 3개 fold 평균 대비 **−30% 이내**
    — 근거: 현재 fold별 2.617 / 2.252 / 2.500 로 변동폭이 ±15% 수준.
-3. 시점누출 테스트 5/5, LLM·RAG 4/4, 상관 수학 테스트 통과 (`python -m tests.test_sanity`)
+3. 시점누출·상관 테스트 6/6, LLM·RAG 4/4, **보정기 6/6** 통과
+   (`python tests/test_sanity.py`, `test_llm_paths.py`, `test_calibration.py`)
 4. 문서-산출물 수치 대조 통과 (`python tools/check_doc_numbers.py`)
 5. 라벨 규칙·임계값 **무변경** — 변경 시 별도 승인 절차(§6)
 

@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import html
 import json
-import os
 import re
 import time
 import urllib.parse
@@ -58,15 +57,23 @@ _SLEEP_BETWEEN_REQUESTS_SEC = 0.4  # 요청 간 예의상 대기
 # 국내 프랜차이즈·지역 매체 색인도 구글보다 촘촘하다.
 # 비용: **무료**. 하루 25,000회 호출 한도가 있을 뿐 과금이 아니다.
 #       (developers.naver.com 에서 Client ID/Secret 발급 — 즉시 발급)
-_NAVER_URL = "https://openapi.naver.com/v1/search/news.json"
+# 엔드포인트는 src.naver 가 자격 체계에 맞춰 고른다 (API HUB / 구 개발자센터).
 NAVER_ID_ENV = "NAVER_CLIENT_ID"
 NAVER_SECRET_ENV = "NAVER_CLIENT_SECRET"
 _TAG_RE = re.compile(r"<[^>]+>")
 
 
 def naver_credentials() -> tuple[str, str] | None:
-    cid = os.environ.get(NAVER_ID_ENV, "").strip()
-    sec = os.environ.get(NAVER_SECRET_ENV, "").strip()
+    """뉴스 검색에 쓸 자격증명. **두 체계를 모두 받는다.**
+
+    ⚠️ 예전에는 구 개발자센터 키(NAVER_CLIENT_ID/SECRET)만 봤다. 그래서 API HUB
+       키(NCP_*)만 등록한 환경에서는 키가 있는데도 본문 요약을 못 받고 Google News
+       RSS 제목만으로 떨어졌다 — 로그에도 '설정하면 확보된다'고 찍혀 이미 설정한
+       사용자를 혼란스럽게 했다. src.naver 가 이미 두 체계의 엔드포인트를 다 알고
+       있으므로(`_PATHS["news"]`) 그쪽으로 넘긴다.
+    """
+    from src import naver
+    cid, sec, _hub = naver.credentials()
     return (cid, sec) if cid and sec else None
 
 
@@ -75,15 +82,22 @@ def _unescape(s: str) -> str:
     return html.unescape(_TAG_RE.sub("", str(s or ""))).strip()
 
 
-def _fetch_naver_articles(query: str, *, display: int, creds: tuple[str, str]) -> list[dict]:
-    """네이버 뉴스 검색 1회. 실패는 빈 리스트 (Google RSS 로 이어서 보완)."""
-    cid, sec = creds
+def _fetch_naver_articles(query: str, *, display: int) -> list[dict]:
+    """네이버 뉴스 검색 1회. 실패는 빈 리스트 (Google RSS 로 이어서 보완).
+
+    URL·헤더는 src.naver 가 자격 체계(API HUB / 구 개발자센터)에 맞춰 결정한다.
+    두 체계는 도메인·경로·헤더 이름이 전부 다르므로 여기서 고정하면 한쪽이 죽는다.
+    """
+    from src import naver
     try:
-        r = requests.get(_NAVER_URL, params={"query": query, "display": display,
-                                             "sort": "date"},
-                         headers={"X-Naver-Client-Id": cid,
-                                  "X-Naver-Client-Secret": sec},
-                         timeout=15)
+        url, headers = naver._endpoint("news")
+    except Exception as exc:                      # 자격증명 미설정 등
+        log.warning("네이버 뉴스 엔드포인트 결정 실패(무시): %s", str(exc)[:120])
+        return []
+    try:
+        r = requests.get(url, params={"query": query, "display": display,
+                                      "sort": "date"},
+                         headers=headers, timeout=15)
         r.raise_for_status()
         items = r.json().get("items", []) or []
     except Exception as exc:
@@ -222,12 +236,15 @@ def fetch_news(brand_names: list[str], cfg: dict) -> dict[str, list]:
 
     # 네이버 키가 있으면 **먼저** 네이버로 훑고, 부족분을 Google RSS 로 채운다.
     # 순서가 중요하다: 네이버 결과에는 본문 요약이 붙어 있어 같은 기사라도 판단 근거가 많다.
+    from src import naver
     creds = naver_credentials()
     if creds:
         log.info("뉴스 원천: 네이버 검색 API(본문요약 포함) + Google News RSS 보완")
     else:
-        log.info("뉴스 원천: Google News RSS(제목만). %s/%s 를 설정하면 본문 요약까지 "
-                 "확보된다 — 무료이며 일 25,000회 한도.", NAVER_ID_ENV, NAVER_SECRET_ENV)
+        log.info("뉴스 원천: Google News RSS(**제목만**) — 축소 가동. "
+                 "%s/%s 또는 %s/%s 를 설정하면 본문 요약까지 확보된다 "
+                 "(무료·일 25,000회 한도).",
+                 NAVER_ID_ENV, NAVER_SECRET_ENV, naver.HUB_ID_ENV, naver.HUB_SECRET_ENV)
 
     out: dict[str, list] = {}
     for brand in brand_names:
@@ -239,7 +256,7 @@ def fetch_news(brand_names: list[str], cfg: dict) -> dict[str, list]:
             for q in queries:
                 if len(articles) >= max_n:
                     break
-                for a in _fetch_naver_articles(q, display=max_n, creds=creds):
+                for a in _fetch_naver_articles(q, display=max_n):
                     if a["link"] in seen_links or len(articles) >= max_n:
                         continue
                     if max_age_days > 0 and _age_days(a["published"]) > max_age_days:

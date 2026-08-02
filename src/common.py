@@ -28,6 +28,72 @@ SECRET_KEYS = (
     "GEMINI_API_KEY_2", "GEMINI_API_KEY_3", "GEMINI_API_KEY_4", "GEMINI_API_KEY_5",
 )
 
+# ---------------------------------------------------------------------------
+# 가동 능력 (capability) — 키가 없을 때 무엇이 어떻게 줄어드는가
+#
+# 왜 필요한가 (실제로 있었던 일)
+#   일간 배치가 매일 GitHub Actions 에서 **success** 로 끝나고 있었다. 그런데 실행
+#   로그를 열어 보니 `NCP_API_KEY_ID:` 가 빈 값이었고, 뉴스는 키가 필요 없는 Google
+#   News RSS **제목만**으로 떨어졌으며, 사건 추출은 `LLM 미사용 — 규칙기반 폴백`
+#   이었다. 폴백이 정상 동작한 덕분에 아무것도 실패하지 않았고, 그래서 **성능이
+#   3분의 1로 줄어든 채 매일 초록불**이 켜졌다.
+#
+#   폴백 자체는 옳은 설계다. 잘못된 것은 그 사실이 어디에도 안 남는다는 점이다.
+#   이 표는 축소 가동을 산출물(refresh_state.json)과 화면에 그대로 노출시킨다.
+# ---------------------------------------------------------------------------
+
+#  need: 이 기능이 살아나는 데 필요한 키 묶음 (묶음 중 **하나라도** 충족하면 가동)
+CAPABILITIES: tuple[dict, ...] = (
+    {"name": "뉴스 사건 구조화 추출",
+     "need": [("GEMINI_API_KEY",), ("GEMINI_API_KEY_2",), ("GEMINI_API_KEY_3",),
+              ("GEMINI_API_KEY_4",), ("GEMINI_API_KEY_5",)],
+     "fallback": "규칙기반 키워드 매칭",
+     "impact": "신호에 llm_used=false 로 표기된다. 제목의 단어만 보므로 홍보 기사와 "
+               "분쟁 기사를 가르는 정밀도가 떨어진다."},
+    {"name": "뉴스 본문 요약 확보",
+     "need": [("NAVER_CLIENT_ID", "NAVER_CLIENT_SECRET"),
+              ("NCP_API_KEY_ID", "NCP_API_KEY")],
+     "fallback": "Google News RSS — 제목만",
+     "impact": "판단 근거가 한 문단에서 한 줄로 줄어든다. 국내 프랜차이즈·지역 매체 "
+               "색인도 얕아진다."},
+    {"name": "검색수요 지표",
+     "need": [("NCP_API_KEY_ID", "NCP_API_KEY")],
+     "fallback": "없음 — 수집하지 않는다",
+     "impact": "수요 관련 진단 소견이 아예 생성되지 않는다(없는 근거로 위험을 "
+               "말하지 않기 위해). 다른 소견은 영향 없다."},
+    {"name": "AI 상담·심사메모 생성",
+     "need": [("GEMINI_API_KEY",), ("GEMINI_API_KEY_2",), ("GEMINI_API_KEY_3",),
+              ("GEMINI_API_KEY_4",), ("GEMINI_API_KEY_5",)],
+     "fallback": "결정적 템플릿 (llm_used=false 표기)",
+     "impact": "산출 수치는 같다. 문장이 템플릿으로 고정되고 자유질의 응답이 제한된다."},
+    {"name": "가맹본부 재무 갱신",
+     "need": [("DART_API_KEY",)],
+     "fallback": "기존 수집분 사용",
+     "impact": "일간 배치에는 영향 없다 — 재무는 연 1회 공시라 이미 받아 둔 값을 쓴다."},
+)
+
+
+def capability_report() -> dict:
+    """지금 이 프로세스가 **실제로** 무엇을 할 수 있는지. 키 값은 담지 않는다.
+
+    Returns:
+        {"keys": {키이름: 있음/없음}, "features": [...], "degraded": [기능명, ...]}
+    """
+    load_secrets()
+    present = {k: bool(os.environ.get(k, "").strip()) for k in SECRET_KEYS}
+    feats, degraded = [], []
+    for cap in CAPABILITIES:
+        ok = any(all(present.get(k) for k in group) for group in cap["need"])
+        if not ok:
+            degraded.append(cap["name"])
+        feats.append({
+            "name": cap["name"], "full": ok,
+            "needs": [" + ".join(g) for g in cap["need"]],
+            "fallback": cap["fallback"], "impact": cap["impact"],
+        })
+    return {"keys": present, "features": feats, "degraded": degraded,
+            "n_full": sum(1 for f in feats if f["full"]), "n_total": len(feats)}
+
 
 def load_secrets() -> list[str]:
     """API 키를 환경변수로 올린다. 이미 설정된 값은 절대 덮어쓰지 않는다.

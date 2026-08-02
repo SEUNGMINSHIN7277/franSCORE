@@ -33,17 +33,29 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+# `python tests/test_sanity.py` 로 직접 실행하면 sys.path[0] 이 tests/ 가 되어 src 를 못 찾는다.
+# README 가 그 형태로 안내하므로 두 실행 방식이 모두 되도록 루트를 먼저 올린다.
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
 from src import model as model_mod
 from src import portfolio as portfolio_mod
-from src.common import get_logger, load_config, make_synthetic_panel, set_seed
+from src.common import (
+    get_logger,
+    load_config,
+    make_synthetic_panel,
+    set_seed,
+)
 from src.dart import make_synthetic_hq_financials
 from src.features import HQ_VALUE_COLS, build_features
 from src.labels import build_labels
 from src.panel import PANEL_VALUE_COLS
 
 # Windows 기본 콘솔(cp949)에서 한글·기호 출력이 깨지지 않도록
-with contextlib.suppress(AttributeError, OSError):  # 리다이렉트된 스트림 등
-    sys.stdout.reconfigure(encoding="utf-8")
+for _s in (sys.stdout, sys.stderr):
+    with contextlib.suppress(AttributeError, OSError):  # 리다이렉트된 스트림 등
+        _s.reconfigure(encoding="utf-8", errors="replace")
 
 log = get_logger("test_sanity")
 

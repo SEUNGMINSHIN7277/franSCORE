@@ -17,6 +17,7 @@
 """
 from __future__ import annotations
 
+import contextlib
 import re
 import sys
 from pathlib import Path
@@ -24,6 +25,11 @@ from pathlib import Path
 _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
+
+# Windows 기본 콘솔(cp949)에서 한글이 깨지면 결과를 읽을 수 없다
+for _s in (sys.stdout, sys.stderr):
+    with contextlib.suppress(AttributeError, OSError):
+        _s.reconfigure(encoding="utf-8", errors="replace")
 
 from src import theme
 

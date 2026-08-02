@@ -370,6 +370,37 @@ def refresh_footer() -> None:
             "브랜드당 최대 8건까지 모읍니다. 검색수요는 가맹점이 많은 브랜드부터 "
             "차례로 넓혀 갑니다.")
 
+        _capability_note(r)
+
+
+def _capability_note(r: dict) -> None:
+    """마지막 갱신이 **축소 가동**이었으면 그 사실을 화면에 적는다.
+
+    왜 필요한가 (실측)
+        일간 배치가 자동화 환경에서 매일 성공으로 끝나고 있었는데, 실행 로그를 열어
+        보니 자격증명이 하나도 없어 뉴스는 제목만 보는 경로로, 사건 추출은 규칙기반
+        폴백으로 돌고 있었다. 폴백이 제대로 동작한 탓에 아무것도 실패하지 않았고
+        화면에도 아무 표시가 없었다. **성능이 줄어든 화면과 온전한 화면이 똑같이
+        보이는 것**이 결함이다. 여기서 그 차이를 드러낸다.
+    """
+    cap = r.get("capability") or {}
+    feats = cap.get("features") or []
+    if not feats:
+        return
+    degraded = [f for f in feats if not f.get("full")]
+    if not degraded:
+        st.caption(f"이 갱신은 자료 연결 {cap.get('n_total', len(feats))}종이 모두 "
+                   "정상인 상태에서 산출됐습니다.")
+        return
+    st.warning(
+        f"이 갱신은 **축소 가동**으로 산출됐습니다 — 자료 연결 "
+        f"{cap.get('n_total', len(feats))}종 중 {len(degraded)}종이 대체 경로로 "
+        "동작했습니다.")
+    st.markdown("\n".join(
+        f"- **{f['name']}** — 대체: {f['fallback']}  \n  {f['impact']}"
+        for f in degraded))
+    st.caption("숫자를 지우지 않고 그대로 두되, 어떤 근거로 나온 값인지 함께 밝힙니다.")
+
 
 RISK_LABEL = "브랜드 리스크"
 _RISK_HELP = ("공시·본부재무·검색수요를 학습한 모델이 산출한, 이 브랜드가 향후 1년 안에 "

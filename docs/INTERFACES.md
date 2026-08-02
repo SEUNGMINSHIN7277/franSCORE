@@ -185,8 +185,9 @@ walkforward_predictions.parquet / walkforward_delta_ci.csv.
 
 ## 7. tests/
 
-- `python -m tests.test_sanity` (5종): 라벨 규칙(수제 패널 기대값)·시점 누출(bit-exact)·
-  시간분할·predictions 스키마·포트폴리오 수리. 임시 디렉토리 격리 + data/processed 불변 가드.
+- `python tests/test_sanity.py` (6종): 라벨 규칙(수제 패널 기대값)·시점 누출(bit-exact)·
+  시간분할·predictions 스키마·포트폴리오 수리·상관 수학. 임시 디렉토리 격리 +
+  data/processed 불변 가드.
 - `python -m tests.test_llm_paths` (4종): `src.llm._http_post`(HTTP 경계)만 모의로 치환해
   Gemini 클라이언트 전 경로 검증 — 스키마 정제(미지원 키워드 제거)·사고(thought) 파트 제거·
   안전차단·토큰 절단·재시도·키 미설정, 그리고 뉴스 구조화 추출(모델 출력 재검증 포함)·

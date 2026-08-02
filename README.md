@@ -246,9 +246,12 @@ python run_pipeline.py --step diagnose
 streamlit run src/app.py
 
 # 테스트
-python tests/test_sanity.py        # 6/6 (라벨규칙·시점누출·시간분할·스키마·포트폴리오·상관)
-python tests/test_diagnosis.py     # 7/7 (계단보간·조사·규칙성분·소견 사실성·브랜드 변별)
-python tests/test_llm_paths.py     # 4/4 (LLM 클라이언트·실경로·RAG — 모의 HTTP, 키 불필요)
+python tests/test_sanity.py        # 6/6  라벨규칙·시점누출·시간분할·스키마·포트폴리오·상관
+python tests/test_diagnosis.py     # 9/9  계단보간·조사·규칙성분·소견 사실성·브랜드 변별
+python tests/test_llm_paths.py     # 4/4  LLM 클라이언트·실경로·RAG (모의 HTTP, 키 불필요)
+python tests/test_calibration.py   # 6/6  계단 밖 출력·기저율 대체·단조성·등급 척도 일치
+python tests/test_theme_contrast.py #     명도대비 35종·타이포 스케일·진입 스크립트 규칙
+python tools/check_doc_numbers.py  # 88/88 문서에 쓴 숫자가 산출물과 일치하는지
 
 # 린트 (규칙·버전 고정 — ruff.toml / requirements-dev.txt)
 pip install -r requirements-dev.txt && python -m ruff check .    # 기대: All checks passed!

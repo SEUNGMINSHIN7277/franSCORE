@@ -1,14 +1,14 @@
 # 시점 누출 점검 체크리스트 (명세 §4.2)
 
 > 각 항목은 **자동 테스트 또는 코드 위치**로 증빙된다. 수동 주장만으로 통과 처리하지 않는다.
-> 실행: `python -m tests.test_sanity` (5/5 통과 필요), `python -m tests.test_llm_paths` (4/4)
+> 실행: `python tests/test_sanity.py` (6/6 통과 필요), `python tests/test_llm_paths.py` (4/4)
 
 ## 1. 라벨 시점 > 피처 시점
 
 | 점검 | 방법 | 증빙 |
 |---|---|---|
 | 라벨은 t+1 사건, 피처는 t 이하 | `labels.build_labels`가 t+1 사건 플래그를 t 행에 붙임 (`nxt["year"] -= 1`) | [labels.py](../src/labels.py) `build_labels` |
-| 피처가 t+1 값에 불변 | t+1 이후 **모든 수치 컬럼을 교란**한 뒤 (brand, t≤2022) 피처 행이 bit-exact 동일한지 assert | `tests/test_sanity.py` [2/5] time_leakage |
+| 피처가 t+1 값에 불변 | t+1 이후 **모든 수치 컬럼을 교란**한 뒤 (brand, t≤2022) 피처 행이 bit-exact 동일한지 assert | `tests/test_sanity.py` [2/6] time_leakage |
 | 라벨 게이트도 t 시점 정보만 | healthy_at_t·min_stores_at_t 모두 t년 지표로만 판정 | [labels.py](../src/labels.py) `build_labels` |
 
 ## 2. 미래 파생 없음 (횡단면 통계)
