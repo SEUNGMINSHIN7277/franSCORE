@@ -437,7 +437,7 @@ def grade_bounds(m: float) -> dict:
         return {}
     g = (cfg().get("portfolio") or {}).get("risk_grades") or {}
     hi, mid = float(g.get("high", 0.90)), float(g.get("medium", 0.70))
-    p = pd.to_numeric(df["pd_1y"], errors="coerce").dropna()
+    p = pd.to_numeric(df["deterioration_1y"], errors="coerce").dropna()
     return {
         "high_pct": hi, "medium_pct": mid,
         "high_cut": float(p.quantile(hi)) * 100,
@@ -614,7 +614,7 @@ def diagnosis_report(row, findings: pd.DataFrame | None,
     grade = str(row.get("grade") or row.get("risk_grade") or "-")
     kr = {"FS1": "안정", "FS2": "관찰", "FS3": "주의"}.get(grade, "")
     state = str(row.get("brand_state") or "-")
-    p = pd.to_numeric(pd.Series([row.get("pd_1y")]), errors="coerce").iloc[0]
+    p = pd.to_numeric(pd.Series([row.get("deterioration_1y")]), errors="coerce").iloc[0]
     b = grade_bands(_mtime(out_dir() / "grade_bands.json"))
     when = refresh_state().get("finished_at", "-")
     yr = scored_year()
@@ -695,7 +695,7 @@ def population_note(row) -> str:
     return ""
 
 
-def signal_html(grade: str, pd_1y: float | None = None, *, size: int = 13,
+def signal_html(grade: str, deterioration_1y: float | None = None, *, size: int = 13,
                 show_value: bool = True) -> str:
     """신호등 — 위험도를 '빨간 숫자'가 아니라 **켜진 등**으로 보여준다.
 
@@ -713,9 +713,9 @@ def signal_html(grade: str, pd_1y: float | None = None, *, size: int = 13,
     label = (f"<div style='font-size:{theme.FS_MD};font-weight:700;color:{theme.GRADE_COLOR[on]};"
              f"margin-top:6px;letter-spacing:-.01em'>{theme.GRADE_KR[on]}</div>")
     val = ""
-    if show_value and pd_1y is not None and pd.notna(pd_1y):
+    if show_value and deterioration_1y is not None and pd.notna(deterioration_1y):
         val = (f"<div style='font-size:{theme.FS_XS};color:{theme.TEXT_MUTED};margin-top:1px'>"
-               f"{RISK_LABEL} {float(pd_1y) * 100:.1f}%</div>")
+               f"{RISK_LABEL} {float(deterioration_1y) * 100:.1f}%</div>")
     return (f"<div style='display:inline-flex;flex-direction:column;align-items:center'>"
             f"<div style='display:flex;gap:7px;align-items:center;padding:7px 10px;"
             f"border-radius:{theme.RADIUS_PILL};background:{theme.SURFACE};"
@@ -788,13 +788,13 @@ def grade_legend_html(bounds: dict) -> str:
             f"실제로 몇 %였는지를 환산한 값입니다.</div></div>")
 
 
-def risk_gauge(pd_1y: float, rank_pct: float | None = None) -> go.Figure:
+def risk_gauge(deterioration_1y: float, rank_pct: float | None = None) -> go.Figure:
     """브랜드 리스크 게이지 — 0~100% 전 구간을 등급 색으로 나눠 보여준다.
 
     축을 0~50 으로 자르면 '절반이 찼다'는 인상이 실제 위험보다 과장된다.
     확률은 0~100% 가 정의역이므로 축도 그대로 0~100 을 쓴다.
     """
-    v = float(pd_1y) * 100
+    v = float(deterioration_1y) * 100
     b = grade_bounds(_mtime(out_dir() / "scores_latest.csv"))
     hi = b.get("high_cut", 25.0)
     mid = b.get("medium_cut", 10.0)

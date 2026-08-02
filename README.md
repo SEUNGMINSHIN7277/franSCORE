@@ -100,7 +100,7 @@
 
 **Brier(보정품질)는 공정하게 비교해야 한다 — 자체 감사 지적 반영.** 위 표의 기준모형 Brier는
 *미보정* 원점수 기준이라 LightGBM(보정)과 나란히 놓으면 불공정하다. 기준모형 3종에도 **완전히
-동일한 isotonic 보정**(같은 valid, 같은 PD 상·하한)을 적용해 다시 비교한 결과:
+동일한 isotonic 보정**(같은 valid, 같은 확률 상·하한)을 적용해 다시 비교한 결과:
 
 | 모형 (동일 보정 적용) | Brier |
 |---|---|
@@ -250,6 +250,7 @@ python tests/test_sanity.py        # 6/6  라벨규칙·시점누출·시간분�
 python tests/test_diagnosis.py     # 9/9  계단보간·조사·규칙성분·소견 사실성·브랜드 변별
 python tests/test_llm_paths.py     # 4/4  LLM 클라이언트·실경로·RAG (모의 HTTP, 키 불필요)
 python tests/test_calibration.py   # 6/6  계단 밖 출력·기저율 대체·단조성·등급 척도 일치
+python tests/test_naming.py        # 4/4  산출물을 PD(부도확률)라 부르지 않는지
 python tests/test_theme_contrast.py #     명도대비 35종·타이포 스케일·진입 스크립트 규칙
 python tools/check_doc_numbers.py  # 88/88 문서에 쓴 숫자가 산출물과 일치하는지
 
@@ -329,7 +330,7 @@ franscore/
 
 실측: **1,442개 브랜드 · 소견 8,763건 · 브랜드당 6.1건 · 서로 다른 소견조합 908종.**
 
-감시점수는 `pd_component`(백테스트로 검증된 모델 순위)와 `rule_component`(규칙 정책)를
+감시점수는 `det_component`(백테스트로 검증된 모델 순위)와 `rule_component`(규칙 정책)를
 **산출물에 분리 기록**합니다. 어디까지가 검증된 부분인지 드러나야 하기 때문입니다.
 규칙 성분은 카테고리별로 체감 합산합니다 — 단순 합산은 '계약종료율 높음'·'중도해지 많음'·
 '순유출' 처럼 한 사실을 세 각도에서 말한 소견이 겹쳐 +126점까지 치솟아

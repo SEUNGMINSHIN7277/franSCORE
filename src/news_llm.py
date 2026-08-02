@@ -494,7 +494,7 @@ def select_brands(cfg: dict, n: int = 12) -> list[str]:
     out_dir, proc = Path(cfg["paths"]["outputs"]), Path(cfg["paths"]["processed"])
 
     # 우선순위 ①: 운영 점수(최신 코호트) — 실제로 감시해야 할 대상
-    src_path, score_col = out_dir / "scores_latest.csv", "pd_1y"
+    src_path, score_col = out_dir / "scores_latest.csv", "deterioration_1y"
     if src_path.exists():
         df = pd.read_csv(src_path)
     else:  # ②: 백테스트 test 분할 예측

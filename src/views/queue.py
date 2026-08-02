@@ -81,7 +81,7 @@ def render() -> None:
             on="brand_id", how="left")
     else:
         work["headline_detail"] = ""
-        work["watch_score"] = pd.to_numeric(work["pd_rank_pct"], errors="coerce") * 100
+        work["watch_score"] = pd.to_numeric(work["deterioration_rank_pct"], errors="coerce") * 100
 
     state = _state()
     work["처리상태"] = work["brand_id"].astype(str).map(
@@ -123,7 +123,7 @@ def _worklist(work: pd.DataFrame) -> None:
         view = view[pd.to_numeric(view["n_stores"], errors="coerce").fillna(0)
                     >= min_stores]
     view = view.assign(
-        _pri=(pd.to_numeric(view["pd_1y"], errors="coerce").fillna(0)
+        _pri=(pd.to_numeric(view["deterioration_1y"], errors="coerce").fillna(0)
               * pd.to_numeric(view["n_stores"], errors="coerce").fillna(0))
     ).sort_values("_pri", ascending=False)
 
@@ -151,7 +151,7 @@ def _worklist(work: pd.DataFrame) -> None:
                     f"</div>"
                     f"<div style='font-size:{theme.FS_SM};color:{theme.TEXT_SUB}'>"
                     f"{r.get('industry_mid', '-')} · 가맹점 {int(r['n_stores']):,}개 · "
-                    f"브랜드 리스크 {float(r['pd_1y']) * 100:.1f}%</div></div></div>",
+                    f"브랜드 리스크 {float(r['deterioration_1y']) * 100:.1f}%</div></div></div>",
                     unsafe_allow_html=True)
                 detail = str(r.get("headline_detail") or "")
                 if detail and detail != "nan":
@@ -179,15 +179,15 @@ def _worklist(work: pd.DataFrame) -> None:
 def _fulltable(work: pd.DataFrame, yr) -> None:
     state = _state()
     cols = [c for c in ("brand_name", "industry_major", "industry_mid", "n_stores",
-                        "pd_1y", "risk_grade", "watch_score", "n_risk", "n_high",
+                        "deterioration_1y", "risk_grade", "watch_score", "n_risk", "n_high",
                         "categories", "처리상태", "담당", "headline_detail")
             if c in work.columns]
     view = work[cols].copy()
     view["risk_grade"] = view["risk_grade"].map(C.GRADE_KR).fillna(view["risk_grade"])
-    view = view.sort_values("pd_1y", ascending=False)
-    # ⚠️ pd_1y 는 0~1 비율이다. "%.1f%%" 서식은 값을 그대로 찍으므로 45.3%가
+    view = view.sort_values("deterioration_1y", ascending=False)
+    # ⚠️ deterioration_1y 는 0~1 비율이다. "%.1f%%" 서식은 값을 그대로 찍으므로 45.3%가
     #    "0.5%" 로 나온다(구버전 화면의 실제 결함). 표시 직전에 100을 곱한다.
-    view["pd_1y"] = pd.to_numeric(view["pd_1y"], errors="coerce") * 100
+    view["deterioration_1y"] = pd.to_numeric(view["deterioration_1y"], errors="coerce") * 100
     st.dataframe(
         view, hide_index=True,
         use_container_width=True, height=460,
@@ -196,7 +196,7 @@ def _fulltable(work: pd.DataFrame, yr) -> None:
             "industry_major": st.column_config.TextColumn("업종"),
             "industry_mid": st.column_config.TextColumn("세부 업종"),
             "n_stores": st.column_config.NumberColumn("가맹점", format="%d"),
-            "pd_1y": st.column_config.NumberColumn("브랜드 리스크", format="%.1f%%"),
+            "deterioration_1y": st.column_config.NumberColumn("브랜드 리스크", format="%.1f%%"),
             "risk_grade": st.column_config.TextColumn("등급"),
             "watch_score": st.column_config.ProgressColumn(
                 "감시 우선순위", format="%.0f", min_value=0, max_value=100),

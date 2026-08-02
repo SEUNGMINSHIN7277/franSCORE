@@ -1,4 +1,4 @@
-﻿brand_id,brand_name,year,n_findings,n_risk,n_high,categories,headline,headline_detail,top_codes,pd_component,rule_component,watch_raw,watch_score
+﻿brand_id,brand_name,year,n_findings,n_risk,n_high,categories,headline,headline_detail,top_codes,det_component,rule_component,watch_raw,watch_score
 BRD_20220035,제비파스타&리조또,2024,9,7,2,계약·성장·수요·구조,중도 해지가 많습니다,계약 기간을 채우지 못하고 중도 해지한 가맹점이 31개(40.8%)입니다. 만기 종료와 달리 중도 해지는 점주가 손실을 감수하고 나가는 것이라 수익성 악화 신호로 봅니다.,CANCEL_HIGH|STORE_DECLINE|CHURN_EXCEEDS_OPEN,100.0,22.37,122.373,97.4
 BRD_20190835,에그셀런트,2024,11,10,4,계약·매출·성장·구조,계약을 끝내는 가맹점이 많습니다,"2024년에 계약이 끝난 가맹점이 13개로, 연초 점포의 38.2%입니다. 패스트푸드 업종 상위 16%에 해당합니다. 업종 중간값은 11.8%입니다.",CONTRACT_END_HIGH|SALES_DECLINE_STREAK|STORE_DECLINE,99.93,28.24,128.172,100.0
 BRD_20211154,죽도령,2024,11,9,2,계약·성장·수요·매출·구조,계약을 끝내는 가맹점이 많습니다,"2024년에 계약이 끝난 가맹점이 35개로, 연초 점포의 41.2%입니다. 한식 업종 상위 15%에 해당합니다. 업종 중간값은 4.6%입니다.",CONTRACT_END_HIGH|STORE_DECLINE|CHURN_EXCEEDS_OPEN,99.86,26.65,126.507,99.6

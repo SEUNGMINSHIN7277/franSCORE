@@ -7,8 +7,8 @@
     예상손실(EL)·스트레스 EL이 즉시 다시 계산된다.
 
 계산식은 전부 화면에서 다시 푼다 (portfolio.py 와 같은 규칙)
-    EL        = 익스포저 × 악화확률(PD) × 손실률(LGD)
-    스트레스   = 위험 상위 stress_top_pct 브랜드의 PD × 배수 (1.0 상한) 로 다시 계산
+    EL        = 익스포저 × 악화확률 × 손실률(LGD)
+    스트레스   = 위험 상위 stress_top_pct 브랜드의 악화확률 × 배수 (1.0 상한) 로 다시 계산
     HHI       = Σ(브랜드 여신 비중)²
     조정분을 반영해 **다시 계산**하지 않으면 화면의 숫자가 조작 결과와 어긋난다.
 """
@@ -118,7 +118,7 @@ def _new_rows(brand_ids: list[str], adj: dict) -> pd.DataFrame:
             "industry_major": str(r.get("industry_major", "")) if r is not None else "",
             "industry_mid": str(r.get("industry_mid", "")) if r is not None else "",
             "n_stores": float(r["n_stores"]) if r is not None else np.nan,
-            "pd_1y": float(r["pd_1y"]) if r is not None else 0.0,
+            "deterioration_1y": float(r["deterioration_1y"]) if r is not None else 0.0,
             "risk_grade": str(r["risk_grade"]) if r is not None else "Low",
             "exposure_mkrw": max(float(adj.get(b, 0.0)), 0.0),
             "_adj": float(adj.get(b, 0.0)),
@@ -127,26 +127,26 @@ def _new_rows(brand_ids: list[str], adj: dict) -> pd.DataFrame:
 
 
 def _recompute(port: pd.DataFrame, pcfg: dict) -> pd.DataFrame:
-    """조정 후 익스포저로 비중·스트레스PD·EL을 전부 다시 계산한다."""
+    """조정 후 익스포저로 비중·스트레스 악화확률·EL 을 전부 다시 계산한다."""
     p = port[port["exposure_mkrw"] > 0].copy().reset_index(drop=True)
     if p.empty:
         return p
     total = float(p["exposure_mkrw"].sum())
     p["exposure_share"] = p["exposure_mkrw"] / total if total > 0 else 0.0
-    p["pd_1y"] = pd.to_numeric(p["pd_1y"], errors="coerce").fillna(0.0)
+    p["deterioration_1y"] = pd.to_numeric(p["deterioration_1y"], errors="coerce").fillna(0.0)
 
     top_pct = float(pcfg["stress_top_pct"])
     mult = float(pcfg["stress_pd_multiplier"])
     n_stress = max(1, math.ceil(len(p) * top_pct))
-    idx = p["pd_1y"].nlargest(n_stress).index
+    idx = p["deterioration_1y"].nlargest(n_stress).index
     p["is_stressed"] = p.index.isin(idx)
-    p["pd_stressed"] = np.where(p["is_stressed"],
-                                np.minimum(p["pd_1y"] * mult, 1.0), p["pd_1y"])
+    p["det_stressed"] = np.where(p["is_stressed"],
+                                np.minimum(p["deterioration_1y"] * mult, 1.0), p["deterioration_1y"])
 
     for lgd in sorted(float(x) for x in pcfg["lgd_scenarios"]):
         k = f"lgd{round(lgd * 100):02d}"
-        p[f"el_{k}_mkrw"] = p["exposure_mkrw"] * p["pd_1y"] * lgd
-        p[f"stress_el_{k}_mkrw"] = p["exposure_mkrw"] * p["pd_stressed"] * lgd
+        p[f"el_{k}_mkrw"] = p["exposure_mkrw"] * p["deterioration_1y"] * lgd
+        p[f"stress_el_{k}_mkrw"] = p["exposure_mkrw"] * p["det_stressed"] * lgd
     return p
 
 
@@ -201,7 +201,7 @@ def _adjust_panel(port: pd.DataFrame, adj: dict) -> None:
     st.caption("브랜드를 고르고 금액을 입력하면 위쪽 지표가 즉시 다시 계산됩니다. "
                "회수는 음수로 입력합니다.")
 
-    names = (scores[["brand_id", "brand_name", "n_stores", "pd_1y", "risk_grade"]]
+    names = (scores[["brand_id", "brand_name", "n_stores", "deterioration_1y", "risk_grade"]]
              if scores is not None else port[["brand_id", "brand_name"]])
     names = names.copy()
     names["brand_id"] = names["brand_id"].astype(str)
@@ -289,7 +289,7 @@ def _concentration(port: pd.DataFrame) -> None:
             if not m.any():
                 continue
             fig.add_trace(go.Scatter(
-                x=port.loc[m, "pd_1y"] * 100,
+                x=port.loc[m, "deterioration_1y"] * 100,
                 y=port.loc[m, "exposure_mkrw"] / 100,
                 mode="markers", name=C.GRADE_KR.get(g, g),
                 marker={"size": 11, "color": theme.GRADE_FILL[g], "opacity": .78,
@@ -361,7 +361,7 @@ def _detail_table(port: pd.DataFrame) -> None:
     if port.empty:
         return
     mid = _mid_lgd(C.cfg()["portfolio"])
-    view = port[["brand_name", "industry_mid", "n_stores", "pd_1y", "risk_grade",
+    view = port[["brand_name", "industry_mid", "n_stores", "deterioration_1y", "risk_grade",
                  "exposure_mkrw", "exposure_share", f"el_{mid}_mkrw",
                  f"stress_el_{mid}_mkrw"]].copy()
     view["exposure_mkrw"] = view["exposure_mkrw"] / 100
@@ -371,7 +371,7 @@ def _detail_table(port: pd.DataFrame) -> None:
     # 비중은 비율(0~1)로 저장돼 있다 — %.2f%% 서식은 값을 그대로 찍으므로
     # 5%가 "0.05%"로 나온다. 표시 직전에 100을 곱한다.
     view["exposure_share"] = view["exposure_share"] * 100
-    view["pd_1y"] = pd.to_numeric(view["pd_1y"], errors="coerce") * 100
+    view["deterioration_1y"] = pd.to_numeric(view["deterioration_1y"], errors="coerce") * 100
     view = view.sort_values("exposure_mkrw", ascending=False)
     st.dataframe(
         view, hide_index=True, use_container_width=True, height=430,
@@ -379,7 +379,7 @@ def _detail_table(port: pd.DataFrame) -> None:
             "brand_name": st.column_config.TextColumn("브랜드", width="medium"),
             "industry_mid": st.column_config.TextColumn("업종"),
             "n_stores": st.column_config.NumberColumn("가맹점", format="%d"),
-            "pd_1y": st.column_config.NumberColumn("브랜드 리스크", format="%.1f%%"),
+            "deterioration_1y": st.column_config.NumberColumn("브랜드 리스크", format="%.1f%%"),
             "risk_grade": st.column_config.TextColumn("등급"),
             "exposure_mkrw": st.column_config.NumberColumn("여신", format="%.1f 억"),
             "exposure_share": st.column_config.ProgressColumn(

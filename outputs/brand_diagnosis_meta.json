@@ -44,5 +44,5 @@
   "demand_covered": 292,
   "news_covered": 9,
   "hq_covered": 1433,
-  "note": "소견은 규칙 기반이며 각 문장의 수치는 해당 브랜드 공시·감사보고서 실측값이다. watch_score = pd_component(백테스트 검증 모델 순위) + rule_component(규칙 가산)."
+  "note": "소견은 규칙 기반이며 각 문장의 수치는 해당 브랜드 공시·감사보고서 실측값이다. watch_score = det_component(백테스트 검증 모델 순위) + rule_component(규칙 가산)."
 }

@@ -366,7 +366,7 @@ def _simulate_losses(rhos: list[float], thr: np.ndarray, expo: np.ndarray, lgd: 
     """단일요인 모형 손실 시뮬레이션 — 모든 ρ에 **같은 난수**를 쓴다(공통난수).
 
     X_i = √ρ·Z + √(1−ρ)·ε_i   (Z: 브랜드 공통요인, ε: 개별요인, 둘 다 표준정규)
-    브랜드 i 악화  ⟺  X_i < Φ⁻¹(PD_i),  손실 = Σ exposure_i × LGD × 1{악화}
+    브랜드 i 악화  ⟺  X_i < Φ⁻¹(악화확률_i),  손실 = Σ exposure_i × LGD × 1{악화}
 
     ⚠️ 공통난수(common random numbers)를 쓰는 이유: 우리가 알고 싶은 것은 각 시나리오의
        절대 손실이 아니라 **두 시나리오의 차이**다. 서로 다른 난수를 쓰면 두 추정치의
@@ -470,7 +470,7 @@ def correlation_impact(cfg: dict, rho_asset: float, rho_between: float | None = 
     """
     out_dir = Path(cfg["paths"]["outputs"])
     port = pd.read_csv(out_dir / "portfolio.csv")
-    pds = port["pd_1y"].to_numpy(dtype=float)
+    pds = port["deterioration_1y"].to_numpy(dtype=float)
     expo = port["exposure_mkrw"].to_numpy(dtype=float)
     lgd = float((cfg["portfolio"]["lgd_scenarios"])[1])  # 중간 시나리오
 
@@ -497,7 +497,7 @@ def correlation_impact(cfg: dict, rho_asset: float, rho_between: float | None = 
         # 재현 감사용 입력 지문 — 같은 입력이면 같은 결과가 나와야 한다
         "input_fingerprint": {
             "seed": int(cfg["seed"]),
-            "pd_sum": round(float(pds.sum()), 9),
+            "det_sum": round(float(pds.sum()), 9),
             "exposure_sum_mkrw": round(float(expo.sum()), 6),
         },
     }

@@ -282,11 +282,11 @@ def brand_facts(cfg: dict, brand_name: str) -> dict:
         "평가연도": int(r["year"]),
         "업종": f"{r.get('industry_major', '')} / {r.get('industry_mid', '')}",
         "가맹점수": int(r["n_stores"]) if pd.notna(r["n_stores"]) else None,
-        "브랜드_리스크": f"{float(r['pd_1y']) * 100:.1f}%",
+        "브랜드_리스크": f"{float(r['deterioration_1y']) * 100:.1f}%",
         "위험등급": {"High": "주의", "Medium": "관찰", "Low": "안정"}.get(
             str(r["risk_grade"]), str(r["risk_grade"])),
-        "전체중_상위": f"{(1 - float(r['pd_rank_pct'])) * 100:.1f}%"
-        if pd.notna(r.get("pd_rank_pct")) else None,
+        "전체중_상위": f"{(1 - float(r['deterioration_rank_pct'])) * 100:.1f}%"
+        if pd.notna(r.get("deterioration_rank_pct")) else None,
     })
 
     fp = out_dir / "brand_diagnosis.parquet"
@@ -368,17 +368,17 @@ def industry_facts(cfg: dict, question: str, top_n: int = 8) -> dict | None:
     if sub.empty:
         return None
     sub = sub.assign(_n=pd.to_numeric(sub["n_stores"], errors="coerce").fillna(0))
-    top = sub.assign(_pri=pd.to_numeric(sub["pd_1y"], errors="coerce").fillna(0) * sub["_n"]) \
+    top = sub.assign(_pri=pd.to_numeric(sub["deterioration_1y"], errors="coerce").fillna(0) * sub["_n"]) \
              .nlargest(top_n, "_pri")
     return {
         "업종": name,
         "평가_브랜드수": len(sub),
         "주의등급_브랜드수": int((sub["risk_grade"] == "High").sum()),
         "가맹점_중간값": _i(sub["_n"].median()),
-        "브랜드_리스크_중간값": f"{float(sub['pd_1y'].median()) * 100:.1f}%",
+        "브랜드_리스크_중간값": f"{float(sub['deterioration_1y'].median()) * 100:.1f}%",
         "위험_상위_브랜드": [
             {"브랜드": str(r["brand_name"]), "가맹점수": _i(r["n_stores"]),
-             "브랜드_리스크": f"{float(r['pd_1y']) * 100:.1f}%",
+             "브랜드_리스크": f"{float(r['deterioration_1y']) * 100:.1f}%",
              "등급": {"High": "주의", "Medium": "관찰", "Low": "안정"}.get(
                  str(r["risk_grade"]), str(r["risk_grade"]))}
             for _, r in top.iterrows()],

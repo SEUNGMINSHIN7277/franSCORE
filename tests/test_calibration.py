@@ -92,7 +92,7 @@ def test_grades_monotone_in_raw() -> None:
     if not p.exists():
         check(True, "등급 단조성", "점수표 없음 — 건너뜀")
         return
-    sc = pd.read_csv(p, encoding="utf-8-sig").sort_values("pd_raw")
+    sc = pd.read_csv(p, encoding="utf-8-sig").sort_values("score_raw")
     rank = {"FS1": 0, "FS2": 1, "FS3": 2}
     g = sc["grade"].map(rank).to_numpy()
     bad = int((np.diff(g) < 0).sum())
@@ -117,16 +117,16 @@ def test_grade_matches_validation_scale() -> None:
     sc = pd.read_csv(sp, encoding="utf-8-sig")
     bands = json.loads(bp.read_text(encoding="utf-8"))
     cuts, grades = bands["cuts"], np.array(bands["grades"], dtype=object)
-    expect = grades[np.digitize(sc["pd_calibrated_step"].to_numpy(), cuts)]
+    expect = grades[np.digitize(sc["deterioration_step"].to_numpy(), cuts)]
     bad = int((sc["grade"].to_numpy() != expect).sum())
     check(bad == 0, "화면 등급 == 검증 척도 등급", f"불일치 {bad}건")
 
     # 표시값이 자기 등급 구간 밖으로 나가면 "16.4% 인데 관찰" 같은 모순이 보인다
     edges = [0.0, *cuts, 1.0]
-    idx = np.digitize(sc["pd_calibrated_step"].to_numpy(), cuts)
+    idx = np.digitize(sc["deterioration_step"].to_numpy(), cuts)
     lo = np.array(edges[:-1], dtype=float)[idx]
     hi = np.array(edges[1:], dtype=float)[idx]
-    out = int(((sc["pd_1y"] < lo) | (sc["pd_1y"] >= hi)).sum())
+    out = int(((sc["deterioration_1y"] < lo) | (sc["deterioration_1y"] >= hi)).sum())
     check(out == 0, "표시 확률이 등급 구간 안", f"구간 밖 {out}건")
 
 

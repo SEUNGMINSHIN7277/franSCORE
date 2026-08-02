@@ -5,7 +5,7 @@
       그 소견을 합산한 watch_score(점검 우선순위)는 매일 갱신된다.
     · **연 1회 바뀐다** — 공정거래위원회 가맹사업 공시. 모델이 학습한 피처
       (점포 수·계약종료·매출·본부재무)가 전부 이 연간 공시에서 나오므로,
-      머신러닝 확률 pd_1y 는 새 공시가 나오기 전에는 움직일 수 없다.
+      머신러닝 확률 deterioration_1y 는 새 공시가 나오기 전에는 움직일 수 없다.
       매일 재산출하는 척하며 같은 값을 다시 쓰는 것은 실시간 갱신이 아니다.
     그래서 이 작업은 **일간 신호(뉴스·수요)로 진단과 우선순위를 갱신**하고,
     새 공시가 감지되면 전체 재학습이 필요하다고 표시한다.
@@ -159,7 +159,7 @@ def run(news_brands: int = NEWS_BRANDS, demand_limit: int = DEMAND_BRANDS) -> di
         "disclosure_year": year,
         # 정직성: 매일 바뀌는 것과 아닌 것을 산출물 자체에 적어 둔다.
         "daily_scope": "뉴스·검색수요 기반 진단 소견과 점검 우선순위",
-        "annual_scope": f"공시 기반 리스크 확률(pd_1y) — {year}년 공시 기준, "
+        "annual_scope": f"공시 기반 리스크 확률(deterioration_1y) — {year}년 공시 기준, "
                         f"새 공시 공표 시 재학습 필요" if year else "공시 기반 리스크 확률",
         "next_due": (finished + timedelta(days=1)).strftime("%Y-%m-%d %H:%M"),
         "steps": results,

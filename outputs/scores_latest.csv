@@ -1,4 +1,4 @@
-﻿brand_id,year,brand_name,industry_major,industry_mid,n_stores,pd_1y,pd_raw,pd_calibrated_step,pd_rank_pct,brand_state,in_model_population,grade,risk_grade,grade_band,factor1,factor1_shap,factor2,factor2_shap,factor3,factor3_shap
+﻿brand_id,year,brand_name,industry_major,industry_mid,n_stores,deterioration_1y,score_raw,deterioration_step,deterioration_rank_pct,brand_state,in_model_population,grade,risk_grade,grade_band,factor1,factor1_shap,factor2,factor2_shap,factor3,factor3_shap
 BRD_20220035,2024,제비파스타&리조또,외식,서양식,41.0,0.35570530763847774,0.5204475941025452,0.32679523066157073,1.0,요주의,False,FS3,High,16.0% 이상,[업종상대] 계약종료 백분위,0.50097,[구조] 지역당 평균 점포수,0.26241,[변화] 계약종료율,0.1176
 BRD_20190835,2024,에그셀런트,외식,패스트푸드,21.0,0.3554147541010214,0.5117583864333447,0.32679523066157073,0.9993065187239945,요주의,False,FS3,High,16.0% 이상,[업종상대] 계약종료 백분위,0.49111,[구조] 지역당 평균 점포수,0.23731,[수준] 평균매출,0.19694
 BRD_20211154,2024,죽도령,외식,한식,54.0,0.3551242005635651,0.510698991863262,0.32679523066157073,0.9986130374479889,요주의,False,FS3,High,16.0% 이상,[업종상대] 계약종료 백분위,0.44583,[구조] 지역당 평균 점포수,0.18658,[수준] 평균매출,0.12484

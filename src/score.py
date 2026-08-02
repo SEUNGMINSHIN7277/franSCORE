@@ -18,7 +18,7 @@
     최신 코호트의 결과를 보고 보정하는 셈이라 실전에서 불가능한 정보를 쓰게 된다).
 
 산출: outputs/scores_latest.csv  (심사역이 그대로 받아 쓰는 점검 큐)
-      brand_id·brand_name·year·pd_1y·risk_grade·pd_rank_pct·n_stores·상위 위험요인 3종
+      brand_id·brand_name·year·deterioration_1y·risk_grade·deterioration_rank_pct·n_stores·상위 위험요인 3종
 
 실행: 프로젝트 루트에서 `python -m src.score`  또는  `python run_pipeline.py --step score`
 """
@@ -167,7 +167,7 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
     # (실측: 2,510개 중 216개가 42.86%). 계단 내부를 원점수로 선형 보간해 편다.
     # 1e-5 짜리 미세 tie-break 는 소수점 첫째 자리에서 여전히 같은 값이라 소용이 없었다.
     p_cal = smooth_calibrated(p_raw, p_cal_step)
-    # ⚠️ 보간은 계단 **양끝을 넘어설 수 있다**. 실측: 설정 하한 pd_floor(0.0003) 미만
+    # ⚠️ 보간은 계단 **양끝을 넘어설 수 있다**. 실측: 설정 하한 prob_floor(0.0003) 미만
     #    27행(정확히 0.0 이 1행). 확률 0.0 은 "절대 악화하지 않는다"는 뜻이라 어떤
     #    통계 모형도 주장할 수 없는 값이다 — 설정 한계 안으로 되돌린다.
     #
@@ -178,7 +178,7 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
     #    **계단 안에서의 표시 순서를 만든 값**이다 — 그 사실을 문서와 화면에 밝힌다.
     #    (계단 내부 순서의 판별력은 검증 결과 out-of-sample 로 유의하지 않다.)
     ecfg = cfg.get("evaluate") or {}
-    lo, hi = float(ecfg.get("pd_floor", 0.0)), float(ecfg.get("pd_cap", 1.0))
+    lo, hi = float(ecfg.get("prob_floor", 0.0)), float(ecfg.get("prob_cap", 1.0))
     n_viol = int(((p_cal < lo - 1e-12) | (p_cal > hi + 1e-12)).sum())
     p_cal = np.clip(p_cal, lo, hi)
     n_before = int(pd.Series(p_cal_step).round(4).nunique())
@@ -191,25 +191,25 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
     for c in ("brand_name", "industry_major", "industry_mid", "n_stores"):
         if c in cohort.columns:
             res[c] = cohort[c].to_numpy()
-    res["pd_1y"] = p_cal
-    res["pd_raw"] = p_raw
-    # 보정기가 실제로 산출한 계단값. pd_1y 는 이 값을 계단 안에서 편 결과이므로,
+    res["deterioration_1y"] = p_cal
+    res["score_raw"] = p_raw
+    # 보정기가 실제로 산출한 계단값. deterioration_1y 는 이 값을 계단 안에서 편 결과이므로,
     # **감사 가능한 원본**을 함께 실어 둘을 대조할 수 있게 한다.
-    res["pd_calibrated_step"] = p_cal_step
-    res["pd_rank_pct"] = res["pd_1y"].rank(method="first", pct=True)
+    res["deterioration_step"] = p_cal_step
+    res["deterioration_rank_pct"] = res["deterioration_1y"].rank(method="first", pct=True)
     res["brand_state"] = _brand_state(cfg, res["brand_id"], target_year)
     # 모델이 실제로 학습·검증한 모집단 = 건전 상태 브랜드
     res["in_model_population"] = res["brand_state"].eq("건전")
 
     # 등급 — 관측 악화율로 앵커링된 **절대 컷** (tools/derive_grade_bands.py 산출).
     #
-    # 왜 순위 백분위를 버렸나: `pd_rank_pct >= 0.90 → High` 는 매 산출 시점에 항상
+    # 왜 순위 백분위를 버렸나: `deterioration_rank_pct >= 0.90 → High` 는 매 산출 시점에 항상
     # 정확히 10%를 주의로 만든다. 산업 전체가 나빠져도 등급 분포가 고정되고, 위험이
     # 전혀 변하지 않은 브랜드의 등급이 남의 변화 때문에 바뀐다(무변화 쌍 570개 중 19쌍 실측).
     # 무엇보다 등급별 확률이 정의되지 않아 어떤 검증도 성립하지 않는다.
     if bands:
         cuts = [float(c) for c in bands["cuts"]]
-        # ⚠️ 등급은 **계단값(pd_calibrated_step)** 으로 매긴다. 보간값(pd_1y)이 아니다.
+        # ⚠️ 등급은 **계단값(deterioration_step)** 으로 매긴다. 보간값(deterioration_1y)이 아니다.
         #
         #    컷은 tools/derive_grade_bands.py:218 이 `deploy.predict(...)` 출력, 즉
         #    보정기의 계단값 위에서 도출했다(grade_bands.json 의 anchored_on 도 같은 말).
@@ -223,7 +223,7 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
         #    측정해 out-of-sample 판별력이 없다고 결론 낸 값이다 — 신호가 없는 양이
         #    등급 경계를 넘기고 있었다. 검증 산출물(이행행렬·등급별 이항검정)은 계단값
         #    으로 매기므로, 화면 등급과 검증 등급이 48개 브랜드에서 어긋나 있었다.
-        idx = np.digitize(res["pd_calibrated_step"].to_numpy(), cuts)
+        idx = np.digitize(res["deterioration_step"].to_numpy(), cuts)
         res["grade"] = np.array(bands["grades"], dtype=object)[idx]
         # 하위 호환: 기존 화면·포트폴리오·큐가 쓰는 High/Medium/Low 를 함께 유지
         res["risk_grade"] = np.array(["Low", "Medium", "High"], dtype=object)[idx]
@@ -233,8 +233,8 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
         edges = [0.0, *cuts, 1.0]
         lo_b = np.array(edges[:-1], dtype=float)[idx]
         hi_b = np.array(edges[1:], dtype=float)[idx]
-        n_out = int(((res["pd_1y"] < lo_b) | (res["pd_1y"] >= hi_b)).sum())
-        res["pd_1y"] = np.clip(res["pd_1y"], lo_b, np.nextafter(hi_b, 0.0))
+        n_out = int(((res["deterioration_1y"] < lo_b) | (res["deterioration_1y"] >= hi_b)).sum())
+        res["deterioration_1y"] = np.clip(res["deterioration_1y"], lo_b, np.nextafter(hi_b, 0.0))
         if n_out:
             log.info("보간값을 등급 구간 안으로 되돌림: %d행", n_out)
         res["grade_band"] = [
@@ -248,8 +248,8 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
                     "(`python tools/derive_grade_bands.py` 실행 권장)")
         g = cfg["portfolio"]["risk_grades"]
         hi, mid = float(g["high"]), float(g["medium"])
-        res["risk_grade"] = np.where(res["pd_rank_pct"] >= hi, "High",
-                                     np.where(res["pd_rank_pct"] >= mid, "Medium", "Low"))
+        res["risk_grade"] = np.where(res["deterioration_rank_pct"] >= hi, "High",
+                                     np.where(res["deterioration_rank_pct"] >= mid, "Medium", "Low"))
         res["grade"] = res["risk_grade"].map({"High": "FS3", "Medium": "FS2", "Low": "FS1"})
 
     # 상위 위험요인 (SHAP) — 심사역이 '왜'를 바로 볼 수 있게 CSV에 함께 싣는다
@@ -268,11 +268,11 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
         log.warning("SHAP 기여도 산출 생략: %s", exc)
 
     log.info("브랜드 상태: %s", res["brand_state"].value_counts().to_dict())
-    high_mask = res["pd_rank_pct"] >= float(cfg["portfolio"]["risk_grades"]["high"])
+    high_mask = res["deterioration_rank_pct"] >= float(cfg["portfolio"]["risk_grades"]["high"])
     log.info("최상위 등급 %d개의 상태 구성: %s", int(high_mask.sum()),
              res.loc[high_mask, "brand_state"].value_counts().to_dict())
 
-    res = res.sort_values("pd_1y", ascending=False).reset_index(drop=True)
+    res = res.sort_values("deterioration_1y", ascending=False).reset_index(drop=True)
     dest = out_dir / "scores_latest.csv"
     res.to_csv(dest, index=False, encoding="utf-8-sig")
 
@@ -282,10 +282,11 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
         "model_file": "model_lgbm.txt",
         "calibration_method": str(cal.get("method")),
         "calibration_fitted_on": str(cal.get("fitted_on", "valid")),
-        "pd_floor": float((cfg.get("evaluate") or {}).get("pd_floor", 0.0)),
-        "pd_cap": float((cfg.get("evaluate") or {}).get("pd_cap", 1.0)),
+        "prob_floor": float((cfg.get("evaluate") or {}).get("prob_floor", 0.0)),
+        "prob_cap": float((cfg.get("evaluate") or {}).get("prob_cap", 1.0)),
         "grade_counts": res["risk_grade"].value_counts().to_dict(),
-        "pd_min": float(res["pd_1y"].min()), "pd_max": float(res["pd_1y"].max()),
+        "deterioration_min": float(res["deterioration_1y"].min()),
+        "deterioration_max": float(res["deterioration_1y"].max()),
         "note": ("라벨 미확정 코호트의 사전 점수. 보정기는 과거 valid 적합본을 적용만 했으며 "
                  "재적합하지 않았다. 성능 근거는 metrics.csv·walkforward_metrics.csv 참조."),
     }
@@ -293,9 +294,9 @@ def score_latest(cfg: dict, year: int | None = None) -> pd.DataFrame:
         json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
 
     log.info("운영 점수 산출: %d년 %d개 브랜드 → %s (High %d / Medium %d / Low %d), "
-             "PD %.4f~%.4f", target_year, len(res), dest.name,
+             "악화확률 %.4f~%.4f", target_year, len(res), dest.name,
              meta["grade_counts"].get("High", 0), meta["grade_counts"].get("Medium", 0),
-             meta["grade_counts"].get("Low", 0), meta["pd_min"], meta["pd_max"])
+             meta["grade_counts"].get("Low", 0), meta["deterioration_min"], meta["deterioration_max"])
     log.info("⚠️ 이 코호트는 아직 라벨이 없어 사후 검증이 불가하다 — 성능 근거는 "
              "과거 백테스트(metrics.csv·walkforward_metrics.csv)에 있다.")
     return res

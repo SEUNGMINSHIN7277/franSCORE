@@ -181,14 +181,15 @@ def _fit_calibrator(p: np.ndarray, y: np.ndarray, method: str):
 
 
 def _apply_calibrator(m, p: np.ndarray, method: str, cfg: dict | None = None) -> np.ndarray:
-    """보정확률 산출 + **PD 상·하한 적용**.
+    """보정확률 산출 + **확률 상·하한 적용**.
 
     왜 상·하한이 필요한가 (실측 결함):
         isotonic 은 계단함수라 양 끝 구간이 검증표본의 경험률로 **포화**된다. 실측에서
         보정확률이 정확히 1.000(3행)과 1.4e-08(하위 830행)까지 나왔다. 1년 악화확률
         "100%"·"7천만분의 1"은 수십 건의 검증 관측이 뒷받침할 수 있는 추정이 아니고,
-        그대로 `EL = exposure × PD × LGD` 에 들어가 손실 추정까지 과신하게 만든다.
-        여신 실무에서 PD에 하한(바젤 IRB는 0.03%)과 상한을 두는 것과 같은 이유다.
+        그대로 `EL = exposure × 악화확률 × LGD` 에 들어가 손실 추정까지 과신하게
+        만든다. 여신 실무가 **PD(부도확률)** 에 하한(바젤 IRB 0.03%)과 상한을 두는 것과
+        같은 이유로 준용한다 — 우리 산출물이 PD 라는 뜻은 아니다.
 
     ⚠️ 클립은 **단조 변환**이라 순위가 바뀌지 않는다 — Lift@k·Precision@k·PR-AUC·ROC-AUC
        같은 순위 기반 지표는 영향을 받지 않고, 과신만 억제된다(Brier·EL에만 반영).
@@ -200,8 +201,8 @@ def _apply_calibrator(m, p: np.ndarray, method: str, cfg: dict | None = None) ->
     else:
         out = np.clip(m.predict_proba(p.reshape(-1, 1))[:, 1], 0.0, 1.0)
     ecfg = (cfg or {}).get("evaluate") or {}
-    floor = float(ecfg.get("pd_floor", 0.0))
-    cap = float(ecfg.get("pd_cap", 1.0))
+    floor = float(ecfg.get("prob_floor", 0.0))
+    cap = float(ecfg.get("prob_cap", 1.0))
     return np.clip(out, floor, cap)
 
 
@@ -268,8 +269,8 @@ def evaluate_all(cfg: dict) -> None:
         calibrator = _fit_calibrator(p_va, y_va, method)
     p_cal_all = _apply_calibrator(calibrator, preds["p_lgbm"].to_numpy(dtype=float), method, cfg)
     _ecfg = cfg.get("evaluate") or {}
-    _floor, _cap = float(_ecfg.get("pd_floor", 0.0)), float(_ecfg.get("pd_cap", 1.0))
-    log.info("PD 상·하한 적용: [%.4g, %.4g] — 하한 도달 %d행 / 상한 도달 %d행 "
+    _floor, _cap = float(_ecfg.get("prob_floor", 0.0)), float(_ecfg.get("prob_cap", 1.0))
+    log.info("확률 상·하한 적용: [%.4g, %.4g] — 하한 도달 %d행 / 상한 도달 %d행 "
              "(isotonic 양끝 포화 억제, 순위 불변)",
              _floor, _cap, int((p_cal_all <= _floor).sum()), int((p_cal_all >= _cap).sum()))
     joblib.dump(

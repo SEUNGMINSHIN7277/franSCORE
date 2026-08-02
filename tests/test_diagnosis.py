@@ -56,7 +56,7 @@ def test_smoothing_properties() -> None:
 def test_published_pd_within_calibrator_range() -> None:
     """배포된 확률이 **보정기가 낼 수 있는 범위** 안에 있는가 (회귀 방지).
 
-    계단 보간은 계단 양끝을 넘어설 수 있다. 실제로 그랬다 — pd_floor(0.0003) 미만
+    계단 보간은 계단 양끝을 넘어설 수 있다. 실제로 그랬다 — prob_floor(0.0003) 미만
     27행(정확히 0.0 이 1행), 보정기 최댓값 0.45283 을 넘는 행 100개(최대 초과 2.74%p).
     보정기가 산출할 수 없는 값을 화면에 띄우면 그건 더 이상 '보정된 확률'이 아니다.
     기존 테스트는 [0,1] 범위만 봐서 이 위반을 통과시켰다.
@@ -69,32 +69,32 @@ def test_published_pd_within_calibrator_range() -> None:
         return
     cfg = yaml.safe_load((root / "config.yaml").read_text(encoding="utf-8"))
     ev = cfg.get("evaluate") or {}
-    floor, cap = float(ev.get("pd_floor", 0.0)), float(ev.get("pd_cap", 1.0))
-    pd_1y = pd.read_csv(p, encoding="utf-8-sig")["pd_1y"].to_numpy()
+    floor, cap = float(ev.get("prob_floor", 0.0)), float(ev.get("prob_cap", 1.0))
+    deterioration_1y = pd.read_csv(p, encoding="utf-8-sig")["deterioration_1y"].to_numpy()
 
-    n_lo = int((pd_1y < floor - 1e-12).sum())
-    n_hi = int((pd_1y > cap + 1e-12).sum())
-    assert n_lo == 0, f"pd_floor({floor}) 미만 {n_lo}행 — 보정 범위 밖 확률이 배포됐다"
-    assert n_hi == 0, f"pd_cap({cap}) 초과 {n_hi}행"
+    n_lo = int((deterioration_1y < floor - 1e-12).sum())
+    n_hi = int((deterioration_1y > cap + 1e-12).sum())
+    assert n_lo == 0, f"prob_floor({floor}) 미만 {n_lo}행 — 보정 범위 밖 확률이 배포됐다"
+    assert n_hi == 0, f"prob_cap({cap}) 초과 {n_hi}행"
 
-    # 상한은 계단 최댓값이 아니라 pd_cap 으로 본다. 최상위 계단의 수준값이 곧 보정기
+    # 상한은 계단 최댓값이 아니라 prob_cap 으로 본다. 최상위 계단의 수준값이 곧 보정기
     # 최댓값이라, 평균 보존 스프레드는 반드시 그 위로 나간다 — 거기서 자르면 최상위
     # 100개가 한 값으로 뭉쳐 계단 문제가 되살아난다(실측). 대신 **초과폭이 계단 간격
     # 수준을 넘지 않는지**를 검사해 폭주를 막는다.
     df = pd.read_csv(p, encoding="utf-8-sig")
-    if "pd_calibrated_step" in df.columns:
-        step = df["pd_calibrated_step"].to_numpy()
+    if "deterioration_step" in df.columns:
+        step = df["deterioration_step"].to_numpy()
         step_max = float(np.max(step))
-        over = float(pd_1y.max() - step_max)
+        over = float(deterioration_1y.max() - step_max)
         gaps = np.diff(np.unique(step))
         budget = float(np.max(gaps)) if len(gaps) else 0.05
         assert over <= budget + 1e-9, (
             f"계단 최댓값 {step_max:.6f} 초과폭 {over:.6f} 이 최대 계단 간격 "
             f"{budget:.6f} 보다 크다 — 스프레드가 폭주했다")
         print(f"    범위 [{floor}, {cap}] 위반 0행 · 계단 최댓값 초과 {over * 100:.2f}%p "
-              f"(허용 {budget * 100:.2f}%p) · n={len(pd_1y)}")
+              f"(허용 {budget * 100:.2f}%p) · n={len(deterioration_1y)}")
         return
-    print(f"    설정 범위 [{floor}, {cap}] 안 · 위반 0행 (n={len(pd_1y)})")
+    print(f"    설정 범위 [{floor}, {cap}] 안 · 위반 0행 (n={len(deterioration_1y)})")
 
 
 def test_smoothing_survives_tiebreak_noise() -> None:
@@ -219,7 +219,7 @@ def test_score_spread() -> None:
         print("    (건너뜀 — scores_latest.csv 없음)")
         return
     s = pd.read_csv(sp, encoding="utf-8-sig")
-    r = s["pd_1y"].round(4)
+    r = s["deterioration_1y"].round(4)
     worst = int(r.value_counts().iloc[0])
 
     # 실제로 문제였던 것은 '서로 다른 값의 비율'이 아니라 **한 값에 몰리는 것**이다
@@ -236,8 +236,8 @@ def test_score_spread() -> None:
     #    같은 추정 확률을 갖고, 순서는 점검 우선순위(확률 × 규모)가 정한다.
 
     # 계단 보간이 실제로 작동했는가 — 보정기가 낸 계단보다 훨씬 잘게 퍼져야 한다
-    if "pd_calibrated_step" in s.columns:
-        steps = int(s["pd_calibrated_step"].round(6).nunique())
+    if "deterioration_step" in s.columns:
+        steps = int(s["deterioration_step"].round(6).nunique())
         assert r.nunique() >= steps * 5, \
             f"보정 계단 {steps}개 → 표시값 {r.nunique()}개, 보간이 거의 작동하지 않았다"
         print(f"    {len(s):,}개 · 보정계단 {steps}개 → 표시값 {r.nunique():,}개 "
@@ -298,7 +298,7 @@ def test_no_dormant_rules() -> None:
 TESTS = [
     ("smoothing_properties", test_smoothing_properties),
     ("smoothing_tiebreak", test_smoothing_survives_tiebreak_noise),
-    ("pd_within_calibrator_range", test_published_pd_within_calibrator_range),
+    ("within_calibrator_range", test_published_pd_within_calibrator_range),
     ("josa", test_josa),
     ("rule_component", test_rule_component_saturation),
     ("findings_match_source", test_findings_match_source_data),

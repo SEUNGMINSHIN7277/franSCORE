@@ -976,7 +976,7 @@ def collect_demand(cfg: dict | None = None, limit: int | None = None,
         raise FileNotFoundError(f"{spath} 없음 — 먼저 `--step score` 실행")
     scores = pd.read_csv(spath, encoding="utf-8-sig")
     # 규모×위험 순으로 훑는다 — 여신 영향이 큰 브랜드부터 덮어야 한도 안에서 이득이 크다
-    scores = scores.assign(_pri=(pd.to_numeric(scores["pd_1y"], errors="coerce").fillna(0)
+    scores = scores.assign(_pri=(pd.to_numeric(scores["deterioration_1y"], errors="coerce").fillna(0)
                                  * pd.to_numeric(scores["n_stores"], errors="coerce").fillna(0)))
     todo = scores.sort_values("_pri", ascending=False).head(limit)
 

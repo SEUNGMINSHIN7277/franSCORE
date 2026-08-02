@@ -57,7 +57,7 @@ def _to_ekw(mkrw: float) -> float:
 
 
 def _pick_pd_column(test: pd.DataFrame) -> tuple[pd.Series, str]:
-    """PD 대용 확률 컬럼 선택: p_calibrated(값 존재 시) 우선, 결측은 p_lgbm으로 보충."""
+    """악화확률 컬럼 선택: p_calibrated(값 존재 시) 우선, 결측은 p_lgbm으로 보충."""
     if "p_calibrated" in test.columns and test["p_calibrated"].notna().any():
         p = test["p_calibrated"].astype(float)
         if "p_lgbm" in test.columns:
@@ -230,13 +230,13 @@ def build_portfolio(cfg: dict) -> None:
         test = test[test["year"] == test_year]
     test = test.drop_duplicates(subset="brand_id", keep="last").reset_index(drop=True)
 
-    p, pd_col = _pick_pd_column(test)
-    test["pd_1y"] = p.values
-    log.info("test 연도=%d, 브랜드 %d개, PD 컬럼=%s", test_year, len(test), pd_col)
+    p, det_col = _pick_pd_column(test)
+    test["deterioration_1y"] = p.values
+    log.info("test 연도=%d, 브랜드 %d개, 악화확률 컬럼=%s", test_year, len(test), det_col)
 
     # ---------------- 2) 점포수 결합 (exposure 스케일) ----------------
     stores, meta, store_src = _load_store_counts(processed)
-    test, n_store_fallback = _attach_store_counts(test[["brand_id", "year", "pd_1y"]], stores)
+    test, n_store_fallback = _attach_store_counts(test[["brand_id", "year", "deterioration_1y"]], stores)
     if n_store_fallback:
         log.info("점포수 (brand,year) 정확 매칭 실패 %d건 → 브랜드별 최신 관측치로 폴백", n_store_fallback)
     n_drop = int((test["n_stores"].isna() | (test["n_stores"] <= 0)).sum())
@@ -252,9 +252,9 @@ def build_portfolio(cfg: dict) -> None:
     # 부여해 등급 비율이 항상 설계값과 일치하게 한다. 컷 값은 참고용으로만 기록.
     grades_cfg = pcfg["risk_grades"]
     test = test.copy()
-    test["pd_rank_pct"] = test["pd_1y"].rank(pct=True, method="first")
-    hi_cut = float(np.quantile(test["pd_1y"], float(grades_cfg["high"])))
-    med_cut = float(np.quantile(test["pd_1y"], float(grades_cfg["medium"])))
+    test["deterioration_rank_pct"] = test["deterioration_1y"].rank(pct=True, method="first")
+    hi_cut = float(np.quantile(test["deterioration_1y"], float(grades_cfg["high"])))
+    med_cut = float(np.quantile(test["deterioration_1y"], float(grades_cfg["medium"])))
 
     # ---------------- 4) 예시 포트폴리오 + 여신 익스포저 ----------------
     rng = np.random.default_rng(cfg["seed"])
@@ -269,8 +269,8 @@ def build_portfolio(cfg: dict) -> None:
     port["exposure_share"] = port["exposure_mkrw"] / total_exposure
 
     port["risk_grade"] = np.select(
-        [port["pd_rank_pct"] > float(grades_cfg["high"]),
-         port["pd_rank_pct"] > float(grades_cfg["medium"])],
+        [port["deterioration_rank_pct"] > float(grades_cfg["high"]),
+         port["deterioration_rank_pct"] > float(grades_cfg["medium"])],
         ["High", "Medium"], default="Low")
 
     # ---------------- 5) 집중도 ----------------
@@ -279,22 +279,22 @@ def build_portfolio(cfg: dict) -> None:
     top10_share = float(shares_desc.head(10).sum())
     top1_share = float(shares_desc.iloc[0])
 
-    # ---------------- 6) 스트레스 PD: 위험 상위 stress_top_pct 브랜드 PD × multiplier (cap 1.0) ----
+    # --------- 6) 스트레스: 위험 상위 stress_top_pct 브랜드 악화확률 × multiplier (cap 1.0) ---
     stress_top_pct = float(pcfg["stress_top_pct"])
     stress_mult = float(pcfg["stress_pd_multiplier"])
     n_stress = max(1, math.ceil(len(port) * stress_top_pct))
-    stress_idx = port["pd_1y"].nlargest(n_stress).index
+    stress_idx = port["deterioration_1y"].nlargest(n_stress).index
     port["is_stressed"] = port.index.isin(stress_idx)
-    port["pd_stressed"] = np.where(
-        port["is_stressed"], np.minimum(port["pd_1y"] * stress_mult, 1.0), port["pd_1y"])
+    port["det_stressed"] = np.where(
+        port["is_stressed"], np.minimum(port["deterioration_1y"] * stress_mult, 1.0), port["deterioration_1y"])
 
-    # ---------------- 7) 시나리오별 예상손실 EL = exposure × PD × LGD ----------------
+    # ------------- 7) 시나리오별 예상손실 EL = exposure × 악화확률 × LGD -------------
     lgd_scenarios = sorted(float(x) for x in pcfg["lgd_scenarios"])
     el_rows = []
     for lgd in lgd_scenarios:
         key = f"lgd{round(lgd * 100):02d}"
-        port[f"el_{key}_mkrw"] = port["exposure_mkrw"] * port["pd_1y"] * lgd
-        port[f"stress_el_{key}_mkrw"] = port["exposure_mkrw"] * port["pd_stressed"] * lgd
+        port[f"el_{key}_mkrw"] = port["exposure_mkrw"] * port["deterioration_1y"] * lgd
+        port[f"stress_el_{key}_mkrw"] = port["exposure_mkrw"] * port["det_stressed"] * lgd
         el = float(port[f"el_{key}_mkrw"].sum())
         sel = float(port[f"stress_el_{key}_mkrw"].sum())
         el_rows.append({
@@ -319,9 +319,9 @@ def build_portfolio(cfg: dict) -> None:
     port["exposure_is_synthetic"] = bool(expo_meta.get("is_synthetic", True))
 
     lead = [c for c in ["brand_id", "brand_name", "industry_major", "industry_mid",
-                        "year", "n_stores", "pd_1y", "risk_grade",
+                        "year", "n_stores", "deterioration_1y", "risk_grade",
                         "startup_cost_mkrw", "exposure_mkrw", "exposure_ekw", "exposure_share",
-                        "is_stressed", "pd_stressed"] if c in port.columns]
+                        "is_stressed", "det_stressed"] if c in port.columns]
     rest = [c for c in port.columns if c not in lead]
     port = port[lead + rest].sort_values("exposure_mkrw", ascending=False).reset_index(drop=True)
 
@@ -354,7 +354,7 @@ def build_portfolio(cfg: dict) -> None:
         "synthetic": bool(expo_meta.get("is_synthetic", True)),
         "test_year": test_year,
         "n_brands": len(port),
-        "pd_column_used": pd_col,
+        "det_column_used": det_col,
         "total_exposure_mkrw": total_exposure,
         "total_exposure_ekw": _to_ekw(total_exposure),
         "concentration": {
@@ -373,8 +373,8 @@ def build_portfolio(cfg: dict) -> None:
         "expected_loss_scenarios": el_rows,
         "stress": {
             "top_pct": stress_top_pct,
-            "pd_multiplier": stress_mult,
-            "pd_cap": 1.0,
+            "stress_multiplier": stress_mult,
+            "prob_cap": 1.0,
             "n_stressed_brands": int(n_stress),
         },
         "headline": headline,
@@ -385,12 +385,12 @@ def build_portfolio(cfg: dict) -> None:
                 expo_meta["basis"], "여신 exposure 산출 근거 미상"),
             "seed": int(cfg["seed"]),
             "units": {"exposure": "백만원(MKRW)", "display": "억원 = 백만원 / 100"},
-            "pd_definition": (
-                "PD는 모델이 예측한 '1년 내 구조악화 전환 확률'을 부도확률의 대용 지표로 "
+            "risk_definition": (
+                "악화확률은 모델이 예측한 '1년 내 구조악화 전환 확률'이다. 부도확률(PD)이 "
                 "사용한 것으로, 실제 부도율과 다를 수 있습니다."),
-            "el_formula": "EL_i = exposure_i × PD_i × LGD (LGD 시나리오 3종)",
+            "el_formula": "EL_i = exposure_i × 악화확률_i × LGD (LGD 시나리오 3종)",
             "stress_rule": (
-                f"PD 상위 {stress_top_pct:.0%} 브랜드({n_stress}개)의 PD × {stress_mult} "
+                f"악화확률 상위 {stress_top_pct:.0%} 브랜드({n_stress}개)의 악화확률 × {stress_mult} "
                 "(상한 1.0) 동시 악화 가정"),
             "risk_grade_basis": (
                 "test 전체 브랜드 예측확률 분포 내 **순위(pct rank)** 기준 — "

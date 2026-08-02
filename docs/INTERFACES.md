@@ -141,7 +141,8 @@ walkforward_predictions.parquet / walkforward_delta_ci.csv.
   `synthetic` 플래그가 **실제 경로를 따라** 기록된다.
 - 등급 = test 전체 분포 내 **순위(pct rank, method='first')** 기준 High(상위 10%)/Medium(30%)/
   Low — 값 임계 컷은 동률 왜곡 때문에 사용하지 않는다(참고 컷값만 기록).
-- EL = exposure × PD × LGD{0.3,0.45,0.6}; 스트레스 = PD 상위 10% × 1.5 (cap 1.0).
+- EL = exposure × 악화확률 × LGD{0.3,0.45,0.6}; 스트레스 = 악화확률 상위 10% × 1.5 (cap 1.0).
+  악화확률은 PD 가 아니다(구조악화 전환 확률) — EL 은 대리 손실 지표다.
 - 산출: portfolio.csv, portfolio_summary.json(가정 명세 필수 포함).
 
 ### news_llm.py

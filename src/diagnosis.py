@@ -17,10 +17,10 @@
     출처와 심각도를 함께 갖는다. 규칙은 34종이며 브랜드마다 발동 조합이 달라진다.
 
 모델과의 관계 (정직성)
-    악화확률(PD)은 LightGBM 백테스트로 검증된 값이고 **순위의 기준**이다.
+    악화확률은 LightGBM 백테스트로 검증된 값이고 **순위의 기준**이다.
     이 모듈의 소견은 그 순위를 설명하고, 모델이 보지 않는 축(감사의견·보도·검색수요)을
     **가산 감시점수**로 덧붙인다. 가산분은 규칙이지 백테스트된 모형이 아니므로
-    산출물에서 `pd_component` 와 `rule_component` 를 분리해 기록한다.
+    산출물에서 `det_component` 와 `rule_component` 를 분리해 기록한다.
     합성 점수의 실효성은 evaluate.py 의 검증 단계에서 과거 라벨로 직접 확인한다.
 
 산출
@@ -1251,10 +1251,10 @@ def rule_component(findings: list[Finding]) -> float:
     return float(RULE_CAP * np.tanh(total / RULE_CAP))
 
 
-def watch_components(pd_pctile: float, findings: list[Finding]) -> dict:
+def watch_components(det_pctile: float, findings: list[Finding]) -> dict:
     """모델 성분과 규칙 성분을 **분리해서** 기록한다.
 
-    pd_component  : 백테스트로 검증된 모델 순위 (0~100)
+    det_component  : 백테스트로 검증된 모델 순위 (0~100)
     rule_component: 규칙 소견 가산·감산 — 백테스트된 모형이 아니라 심사 정책이다
     watch_raw     : 둘의 합 (여기서는 자르지 않는다)
 
@@ -1262,10 +1262,10 @@ def watch_components(pd_pctile: float, findings: list[Finding]) -> dict:
     합계를 0~100 으로 바로 자르면 상위권이 전부 100 으로 뭉개져(실측: 상위 12개 전부
     100.0) 애초에 고치려던 '값이 다 똑같다' 문제를 그대로 재현한다.
     """
-    base = float(np.clip(pd_pctile, 0.0, 1.0) * 100.0)
+    base = float(np.clip(det_pctile, 0.0, 1.0) * 100.0)
     add = rule_component(findings)
     return {
-        "pd_component": round(base, 2),
+        "det_component": round(base, 2),
         "rule_component": round(add, 2),
         "watch_raw": round(base + add, 3),
     }
@@ -1347,7 +1347,7 @@ def diagnose_cohort(cfg: dict, scores: pd.DataFrame, panel: pd.DataFrame,
             hq=_hq_frame(hq_all, norm_corp(company), year), hq_company=company,
             demand=(demand or {}).get(bid), news=(news or {}).get(bid))
         findings = run_rules(ctx)
-        ws = watch_components(float(s.get("pd_rank_pct") or 0.0), findings)
+        ws = watch_components(float(s.get("deterioration_rank_pct") or 0.0), findings)
 
         for i, f in enumerate(findings):
             d = asdict(f)
@@ -1420,7 +1420,7 @@ def run(cfg: dict | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
         "hq_covered": int((fdf["code"] != "HQ_NO_DATA").groupby(fdf["brand_id"]).any().sum())
         if len(fdf) else 0,
         "note": ("소견은 규칙 기반이며 각 문장의 수치는 해당 브랜드 공시·감사보고서 실측값이다. "
-                 "watch_score = pd_component(백테스트 검증 모델 순위) + rule_component(규칙 가산)."),
+                 "watch_score = det_component(백테스트 검증 모델 순위) + rule_component(규칙 가산)."),
     }
     (out_dir / "brand_diagnosis_meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")

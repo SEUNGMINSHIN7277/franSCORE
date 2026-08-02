@@ -159,7 +159,7 @@ def _watchlist(df: pd.DataFrame) -> None:
     if high.empty:
         st.success("주의 등급에 해당하는 브랜드가 없습니다.")
         return
-    high["_priority"] = (pd.to_numeric(high["pd_1y"], errors="coerce").fillna(0)
+    high["_priority"] = (pd.to_numeric(high["deterioration_1y"], errors="coerce").fillna(0)
                          * pd.to_numeric(high["n_stores"], errors="coerce").fillna(0))
     diag = C.load_diagnosis_summary()
     dmap = ({str(r["brand_id"]): r for _, r in diag.iterrows()}
@@ -182,7 +182,7 @@ def _watchlist(df: pd.DataFrame) -> None:
             with val:
                 st.markdown(
                     f"<div style='text-align:right'>"
-                    f"{C.signal_html(str(r['risk_grade']), r['pd_1y'])}</div>",
+                    f"{C.signal_html(str(r['risk_grade']), r['deterioration_1y'])}</div>",
                     unsafe_allow_html=True)
             d = dmap.get(bid)
             if d is not None:
@@ -218,7 +218,7 @@ def _brand_card(r: pd.Series, *, key: str) -> None:
             f"가맹점 {int(pd.to_numeric(r['n_stores'], errors='coerce') or 0):,}개</div>"
             f"</div></div>"
             f"<div style='margin-top:8px'>"
-            f"{C.signal_html(str(r['risk_grade']), r['pd_1y'], size=11)}</div>",
+            f"{C.signal_html(str(r['risk_grade']), r['deterioration_1y'], size=11)}</div>",
             unsafe_allow_html=True)
         if st.button("상세 보기", key=f"c{key}_{bid}", use_container_width=True):
             select_brand(bid)
@@ -230,7 +230,7 @@ def _distribution(df: pd.DataFrame) -> None:
     st.markdown("### 브랜드 리스크 분포")
     fig = go.Figure()
     for g in ("Low", "Medium", "High"):
-        p = pd.to_numeric(df.loc[df["risk_grade"] == g, "pd_1y"],
+        p = pd.to_numeric(df.loc[df["risk_grade"] == g, "deterioration_1y"],
                           errors="coerce").dropna() * 100
         if p.empty:
             continue
@@ -247,7 +247,7 @@ def _distribution(df: pd.DataFrame) -> None:
                       margin={"l": 4, "r": 4, "t": 30, "b": 4})
     fig.update_xaxes(range=[0, 100], dtick=25, ticksuffix="%")
     theme.plot(fig, key="fs_hist")
-    p = pd.to_numeric(df["pd_1y"], errors="coerce").dropna() * 100
+    p = pd.to_numeric(df["deterioration_1y"], errors="coerce").dropna() * 100
     st.caption(f"가로축은 브랜드 리스크(0~100%), 세로축은 그 구간에 속한 브랜드 수입니다. "
                f"대부분은 왼쪽 낮은 구간에 몰려 있고 오른쪽 꼬리가 점검 대상입니다 — "
                f"중앙값 {p.median():.1f}%, 가장 높은 브랜드 {p.max():.1f}%.")
@@ -330,8 +330,8 @@ def _detail_screen(r: pd.Series) -> None:
         st.markdown(_summary_sentence(r), unsafe_allow_html=True)
         st.markdown(C.population_note(r), unsafe_allow_html=True)
     with h2:
-        theme.plot(C.risk_gauge(float(r["pd_1y"])), key=f"g_{bid}")
-        rank = r.get("pd_rank_pct")
+        theme.plot(C.risk_gauge(float(r["deterioration_1y"])), key=f"g_{bid}")
+        rank = r.get("deterioration_rank_pct")
         sub = (f"전체 {C.load_scores()[0].shape[0]:,}개 중 "
                f"상위 {(1 - float(rank)) * 100:.1f}%" if pd.notna(rank) else "")
         st.markdown(
@@ -368,9 +368,9 @@ def _summary_sentence(r: pd.Series) -> str:
     여기서는 등급·확률·순위·규모라는 네 가지 관측값만으로 문장을 만든다.
     """
     grade = str(r["risk_grade"])
-    p = float(r["pd_1y"]) * 100
+    p = float(r["deterioration_1y"]) * 100
     n = int(pd.to_numeric(r.get("n_stores"), errors="coerce") or 0)
-    rank = r.get("pd_rank_pct")
+    rank = r.get("deterioration_rank_pct")
     rank_txt = (f"평가 대상 가운데 상위 {(1 - float(rank)) * 100:.1f}%"
                 if pd.notna(rank) else "순위 미산출")
     b = C.grade_bounds(C._mtime(C.out_dir() / "scores_latest.csv"))
