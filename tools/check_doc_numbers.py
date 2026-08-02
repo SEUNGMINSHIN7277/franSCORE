@@ -577,7 +577,9 @@ def main() -> int:
     if rows:
         if sorted(rows) != list(range(1, len(rows) + 1)):
             _fails.append(f"TECH 결함 목록 번호가 연속이 아니다 (n={len(rows)})")
-        cats = [int(m.group(3)) for m in re.finditer(r"### ([A-H])\. (.+?) \((\d+)건\)", sec)]
+        # ⚠️ 카테고리 문자를 A-H 로 고정해 두었더니, I 를 새로 만들었을 때 그 21건이
+        #    합계에서 통째로 빠졌다. 검사 자신이 낡는 자리다 — 범위를 열어 둔다.
+        cats = [int(m.group(3)) for m in re.finditer(r"### ([A-Z])\. (.+?) \((\d+)건\)", sec)]
         if cats and sum(cats) != len(rows):
             _fails.append(f"TECH 카테고리 합 {sum(cats)} ≠ 실제 행수 {len(rows)}")
         need("TECH 결함 전수 건수", f"결함 {len(rows)}건", "README", "TECH")
