@@ -18,7 +18,10 @@
     이런 신호가 지금까지 브랜드의 88.6%에서 비어 있었다.
 
 🛑 **전량 자동 수집은 불가하다 — 캡차 (실측 확정)**
-    파일럿을 돌려 보니 **한 세션에서 5건을 열람한 직후 캡차가 걸린다.**
+    ⚠️ 2026-08-03 정정: 처음엔 "세션당 5건 후" 로 적었으나, 별도 조사에서 **쿠키 없는
+       새 프로그램 세션은 list.do 직후 **첫 번째** view.do 요청부터** 캡차 페이지를
+       받는 것이 확인됐다. 앞선 5건은 이미 사람이 만든 세션 상태를 물려받은 것이었다.
+       즉 한도는 5가 아니라 사실상 0이고, 그 전제로 계산한 수집량 추정은 전부 무효다.
     응답이 453바이트로 줄고 본문이 이렇다:
 
         "인증 요청 / 사람 인증이 필요합니다. / 캡챠 입력:"
@@ -198,6 +201,51 @@ def financial_rows(reg_no: str, brand: dict) -> list[dict]:
 
 
 _YEAR_RE = re.compile(r"^(19|20)\d{2}\s*년?$")
+# 쉼표로 세 자리씩 끊긴 수. 붙어 있는 숫자열을 가르는 유일한 단서다.
+_NUM_RE = re.compile(r"-?\d{1,3}(?:,\d{3})*")
+_HDR_ORDER = ("자산", "부채", "자본", "매출", "영업이익", "당기순이익")
+
+
+def _pdf_fin_table(flat: str) -> list[list[str]]:
+    """PDF 텍스트에서 재무 표를 뽑아 [헤더, 연도행...] 형태로 돌려준다.
+
+    ⚠️ PDF 마다 표가 **공백 없이 한 덩어리로** 추출된다(실측):
+
+        연도자산총계부채총계자본총계매출액영업이익당기순이익20227,599,1104,791,316…
+
+    뚜레쥬르는 공백이 있었지만 이삭토스트·투다리·처갓집양념치킨은 없다. 그래서
+    줄 단위 split() 으로는 못 읽는다. 헤더는 **열 이름을 순서대로** 정규식으로 찾고,
+    데이터는 '연도 4자리 + 열 개수만큼의 수' 를 반복해 읽는다.
+
+    숫자 경계는 **쉼표 세 자리 구분**이 알려 준다 — `7,599,1104,791,316` 은
+    `7,599,110` 과 `4,791,316` 으로만 갈라진다. 천 미만 값이 섞이면 갈림이 모호해질
+    수 있으나, 그 경우는 자산=부채+자본 검산이 잡는다(ingest_saved 참조).
+    """
+    hdr = re.compile(r"연\s*도" + r"".join(rf"\s*({c}\s*(?:총계|액)?)" for c in _HDR_ORDER))
+    m = hdr.search(flat)
+    if not m:
+        return []
+    header = ["연도"] + [re.sub(r"\s+", "", g) for g in m.groups()]
+    ncol = len(_HDR_ORDER)
+    rows = [header]
+    pos = m.end()
+    tail = flat[pos:pos + 4000]
+    while True:
+        ym = re.match(r"\s*((?:19|20)\d{2})\s*년?\s*", tail)
+        if not ym:
+            break
+        cells = [ym.group(1)]
+        tail = tail[ym.end():]
+        for _ in range(ncol):
+            nm = _NUM_RE.match(tail.lstrip())
+            if not nm:
+                break
+            tail = tail.lstrip()[nm.end():]
+            cells.append(nm.group(0))
+        if len(cells) != ncol + 1:
+            break
+        rows.append(cells)
+    return rows if len(rows) > 1 else []
 
 
 def parse_pdf(path: Path) -> dict:
@@ -227,39 +275,85 @@ def parse_pdf(path: Path) -> dict:
     if m:
         out["amount_unit"] = m.group(1)
 
-    m = re.search(r"등록번호\s*[:：]?\s*(\d{8,12})", flat)
-    if m:
-        out["reg_no"] = m.group(1)
-    m = re.search(r"\[\s*([^\[\]]{1,30}?)\s*\]\s*정보공개서", flat)
-    if m:
-        out["brand_name"] = m.group(1).replace(" ", "")
+    # ⚠️ 등록번호를 문서에서 **추측하지 않는다.** 정보공개서에는 자기 번호 말고도
+    #    서비스표 등록번호(4100917700000), 특수관계인·자매 브랜드의 등록번호가 함께
+    #    실린다. 첫 구현이 실제로 두 건을 틀렸다:
+    #      · 이삭토스트 문서 → 자매 브랜드 '이삭버거'(20201428, 패널에 없음)
+    #      · 투다리 문서   → 같은 본부의 '토대력'(20090100370, 점포 19개)
+    #    투다리(점포 1,292) 재무가 토대력에 붙을 뻔했다. 조용히 틀린 데이터다.
+    #    그래서 **후보만 모으고**, 패널 대조로 확정하는 일은 resolve_brand() 가 한다.
+    cands: list[str] = []
+    for pat in (r"정보공개서\s*등록\s*번호\s*[:：]?\s*(\d{8,12})",
+                r"공정거래위원회\s*등록번호\s*[:：]?\s*(\d{8,12})",
+                r"등록\s*번호\s*[:：]?\s*(\d{8})\s*(?:홈페이지|최초등록)",
+                r"등록\s*번호\s*[:：]?\s*(\d{8,11})\b"):
+        cands += [m.group(1) for m in re.finditer(pat, flat)]
+    # 중복 제거하되 등장 순서(=우선순위)를 지킨다
+    out["reg_no_candidates"] = list(dict.fromkeys(cands))
 
-    # 재무 표: '연도 ... 자산 ... ' 헤더 줄을 찾고, 뒤따르는 연도 줄을 읽는다
-    rows: list[list[str]] = []
-    lines = [ln.strip() for ln in flat.splitlines()]
-    for i, ln in enumerate(lines):
-        cells = ln.split()
-        if not cells or cells[0].replace(" ", "") != "연도":
-            continue
-        if sum(1 for c in cells if c in _FIN_COLS) < len(_FIN_KEYS):
-            continue                                    # 재무 표가 아닌 다른 '연도' 표
-        rows.append(cells)
-        for nxt in lines[i + 1:]:
-            c2 = nxt.split()
-            if not c2 or not _YEAR_RE.match(c2[0]):
-                if rows[1:]:                            # 데이터가 시작된 뒤 끊기면 표 끝
-                    break
-                continue
-            c2[0] = c2[0].rstrip("년")
-            rows.append(c2)
-        break
-    out["financials"] = rows
+    names: list[str] = []
+    for pat in (r"[\[［]\s*([^\[\]［］]{1,30}?)\s*[\]］]\s*정보공개서",
+                r"앞으로\s*[\[［]?\s*([^\[\]［］\s]{2,25}?)\s*[\]］]?\s*(?:라|이라)\s*합니다",
+                r"\n\s*([^\n]{2,40}?)\s*정보공개서\s*\n"):
+        for m in re.finditer(pat, flat):
+            v = m.group(1).strip()
+            if v and not re.fullmatch(r"[\d\s년.\-()]+", v):
+                names.append(v)
+    out["brand_name_candidates"] = list(dict.fromkeys(names))
+
+    out["financials"] = _pdf_fin_table(flat)
     out["store_flow"] = []
     m = re.search(r"사업자등록번호.{0,200}?(\d{3}-\d{2}-\d{5})", flat, re.S)
     out["brno"] = m.group(1).replace("-", "") if m else ""
     m = re.search(r"법인등록번호.{0,200}?(\d{6}-\d{7})", flat, re.S)
     out["crno"] = m.group(1).replace("-", "") if m else ""
     return out
+
+
+def _panel_index(cfg: dict) -> tuple[dict[str, str], dict[str, list[str]]]:
+    """(등록번호 → 브랜드명, 정규화 브랜드명 → 등록번호 목록). 최신 연도 기준."""
+    p = Path(cfg["_root"]) / cfg["paths"]["processed"] / "panel_full.parquet"
+    if not p.exists():
+        return {}, {}
+    f = pd.read_parquet(p, columns=["brand_id", "brand_name", "year"])
+    f = f[f["year"] == f["year"].max()]
+    by_id, by_name = {}, {}
+    for bid, nm in zip(f["brand_id"].astype(str), f["brand_name"].astype(str), strict=False):
+        reg = bid[4:] if bid.startswith("BRD_") else bid
+        by_id[reg] = nm
+        by_name.setdefault(re.sub(r"[\s()（）]", "", nm), []).append(reg)
+    return by_id, by_name
+
+
+def resolve_brand(brand: dict, by_id: dict, by_name: dict) -> tuple[str, str]:
+    """(등록번호, 확정 사유). 확정 못 하면 ("", 사유).
+
+    **추측을 금지한다.** 문서에서 뽑은 등록번호 후보는 자기 것이 아닐 수 있으므로
+    (자매 브랜드·서비스표·특수관계인 번호가 섞여 있다) 패널에 실재하는 번호만
+    받아들이고, 브랜드명까지 대조해 어긋나면 거부한다. 재무를 남의 브랜드에 붙이는
+    것은 데이터가 없는 것보다 나쁘다 — 이 프로젝트가 로고에서 이미 배운 교훈이다.
+    """
+    names = [re.sub(r"[\s()（）]", "", n) for n in brand.get("brand_name_candidates", [])]
+
+    for reg in brand.get("reg_no_candidates", []):
+        pnl = by_id.get(reg)
+        if not pnl:
+            continue                                   # 패널에 없는 번호는 우리 대상이 아니다
+        key = re.sub(r"[\s()（）]", "", pnl)
+        if not names or any(n in key or key in n for n in names):
+            return reg, f"등록번호 {reg} 패널 일치({pnl})"
+
+    # 번호로 못 정하면 영업표지로 — 단, **정확히 하나**일 때만
+    for n in names:
+        hit = by_name.get(n) or [r for k, v in by_name.items()
+                                 if k == n or (len(n) >= 3 and n in k) for r in v]
+        hit = list(dict.fromkeys(hit))
+        if len(hit) == 1:
+            return hit[0], f"영업표지 '{n}' 단일 일치 → {hit[0]}"
+        if len(hit) > 1:
+            return "", f"영업표지 '{n}' 가 {len(hit)}개 브랜드에 걸린다 — 사람이 확인해야 한다"
+    return "", (f"등록번호 후보 {brand.get('reg_no_candidates')} 가 패널에 없고 "
+                f"영업표지 후보 {brand.get('brand_name_candidates')} 로도 특정 불가")
 
 
 def ingest_saved(cfg: dict, src_dir: str) -> dict:
@@ -296,6 +390,12 @@ def ingest_saved(cfg: dict, src_dir: str) -> dict:
         log.warning("%s 에 .html/.pdf 파일이 없다", src)
         return {"files": 0, "parsed": 0, "with_financials": 0}
 
+    by_id, by_name = _panel_index(cfg)
+    if not by_id:
+        log.warning("패널을 못 읽었다 — 브랜드 확정 없이 진행하지 않는다")
+        return {"files": len(files), "parsed": 0, "with_financials": 0,
+                "skipped": len(files)}
+
     parsed = with_fin = 0
     skipped: list[str] = []
     for p in files:
@@ -310,13 +410,16 @@ def ingest_saved(cfg: dict, src_dir: str) -> dict:
         except Exception as exc:
             skipped.append(f"{p.name}: 읽기 실패 {type(exc).__name__}: {exc}")
             continue
-        # 등록번호는 문서 안에서 찾는다 — 파일명에 기대지 않는다.
-        # (실제로 대표님이 받은 파일 이름이 '가맹계약서.pdf' 였는데 내용은 정보공개서였다)
-        reg_no = str(brand.get("reg_no") or "")
-        if not reg_no and flat:
-            m = re.search(r"등록번호.{0,200}?(\d{8,12})", flat, re.S)
-            reg_no = m.group(1) if m else ""
-        reg_no = reg_no or p.stem
+        # 등록번호는 문서 안에서 찾되 **패널 대조로 확정**한다. 파일명에 기대지 않는다
+        # (대표님이 받은 파일 이름이 '가맹계약서.pdf' 였는데 내용은 정보공개서였다).
+        if flat and not brand.get("reg_no_candidates"):
+            brand["reg_no_candidates"] = [m.group(1) for m in
+                                          re.finditer(r"등록\s*번호.{0,60}?(\d{8,12})", flat, re.S)]
+        reg_no, why = resolve_brand(brand, by_id, by_name)
+        if not reg_no:
+            skipped.append(f"{p.name}: 브랜드 특정 실패 — {why}")
+            continue
+        brand["_resolved_by"] = why
         rows = financial_rows(reg_no, brand)
         if not rows:
             skipped.append(f"{p.name}: 재무 표를 못 읽음 (열람 상세 페이지가 맞는지 확인)")
