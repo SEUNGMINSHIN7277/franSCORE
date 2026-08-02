@@ -482,11 +482,13 @@ def _tab_hq(brand_id: str) -> None:
     fin = fin_all[fin_all["key"] == norm_corp(company)].sort_values("fiscal_year")
     if fin.empty:
         st.info(f"**{company}**는 외부감사 대상이 아니어서 감사보고서를 제출하지 않습니다. "
-                "본부의 자본잠식·적자 여부를 공시로 확인할 수 없으므로, 여신 심사 시 "
-                "별도 재무자료를 징구해 확인해야 합니다.")
+                "본부의 자본잠식·적자 여부를 감사보고서로도 정보공개서로도 확인할 수 "
+                "없으므로, 여신 심사 시 별도 재무자료를 징구해 확인해야 합니다.")
         return
 
-    st.markdown(f"**{company}** · 금융감독원 전자공시")
+    # 이 표의 원천은 브랜드마다 다르다 — 감사보고서일 수도, 정보공개서일 수도 있다.
+    # 한쪽 이름만 박아 두면 확인하러 간 심사역이 그 문서를 못 찾는다.
+    st.markdown(f"**{company}** · {C.hq_source_label(fin)}")
     show = fin[["fiscal_year", "assets", "liabilities", "equity", "revenue",
                 "operating_income", "net_income"]].copy()
     for c in show.columns[1:]:

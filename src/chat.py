@@ -82,7 +82,8 @@ _INTENT_GUIDE: dict[str, str] = {
     "capability": (
         "이 서비스가 무엇을 할 수 있는지 묻고 있습니다. 짧게 답하십시오.\n"
         "다룰 수 있는 것: 공정거래위원회에 공시된 프랜차이즈 브랜드의 위험도, 가맹점 수·\n"
-        "평균매출 추이, 계약 종료·해지, 가맹본부 재무(금융감독원 감사보고서), 업종 비교,\n"
+        "평균매출 추이, 계약 종료·해지, 가맹본부 재무(금융감독원 감사보고서 또는\n"
+        "공정거래위원회 정보공개서), 업종 비교,\n"
         "관련 뉴스. 다루지 못하는 것: 공시 대상이 아닌 사업, 주식·부동산 같은 다른 분야.\n"
         "예시 질문 두세 개를 덧붙이십시오."),
     "off_domain": (
@@ -596,7 +597,7 @@ def answer(cfg: dict, question: str, history: list[dict] | None = None) -> dict:
         parts.append(f"# 지금까지의 대화\n{convo}")
     parts.append(f"# 이번 질문\n{question}")
     if sel:
-        parts.append("# 브랜드 자료 (공정거래위원회 공시 · 금융감독원 전자공시 · 네이버)\n"
+        parts.append("# 브랜드 자료 (공정거래위원회 공시·정보공개서 · 금융감독원 전자공시 · 네이버)\n"
                      + json.dumps(sel, ensure_ascii=False, indent=1))
     if industry:
         parts.append("# 업종 자료\n" + json.dumps(industry, ensure_ascii=False, indent=1))

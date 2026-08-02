@@ -153,6 +153,27 @@ def load_hq_financials() -> pd.DataFrame | None:
     return _parquet(str(p), _mtime(p)) if p.exists() else None
 
 
+def hq_source_label(fin: pd.DataFrame) -> str:
+    """이 본부 재무표가 **어느 문서에서 왔는지** 화면에 적을 문구.
+
+    ⚠️ 본부 재무는 두 원천에서 온다 — 금감원 감사보고서와 공정위 정보공개서 열람분.
+       화면에 '금융감독원 전자공시'만 박아 두면, 외부감사 대상이 아닌 본부의 수치까지
+       DART 이름표를 달고 나간다. 확인하러 간 심사역은 그 문서를 찾지 못한다.
+       한 브랜드 안에 두 원천이 섞일 수도 있으므로(연도별로 다를 수 있다) 둘 다 적는다.
+    """
+    from src.ifrmp_web import HQ_SOURCE_TAG
+    if fin is None or fin.empty or "source" not in fin.columns:
+        return "금융감독원 전자공시"
+    kinds = set(fin["source"].dropna().astype(str))
+    has_web = HQ_SOURCE_TAG in kinds
+    has_dart = bool(kinds - {HQ_SOURCE_TAG})
+    if has_web and has_dart:
+        return "금융감독원 전자공시 · 공정거래위원회 정보공개서"
+    if has_web:
+        return "공정거래위원회 정보공개서"
+    return "금융감독원 전자공시"
+
+
 def load_demand() -> dict:
     p = out_dir() / "demand_trends.json"
     if not p.exists():
@@ -385,7 +406,8 @@ def refresh_footer() -> None:
             "| 진단 소견 · 점검 우선순위 | **매일** | 뉴스 보도, 네이버 검색어트렌드 |\n"
             f"| 브랜드 리스크 확률 | **연 1회** | 공정거래위원회 가맹사업 공시"
             f"{f' ({yr}년 기준)' if yr else ''} |\n"
-            "| 가맹본부 재무 | 연 1회 | 금융감독원 전자공시(DART) 감사보고서 |\n")
+            "| 가맹본부 재무 | 연 1회 | 금융감독원 전자공시(DART) 감사보고서 · "
+            "공정거래위원회 정보공개서 |\n")
         st.caption(
             "리스크 확률은 공시에서 나온 점포 수·계약종료·매출·본부재무로 계산합니다. "
             "그 공시가 1년에 한 번 나오므로 확률도 그때 움직입니다. 매일 갱신되는 것은 "
