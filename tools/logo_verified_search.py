@@ -105,7 +105,7 @@ class _Verifier:
 
     def __init__(self) -> None:
         load_secrets()
-        names = ["GEMINI_API_KEY"] + [f"GEMINI_API_KEY_{i}" for i in range(2, 6)]
+        names = ["GEMINI_API_KEY"] + [f"GEMINI_API_KEY_{i}" for i in range(2, 13)]
         self.keys = [os.environ[n].strip() for n in names if os.environ.get(n, "").strip()]
         self.i = 0
         self.calls = 0

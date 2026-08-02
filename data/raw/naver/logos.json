@@ -160,11 +160,15 @@
   "img_search_done": "확보"
  },
  "한솥": {
-  "url": "https://www.hsd.co.kr/assets/images/common/favicon.ico",
+  "url": "http://imgnews.naver.net/image/5560/2025/01/22/0000116064_001_20250122160215114.jpg",
   "domain": "www.hsd.co.kr",
-  "px": 16,
-  "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "px": 600,
+  "file": "data/raw/naver/logo_img/f8402c750e824d5f.png",
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "source": "image-search+llm",
+  "verified_text": "한솥",
+  "verified_reason": "이미지에 한국 프랜차이즈 브랜드 '한솥'의 심볼 마크와 브랜드명 '한솥'이 명확히 포함되어 있는 공식 로고입니다.",
+  "img_search_done": "확보"
  },
  "가마치통닭": {
   "url": "https://www.gamachi.co.kr/theme/gamachi3/assets/images/favicon.ico",

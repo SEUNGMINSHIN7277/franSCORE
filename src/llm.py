@@ -37,8 +37,11 @@ from src.common import get_logger
 
 log = get_logger("llm")
 
-# 주 키 외에 받아들일 예비 키 개수 (GEMINI_API_KEY_2 … _5).
-MAX_BACKUP_KEYS = 4
+# 주 키 외에 받아들일 예비 키 개수 (GEMINI_API_KEY_2 … _12).
+# 무료 한도는 **키 단위**로 걸린다. 로고 판독처럼 호출이 수천 건인 작업은 키 하나로는
+# 하루치가 안 나온다(실측: 2개 키로 13회 만에 소진). 키를 늘리면 그만큼 하루 처리량이
+# 늘어나므로 상한을 넉넉히 둔다. 없는 키는 그냥 건너뛰므로 상한을 키워도 부작용이 없다.
+MAX_BACKUP_KEYS = 11
 
 # Generative Language API 키로 알려진 형식.
 #   AIza… (39자)  — 오래 쓰인 형식
@@ -109,7 +112,7 @@ def api_key_env(cfg: dict) -> str:
 
 
 def api_key_envs(cfg: dict) -> list[str]:
-    """주 키 + 예비 키 환경변수 이름 (GEMINI_API_KEY, _2 … _5)."""
+    """주 키 + 예비 키 환경변수 이름 (GEMINI_API_KEY, _2 … _12)."""
     base = api_key_env(cfg)
     return [base] + [f"{base}_{i}" for i in range(2, MAX_BACKUP_KEYS + 2)]
 

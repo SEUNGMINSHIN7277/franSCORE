@@ -25,7 +25,9 @@ SECRET_KEYS = (
     "NAVER_CLIENT_ID", "NAVER_CLIENT_SECRET",   # 구 개발자센터 (검색만)
     "NCP_API_KEY_ID", "NCP_API_KEY",            # NAVER API HUB (검색 + 검색어트렌드)
     # 예비 Gemini 키. 주 키가 무료 한도(429)에 걸리면 src/llm.py 가 순서대로 갈아탄다.
-    "GEMINI_API_KEY_2", "GEMINI_API_KEY_3", "GEMINI_API_KEY_4", "GEMINI_API_KEY_5",
+    # 무료 한도는 **키 단위**로 걸리므로, 로고 판독처럼 호출이 수천 건인 작업은 키 수가
+    # 곧 하루 처리량이다(실측: 키 2개로 13회 만에 소진). 없는 키는 건너뛴다.
+    *[f"GEMINI_API_KEY_{i}" for i in range(2, 13)],
 )
 
 # ---------------------------------------------------------------------------
@@ -45,8 +47,18 @@ SECRET_KEYS = (
 #  need: 이 기능이 살아나는 데 필요한 키 묶음 (묶음 중 **하나라도** 충족하면 가동)
 CAPABILITIES: tuple[dict, ...] = (
     {"name": "뉴스 사건 구조화 추출",
-     "need": [("GEMINI_API_KEY",), ("GEMINI_API_KEY_2",), ("GEMINI_API_KEY_3",),
-              ("GEMINI_API_KEY_4",), ("GEMINI_API_KEY_5",)],
+     "need": [("GEMINI_API_KEY",),
+              ("GEMINI_API_KEY_2",),
+              ("GEMINI_API_KEY_3",),
+              ("GEMINI_API_KEY_4",),
+              ("GEMINI_API_KEY_5",),
+              ("GEMINI_API_KEY_6",),
+              ("GEMINI_API_KEY_7",),
+              ("GEMINI_API_KEY_8",),
+              ("GEMINI_API_KEY_9",),
+              ("GEMINI_API_KEY_10",),
+              ("GEMINI_API_KEY_11",),
+              ("GEMINI_API_KEY_12",)],
      "fallback": "규칙기반 키워드 매칭",
      "impact": "신호에 llm_used=false 로 표기된다. 제목의 단어만 보므로 홍보 기사와 "
                "분쟁 기사를 가르는 정밀도가 떨어진다."},
@@ -62,8 +74,18 @@ CAPABILITIES: tuple[dict, ...] = (
      "impact": "수요 관련 진단 소견이 아예 생성되지 않는다(없는 근거로 위험을 "
                "말하지 않기 위해). 다른 소견은 영향 없다."},
     {"name": "AI 상담·심사메모 생성",
-     "need": [("GEMINI_API_KEY",), ("GEMINI_API_KEY_2",), ("GEMINI_API_KEY_3",),
-              ("GEMINI_API_KEY_4",), ("GEMINI_API_KEY_5",)],
+     "need": [("GEMINI_API_KEY",),
+              ("GEMINI_API_KEY_2",),
+              ("GEMINI_API_KEY_3",),
+              ("GEMINI_API_KEY_4",),
+              ("GEMINI_API_KEY_5",),
+              ("GEMINI_API_KEY_6",),
+              ("GEMINI_API_KEY_7",),
+              ("GEMINI_API_KEY_8",),
+              ("GEMINI_API_KEY_9",),
+              ("GEMINI_API_KEY_10",),
+              ("GEMINI_API_KEY_11",),
+              ("GEMINI_API_KEY_12",)],
      "fallback": "결정적 템플릿 (llm_used=false 표기)",
      "impact": "산출 수치는 같다. 문장이 템플릿으로 고정되고 자유질의 응답이 제한된다."},
     {"name": "가맹본부 재무 갱신",
