@@ -100,10 +100,14 @@ def _num(s: str) -> float | None:
     t = s.replace(",", "").replace(" ", "")
     if not t or t in ("-", "—"):
         return None
+    # 정보공개서 PDF 는 음수를 △ 또는 괄호로 쓴다. 부호를 놓치면 적자가 흑자가 된다.
+    neg = t.startswith(("△", "▲", "-", "−")) or (t.startswith("(") and t.endswith(")"))
+    t = t.strip("()").lstrip("△▲-−")
     try:
-        return float(t)
+        v = float(t)
     except ValueError:
         return None
+    return -v if neg else v
 
 
 def _extract_table(page: str, heading: str, span: int = 40_000) -> list[list[str]]:
@@ -139,9 +143,16 @@ def parse_view(page: str) -> dict:
     return out
 
 
-_FIN_COLS = {"자산": "assets", "부채": "liabilities", "자본": "equity",
-             "매출액": "revenue", "영업이익": "operating_income",
-             "당기순이익": "net_income"}
+# 웹 열람 표는 '자산/부채/자본', 정보공개서 PDF 는 '자산총계/부채총계/자본총계' 로 쓴다.
+# 같은 값을 가리키는 다른 표기이므로 별칭으로 함께 인정한다 — 파서를 둘로 늘리지 않는다.
+_FIN_COLS = {"자산": "assets", "자산총계": "assets",
+             "부채": "liabilities", "부채총계": "liabilities",
+             "자본": "equity", "자본총계": "equity",
+             "매출액": "revenue", "매출": "revenue",
+             "영업이익": "operating_income",
+             "당기순이익": "net_income", "순이익": "net_income"}
+_FIN_KEYS = ("assets", "liabilities", "equity", "revenue",
+             "operating_income", "net_income")
 
 
 def financial_rows(reg_no: str, brand: dict) -> list[dict]:
@@ -165,7 +176,7 @@ def financial_rows(reg_no: str, brand: dict) -> list[dict]:
                 if key:
                     idx[key] = j
             break
-    if len(idx) < len(_FIN_COLS):
+    if len(idx) < len(_FIN_KEYS):
         log.warning("%s: 재무 표 헤더를 못 읽었다(찾은 열 %s) — 이 브랜드는 건너뛴다",
                     reg_no, sorted(idx))
         return []
@@ -184,6 +195,71 @@ def financial_rows(reg_no: str, brand: dict) -> list[dict]:
             rec[k] = v * unit_mul if v is not None else None   # 원 단위 (DART 와 동일)
         rows.append(rec)
     return rows
+
+
+_YEAR_RE = re.compile(r"^(19|20)\d{2}\s*년?$")
+
+
+def parse_pdf(path: Path) -> dict:
+    """정보공개서 **PDF**(대외 공개용) → parse_view 와 같은 모양의 dict.
+
+    열람 화면에서 받는 PDF 가 HTML 표보다 오히려 낫다 — 공정위가 게시하는 정식
+    '대외 공개용 정보공개서' 원문이고, 최근 3개 사업연도 재무가 한 표에 있다.
+
+    ⚠️ 여기서도 **고정 오프셋을 쓰지 않는다.** HTML 표에서 '재무제표작성여부' 빈 열
+       때문에 값이 한 칸씩 밀려 자산이 비었던 사고가 있었다. PDF 도 문서마다 열
+       구성이 다를 수 있으므로 헤더 행에서 열 이름을 읽어 위치를 정한다.
+
+    ⚠️ 단위도 읽는다. '(단위: 천원, 부가세 미포함)' 처럼 표 바로 위에 적혀 있고
+       문서마다 천원/백만원/원이 다르다. 가정하면 1,000배 틀린다.
+    """
+    try:
+        import pypdf  # 선택 의존성 — 배포 앱은 쓰지 않는다
+    except ImportError as exc:                          # pragma: no cover
+        raise RuntimeError("PDF 를 읽으려면 pypdf 가 필요하다: pip install pypdf") from exc
+
+    reader = pypdf.PdfReader(str(path))
+    text = "\n".join((p.extract_text() or "") for p in reader.pages)
+    flat = re.sub(r"[ \t]+", " ", text)
+
+    out: dict = {"amount_unit": "천원"}
+    m = re.search(r"단위\s*[:：]\s*([가-힣]+원)", flat)
+    if m:
+        out["amount_unit"] = m.group(1)
+
+    m = re.search(r"등록번호\s*[:：]?\s*(\d{8,12})", flat)
+    if m:
+        out["reg_no"] = m.group(1)
+    m = re.search(r"\[\s*([^\[\]]{1,30}?)\s*\]\s*정보공개서", flat)
+    if m:
+        out["brand_name"] = m.group(1).replace(" ", "")
+
+    # 재무 표: '연도 ... 자산 ... ' 헤더 줄을 찾고, 뒤따르는 연도 줄을 읽는다
+    rows: list[list[str]] = []
+    lines = [ln.strip() for ln in flat.splitlines()]
+    for i, ln in enumerate(lines):
+        cells = ln.split()
+        if not cells or cells[0].replace(" ", "") != "연도":
+            continue
+        if sum(1 for c in cells if c in _FIN_COLS) < len(_FIN_KEYS):
+            continue                                    # 재무 표가 아닌 다른 '연도' 표
+        rows.append(cells)
+        for nxt in lines[i + 1:]:
+            c2 = nxt.split()
+            if not c2 or not _YEAR_RE.match(c2[0]):
+                if rows[1:]:                            # 데이터가 시작된 뒤 끊기면 표 끝
+                    break
+                continue
+            c2[0] = c2[0].rstrip("년")
+            rows.append(c2)
+        break
+    out["financials"] = rows
+    out["store_flow"] = []
+    m = re.search(r"사업자등록번호.{0,200}?(\d{3}-\d{2}-\d{5})", flat, re.S)
+    out["brno"] = m.group(1).replace("-", "") if m else ""
+    m = re.search(r"법인등록번호.{0,200}?(\d{6}-\d{7})", flat, re.S)
+    out["crno"] = m.group(1).replace("-", "") if m else ""
+    return out
 
 
 def ingest_saved(cfg: dict, src_dir: str) -> dict:
@@ -214,28 +290,48 @@ def ingest_saved(cfg: dict, src_dir: str) -> dict:
     dest = root / RAW_DIR
     dest.mkdir(parents=True, exist_ok=True)
 
-    files = sorted([p for p in src.rglob("*") if p.suffix.lower() in (".html", ".htm")])
+    files = sorted([p for p in src.rglob("*")
+                    if p.suffix.lower() in (".html", ".htm", ".pdf")])
     if not files:
-        log.warning("%s 에 .html 파일이 없다", src)
+        log.warning("%s 에 .html/.pdf 파일이 없다", src)
         return {"files": 0, "parsed": 0, "with_financials": 0}
 
     parsed = with_fin = 0
     skipped: list[str] = []
     for p in files:
         try:
-            page = p.read_text(encoding="utf-8", errors="replace")
-        except OSError as exc:
-            skipped.append(f"{p.name}: 읽기 실패 {exc}")
+            if p.suffix.lower() == ".pdf":
+                brand = parse_pdf(p)
+                flat = ""
+            else:
+                page = p.read_text(encoding="utf-8", errors="replace")
+                brand = parse_view(page)
+                flat = _TAGS.sub(" ", page)
+        except Exception as exc:
+            skipped.append(f"{p.name}: 읽기 실패 {type(exc).__name__}: {exc}")
             continue
-        brand = parse_view(page)
-        flat = _TAGS.sub(" ", page)
-        # 등록번호를 페이지에서 찾는다 — 파일명에 기대지 않는다(사람이 붙인 이름이다)
-        m = re.search(r"등록번호.{0,200}?(\d{8,12})", flat, re.S)
-        reg_no = m.group(1) if m else p.stem
+        # 등록번호는 문서 안에서 찾는다 — 파일명에 기대지 않는다.
+        # (실제로 대표님이 받은 파일 이름이 '가맹계약서.pdf' 였는데 내용은 정보공개서였다)
+        reg_no = str(brand.get("reg_no") or "")
+        if not reg_no and flat:
+            m = re.search(r"등록번호.{0,200}?(\d{8,12})", flat, re.S)
+            reg_no = m.group(1) if m else ""
+        reg_no = reg_no or p.stem
         rows = financial_rows(reg_no, brand)
         if not rows:
             skipped.append(f"{p.name}: 재무 표를 못 읽음 (열람 상세 페이지가 맞는지 확인)")
             continue
+        # 자기 검산 — 자산 = 부채 + 자본. 열이 밀리면 여기서 반드시 깨진다.
+        # 허용 오차는 DART 층과 같은 상대 1% 다(_BS_TOL). 원문이 천원 단위로 반올림돼
+        # ±1천원이 흔하므로 절대값 비교를 쓰면 멀쩡한 문서가 전부 불합격으로 나온다
+        # — 실제로 첫 시험에서 뚜레쥬르 3개년 중 2건이 그렇게 걸렸다.
+        bad = [r["fiscal_year"] for r in rows
+               if None not in (r["assets"], r["liabilities"], r["equity"])
+               and abs(r["assets"] - r["liabilities"] - r["equity"]) > 0.01 * max(abs(r["assets"]), 1)]
+        if bad:
+            skipped.append(f"{p.name}: 검산 실패(자산≠부채+자본) 연도 {bad} — 열 밀림 의심")
+            continue
+
         for key, pat in (("brand_name", r"영업표지\s*([^\s<]{1,40})"),
                          ("corp_name", r"상\s*호\s*([^\s<]{1,40})"),
                          ("ceo", r"대표자\s*(?:명)?\s*([^\s<]{1,20})")):
