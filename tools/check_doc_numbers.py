@@ -46,6 +46,9 @@ DOCS = {
     "CONCEPT": ROOT / "docs" / "RATING_CONCEPT.md",
     "METHOD": ROOT / "docs" / "METHODOLOGY.md",
     "OPS": ROOT / "docs" / "OPERATIONS.md",
+    # DEPLOY.md 도 같은 이유로 뒤늦게 들어왔다 — "로고 535건" 이 실제 611건이
+    # 되도록 수집이 진행되는 동안에도 검사에 걸리지 않았다.
+    "DEPLOY": ROOT / "DEPLOY.md",
 }
 
 # 폐기된 표기 — 문서 어디에도 남아 있으면 안 된다 (교체 누락 탐지).
@@ -354,6 +357,12 @@ def main() -> int:
     if len(lg):
         need("OPS fold별 Lift 나열",
              " / ".join(f"{v:.3f}" for v in lg["lift_at_10"]), "OPS")
+    # 로고는 색인이 아니라 **디스크의 PNG** 가 화면에 뜨는 실체다 (→ tests/test_naming.py
+    # 로고 색인·디스크 정합). 그래서 세는 대상도 파일이다.
+    logo_dir = ROOT / "data" / "raw" / "naver" / "logo_img"
+    if logo_dir.exists():
+        need("DEPLOY 동봉 로고 건수", f"로고 {len(list(logo_dir.glob('*.png')))}건", "DEPLOY")
+
     need("OPS 자동대조 건수", f"{_checked + 1}건", "OPS")   # 이 줄 자신을 포함한 수
 
     head("결과")

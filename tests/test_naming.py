@@ -165,9 +165,36 @@ def test_spec_consistency() -> None:
           "운영 문서가 PD 사용을 허용" if ops_allows else "두 문서 모두 PD 표기 금지")
 
 
+def test_logo_index_matches_disk() -> None:
+    """화면이 띄우는 로고 = 색인이 인정한 로고인가.
+
+    화면은 색인을 거치지 않고 브랜드명 해시로 파일을 찾아 **있으면 띄운다**.
+    그래서 색인에서 철회한 로고라도 PNG 가 남으면 계속 뜬다 — 실제로 3건이
+    배포 화면에 그렇게 나오고 있었다. 철회 사유는 "이 그림은 이 브랜드 것이
+    아니다" 이므로 그건 틀린 로고를 띄우는 것이고, 로고가 없는 것보다 나쁘다.
+    """
+    import json
+
+    from src.naver import LOGO_CACHE, LOGO_DIR, logo_file_name
+    cache_p, img_dir = _ROOT / LOGO_CACHE, _ROOT / LOGO_DIR
+    if not (cache_p.exists() and img_dir.exists()):
+        check(True, "로고 색인·디스크 정합", "로고 자료 없음 — 건너뜀")
+        return
+    cache = json.loads(cache_p.read_text(encoding="utf-8"))
+    disk = {p.name for p in img_dir.glob("*.png")}
+    live = {logo_file_name(k) for k, v in cache.items()
+            if isinstance(v, dict) and v.get("url")}
+    ghost = disk - live          # 철회됐는데 화면에는 뜬다 (틀린 로고)
+    phantom = live - disk        # 색인만 있고 실체가 없다 (커버리지 과대)
+    check(not ghost and not phantom, "로고 색인·디스크 정합",
+          f"철회 후 잔존 {len(ghost)}건 · 실체 없는 색인 {len(phantom)}건"
+          if (ghost or phantom) else f"양쪽 모두 {len(disk)}건으로 일치")
+
+
 def main() -> int:
     for fn in (test_no_old_pd_tokens, test_no_pd_claim, test_published_columns,
-               test_service_reads_valid_schema, test_spec_consistency):
+               test_service_reads_valid_schema, test_spec_consistency,
+               test_logo_index_matches_disk):
         try:
             fn()
         except Exception as exc:

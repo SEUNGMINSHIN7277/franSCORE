@@ -919,11 +919,58 @@ def prune_shared_logos(cfg: dict, cache: dict) -> dict:
             p.unlink(missing_ok=True)
             v["url"], v["file"], v["rejected"] = "", "", reason
 
+    orphan_img, orphan_idx = reconcile_logo_files(cfg, cache)
+
     n_left = len(list(img_dir.glob("*.png"))) if img_dir.exists() else 0
     log.info("공유 로고 폐기: 도메인 공유 %d건 · 동일 이미지 %d건 → 남은 로고 %d건",
              removed_dom, removed_img, n_left)
     return {"removed_domain": removed_dom, "removed_image": removed_img,
+            "orphan_image": orphan_img, "orphan_index": orphan_idx,
             "remaining": n_left}
+
+
+def reconcile_logo_files(cfg: dict, cache: dict) -> tuple[int, int]:
+    """색인과 디스크를 일치시킨다 — **화면이 보는 것은 디스크다.**
+
+    왜 필요한가 (실측 사고)
+        화면은 색인(logos.json)을 거치지 않고 브랜드명 해시로 파일 경로를 계산해
+        **파일이 있으면 띄운다**. 수집이 색인을 통째로 덮어쓰는 경합 때문에 그렇게
+        만들었는데, 그 결과 색인에서 철회한 로고라도 PNG 가 남아 있으면 화면에는
+        계속 뜬다. 실제로 철회된 3건이 배포 화면에 그대로 나오고 있었다.
+        철회의 이유는 "이 그림은 이 브랜드 것이 아니다" 이므로, 이건 **틀린 로고를
+        띄우는 것**이고 로고가 없는 것보다 나쁘다.
+
+        반대 방향도 있다. 색인에는 url 이 있는데 PNG 가 없는 항목이 29건이었다.
+        화면에는 글자 마크가 뜨므로 해롭진 않지만, 커버리지를 그만큼 부풀린다.
+
+    그래서 한 방향의 불변식으로 못박는다:
+        **디스크의 PNG 집합 == 색인에서 url 이 살아 있는 브랜드 집합**
+
+    - 철회됐는데 PNG 가 남았다 → 파일을 지운다 (화면에서 사라진다)
+    - url 은 있는데 PNG 가 없다 → 색인을 비운다 (다음 수집에서 다시 시도한다)
+
+    반환: (지운 PNG 수, 비운 색인 수)
+    """
+    img_dir = Path(cfg["_root"]) / LOGO_DIR
+    orphan_img = orphan_idx = 0
+    for name, v in cache.items():
+        if not isinstance(v, dict):
+            continue
+        p = img_dir / logo_file_name(name)
+        exists, claimed = p.exists(), bool(v.get("url"))
+        if exists and not claimed:
+            p.unlink(missing_ok=True)
+            v["file"] = ""
+            v.setdefault("rejected", "철회된 로고의 잔존 파일")
+            orphan_img += 1
+        elif claimed and not exists:
+            v["url"], v["file"] = "", ""
+            v["rejected"] = "이미지 파일 없음 — 다음 수집에서 재시도"
+            orphan_idx += 1
+    if orphan_img or orphan_idx:
+        log.info("색인·디스크 정합: 잔존 파일 %d건 삭제 · 실체 없는 색인 %d건 정리",
+                 orphan_img, orphan_idx)
+    return orphan_img, orphan_idx
 
 
 def collect_logos(cfg: dict | None = None, limit: int | None = None,

@@ -388,14 +388,19 @@
   "px": 192,
   "file": "",
   "rejected": "도메인 공유(3개 브랜드)",
-  "pruned": "shared"
+  "pruned": "shared",
+  "img_search_done": "후보 5건 전부 검증 기각"
  },
  "맥시칸치킨": {
-  "url": "",
+  "url": "http://www.kmug.co.kr/data/file/design/thumb-data_logo_%EB%A7%A5%EC%8B%9C%EC%B9%B8_%EB%A1%9C%EA%B3%A0_600x0.jpg",
   "domain": "www.mexican.co.kr",
-  "px": 0,
-  "file": "",
-  "page_scan": "후보 5개 모두 64px 미만/실패"
+  "px": 600,
+  "file": "data/raw/naver/logo_img/9c463bbeef362433.png",
+  "page_scan": "후보 5개 모두 64px 미만/실패",
+  "source": "image-search+llm",
+  "verified_text": "If you think of Chicken 치킨이 생각날땐! MEXICAN is the best. SINCE 1985 MEXICAN 맥시칸치킨 MEXI",
+  "verified_reason": "이미지에 한국 프랜차이즈 브랜드 '맥시칸치킨'의 공식 로고 및 브랜드명(MEXICAN, 맥시칸치킨)이 명확히 표시되어 있으므로 브랜드 로고가 맞습니다.",
+  "img_search_done": "확보"
  },
  "THE LITER (더리터)": {
   "url": "https://cdn.imweb.me/thumbnail/20250317/cc0baa320b64f.png",
@@ -417,12 +422,15 @@
   "source": "page:og:image"
  },
  "일품양평해장국": {
-  "url": "",
+  "url": "http://imgnews.naver.net/image/5863/2024/06/25/0000016624_002_20240625103010701.png",
   "domain": "www.jemin.com",
-  "px": 200,
-  "file": "",
-  "rejected": "도메인 공유(2개 브랜드)",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "px": 287,
+  "file": "data/raw/naver/logo_img/fbdda93262367f6c.png",
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "source": "image-search+llm",
+  "verified_text": "해장국전문점 일품양평해장국",
+  "verified_reason": "이미지에 브랜드명인 '일품양평해장국'과 해장국전문점 텍스트, 소 캐릭터 심볼로 구성된 공식 브랜드 로고(BI/CI)가 포함되어 있습니다.",
+  "img_search_done": "확보"
  },
  "가장맛있는족발": {
   "url": "https://www.gajok.kr/theme/basic/img/header/logo.png",
@@ -432,25 +440,35 @@
   "source": "page:page-logo"
  },
  "김가네": {
-  "url": "https://gimgane.co.kr/img/common/bi.png",
+  "url": "http://imgnews.naver.net/image/024/2024/11/15/0000092957_001_20241115172911318.png",
   "domain": "gimgane.co.kr",
-  "px": 58,
-  "file": "data/raw/naver/logo_img/9a5655eecdedc569.png"
+  "px": 550,
+  "file": "data/raw/naver/logo_img/9a5655eecdedc569.png",
+  "source": "image-search+llm",
+  "verified_text": "김家네",
+  "verified_reason": "이미지에 한국 프랜차이즈 브랜드 '김가네'의 한자 혼용 명칭인 '김家네'가 명확히 표시되어 있는 공식 로고입니다.",
+  "img_search_done": "확보"
  },
  "도미노피자": {
-  "url": "",
+  "url": "http://imgnews.naver.net/image/277/2024/08/12/0005457876_001_20240812093421813.jpg",
   "domain": "web.dominos.co.kr",
-  "px": 0,
-  "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "px": 570,
+  "file": "data/raw/naver/logo_img/fd8b2870c9735b96.png",
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "source": "image-search+llm",
+  "verified_text": "Life Food, Domino's.",
+  "verified_reason": "도미노피자의 도미노 심볼과 영문 브랜드명(Domino's) 및 슬로건이 포함된 공식 로고입니다.",
+  "img_search_done": "확보"
  },
  "카페요아정": {
-  "url": "",
+  "url": "https://ldb-phinf.pstatic.net/20241119_251/1731995275058czb25_JPEG/IMG_8854.jpeg",
   "domain": "www.changupdo.com",
-  "px": 100,
-  "file": "",
-  "rejected": "도메인 공유(34개 브랜드)",
-  "pruned": "shared"
+  "px": 1440,
+  "file": "data/raw/naver/logo_img/31cbca82aeb08488.png",
+  "source": "image-search+llm",
+  "verified_text": "yoajung CAFE 요거트 아이스크림의 정석",
+  "verified_reason": "이미지에 브랜드명 '카페요아정'의 영문 표기인 'yoajung CAFE'와 약자의 원문인 '요거트 아이스크림의 정석'이 포함된 카페요아정의 공식 브랜드 로고입니다.",
+  "img_search_done": "확보"
  },
  "반올림피자": {
   "url": "https://imagecdn.banolimpizza.com/pc/favicon/favicon-96x96.png",
@@ -471,17 +489,22 @@
   "file": "data/raw/naver/logo_img/0bafaa9b31825fa4.png"
  },
  "간이역": {
-  "url": "",
+  "url": "https://ldb-phinf.pstatic.net/20251223_202/1766497602470AnVjn_JPEG/1000006292.jpg",
   "domain": "www.bhgoo.com",
-  "px": 0,
-  "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "px": 396,
+  "file": "data/raw/naver/logo_img/2a0adb8e09197219.png",
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "source": "image-search+llm",
+  "verified_text": "SINCE 1996 正統꼬치구이전문점 간이역",
+  "verified_reason": "이미지 내에 한국 프랜차이즈 브랜드 '간이역'의 공식 로고 및 브랜드명이 명확히 표시되어 있습니다.",
+  "img_search_done": "확보"
  },
  "카페만월경": {
   "url": "",
   "domain": "",
   "px": 0,
-  "file": ""
+  "file": "",
+  "img_search_done": "후보 5건 전부 검증 기각"
  },
  "바다양푼이동태탕찜": {
   "url": "",
@@ -987,10 +1010,11 @@
   "file": "data/raw/naver/logo_img/38dd496688f67345.png"
  },
  "신의주찹쌀순대": {
-  "url": "https://bigsoondae.com/img/common/bi.png",
+  "url": "",
   "domain": "bigsoondae.com",
   "px": 56,
-  "file": "data/raw/naver/logo_img/cdeabe1fd300161c.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "치킨신드롬": {
   "url": "",
@@ -1123,11 +1147,12 @@
   "pruned": "shared"
  },
  "조마루감자탕": {
-  "url": "https://www.jomaru.co.kr/images/favicon-32.png",
+  "url": "",
   "domain": "www.jomaru.co.kr",
   "px": 32,
   "file": "",
-  "page_scan": "내려받기 실패"
+  "page_scan": "내려받기 실패",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "이화수전통육개장": {
   "url": "https://www.ihwasoo.com/theme/ihwa/img/favicon1.ico",
@@ -1158,11 +1183,12 @@
   "file": "data/raw/naver/logo_img/91b39fb22f7e29f2.png"
  },
  "치킨마루": {
-  "url": "https://chickenmaru.co.kr/images/favi.png",
+  "url": "",
   "domain": "chickenmaru.co.kr",
   "px": 16,
   "file": "",
-  "page_scan": "후보 1개 모두 64px 미만/실패"
+  "page_scan": "후보 1개 모두 64px 미만/실패",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "깐부치킨": {
   "url": "",
@@ -1214,11 +1240,12 @@
   "file": "data/raw/naver/logo_img/266c100d2d5b9c12.png"
  },
  "오븐마루": {
-  "url": "https://ovenmaru.com/img/common/bi.png",
+  "url": "",
   "domain": "ovenmaru.com",
   "px": 40,
   "file": "",
-  "page_scan": "내려받기 실패"
+  "page_scan": "내려받기 실패",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "응급실국물떡볶이": {
   "url": "",
@@ -1246,11 +1273,12 @@
   "file": "data/raw/naver/logo_img/3716a4d536e2e844.png"
  },
  "채선당": {
-  "url": "https://www.chaesundang.co.kr/images/logo.png",
+  "url": "",
   "domain": "www.chaesundang.co.kr",
   "px": 31,
   "file": "",
-  "page_scan": "내려받기 실패"
+  "page_scan": "내려받기 실패",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "PLUS 82(플러스 82)": {
   "url": "(재탐색)",
@@ -1376,11 +1404,12 @@
   "pruned": "shared"
  },
  "버거킹(Burger King)": {
-  "url": "https://www.burgerking.co.kr/favicon.png",
+  "url": "",
   "domain": "www.burgerking.co.kr",
   "px": 34,
   "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "썬더치킨": {
   "url": "https://mythunder.co.kr/img/og_img.jpg",
@@ -1423,16 +1452,18 @@
   "pruned": "shared"
  },
  "맛닭꼬": {
-  "url": "https://www.mdcco.co.kr/img/favicon/favicon.ico",
+  "url": "",
   "domain": "www.mdcco.co.kr",
   "px": 48,
-  "file": "data/raw/naver/logo_img/a214e15fa5d84584.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "라홍방 마라탕": {
-  "url": "https://lahongbang.com/theme/business/extend/sections/header/lahongre_header/img/logo.png",
+  "url": "",
   "domain": "www.lahongbang.com",
   "px": 52,
-  "file": "data/raw/naver/logo_img/8fa3ffc005563040.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "코바코": {
   "url": "",
@@ -2002,11 +2033,12 @@
   "page_scan": "브랜드 미확인 또는 후보 없음"
  },
  "아비꼬": {
-  "url": "https://abiko.kr/images/favicon.ico",
+  "url": "",
   "domain": "abiko.kr",
   "px": 32,
   "file": "",
-  "page_scan": "내려받기 실패"
+  "page_scan": "내려받기 실패",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "싸다김밥": {
   "url": "https://cdn.imweb.me/thumbnail/20240118/d1bc71e23cef3.png",
@@ -2114,8 +2146,9 @@
   "url": "",
   "domain": "grt.purpleo.kr",
   "px": 64,
-  "file": "data/raw/naver/logo_img/fce45b1f00caa312.png",
-  "pruned": "shared"
+  "file": "",
+  "pruned": "shared",
+  "rejected": "철회된 로고의 잔존 파일"
  },
  "도로시파스타": {
   "url": "",
@@ -2614,10 +2647,11 @@
   "pruned": "shared"
  },
  "둘둘치킨": {
-  "url": "https://www.22chicken.co.kr:443/superboard/data/siteconfig/2023042413530716823119870536.png",
+  "url": "",
   "domain": "www.22chicken.co.kr",
   "px": 54,
-  "file": "data/raw/naver/logo_img/78e296881487a1f1.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "다복향 마라탕": {
   "url": "https://cdn.imweb.me/thumbnail/20210520/47161d1281126.png",
@@ -3129,11 +3163,12 @@
   "file": "data/raw/naver/logo_img/8ac465e106b7ab2b.png"
  },
  "짚신매운갈비찜": {
-  "url": "https://www.zipsinfood.co.kr/img/common/bi.png",
+  "url": "",
   "domain": "www.zipsinfood.co.kr",
   "px": 42,
   "file": "",
-  "page_scan": "내려받기 실패"
+  "page_scan": "내려받기 실패",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "백돈": {
   "url": "",
@@ -3174,11 +3209,12 @@
   "pruned": "shared"
  },
  "COFFEE COOK (커피쿡)": {
-  "url": "https://aeropress.com/cdn/shop/files/favicon_96x96.png?v=1637296721",
+  "url": "",
   "domain": "aeropress.com",
   "px": 32,
   "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "올떡": {
   "url": "",
@@ -3537,10 +3573,11 @@
   "pruned": "shared"
  },
  "1도씨맥주(1℃ 맥주)": {
-  "url": "https://1doc.co.kr/img/common/bi.png",
+  "url": "",
   "domain": "1doc.co.kr",
   "px": 48,
-  "file": "data/raw/naver/logo_img/1ac58298e526287f.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "제주옥탑": {
   "url": "",
@@ -3551,11 +3588,12 @@
   "page_scan": "브랜드 미확인 또는 후보 없음"
  },
  "화화돼지왕갈비": {
-  "url": "https://cdn.imweb.me/upload/S20260516d17fa423d4836/0dca99c68f675.ico",
+  "url": "",
   "domain": "www.xn--9x8ba.com",
   "px": 16,
   "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "또띠아그램": {
   "url": "",
@@ -3612,10 +3650,11 @@
   "pruned": "shared"
  },
  "월간맥주": {
-  "url": "https://www.monthlybeer.co.kr:443/superboard/data/siteconfig/2022051910533216529252123084.png",
+  "url": "",
   "domain": "www.monthlybeer.co.kr",
   "px": 50,
-  "file": "data/raw/naver/logo_img/cc1ea966c009e753.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "준코노래타운": {
   "url": "(재탐색)",
@@ -3826,11 +3865,12 @@
   "page_scan": "브랜드 미확인 또는 후보 없음"
  },
  "금화왕돈까스": {
-  "url": "https://kumhwaking.co.kr/img/common/bi.png",
+  "url": "",
   "domain": "kumhwaking.co.kr",
   "px": 41,
   "file": "",
-  "page_scan": "내려받기 실패"
+  "page_scan": "내려받기 실패",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "홍짜장": {
   "url": "",
@@ -3972,11 +4012,12 @@
   "file": ""
  },
  "맥도날드": {
-  "url": "https://www.mcdonalds.co.kr/favicon.ico",
+  "url": "",
   "domain": "www.mcdonalds.co.kr",
   "px": 32,
   "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "성북당 십원빵": {
   "url": "",
@@ -4306,11 +4347,12 @@
   "pruned": "shared"
  },
  "해산물직화구이전문점삼바리": {
-  "url": "https://www.sambari.co.kr/_public/images/common/sambaripavi.png",
+  "url": "",
   "domain": "www.sambari.co.kr",
   "px": 16,
   "file": "",
-  "page_scan": "후보 5개 모두 64px 미만/실패"
+  "page_scan": "후보 5개 모두 64px 미만/실패",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "이태리양조장": {
   "url": "",
@@ -4336,11 +4378,12 @@
   "source": "page:page-logo"
  },
  "한옥마을": {
-  "url": "https://hanok.seoul.go.kr/favicon.ico",
+  "url": "",
   "domain": "gohd.co.kr",
   "px": 16,
   "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "육전국밥": {
   "url": "",
@@ -4639,11 +4682,12 @@
   "page_scan": "브랜드 미확인 또는 후보 없음"
  },
  "죠샌드위치": {
-  "url": "https://www.joessandwich.com/common/images/default/favicon.png",
+  "url": "",
   "domain": "www.joessandwich.com",
   "px": 32,
   "file": "",
-  "page_scan": "내려받기 실패"
+  "page_scan": "내려받기 실패",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "집밥e선생": {
   "url": "",
@@ -4752,10 +4796,11 @@
   "file": "data/raw/naver/logo_img/ebe47ca77843eaa3.png"
  },
  "명동찌개마을": {
-  "url": "https://xn--h49at0mi8esvai08b0xg.com/wp-content/uploads/2025/10/fvc_명동찌개마을.jpg",
+  "url": "",
   "domain": "xn--h49at0mi8esvai08b0xg.com",
   "px": 50,
-  "file": "data/raw/naver/logo_img/a3e8475e68ca2cb3.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "나능이": {
   "url": "",
@@ -5044,10 +5089,11 @@
   "pruned": "shared"
  },
  "토마토도시락": {
-  "url": "https://www.tomatodosirak.co.kr/img/common/bi.png",
+  "url": "",
   "domain": "www.tomatodosirak.co.kr",
   "px": 61,
-  "file": "data/raw/naver/logo_img/c28e1b90d72f6595.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "거진어부네 코다리": {
   "url": "",
@@ -5429,11 +5475,12 @@
   "file": ""
  },
  "베트남노상식당": {
-  "url": "https://www.nosangsikdang.com/favicon.ico",
+  "url": "",
   "domain": "www.nosangsikdang.com",
   "px": 16,
   "file": "",
-  "page_scan": "브랜드 미확인 또는 후보 없음"
+  "page_scan": "브랜드 미확인 또는 후보 없음",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "추닭집": {
   "url": "(재탐색)",
@@ -5876,10 +5923,11 @@
   "file": ""
  },
  "79네수육국밥": {
-  "url": "https://www.79food.co.kr/favicon.ico",
+  "url": "",
   "domain": "www.79food.co.kr",
   "px": 48,
-  "file": "data/raw/naver/logo_img/39f02c3fc7ebf02e.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "거북이동네": {
   "url": "http://www.geoboogitown.com/upload/site/20240124140744_ed180f74.jpg",
@@ -6680,10 +6728,11 @@
   "file": "data/raw/naver/logo_img/46b5a828c5da3f83.png"
  },
  "달빛에 구운 고등어": {
-  "url": "https://dalbitgo.com/images/fav-icon.ico",
+  "url": "",
   "domain": "dalbitgo.com",
   "px": 60,
-  "file": "data/raw/naver/logo_img/062d481c6de905e2.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "모미락": {
   "url": "https://momirak.co.kr/images/favi.ico",
@@ -6959,10 +7008,11 @@
   "file": "data/raw/naver/logo_img/da2b798ed4280a25.png"
  },
  "치킨인류": {
-  "url": "https://www.chickenhumanity.co.kr/img/favicon.ico",
+  "url": "",
   "domain": "www.chickenhumanity.co.kr",
   "px": 48,
-  "file": "data/raw/naver/logo_img/a73f4f671af48b42.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "효자동설렁탕": {
   "url": "",
@@ -7648,7 +7698,8 @@
   "url": "",
   "domain": "www.yakup.com",
   "px": 100,
-  "file": "data/raw/naver/logo_img/745b1b71bea34c72.png"
+  "file": "",
+  "rejected": "철회된 로고의 잔존 파일"
  },
  "경성양꼬치": {
   "url": "",
@@ -8123,10 +8174,11 @@
   "page_scan": "브랜드 미확인 또는 후보 없음"
  },
  "무쇠김치삼겹": {
-  "url": "https://shinganeofficial.com/theme/business/extend/sections/header/shingane_header/img/logo.png?v=231018",
+  "url": "",
   "domain": "shinganeofficial.com",
   "px": 58,
-  "file": "data/raw/naver/logo_img/84e212d1109b5d70.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "히츠지야": {
   "url": "https://hitsujiya.quv.kr/s/og_image.png?v=1785565703",
@@ -8533,11 +8585,12 @@
   "file": "data/raw/naver/logo_img/c743d9ba847bc9f1.png"
  },
  "고쿠텐": {
-  "url": "https://www.gokuten.co.kr:443/superboard/data/siteconfig/2021101314454016341039400320.jpg",
+  "url": "",
   "domain": "www.gokuten.co.kr",
   "px": 34,
   "file": "",
-  "page_scan": "내려받기 실패"
+  "page_scan": "내려받기 실패",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "수라섬 장칼국수": {
   "url": "",
@@ -8558,7 +8611,8 @@
   "url": "",
   "domain": "enolja.com",
   "px": 80,
-  "file": "data/raw/naver/logo_img/4a09e049d81a73a1.png"
+  "file": "",
+  "rejected": "철회된 로고의 잔존 파일"
  },
  "행진푸드": {
   "url": "https://www.bsseogu.go.kr/img/seogu.ico",
@@ -8847,10 +8901,11 @@
   "page_scan": "브랜드 미확인 또는 후보 없음"
  },
  "쉐프삼촌": {
-  "url": "https://www.xn--cg4bx2au0tdji.com:443/theme/ken/img/favicon_48.png",
+  "url": "",
   "domain": "www.xn--cg4bx2au0tdji.com",
   "px": 48,
-  "file": "data/raw/naver/logo_img/afedc7981eccd9df.png"
+  "file": "",
+  "rejected": "이미지 파일 없음 — 다음 수집에서 재시도"
  },
  "오떡": {
   "url": "",
