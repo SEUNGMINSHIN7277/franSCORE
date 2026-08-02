@@ -70,10 +70,18 @@ def _txt(key: str) -> str:
     return DOCS[key].read_text(encoding="utf-8")
 
 
+EMIT = "--emit" in sys.argv     # label<TAB>value 만 찍는다 (버전 간 대조용)
+
+
 def need(label: str, value: str, *doc_keys: str) -> None:
     """value 문자열이 지정한 문서들에 모두 있어야 한다."""
     global _checked
     _checked += 1
+    if EMIT:
+        # 표기가 바뀔 때 어느 값이 어느 값으로 갈아타야 하는지 기계로 짝지으려면
+        # '문서를 검사한 결과'가 아니라 '산출물이 말하는 값' 자체가 필요하다.
+        print(f"{label}\t{value}\t{','.join(doc_keys)}")
+        return
     missing = [k for k in doc_keys if value not in _txt(k)]
     if missing:
         _fails.append(f"{label}: 실측 표기 '{value}' 가 {', '.join(missing)} 에 없음")

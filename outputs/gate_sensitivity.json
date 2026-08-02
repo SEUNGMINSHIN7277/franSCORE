@@ -50,6 +50,15 @@
    "lgbm_lift_fold_min": 2.6666666666666665,
    "lgbm_lift_fold_max": 2.8177777777777777,
    "n_folds": 3,
+   "edge_mean": 1.0579140298094547,
+   "edge_ci_lo": 0.8238473943931571,
+   "edge_ci_hi": 1.2919806652257524,
+   "edge_significant": true,
+   "edge_folds": [
+    1.006,
+    1.001,
+    1.167
+   ],
    "name": "현행"
   },
   {
@@ -84,6 +93,15 @@
    "lgbm_lift_fold_min": 2.0687160940325495,
    "lgbm_lift_fold_max": 2.396163469557965,
    "n_folds": 3,
+   "edge_mean": 0.6096371635367658,
+   "edge_ci_lo": -0.2046022648763951,
+   "edge_ci_hi": 1.4238765919499268,
+   "edge_significant": false,
+   "edge_folds": [
+    0.477,
+    0.369,
+    0.983
+   ],
    "name": "완화A"
   },
   {
@@ -118,6 +136,16 @@
    "lgbm_lift_fold_min": 1.8886427411017574,
    "lgbm_lift_fold_max": 2.495975800788635,
    "n_folds": 4,
+   "edge_mean": 0.7152672479704193,
+   "edge_ci_lo": -0.1393927112328398,
+   "edge_ci_hi": 1.5699272071736785,
+   "edge_significant": false,
+   "edge_folds": [
+    0.28,
+    0.493,
+    0.591,
+    1.497
+   ],
    "name": "완화B"
   }
  ],
@@ -131,8 +159,17 @@
    "lgbm_lift": 2.2254493892127525,
    "persistence_lift": 1.6158122256759866,
    "edge_over_persistence": 0.6096371635367659,
-   "gate_pass": true,
-   "reason": "기준모형 대비 우위 0.610 ≥ 게이트 0.3"
+   "edge_ci": [
+    -0.2046022648763951,
+    1.4238765919499268
+   ],
+   "edge_folds": [
+    0.477,
+    0.369,
+    0.983
+   ],
+   "gate_pass": false,
+   "reason": "평균 우위 0.610 ≥ 0.3 · t-구간 [-0.205, +1.424] 0 포함 — 비유의"
   },
   {
    "name": "완화B",
@@ -143,8 +180,18 @@
    "lgbm_lift": 2.320721020988269,
    "persistence_lift": 1.60545377301785,
    "edge_over_persistence": 0.7152672479704192,
-   "gate_pass": true,
-   "reason": "기준모형 대비 우위 0.715 ≥ 게이트 0.3"
+   "edge_ci": [
+    -0.1393927112328398,
+    1.5699272071736785
+   ],
+   "edge_folds": [
+    0.28,
+    0.493,
+    0.591,
+    1.497
+   ],
+   "gate_pass": false,
+   "reason": "평균 우위 0.715 ≥ 0.3 · t-구간 [-0.139, +1.570] 0 포함 — 비유의"
   }
  ],
  "common_folds": [

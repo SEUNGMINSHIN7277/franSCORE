@@ -11,9 +11,20 @@
     ① 현행과 완화안을 **같은 방식으로** 워크포워드 재측정한다.
     ② 변경 전후 결과를 **양쪽 다** 공개한다. 좋아진 쪽만 보고하지 않는다.
     ③ 배포 승인 게이트(§3)로 판정한다:
-         · Lift@10 이 persistence 기준모형 대비 +0.3 이상
-         · fold 간 변동이 과하지 않을 것
+         · Lift@10 이 persistence 기준모형 대비 +0.3 이상 (평균)
+         · **그 우위가 fold t-구간에서 0 을 넘지 않을 것** ← 이게 진짜 게이트다
        통과하지 못하면 **채택하지 않고 그 사실을 기록**한다.
+
+⚠️ 왜 t-구간까지 봐야 하는가 (이 도구가 처음엔 틀린 답을 냈다)
+    처음에는 '평균 우위 ≥ 0.3' 하나만 봤고, 완화안 두 개 모두 **채택 가능**이 나왔다.
+    실제로 적용해 보니 그게 아니었다. 게이트를 낮추면 fold 간 편차가 커져서
+        현행   fold별 우위 +1.006 / +1.001 / +1.167  → t-CI [+0.824, +1.292]  유의
+        완화B  fold별 우위 +0.280 / +0.493 / +0.591 / +1.497 → t-CI [-0.139, +1.570]  비유의
+    가 된다. 즉 **이 프로젝트의 유일한 통계적 우위 주장이 사라진다.**
+
+    README 는 연도블록 부트스트랩과 t-구간이 어긋날 때 좁은 쪽을 고르는 것은 정직하지
+    않다고 이미 못박고 t-구간을 채택했다. 그 기준을 지금 바꿔 주장을 살리는 것은
+    바로 그 문서가 금지한 체리피킹이다. 그래서 게이트에 t-구간을 넣는다.
 
 ⚠️ 이 도구는 운영 산출물을 건드리지 않는다. 임시 디렉터리에서만 돈다.
    (성능이 좋게 나올 때까지 조건을 바꿔 재측정하는 것을 막기 위해, 후보는
@@ -127,6 +138,20 @@ def _run_one(base_cfg: dict, min_stores: int, min_years: int, tmp: Path) -> dict
         } for _, r in folds.iterrows() if str(r["model"]) in ("lgbm", "persistence")
     } if len(folds) else {}
     row["_fold_rows"] = folds.to_dict("records") if len(folds) else []
+    # 기준모형 대비 우위의 fold t-구간 — README 가 채택한 방식 그대로
+    piv = folds.pivot_table(index="scope", columns="model", values="lift_at_10") \
+        if len(folds) else pd.DataFrame()
+    if {"lgbm", "persistence"} <= set(piv.columns):
+        d = (piv["lgbm"] - piv["persistence"]).dropna().to_numpy()
+        if len(d) >= 2:
+            from scipy import stats
+            m, s, n = float(d.mean()), float(d.std(ddof=1)), len(d)
+            h = float(stats.t.ppf(0.975, n - 1)) * s / (n ** 0.5)
+            row["edge_mean"] = m
+            row["edge_ci_lo"] = m - h
+            row["edge_ci_hi"] = m + h
+            row["edge_significant"] = bool(m - h > 0)
+            row["edge_folds"] = [round(float(x), 3) for x in d]
     return row
 
 
@@ -174,16 +199,25 @@ def main() -> int:
         pers = r.get("persistence_lift_at_10")
         edge = (lift - pers) if (lift is not None and pers is not None) else None
         cov_gain = (r["n_labels"] / cur["n_labels"] - 1) if cur is not None else None
-        ok = edge is not None and edge >= LIFT_GATE
+        mean_ok = edge is not None and edge >= LIFT_GATE
+        sig_ok = bool(r.get("edge_significant"))
+        ok = mean_ok and sig_ok
+        why = []
+        if edge is not None:
+            why.append(f"평균 우위 {edge:.3f} {'≥' if mean_ok else '<'} {LIFT_GATE}")
+        if r.get("edge_ci_lo") is not None:
+            why.append(f"t-구간 [{r['edge_ci_lo']:+.3f}, {r['edge_ci_hi']:+.3f}] "
+                       f"{'0 초과 — 유의' if sig_ok else '0 포함 — 비유의'}")
         verdicts.append({
             "name": r["name"], "gate": r["gate"],
             "n_labels": r["n_labels"], "n_events": r["n_events"],
             "label_gain_pct": round(100 * cov_gain, 1) if cov_gain is not None else None,
             "lgbm_lift": lift, "persistence_lift": pers,
             "edge_over_persistence": edge,
+            "edge_ci": [r.get("edge_ci_lo"), r.get("edge_ci_hi")],
+            "edge_folds": r.get("edge_folds"),
             "gate_pass": bool(ok),
-            "reason": (f"기준모형 대비 우위 {edge:.3f} "
-                       f"{'≥' if ok else '<'} 게이트 {LIFT_GATE}") if edge is not None else "측정 불가",
+            "reason": " · ".join(why) if why else "측정 불가",
         })
 
     tab.to_csv(out / "gate_sensitivity.csv", index=False, encoding="utf-8-sig")
