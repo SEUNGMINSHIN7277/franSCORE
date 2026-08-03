@@ -365,18 +365,32 @@ def bar_chart(labels, values, colors=None, unit: str = "",
 
 
 def refresh_state() -> dict:
-    """마지막 갱신 이력. 없으면 산출물 파일 시각으로 대체한다."""
+    """마지막 갱신 이력.
+
+    ⚠️ 기록보다 **산출물이 더 새로우면 산출물을 믿는다.** 일간 배치(daily_refresh)만
+       이 파일을 쓰는데, 배치를 거치지 않고 파이프라인을 직접 재실행하면 점수·소견은
+       새것인데 기록은 옛날에 멈춘다. 그러면 화면이 "마지막 갱신 이틀 전"이라고
+       말하면서 오늘 산출한 숫자를 띄운다 — 보는 사람에게는 죽은 서비스로 읽힌다.
+       실측으로 그 상태였다(기록 08-01 22:01 vs 점수 파일 08-03 05:30).
+    """
     p = out_dir() / "refresh_state.json"
+    s = out_dir() / "scores_latest.csv"
+    rec: dict = {}
     if p.exists():
         try:
-            return _json(str(p), _mtime(p)) or {}
+            rec = _json(str(p), _mtime(p)) or {}
         except (OSError, ValueError):
-            pass
-    s = out_dir() / "scores_latest.csv"
+            rec = {}
     if not s.exists():
-        return {}
-    return {"finished_at": datetime.fromtimestamp(_mtime(s)).strftime("%Y-%m-%d %H:%M"),
-            "source": "file_mtime"}
+        return rec
+    art = datetime.fromtimestamp(_mtime(s)).strftime("%Y-%m-%d %H:%M")
+    if not rec:
+        return {"finished_at": art, "source": "file_mtime"}
+    if str(rec.get("finished_at") or "") < art:
+        # 배치 기록은 남기되, 화면에 적는 시각은 실제 산출물 시각으로 바꾼다.
+        return {**rec, "finished_at": art, "source": "file_mtime",
+                "batch_finished_at": rec.get("finished_at")}
+    return rec
 
 
 def refresh_footer() -> None:
@@ -389,14 +403,21 @@ def refresh_footer() -> None:
     st.write("")
     r = refresh_state()
     bits = [f"마지막 갱신 **{r.get('finished_at') or '-'}**"]
-    if r.get("news_added"):
-        bits.append(f"신규 뉴스 {int(r['news_added']):,}건")
-    if r.get("demand_updated"):
-        bits.append(f"검색수요 {int(r['demand_updated']):,}개 브랜드")
-    if r.get("rescored"):
-        bits.append(f"진단 재산출 {int(r['rescored']):,}개 브랜드")
-    if r.get("source") == "file_mtime":
-        bits.append("자동 갱신 이력 없음 (산출물 파일 시각)")
+    # ⚠️ 시각이 산출물 파일에서 온 것이면, **그 시각과 짝이 맞지 않는 배치 집계는 붙이지
+    #    않는다.** 안 그러면 "마지막 갱신 08-03 · 신규 뉴스 18건" 처럼 오늘 시각 옆에
+    #    이틀 전 배치의 건수가 나란히 서서, 읽는 사람은 그 18건이 오늘 것이라고 읽는다.
+    from_batch = r.get("source") != "file_mtime"
+    if from_batch:
+        if r.get("news_added"):
+            bits.append(f"신규 뉴스 {int(r['news_added']):,}건")
+        if r.get("demand_updated"):
+            bits.append(f"검색수요 {int(r['demand_updated']):,}개 브랜드")
+        if r.get("rescored"):
+            bits.append(f"진단 재산출 {int(r['rescored']):,}개 브랜드")
+    else:
+        bits.append("산출물 파일 시각 기준")
+        if r.get("batch_finished_at"):
+            bits.append(f"마지막 자동 배치 {r['batch_finished_at']}")
     st.caption(" · ".join(bits))
 
     with st.expander("갱신 주기와 자료 출처"):

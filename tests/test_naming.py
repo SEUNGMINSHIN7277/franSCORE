@@ -235,6 +235,33 @@ def test_published_artifact_prose() -> None:
           bad[0] if bad else "악화확률 ≠ PD 부인 문구 확인")
 
 
+def test_no_old_tokens_in_published_json() -> None:
+    """`outputs/*.json` **전체**에 폐기된 식별자가 남아 있지 않은가.
+
+    위 검사는 지목한 파일의 지목한 키만 본다. 그런데 실제로 새어 나간 자리는
+    **아무도 지목하지 않은 파일**이었다 — `refresh_state.json` 의 `annual_scope` 에
+    `pd_1y` 가 남아 있었다. 코드는 이미 `deterioration_1y` 로 고쳐졌는데, 그 코드가
+    돌기 **전에** 만들어진 산출물이 그대로 커밋돼 있었던 것이다.
+
+    소스 검사(`test_no_old_pd_tokens`)는 `outputs/` 를 SKIP_DIRS 로 제외하므로
+    구조적으로 못 잡는다. 산출물은 심사자가 직접 열어 보는 파일이므로 여기서 훑는다.
+    (JSON 만 본다 — 문장이 실려 나가는 것은 JSON 이고, CSV 는 컬럼명 검사가 따로 있다.)
+    """
+    bad = []
+    for p in sorted((_ROOT / "outputs").rglob("*.json")):
+        try:
+            text = p.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        m = OLD_TOKENS.search(text)
+        if m:
+            bad.append(f"{p.relative_to(_ROOT)}: '{m.group(0)}'")
+    check(not bad, "반출 JSON 에 옛 식별자 없음",
+          f"{len(bad)}건 예: {bad[0]}" if bad else "outputs/*.json 전량 확인")
+    for b in bad[:10]:
+        print(f"        {b}")
+
+
 def test_logo_index_matches_disk() -> None:
     """화면이 띄우는 로고 = 색인이 인정한 로고인가.
 
@@ -302,7 +329,7 @@ def main() -> int:
     for fn in (test_no_old_pd_tokens, test_no_pd_claim, test_published_columns,
                test_service_reads_valid_schema, test_spec_consistency,
                test_published_artifact_prose, test_logo_index_matches_disk,
-               test_no_unreachable_code):
+               test_no_unreachable_code, test_no_old_tokens_in_published_json):
         try:
             fn()
         except Exception as exc:
