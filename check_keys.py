@@ -7,7 +7,7 @@
 
 무엇을 알려주나:
   · 키가 설정돼 있는지, 어떤 형태인지(Encoding/Decoding 판별)
-  · 6개 데이터셋 각각에 활용신청이 승인됐는지 (하나씩 실제 호출)
+  · 데이터셋 각각에 활용신청이 승인됐는지 (하나씩 실제 호출)
   · 실패 시 원인을 구분해서 안내 (미등록 / 아직 미활성 / 이중 인코딩 / 트래픽 초과)
   · Gemini 키가 실제로 호출 가능한지 (모델 목록 조회 + 설정 모델로 1회 실호출)
 """
@@ -28,6 +28,11 @@ DATASET_IDS = {
     "industry_openclose": "15157660",
     "brand_master": "15125467",
     "brand_region_direct": "15125490",
+    # ⚠️ 창업비용(15110265)이 이 표에 없어서 화면에 데이터셋 번호가 '?' 로 찍히고
+    #    신청 페이지 링크가 `/data/?/openapi.do` 로 깨져 나갔다. 원천을 하나 추가할
+    #    때마다 여기도 함께 늘려야 하는데, 그 사실이 어디에도 적혀 있지 않았다
+    #    — 같은 누락이 README·AI_USAGE 에서도 '6종 vs 7종'으로 한 번 났었다.
+    "brand_startup_cost": "15110265",
     "brand_cancel": "15125518",
 }
 
@@ -52,6 +57,16 @@ def _classify(body: dict | None, raw_text: str, status: int) -> tuple[bool, str]
         if "LIMITED_NUMBER_OF_SERVICE_REQUESTS" in txt:
             return False, "일일 트래픽 초과(개발계정 10,000건/일). 내일 다시 시도하세요."
         return False, f"JSON 파싱 실패(응답 앞부분: {txt[:120]!r})"
+    # ⚠️ 게이트웨이 오류는 **JSON 파싱에 성공한다.** 다만 형태가 다르다:
+    #      {"OpenAPI_ServiceResponse": {"cmmMsgHeader": {"errMsg": "...", "returnAuthMsg": "..."}}}
+    #    이 경로를 안 보면 code·msg 가 빈 문자열이 되어 화면에 "resultCode= msg=" 라는
+    #    아무 정보 없는 줄이 찍힌다. 실제로 그 상태였고, 원인(활용신청 미승인)을
+    #    도구가 알고 있으면서도 말해 주지 못했다.
+    gw = (body.get("OpenAPI_ServiceResponse") or {}).get("cmmMsgHeader") or {}
+    if gw:
+        err = str(gw.get("errMsg") or "")
+        auth = str(gw.get("returnAuthMsg") or "")
+        return _classify(None, f"{err} {auth}", status)
     code = str(body.get("resultCode", body.get("response", {}).get("header", {}).get("resultCode", "")))
     msg = str(body.get("resultMsg", ""))
     if code in ("00", "0"):
@@ -122,7 +137,8 @@ def check_data_key(cfg: dict) -> bool:
 
     print()
     if all_ok:
-        print("  ✅ 6개 데이터셋 전부 사용 가능 — `python run_pipeline.py --step collect` 실행하면")
+        print(f"  ✅ {len(SERVICES)}개 데이터셋 전부 사용 가능 — "
+              "`python run_pipeline.py --step collect` 실행하면")
         print("     본인 키로 원본 스냅샷을 재수집합니다.")
     else:
         print("  ⚠️ 일부 데이터셋이 아직 사용 불가합니다. 위 신청 페이지에서 활용신청 후")
