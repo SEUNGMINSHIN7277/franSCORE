@@ -866,12 +866,20 @@ def grade_legend_html(bounds: dict) -> str:
             f"실제 악화 <b style='color:{color[r['grade']]}'>{r['rate'] * 100:.1f}%</b> "
             f"<span style='color:{theme.TEXT_MUTED}'>(n={r['n']:,})</span></span></div>"
             for r in b["pooled"])
-        yrs = "·".join(str(y) for y in b.get("validation_years", []))
+        # ⚠️ 여기서 읽던 키는 `validation_years` 였는데 산출물에 그런 키가 없다
+        #    (실제 키는 `calibration_years`). get() 의 기본값이 빈 리스트라 예외 없이
+        #    조용히 통과했고, 화면에는 **"(년 검증, 총 1,429건)"** 이라고 찍혔다 —
+        #    연도가 빠진 자리가 오타처럼 보이는 문장이 두 화면에 그대로 나갔다.
+        # ⚠️ 표기도 '검증'에서 '실적'으로 고친다. 이 표는 컷을 고른 그 자료 위에서
+        #    센 실현율이라 산출물 자신이 `selection_caveat` 로 "검증이 아니라 실적표"
+        #    라고 적어 두었다 — 화면이 그보다 센 말을 쓰면 안 된다.
+        yrs = "·".join(str(y) for y in b.get("calibration_years", []))
         return (f"<div style='font-size:{theme.FS_BASE};line-height:1.5'>{rows}"
                 f"<div style='color:{theme.TEXT_MUTED};font-size:{theme.FS_SM};margin-top:9px'>"
                 f"구간은 <b>고정</b>입니다 — 순위가 아니라 확률 기준이라, 업계 전체가 "
                 f"나빠지면 하위 등급이 늘어납니다. 오른쪽은 그 등급을 받은 브랜드가 "
-                f"실제로 다음 해에 악화한 비율입니다({yrs}년 검증, 총 {b['n_validation']:,}건). "
+                f"실제로 다음 해에 악화한 비율입니다({yrs}년 실적, 총 "
+                f"{b['n_validation']:,}건). "
                 f"이 확률은 <b>부도확률이 아니라</b> 공정위 공시 지표가 업종 하위구간에 "
                 f"진입할 확률입니다.</div></div>")
     if not bounds:

@@ -7,6 +7,7 @@
 """
 from __future__ import annotations
 
+import math
 import re
 
 import pandas as pd
@@ -226,8 +227,28 @@ def _brand_card(r: pd.Series, *, key: str) -> None:
 
 
 def _distribution(df: pd.DataFrame) -> None:
-    """등급 색으로 나눈 분포 — '무엇의 분포인지'를 축과 색이 함께 말한다."""
+    """등급 색으로 나눈 분포 — '무엇의 분포인지'를 축과 색이 함께 말한다.
+
+    ⚠️ 가로축을 0~100% 로 고정해 두었었다. 확률 축이니 전 구간을 보여 주는 쪽이
+       정직하다고 생각했는데, 실제 최댓값이 35.6% 라 **화면의 3분의 2가 빈 여백**
+       이었다. 막대는 왼쪽 끝에 뭉쳐 구간 사이의 차이가 보이지 않았다. 읽히지 않는
+       그림은 정직한 것이 아니라 아무 말도 하지 않는 것이다.
+       → 브랜드가 실제로 놓인 데까지만 그리고, **어디서 잘랐는지 캡션에 적는다.**
+         잘라 낸 구간이 있다는 사실을 숨기지 않으면 축을 좁혀도 과장이 되지 않는다.
+
+    ⚠️ 색이 바뀌는 자리는 등급 경계다. 등급은 순위가 아니라 **고정된 확률 구간**이라
+       경계값이 화면에 없으면 "왜 여기서 색이 바뀌나"에 답할 방법이 없다 — 점선과
+       캡션으로 같이 보여 준다. 경계값도 박아 두지 않고 grade_bands.json 에서 읽는다.
+    """
     st.markdown("### 브랜드 리스크 분포")
+    allp = pd.to_numeric(df["deterioration_1y"], errors="coerce").dropna() * 100
+    if allp.empty:
+        st.caption("표시할 분포가 없습니다.")
+        return
+    # 5% 단위로 올려 자른다 — 재산출로 최댓값이 조금 움직여도 축이 매번 흔들리지 않는다.
+    hi = min(100.0, max(20.0, 5.0 * math.ceil(allp.max() / 5.0 + 0.2)))
+    bw = 1.0 if hi <= 50 else 2.0
+
     fig = go.Figure()
     for g in ("Low", "Medium", "High"):
         p = pd.to_numeric(df.loc[df["risk_grade"] == g, "deterioration_1y"],
@@ -236,21 +257,45 @@ def _distribution(df: pd.DataFrame) -> None:
             continue
         fig.add_trace(go.Histogram(
             x=p, name=f"{theme.GRADE_KR[g]} {len(p):,}개",
-            xbins={"start": 0, "end": 100, "size": 2},
+            xbins={"start": 0, "end": hi, "size": bw},
             marker={"color": theme.GRADE_FILL[g], "line": {"width": 0}},
             hovertemplate=(f"{theme.GRADE_KR[g]}<br>{C.RISK_LABEL} "
-                           "%{x:.0f}%대<br>브랜드 <b>%{y}</b>개<extra></extra>")))
-    fig.update_layout(barmode="stack", height=225, bargap=0.03,
+                           "%{x:.0f}% 부근<br>브랜드 <b>%{y}</b>개<extra></extra>")))
+
+    cuts = [100 * c for c in
+            (C.grade_bands(C._mtime(C.out_dir() / "grade_bands.json")).get("cuts") or [])]
+    for x in cuts:
+        if 0 < x < hi:
+            fig.add_vline(x=x, line={"width": 1, "dash": "dot", "color": theme.TEXT_MUTED})
+
+    fig.update_layout(barmode="stack", height=250, bargap=0.06,
                       xaxis_title=None, yaxis_title=None,
                       legend={"orientation": "h", "y": 1.16, "x": 0,
                               "font": {"size": 13}},
-                      margin={"l": 4, "r": 4, "t": 30, "b": 4})
-    fig.update_xaxes(range=[0, 100], dtick=25, ticksuffix="%")
+                      margin={"l": 4, "r": 8, "t": 30, "b": 4})
+    fig.update_xaxes(range=[0, hi], dtick=5 if hi <= 50 else 25, ticksuffix="%")
     theme.plot(fig, key="fs_hist")
-    p = pd.to_numeric(df["deterioration_1y"], errors="coerce").dropna() * 100
-    st.caption(f"가로축은 브랜드 리스크(0~100%), 세로축은 그 구간에 속한 브랜드 수입니다. "
-               f"대부분은 왼쪽 낮은 구간에 몰려 있고 오른쪽 꼬리가 점검 대상입니다 — "
-               f"중앙값 {p.median():.1f}%, 가장 높은 브랜드 {p.max():.1f}%.")
+
+    cut_txt = " · ".join(f"{x:.1f}%" for x in cuts if 0 < x < hi)
+    st.caption(
+        f"가로축은 브랜드 리스크(0~100%), 세로축은 그 구간에 든 브랜드 수입니다. "
+        f"브랜드가 실제로 놓인 **{hi:.0f}%까지만** 그렸습니다 — 가장 높은 브랜드가 "
+        f"{allp.max():.1f}%, 중앙값은 {allp.median():.1f}% 입니다. "
+        + (f"점선은 등급이 갈리는 자리({cut_txt})이고, " if cut_txt else "")
+        + "오른쪽 꼬리가 점검 대상입니다.")
+
+
+def _josa(word: str, with_jong: str, without: str) -> str:
+    """받침 유무로 조사를 고른다.
+
+    ⚠️ 업종 이름을 문장에 끼울 때 조사를 '가' 로 박아 두어 화면에 **"지금은 서양식 가
+       가장 높습니다"** 라고 나왔다. 값이 데이터에서 오는 자리에 조사를 고정하면
+       언젠가 반드시 어색해진다 — 받침을 보고 고른다.
+    """
+    ch = word.strip()[-1:]
+    if not ch or not ("가" <= ch <= "힣"):
+        return without                       # 한글이 아니면(숫자·영문) 흔한 쪽으로 둔다
+    return with_jong if (ord(ch) - 0xAC00) % 28 else without
 
 
 def _industry(df: pd.DataFrame) -> None:
@@ -282,9 +327,9 @@ def _industry(df: pd.DataFrame) -> None:
                       xaxis_title=None, yaxis_title=None)
     fig.update_xaxes(range=[0, 100], dtick=25, ticksuffix="%")
     theme.plot(fig, key="fs_ind")
-    worst = tab.index[-1]
+    worst = str(tab.index[-1])
     st.caption(f"주의 비율이 높은 업종 순입니다. 표본 20개 미만 업종은 비율이 흔들려 "
-               f"제외했습니다. 지금은 **{worst}** 가 가장 높습니다 — "
+               f"제외했습니다. 지금은 **{worst}**{_josa(worst, '이', '가')} 가장 높습니다 — "
                f"{int(tab.loc[worst, 'High'])}개 / {int(tab.loc[worst, '합계'])}개. "
                f"이 업종에 여신이 쏠려 있다면 함께 봐야 합니다.")
 
