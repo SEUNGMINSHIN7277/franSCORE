@@ -30,6 +30,7 @@ import json
 import os
 import re
 import time
+from collections import Counter
 
 import requests
 
@@ -53,8 +54,17 @@ MAX_BACKUP_KEYS = 11
 #    형식만 보고 막으면 멀쩡한 키를 우리가 차단한다 — 판정은 API 에 맡기고,
 #    여기서는 **알려진 형식을 앞에 세우는 정렬**에만 쓴다.
 _KEY_RE = re.compile(r"^(AIza[0-9A-Za-z_\-]{30,45}|AQ\.[0-9A-Za-z_\-]{20,})$")
-# 이 키로는 더 못 쓴다 — 다음 키로 넘어가야 하는 HTTP 상태(한도 초과·인증·권한).
-_SWITCH_KEY_STATUS = {401, 403, 429}
+# 이 키로는 더 못 쓴다 — 다음 키로 넘어가야 하는 HTTP 상태(한도 초과·인증·권한·모델 미제공).
+# ⚠️ 404 가 여기 없어서 **살아 있는 키에 닿기도 전에 중단**됐다. 404 는 요청이 잘못됐다는
+#    뜻으로 읽고 `LLMFatal`("재시도 무의미")로 처리했는데, 실제 본문은
+#    "This model models/gemini-2.5-flash is no longer available to new users" 였다.
+#    즉 모델 제공 여부는 **키가 속한 GCP 프로젝트마다 다르다.** 실측(키 10개 개별 호출):
+#      gemini-2.5-flash → _9 는 200, _4·_10 은 404, 나머지는 429
+#    첫 404 에서 멈추면 200 을 주는 _9 를 영영 시도하지 않는다. 실제로 상담이
+#    "401 → 다음 키 → 404 → 중단" 으로 끝나 답변이 안 나갔다.
+#    모델 이름 자체가 틀린 경우에도 전 키가 404 를 내고 최종 오류에 model= 이 찍히므로
+#    원인을 못 가리지 않는다 — 그 대가로 요청 10번이 더 나갈 뿐이다.
+_SWITCH_KEY_STATUS = {401, 403, 404, 429}
 
 # 안전정책상 차단된 응답 — 같은 입력으로 재시도해도 동일하므로 즉시 폴백시킨다.
 _BLOCKED_FINISH = {
@@ -289,16 +299,24 @@ def generate(cfg: dict, *, system: str, user: str,
     # 그때는 "HTTP 401" 같은 원문 대신 무엇을 고쳐야 하는지를 알려줘야 한다.
     all_malformed = not any(d["well_formed"] for d in inv)
 
+    # ⚠️ 예전에는 **마지막 키의 오류만** 밖으로 나갔다. 키 10개 중 8개가 429(한도)이고
+    #    마지막 키가 404 였던 실측에서 화면은 "문제가 발생했습니다"라고만 말했다 —
+    #    진짜 원인(한도 초과)은 사라지고 가장 드문 원인이 대표가 된 것이다.
+    #    그래서 키별 실패를 **세어서** 가장 많은 것을 원인으로 보고한다.
+    # ⚠️ 마지막 키에만 `can_switch=False` 를 주던 것도 같은 사고의 일부였다. 그러면
+    #    마지막 키의 429/404 가 `LLMFatal` 로 튀어 아래 집계 자체를 건너뛴다.
     last_err: Exception | None = None
+    fails: Counter[str] = Counter()
     for ki, item in enumerate(inv, 1):
         key, more = item["key"], ki < len(inv)
         try:
             return _generate_one_key(
                 url=url, key=key, body=body, timeout=timeout, model=model,
                 max_retries=max_retries, backoff=backoff,
-                budget=int(gen_cfg["maxOutputTokens"]), can_switch=more)
+                budget=int(gen_cfg["maxOutputTokens"]), can_switch=True)
         except _SwitchKey as exc:
             last_err = exc
+            fails[_fail_kind(exc)] += 1
             log.warning("키 %d/%d (%s) 사용 불가: %s → %s", ki, len(inv), item["env"],
                         str(exc)[:160], "예비 키로 전환" if more else "남은 키 없음")
         except LLMFatal as exc:
@@ -307,6 +325,7 @@ def generate(cfg: dict, *, system: str, user: str,
             raise                       # 그 밖의 치명 오류는 요청 자체의 문제 — 키를 바꿔도 같다
         except LLMError as exc:
             last_err = exc
+            fails[_fail_kind(exc)] += 1
             if not more:
                 break
             log.warning("키 %d/%d (%s) 호출 실패 → 예비 키로 전환: %s",
@@ -314,9 +333,39 @@ def generate(cfg: dict, *, system: str, user: str,
 
     if all_malformed and (last_err is None or _is_auth_failure(last_err)):
         raise _malformed_key_error(cfg) from last_err
-    raise LLMError(
-        f"LLM 호출 최종 실패 (model={model}, 키 {len(inv)}개 모두 시도): "
-        f"{_mask(str(last_err)[:300], inv[0]['key'])}") from last_err
+    kind = fails.most_common(1)[0][0] if fails else "error"
+    tally = " · ".join(f"{_FAIL_KR[k]} {n}개" for k, n in fails.most_common())
+    err = LLMError(
+        f"등록된 키 {len(inv)}개가 모두 실패했습니다 — {tally} (model={model}). "
+        f"마지막 오류: {_mask(str(last_err)[:200], inv[0]['key'])}")
+    # 문자열을 다시 파싱해 원인을 알아내게 하지 않는다 — 세어 놓은 결과를 그대로 건넨다.
+    err.reason = kind                                                # type: ignore[attr-defined]
+    err.tally = dict(fails)                                          # type: ignore[attr-defined]
+    raise err from last_err
+
+
+# 실패의 종류. 화면 문구가 이 값 하나로 갈리므로 **세는 기준을 한 곳에** 둔다.
+_FAIL_KR = {"rate_limit_day": "일일 무료 한도 초과", "rate_limit": "분당 호출 한도 초과",
+            "auth": "인증 실패", "model_unavailable": "이 키에 모델 미제공",
+            "error": "기타 오류"}
+
+
+def _fail_kind(exc: BaseException) -> str:
+    """오류 본문에서 실패의 종류를 읽는다.
+
+    ⚠️ 429 를 전부 '잠시 뒤 재시도'로 안내하면 안 된다. 무료 등급에는 분당 한도와
+       **일일 한도**가 따로 있고, 일일 한도는 태평양 자정(한국시간 16시)에 풀린다.
+       "1~2분 뒤 다시" 라고 안내해 놓고 하루 종일 안 되면 그게 더 나쁜 안내다.
+    """
+    s = str(exc)
+    if "429" in s:
+        low = s.lower()
+        return "rate_limit_day" if ("perday" in low or "per day" in low) else "rate_limit"
+    if "404" in s:
+        return "model_unavailable"
+    if "401" in s or "403" in s:
+        return "auth"
+    return "error"
 
 
 def _is_auth_failure(exc: BaseException) -> bool:
@@ -348,7 +397,12 @@ def _generate_one_key(*, url: str, key: str, body: dict, timeout: float, model: 
             resp = _http_post(url, headers, body, timeout)
             status = int(getattr(resp, "status_code", 0))
             if status != 200:
-                text = _mask(str(getattr(resp, "text", ""))[:500], key)
+                # ⚠️ 500자에서 잘랐더니 **원인이 적힌 부분이 잘려 나갔다.** 구글의 429 본문은
+                #    앞 400자가 안내문이고, 분당인지 일일인지는 800자쯤의 `QuotaFailure`
+                #    블록에 있다("quotaId": "GenerateRequestsPerDayPerProjectPerModel-
+                #    FreeTier", "quotaValue": "20"). 그래서 일일 한도를 다 쓴 상태에서도
+                #    화면은 "1~2분 뒤 다시"라고 안내했다 — 하루 종일 기다리게 만드는 안내다.
+                text = _mask(str(getattr(resp, "text", ""))[:1600], key)
                 if status in _SWITCH_KEY_STATUS and can_switch:
                     raise _SwitchKey(f"HTTP {status}: {text}")
                 if status in _RETRY_STATUS:

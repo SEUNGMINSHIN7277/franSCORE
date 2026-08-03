@@ -618,8 +618,13 @@ def answer(cfg: dict, question: str, history: list[dict] | None = None) -> dict:
                 "llm_used": True, "model": meta.get("model")}
     except llm.LLMError as exc:
         msg = str(exc)
+        # ⚠️ 원인은 **세어서** 정하고(llm.py), 여기서는 받아 쓴다. 문자열을 다시 뒤지면
+        #    키 10개 중 8개가 한도 초과여도 마지막 키가 낸 404 가 대표가 된다(실측).
+        counted = getattr(exc, "reason", None)
         if "형식에 맞지 않" in msg:
             reason = "bad_key"          # 키가 있긴 한데 Gemini API 키가 아님
+        elif counted:
+            reason = str(counted)
         elif "429" in msg:
             reason = "rate_limit"       # 등록된 키를 모두 시도했는데 전부 한도 초과
         elif "401" in msg or "403" in msg:
@@ -645,10 +650,20 @@ def _no_llm_notice(reason: str, facts: list[dict], evidence: list[dict],
         "no_key": ("답변 생성 모델이 설정되지 않았습니다. "
                    "`GEMINI_API_KEY` 를 등록하면 대화형 답변을 받을 수 있습니다. "
                    "아래는 수집된 사실입니다."),
-        "rate_limit": ("등록된 키가 모두 무료 사용 한도에 걸렸습니다. "
+        "rate_limit": ("등록된 키가 모두 **분당 호출 한도**에 걸렸습니다. "
                        "**1~2분 뒤 다시 물어보시면 정상 동작합니다.** "
                        "예비 키를 `GEMINI_API_KEY_2` 로 등록해 두면 자동으로 넘어갑니다. "
                        "아래는 수집된 사실입니다."),
+        # 무료 등급의 일일 한도는 태평양 자정(한국시간 16시)에 풀린다. 이걸 '잠시 뒤'
+        # 라고 안내하면 하루 종일 기다리게 만든다 — 언제 풀리는지 그대로 말한다.
+        "rate_limit_day": ("등록된 키가 모두 **무료 등급 일일 한도**를 다 썼습니다. "
+                           "일일 한도는 태평양 표준시 자정, 한국시간으로 **오후 4시경**에 "
+                           "초기화됩니다. 그 전에 쓰시려면 결제가 연결된 키를 "
+                           "`GEMINI_API_KEY` 로 등록해 주십시오. 아래는 수집된 사실입니다."),
+        "model_unavailable": ("등록된 키가 지금 설정된 모델을 쓸 수 없습니다 — 이 모델은 "
+                              "키가 속한 프로젝트에 따라 제공되지 않을 수 있습니다. "
+                              "`config.yaml` 의 `llm.model` 을 그 키가 쓸 수 있는 모델로 "
+                              "바꾸거나 다른 키를 등록해 주십시오. 아래는 수집된 사실입니다."),
         "bad_key": ("등록된 키가 인증을 통과하지 못했습니다. 키가 폐기·만료됐거나 값이 "
                     "잘못 복사됐을 수 있습니다. aistudio.google.com/apikey 에서 확인하거나 "
                     "새로 발급해 주십시오. 아래는 수집된 사실입니다."),

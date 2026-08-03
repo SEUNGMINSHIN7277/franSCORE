@@ -48,7 +48,11 @@ def render() -> None:
             # 일이 전혀 다르다 — 전자는 키 등록, 후자는 잠시 기다리기다.
             if turn["role"] == "assistant" and not turn.get("llm_used", True):
                 st.caption({
-                    "rate_limit": "등록된 키가 모두 무료 한도에 걸렸습니다. 1~2분 뒤 다시 물어보세요.",
+                    "rate_limit": "등록된 키가 모두 분당 호출 한도에 걸렸습니다. "
+                                  "1~2분 뒤 다시 물어보세요.",
+                    "rate_limit_day": "등록된 키가 모두 무료 등급 일일 한도를 다 썼습니다. "
+                                      "한국시간 오후 4시경 초기화됩니다.",
+                    "model_unavailable": "등록된 키가 지금 설정된 모델을 쓸 수 없습니다.",
                     "no_key": "답변 생성 모델이 설정되지 않아 수집된 사실만 정리했습니다.",
                     "bad_key": "등록된 키가 Gemini API 키 형식(AIza…)이 아닙니다.",
                     "auth": "등록된 키가 인증을 통과하지 못했습니다.",
