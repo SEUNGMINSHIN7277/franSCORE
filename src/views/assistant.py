@@ -46,6 +46,16 @@ def render() -> None:
                 _evidence_block(turn["evidence"], turn.get("idx", 0))
             # 실패 원인을 정확히 알린다. 키 미설정과 무료 한도 초과는 사용자가 할
             # 일이 전혀 다르다 — 전자는 키 등록, 후자는 잠시 기다리기다.
+            # 대체 모델이 답했다면 **그 사실을 답 옆에** 적는다. 성능을 정량 평가한
+            # 모델은 config 의 llm.model 하나뿐이고, 대체 모델에는 그 근거가 없다.
+            # 조용히 갈아타면 "평가한 모델로 답한다"는 문서가 거짓이 된다.
+            if turn["role"] == "assistant" and turn.get("llm_used") and turn.get("model"):
+                pinned = str(C.cfg()["llm"].get("model", ""))
+                used = str(turn["model"])
+                if pinned and pinned.split("-preview")[0] not in used:
+                    st.caption(f"이 답변은 **{used}** 가 작성했습니다 — 등록된 키가 "
+                               f"평가 모델({pinned})을 쓸 수 없어 대체 모델로 답했습니다. "
+                               f"성능 수치는 평가 모델 기준입니다.")
             if turn["role"] == "assistant" and not turn.get("llm_used", True):
                 st.caption({
                     "rate_limit": "등록된 키가 모두 분당 호출 한도에 걸렸습니다. "
@@ -106,6 +116,7 @@ def _answer(question: str) -> None:
                     "llm_used": bool(res.get("llm_used")),
                     "reason": res.get("reason", ""),
                     "intent": res.get("intent", ""),
+                    "model": res.get("model") or "",
                     "idx": len(history)})
 
 

@@ -272,7 +272,16 @@ def generate(cfg: dict, *, system: str, user: str,
 
     model = model_name(cfg)
     base = str(lcfg.get("api_base") or _DEFAULT_BASE).rstrip("/")
-    url = f"{base}/models/{model}:generateContent"
+    # ⚠️ 평가한 모델(llm_eval.json 을 측정한 그 모델)이 **신규 프로젝트에는 더 이상
+    #    제공되지 않는다.** 실측: 새로 만든 프로젝트의 키는 gemini-2.5-flash 에 404
+    #    ("no longer available to new users"), 같은 키가 gemini-flash-latest 에는 200.
+    #    핀을 풀면 재현성을 잃고(별칭은 시점마다 실체가 바뀐다), 그대로 두면 새 키를
+    #    쓰는 사람은 상담을 아예 못 쓴다. 둘 중 하나를 고르는 대신 **순서를 둔다** —
+    #    평가한 모델을 먼저 시도하고, 등록된 키 전부가 '이 모델 없음'일 때만 내려간다.
+    #    한도 초과·인증 실패로는 내려가지 않는다(그건 모델 문제가 아니다).
+    #    실제로 어느 모델이 답했는지는 meta["model"] 로 올라가고 화면이 밝힌다.
+    models = [model] + [str(m) for m in (lcfg.get("fallback_models") or [])
+                        if str(m) != model]
 
     gen_cfg: dict = {"maxOutputTokens": int(max_tokens or lcfg.get("max_tokens", 8000))}
     if lcfg.get("temperature") is not None:
@@ -306,42 +315,51 @@ def generate(cfg: dict, *, system: str, user: str,
     # ⚠️ 마지막 키에만 `can_switch=False` 를 주던 것도 같은 사고의 일부였다. 그러면
     #    마지막 키의 429/404 가 `LLMFatal` 로 튀어 아래 집계 자체를 건너뛴다.
     last_err: Exception | None = None
-    fails: Counter[str] = Counter()
-    for ki, item in enumerate(inv, 1):
-        key, more = item["key"], ki < len(inv)
-        try:
-            return _generate_one_key(
-                url=url, key=key, body=body, timeout=timeout, model=model,
-                max_retries=max_retries, backoff=backoff,
-                budget=int(gen_cfg["maxOutputTokens"]), can_switch=True)
-        except _SwitchKey as exc:
-            last_err = exc
-            fails[_fail_kind(exc)] += 1
-            log.warning("키 %d/%d (%s) 사용 불가: %s → %s", ki, len(inv), item["env"],
-                        str(exc)[:160], "예비 키로 전환" if more else "남은 키 없음")
-        except LLMFatal as exc:
-            if all_malformed and _is_auth_failure(exc):
-                raise _malformed_key_error(cfg) from exc
-            raise                       # 그 밖의 치명 오류는 요청 자체의 문제 — 키를 바꿔도 같다
-        except LLMError as exc:
-            last_err = exc
-            fails[_fail_kind(exc)] += 1
-            if not more:
-                break
-            log.warning("키 %d/%d (%s) 호출 실패 → 예비 키로 전환: %s",
-                        ki, len(inv), item["env"], str(exc)[:160])
+    for mi, mdl in enumerate(models):
+        url = f"{base}/models/{mdl}:generateContent"
+        last_err = None
+        fails: Counter[str] = Counter()
+        for ki, item in enumerate(inv, 1):
+            key, more = item["key"], ki < len(inv)
+            try:
+                return _generate_one_key(
+                    url=url, key=key, body=body, timeout=timeout, model=mdl,
+                    max_retries=max_retries, backoff=backoff,
+                    budget=int(gen_cfg["maxOutputTokens"]), can_switch=True)
+            except _SwitchKey as exc:
+                last_err = exc
+                fails[_fail_kind(exc)] += 1
+                log.warning("키 %d/%d (%s) 사용 불가: %s → %s", ki, len(inv), item["env"],
+                            str(exc)[:160], "예비 키로 전환" if more else "남은 키 없음")
+            except LLMFatal as exc:
+                if all_malformed and _is_auth_failure(exc):
+                    raise _malformed_key_error(cfg) from exc
+                raise                   # 그 밖의 치명 오류는 요청 자체의 문제 — 키를 바꿔도 같다
+            except LLMError as exc:
+                last_err = exc
+                fails[_fail_kind(exc)] += 1
+                if not more:
+                    break
+                log.warning("키 %d/%d (%s) 호출 실패 → 예비 키로 전환: %s",
+                            ki, len(inv), item["env"], str(exc)[:160])
 
-    if all_malformed and (last_err is None or _is_auth_failure(last_err)):
-        raise _malformed_key_error(cfg) from last_err
-    kind = fails.most_common(1)[0][0] if fails else "error"
-    tally = " · ".join(f"{_FAIL_KR[k]} {n}개" for k, n in fails.most_common())
-    err = LLMError(
-        f"등록된 키 {len(inv)}개가 모두 실패했습니다 — {tally} (model={model}). "
-        f"마지막 오류: {_mask(str(last_err)[:200], inv[0]['key'])}")
-    # 문자열을 다시 파싱해 원인을 알아내게 하지 않는다 — 세어 놓은 결과를 그대로 건넨다.
-    err.reason = kind                                                # type: ignore[attr-defined]
-    err.tally = dict(fails)                                          # type: ignore[attr-defined]
-    raise err from last_err
+        if all_malformed and (last_err is None or _is_auth_failure(last_err)):
+            raise _malformed_key_error(cfg) from last_err
+        kind = fails.most_common(1)[0][0] if fails else "error"
+        tally = " · ".join(f"{_FAIL_KR[k]} {n}개" for k, n in fails.most_common())
+        # 이 모델을 **아무 키도 못 쓰는** 경우에만 다음 모델로 내려간다.
+        if kind == "model_unavailable" and mi < len(models) - 1:
+            log.warning("등록된 키 %d개 전부가 %s 를 쓸 수 없다 → 대체 모델 %s 로 내려간다",
+                        len(inv), mdl, models[mi + 1])
+            continue
+        err = LLMError(
+            f"등록된 키 {len(inv)}개가 모두 실패했습니다 — {tally} (model={mdl}). "
+            f"마지막 오류: {_mask(str(last_err)[:200], inv[0]['key'])}")
+        # 문자열을 다시 파싱해 원인을 알아내게 하지 않는다 — 세어 놓은 결과를 그대로 건넨다.
+        err.reason = kind                                            # type: ignore[attr-defined]
+        err.tally = dict(fails)                                      # type: ignore[attr-defined]
+        raise err from last_err
+    raise LLMError(f"모델 {', '.join(models)} 을 모두 시도했으나 실패했습니다") from last_err
 
 
 # 실패의 종류. 화면 문구가 이 값 하나로 갈리므로 **세는 기준을 한 곳에** 둔다.
