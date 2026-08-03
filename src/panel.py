@@ -123,8 +123,19 @@ def _merge_startup_cost(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     cs["norm_brand"] = cs["brandNm"].map(normalize_name)
     cs["norm_corp"] = cs.get("corpNm").map(normalize_name)
     cs["industry_major"] = cs["indutyLclasNm"].astype(str).str.strip()
-    # 공시연도 → 패널 연도(실적연도) = 공시연도 − 1 : 다른 병합과 동일한 정렬 규칙
-    cs["_yr"] = pd.to_numeric(cs["yr"], errors="coerce") - 1
+    # ⚠️ **`_yr` 은 공시연도 그대로 둔다.** 여기서 한 번 더 빼면 안 된다.
+    #    패널 쪽 `_yr` 은 이미 **공시연도**이고(이 파일 상단 `df["year"] = df["_yr"] - 1`),
+    #    실적연도 변환은 그쪽에서 끝난다. 그런데 이 병합만 `_yr` 을 실적연도로 만들어
+    #    조인하고 있었다 — 같은 이름의 컬럼이 양쪽에서 다른 뜻이었던 것이다.
+    #
+    #    그 결과 **패널 연도 Y 행에 공시 Y+2(=실적 Y+1)의 창업비용**이 붙었다(실측):
+    #      153셀라음악학원 공시2021=48,520 → 패널 2019 에 기록 (정상이라면 패널 2020)
+    #      1943          공시2024=241,000 → 패널 2022 에 기록 (정상이라면 패널 2023)
+    #    그리고 최신 연도(패널 2024)는 짝이 될 공시 2026 이 없어 **100% 결측**이었다.
+    #
+    #    모형은 영향받지 않는다 — features.py 는 startup_* 를 한 번도 쓰지 않는다(실측 0회).
+    #    영향은 ① 진단 소견에 적히는 창업비용 **연도 라벨**, ② 최신 연도 결측이다.
+    cs["_yr"] = pd.to_numeric(cs["yr"], errors="coerce")
     ren = {"jngBzmnJngAmt": "startup_fee", "jngBzmnEduAmt": "startup_edu",
            "jngBzmnAssrncAmt": "startup_deposit", "jngBzmnEtcAmt": "startup_etc",
            "smtnAmt": "startup_total"}

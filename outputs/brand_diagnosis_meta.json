@@ -1,7 +1,7 @@
 {
   "year": 2024,
   "n_brands": 1442,
-  "n_findings": 9371,
+  "n_findings": 9370,
   "avg_findings_per_brand": 6.5,
   "distinct_headlines": 41,
   "distinct_finding_sets": 1081,
@@ -23,7 +23,7 @@
     "STORE_GROWTH": 292,
     "DEMAND_DECLINE": 210,
     "REGION_SHRINK": 203,
-    "STARTUP_COST_HIGH": 185,
+    "STARTUP_COST_HIGH": 184,
     "NEW_OPEN_STALL": 142,
     "DEMAND_UNDERPERFORM": 112,
     "HQ_SOLID": 104,
