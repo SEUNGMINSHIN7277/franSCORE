@@ -21,3 +21,36 @@ data/raw/ifrmp/content/
 
 # 로고 색인 저장 직전 백업 (repair_logos.py 가 만든다)
 data/raw/naver/logos.json.bak
+
+# --- auto-added by push_all_projects.ps1 ---
+node_modules/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.toml
+.streamlit/secrets.toml
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+dist/
+build/
+.next/
+.turbo/
+.wrangler/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.joblib
+*.pkl
+*.zip
+*.7z
+.idea/
+.vs/
+bin/
+obj/
